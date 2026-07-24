@@ -33,8 +33,8 @@ Selon le contexte du projet :
 ## Design system gate
 
 Avant de générer du HTML ou des classes CSS :
-- Lire `design/components.json` — n'utiliser QUE les classes et tokens déclarés.
-- Toute classe non déclarée dans le manifeste est une violation ; STOP avant de générer.
+- Lire `design/components.json` (classes) et `design/tokens.json` (valeurs) — n'utiliser QUE ce qui y est déclaré.
+- Toute classe non déclarée dans `components.json` est une violation ; STOP avant de générer.
 - Pour ajouter une classe : d'abord re-figer via `/design:adjust`, puis re-jouer `/design:enforce`.
 ```
 
@@ -42,20 +42,7 @@ Avant de générer du HTML ou des classes CSS :
 
 ### Étape 4 — Câbler Gate 2 (success_condition)
 
-Pour chaque plan aidd-dev actif ou à créer qui touche du HTML, ajouter dans son frontmatter :
-
-```yaml
-success_condition: >
-  node design/lint/lint-core.mjs <cibles>.html exits 0
-```
-
-Pour un plan multi-cibles :
-
-```yaml
-success_condition: >
-  node design/lint/lint-core.mjs design/wireframes/hero.html exits 0
-  AND node design/lint/lint-core.mjs design/wireframes/contact.html exits 0
-```
+Pour chaque plan aidd-dev actif ou à créer qui touche du markup, ajouter dans son frontmatter la condition mono- ou multi-cibles de `gate-wiring.md § Gate 2`. Une cible par invocation : le linter scanne un fichier à la fois.
 
 ### Étape 5 — Câbler Gate 3 (pre-commit)
 

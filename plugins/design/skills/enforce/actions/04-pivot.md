@@ -34,13 +34,13 @@ Si le plugin sc-php ou sc-js n'est pas installé dans la session → dégradatio
 
 ## Étape 3a — Si réceptacle disponible : émettre le spec
 
-Construire le spec d'enforcement depuis `design/components.json` + `design/tokens.json` selon le format de `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md § Spec d'enforcement` :
+Construire le spec d'enforcement depuis `design/components.json` + `design/tokens.json` + `design/policies.json` selon le format de `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md § Spec d'enforcement` :
 
 ```
 ## Design enforcement spec
 
-Source: design/tokens.json + design/components.json
-Version: <manifest.$version>
+Source: design/tokens.json + design/components.json + design/policies.json
+Version: <release.json § designSystem.version>
 
 ### Valid class sets
 Base classes: <liste des comp.base>
@@ -81,4 +81,4 @@ La baseline reste active et fonctionnelle — ce n'est pas une erreur.
 
 **Sans pivot** :
 > Baseline lint-core.mjs active. Aucun sc-<techno> disponible pour <langage>.
-> Gate : `node design/lint/lint-core.mjs <cible> exits 0`.
+> Gate : `node design/lint/lint-core.mjs <cible> --contract design exits 0`.

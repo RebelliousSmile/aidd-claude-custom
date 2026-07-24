@@ -101,5 +101,5 @@ Pistes : corriger d'abord la taille de corps et le contraste de titres — ces d
 
 ## Coût contrat (à attacher à chaque piste, mode standalone figé)
 
-- **Rentre dans le contrat** — réalisable avec le vocabulaire fermé actuel (manifeste + tokens en place).
+- **Rentre dans le contrat** — réalisable avec le vocabulaire du contrat actuel (manifeste + tokens en place).
 - **Demande un re-figeage** — changerait un token canonique ou le manifeste → passe par `adjust`, puis réconciliation par `enforce`.

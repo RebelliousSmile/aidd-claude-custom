@@ -296,7 +296,7 @@ Part 1's theme overlays (§ Modes / themes) are carried by this same `.cjs` part
 
 ## Liaison tokens canoniques ↔ manifeste composants
 
-Après `adjust`, `tokens.json` (couche 1) et `components.json` (couche 2) forment un système cohérent. Les points de liaison :
+Après `adjust`, `tokens.json` (valeurs) et `components.json` (anatomie) forment un système cohérent. Les points de liaison :
 
 ### Backgrounds autorisés
 
@@ -308,11 +308,11 @@ Le champ `.backgrounds` d'un composant dans `components.json` référence des **
 }
 ```
 
-Le chemin `color.semantic.background` doit exister dans `tokens.json` sous `color.semantic.background.$value`. `enforce` valide ce lien ; un chemin mort est une violation `error`.
+Le chemin `color.semantic.background` doit exister dans `tokens.json` sous `color.semantic.background.$value`. Ce lien est vérifié **au figeage** par `adjust/02-freeze.md § Étape 2 Règle 3` ; un chemin mort y bloque le figeage. `lint-core.mjs` ne le revérifie pas : `.backgrounds` est inerte pour les cinq règles du linter.
 
 ### Tokens sémantiques = le pont
 
-Les tokens sémantiques (`color.semantic.*`) sont le pont entre couche 1 et couche 2. Ils doivent être résolus (alias vers un token de ramp) dans `tokens.json` pour que le lint de fond soit vérifiable statiquement :
+Les tokens sémantiques (`color.semantic.*`) sont le pont entre `tokens.json` et `components.json`. Ils doivent être résolus (alias vers un token de ramp) dans `tokens.json` pour que la vérification de `.backgrounds` au figeage porte sur un chemin réel :
 
 ```json
 "color": {
@@ -325,14 +325,16 @@ Les tokens sémantiques (`color.semantic.*`) sont le pont entre couche 1 et couc
 
 ### Tokens de fond autorisés pour les composants sombres
 
-Pour les variantes sombres (ex. `hero--dark`) dont `.backgrounds` liste un token foncé (ex. `color.neutral.900`), `enforce` vérifie que le contraste texte/fond satisfait WCAG AA. Le token de couleur de texte candidat est `color.semantic.text` (ou sa valeur calculée).
+Pour les variantes sombres (ex. `hero--dark`) dont `.backgrounds` liste un token foncé (ex. `color.neutral.900`), le contraste texte/fond attendu se calcule contre `color.semantic.text` (ou sa valeur résolue).
+
+> **Gap déclaré.** Aucun outil du plugin ne mesure ce contraste : ni `lint-core.mjs`, ni `adjust`, ni l'oracle de fidélité. La conformité WCAG d'un contrat figé est **non établie** ; elle relève d'une vérification externe.
 
 ### Ce que `adjust` fait lors du figeage
 
 1. Audite les groupes requis de `tokens.json` (tous les groupes de la table ci-dessus doivent exister).
 2. Déduplique les tokens redondants (valeurs identiques sur des chemins différents → alias l'un vers l'autre).
 3. Pour chaque composant de `components.json`, vérifie que tous les chemins de `.backgrounds` existent dans `tokens.json`.
-4. Bumpe `$version` dans les deux fichiers en cohérence.
+4. Déclare la version de chaque artefact dans `release.json` ; les versions sont indépendantes et un écart est une donnée, pas une violation.
 
 ## Invariants
 

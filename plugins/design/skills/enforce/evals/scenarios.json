@@ -6,6 +6,8 @@
   { "prompt": "il y a des classes non déclarées sur les pages, corriger et propager", "expect_action": "lint-instances" },
   { "prompt": "le projet est PHP, utilise ESLint si possible", "expect_action": "pivot" },
   { "prompt": "enforce sur un projet sans sc-php ni sc-js", "expect_action": "build+wire" },
+  { "prompt": "le lint sort en 3 et dit contract in the 1.x format", "expect_action": null },
+  { "prompt": "le contrat n'a pas de release.json, le gate ne passe plus", "expect_action": null },
   { "prompt": "fige le contrat et écris le manifeste", "expect_action": null },
   { "prompt": "génère les block patterns WordPress", "expect_action": null },
   { "prompt": "challenge la direction visuelle", "expect_action": null },

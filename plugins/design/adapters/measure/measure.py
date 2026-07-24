@@ -7,7 +7,7 @@ Two modes:
   B (default) — diff a mockup page against a target render (mockup<->target).
   A           — extract computed styles from a single side (seed a greenfield contract).
 
-The mockup may be an SPA exposing window.setPage()/window.setViewport() (mauceri v2);
+The mockup may be an SPA exposing window.setPage()/window.setViewport();
 those hooks are called when present. Output is a per-breakpoint JSON report written
 in UTF-8 (avoids console encoding loss); a short summary is printed to stdout.
 

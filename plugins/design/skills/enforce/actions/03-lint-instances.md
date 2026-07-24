@@ -27,12 +27,12 @@ réimport — seulement lint → corriger → re-lint sur le code source.
 
 ### Stack utility-first (Tailwind/Vue/React)
 
-Quand `components.json § mode` est `utility-first` (ou auto-détecté ainsi — `components` vide/absent), les instances à linter ne sont **pas** des wireframes HTML mais les fichiers composants du projet. Les cibles doivent couvrir `**/*.{vue,jsx,tsx,html}`, pas seulement le HTML :
+Quand `policies.json § mode` est `utility-first`, les instances à linter ne sont **pas** des wireframes HTML mais les fichiers composants du projet. Les cibles doivent couvrir `**/*.{vue,jsx,tsx,html}`, pas seulement le HTML :
 
 ```bash
 # Linter tous les composants (mode utility-first) — raw-hex + namespaces de couleur
 find src -type f \( -name '*.vue' -o -name '*.jsx' -o -name '*.tsx' -o -name '*.html' \) \
-  -exec node design/lint/lint-core.mjs {} \;
+  -exec node design/lint/lint-core.mjs {} --contract design \;
 ```
 
 Dans ce mode, `lint-core.mjs` n'exécute jamais la règle de vocabulaire BEM (aucune classe BEM n'existe dans le code) — la boucle corriger→propager→re-lint porte sur les violations `usage` (couleur hex brute, namespace de couleur hors contrat), pas sur des classes composant inconnues.
@@ -43,7 +43,7 @@ Pour les templates HTML/PHP/Twig/Nunjucks non-WP en mode `bem` :
 
 ```bash
 # Linter tous les templates
-find src/templates -name '*.html' | xargs -I{} node design/lint/lint-core.mjs {}
+find src/templates -name '*.html' | xargs -I{} node design/lint/lint-core.mjs {} --contract design
 ```
 
 ## Track: WP-maquette
@@ -63,7 +63,7 @@ pnpm dlx @wordpress/env run cli wp post get <ID> --field=post_content --format=j
 **2. Linter l'export :**
 
 ```bash
-node design/lint/lint-core.mjs /tmp/post-<ID>.html
+node design/lint/lint-core.mjs /tmp/post-<ID>.html --contract design
 ```
 
 **3. Corriger** : modifier le contenu (Gutenberg ou script PHP) pour n'utiliser que les classes du manifeste.

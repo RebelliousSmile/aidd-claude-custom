@@ -1,0 +1,37 @@
+{
+  "$schema": "design/references/contract-schema#release",
+  "$format": "2.0",
+  "designSystem": {
+    "version": "1.0.0"
+  },
+  "artifacts": {
+    "tokens.json": {
+      "version": "1.0.0",
+      "sourceHash": "sha256:e7f80bd9bb2d36e80ad55551f84470ae38e1a8d22d935c4b185e2f3160f8be9d"
+    },
+    "components.json": {
+      "version": "1.0.0",
+      "sourceHash": "sha256:70309d1254c557ee612eb3e41f02a966fdea40bf62e572d655f8f5abbb519700"
+    },
+    "policies.json": {
+      "version": "1.0.0",
+      "sourceHash": "sha256:70309d1254c557ee612eb3e41f02a966fdea40bf62e572d655f8f5abbb519700"
+    },
+    "oracle.json": {
+      "version": "1.0.0",
+      "sourceHash": "sha256:70309d1254c557ee612eb3e41f02a966fdea40bf62e572d655f8f5abbb519700"
+    }
+  },
+  "charter": {
+    "present": false,
+    "path": "design-system.md",
+    "version": null
+  },
+  "provenance": {
+    "producedBy": "migrate-contract.py",
+    "producedAt": "2026-07-24T00:00:00+00:00",
+    "from": "1.x contract"
+  },
+  "checks": null,
+  "status": "extracted"
+}

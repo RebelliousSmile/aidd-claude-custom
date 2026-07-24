@@ -29,7 +29,7 @@ Construire le spec de rendu depuis la spec neutre, selon le format de `${CLAUDE_
 ## Design render spec
 
 Source: design/tokens.json + design/components.json
-Version: <manifest.$version>
+Version: <release.json § designSystem.version>
 
 ### Component to render
 Name: <canonical-name>

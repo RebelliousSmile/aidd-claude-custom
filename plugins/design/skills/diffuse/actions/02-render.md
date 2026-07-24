@@ -31,9 +31,9 @@ Appliquer l'adaptateur sélectionné (voir `${CLAUDE_PLUGIN_ROOT}/skills/diffuse
 Après avoir produit le rendu, exécuter le lint :
 
 ```bash
-node design/lint/lint-core.mjs <fichier-rendu>.html
+node design/lint/lint-core.mjs <fichier-rendu>.html --contract design
 # ou depuis le plugin source :
-node plugins/design/skills/enforce/adapters/lint-core.mjs <fichier-rendu>.html
+node plugins/design/skills/enforce/adapters/lint-core.mjs <fichier-rendu>.html --contract design
 ```
 
 ### Si exit 0 (gate vert) → clôturer

@@ -1,6 +1,5 @@
 {
-  "$schema": "design/references/manifest-schema#",
-  "$version": "1.0.0",
+  "$schema": "design/references/contract-schema#components",
   "components": {
     "surface": {
       "base": "surface",
@@ -8,8 +7,14 @@
         "body": "surface__body"
       },
       "modifiers": {},
-      "backgrounds": ["color.semantic.background", "color.brand.primary"],
-      "a11y": { "role": "region", "requires": [] }
+      "backgrounds": [
+        "color.semantic.background",
+        "color.brand.primary"
+      ],
+      "a11y": {
+        "role": "region",
+        "requires": []
+      }
     }
   }
 }

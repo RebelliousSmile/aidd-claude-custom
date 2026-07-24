@@ -19,10 +19,10 @@ Le design garde le **QUOI** (le contrat : tokens + manifeste = autorité). Les `
 ```
 ## Design enforcement spec
 
-Source: design/tokens.json + design/components.json
-Version: <$version du manifest>
+Source: design/tokens.json + design/components.json + design/policies.json
+Version: <release.json § designSystem.version>
 Themes: [liste plate des thèmes nommés déclarés sous `tokens.json` § `themes`, ex. default, dark, grimoire — vide si aucun `themes` overlay]
-Mode: <bem | utility-first> (design/components.json § mode, explicite ou auto-détecté)
+Mode: <bem | utility-first> (design/policies.json § mode — toujours déclaré, jamais déduit)
 
 ### Valid class sets (mode bem)
 Base classes: [liste des .base]
@@ -35,7 +35,7 @@ All token paths: [liste des chemins de tokens.json aplatis]
 [Par composant avec .a11y.requires non vide]
 - <component>: role=<role>, requires=[<attr>, ...]
 
-### Token-usage rules (mode utility-first — design/components.json § usage)
+### Token-usage rules (mode utility-first — design/policies.json § usage)
 Raw hex forbidden: <true|false> (usage.rawHexForbidden)
 Colour utility prefixes: [usage.colorUtilityPrefixes, ex. bg, text, border, ring]
 Allowed colour namespaces: [clés top-level de tokens.json § color.*, ex. brand, neutral, semantic]
@@ -70,7 +70,7 @@ Retourne : le linter installé dans le projet + les instructions de câblage dan
 ## Design render spec
 
 Source: design/tokens.json + design/components.json
-Version: <$version du manifest>
+Version: <release.json § designSystem.version>
 Themes: [liste plate des thèmes nommés déclarés sous `tokens.json` § `themes`, ex. default, dark, grimoire — vide si aucun `themes` overlay]
 
 ### Component to render

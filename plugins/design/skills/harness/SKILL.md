@@ -133,7 +133,7 @@ Le HTML retourné est injecté dans `#page-container`. **Ne pas** inclure `<html
 
 - Harness ne remplit pas les pages (→ LLM guidé par le prompt en tête du fichier généré).
 - Harness ne mesure pas la fidélité (→ `enforce/05-fidelity-gate` + `adapters/measure/measure.py`).
-- Harness ne modifie pas le contrat tokens/components (→ `adjust`).
+- Harness ne modifie aucun artefact du contrat (→ `adjust`).
 
 ## Références
 

@@ -17,7 +17,7 @@ pnpm dlx @wordpress/env run cli wp post get <ID> \
   > /tmp/post-<ID>.html
 
 # Linter l'export
-node design/lint/lint-core.mjs /tmp/post-<ID>.html
+node design/lint/lint-core.mjs /tmp/post-<ID>.html --contract design
 ```
 
 ## Lister les pages publiées pour audit systématique
@@ -48,7 +48,7 @@ pnpm dlx @wordpress/env run cli wp post get <ID> \
   --field=post_content > /tmp/pattern-<ID>.html
 
 # Linter
-node design/lint/lint-core.mjs /tmp/pattern-<ID>.html
+node design/lint/lint-core.mjs /tmp/pattern-<ID>.html --contract design
 ```
 
 **Après correction d'un block pattern**, réimporter via le script d'import dédié du projet (ex. `tools/import/`). Ne jamais corriger uniquement en DB sans mettre à jour la source — la source fait foi.

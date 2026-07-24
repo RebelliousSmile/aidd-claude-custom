@@ -44,15 +44,17 @@ Avant de générer tout élément HTML ou block pattern :
 
 ```yaml
 success_condition: >
-  node design/lint/lint-core.mjs <cible>.html exits 0
+  node design/lint/lint-core.mjs <cible>.html --contract design exits 0
 ```
+
+`--contract` prend le **répertoire du contrat** (celui qui porte `release.json`). Toujours le fournir : deviné, il n'est retenu que s'il est le seul de son arbre, sinon l'outil sort en 2. Le même répertoire est aussi accepté en second positionnel, forme conservée pour les hooks déjà installés.
 
 **Exemple concret** :
 
 ```yaml
 success_condition: >
-  node design/lint/lint-core.mjs design/wireframes/hero.html exits 0
-  AND node design/lint/lint-core.mjs design/wireframes/contact.html exits 0
+  node design/lint/lint-core.mjs design/wireframes/hero.html --contract design exits 0
+  AND node design/lint/lint-core.mjs design/wireframes/contact.html --contract design exits 0
 ```
 
 Le plan est bloqué (statut `blocked`) tant que le gate est rouge. C'est la même mécanique que les tests unitaires dans un plan d'implémentation.
@@ -83,7 +85,7 @@ fi
 echo "[design lint] Checking staged component files..."
 FAIL=0
 for f in $CHANGED_MARKUP; do
-  node design/lint/lint-core.mjs "$f" || FAIL=1
+  node design/lint/lint-core.mjs "$f" --contract design || FAIL=1
 done
 
 if [ "$FAIL" = "1" ]; then

@@ -35,7 +35,7 @@ Each deviation is one entry. `id` is stable and referenced from `components.json
 
 - date:          2026-06-15
 - component:     c.hero-lede
-- selector(s):   .page-hero__lede ↔ .mau-section--hero p.has-md-font-size
+- selector(s):   .page-hero__lede ↔ .hero__lede
 - breakpoint:    mobile
 - mockup value:  fontSize = 16px
 - contract value:fontSize = 17px (clamp from the shared body scale)
@@ -43,7 +43,7 @@ Each deviation is one entry. `id` is stable and referenced from `components.json
                  body token (clamp 16→19px) removes a one-off breakpoint override and
                  keeps every lede on one scale. +1px at 375 is below perceptual threshold.
 - gate evidence: fidelity gate, mobile, lede fontSize delta +1px, no other prop affected.
-- approver:      FX
+- approver:      <name>
 ```
 
 ## Index (optional quick scan)

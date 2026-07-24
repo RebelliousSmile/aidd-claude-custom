@@ -136,14 +136,15 @@ def _dot_selector(cls: str) -> str:
 
 def _derive_targets_and_collections(
     components: dict,
+    oracle_hints: dict,
 ) -> tuple[list[dict], list[dict]]:
-    """Dérive targets et collections depuis le manifeste + hints oracle."""
+    """Dérive targets et collections depuis components.json + les hints de oracle.json."""
     targets: list[dict] = []
     collections: list[dict] = []
 
     for comp_name, comp in components.get("components", {}).items():
         base = comp.get("base", comp_name)
-        oracle = comp.get("oracle", {})
+        oracle = oracle_hints.get(comp_name, {})
         oracle_elems = oracle.get("elements", {})
 
         # Target racine du composant (élément de layout — pas de check_text par défaut)
@@ -186,13 +187,22 @@ def generate(
     maquette_url: str,
     wp_url: str,
     page: str | None = None,
+    oracle_path: str | None = None,
 ) -> dict:
     components = json.loads(Path(components_path).read_text(encoding="utf-8"))
     tokens = json.loads(Path(tokens_path).read_text(encoding="utf-8"))
 
+    # Les hints de mesure vivent dans oracle.json, artefact frère de components.json
+    # (cf. references/contract-schema.md). Par défaut, le frère du manifeste ; absent,
+    # les targets se dérivent de la seule anatomie, sans check_text ni collections.
+    oracle_file = Path(oracle_path) if oracle_path else Path(components_path).with_name("oracle.json")
+    oracle_hints: dict = {}
+    if oracle_file.is_file():
+        oracle_hints = json.loads(oracle_file.read_text(encoding="utf-8")).get("components", {})
+
     props = _derive_props(tokens)
     breakpoints = _derive_breakpoints(tokens)
-    targets, collections = _derive_targets_and_collections(components)
+    targets, collections = _derive_targets_and_collections(components, oracle_hints)
 
     cfg: dict = {
         "_generated_by": "config-gen.py — review selectors before use",
@@ -212,12 +222,14 @@ def generate(
 
 def main():
     ap = argparse.ArgumentParser(
-        description="Génère un config measure.py depuis le contrat design system (components.json + tokens.json)."
+        description="Génère un config measure.py depuis le contrat design system (components.json + tokens.json + oracle.json)."
     )
     ap.add_argument("--components", required=True,
                     help="Chemin vers design/components.json")
     ap.add_argument("--tokens", required=True,
                     help="Chemin vers design/tokens.json")
+    ap.add_argument("--oracle", default=None,
+                    help="Chemin vers design/oracle.json (défaut : frère de --components)")
     ap.add_argument("--maquette-url", required=True, dest="maquette_url",
                     help="URL de la maquette de référence (servie en HTTP)")
     ap.add_argument("--wp-url", required=True, dest="wp_url",
@@ -229,7 +241,7 @@ def main():
     args = ap.parse_args()
 
     cfg = generate(args.components, args.tokens,
-                   args.maquette_url, args.wp_url, args.page)
+                   args.maquette_url, args.wp_url, args.page, args.oracle)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

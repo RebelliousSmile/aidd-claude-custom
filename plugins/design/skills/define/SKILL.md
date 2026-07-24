@@ -7,7 +7,8 @@ description: >-
   charte brouillon. Source unique d'entrée — soit l'EXTRACTION de maquettes existantes (capture/screenshot/
   URL/Figma/CSS), soit la CONSTRUCTION depuis un brief écrit (positionnement, user story, pas de visuel).
   Unifie les anciennes from-reference + from-brief. Produit design/tokens.json + design/design-system.md
-  (brouillon, NON figé) + adapters. N'écrit JAMAIS de manifeste (components.json) : le figeage est le rôle
+  (brouillon, NON figé) + adapters. N'écrit JAMAIS d'artefact du contrat (components.json, policies.json,
+  oracle.json) ni sa racine release.json : le figeage est le rôle
   de adjust (verbe 3). Ne challenge pas la direction — c'est destructure ; ne vérifie pas une page — c'est enforce.
 ---
 
@@ -48,7 +49,7 @@ Si la source est ambiguë (un brief mentionnant un visuel sans le fournir), `int
 ## Transversal rules
 
 - Lire le contrat AVANT d'écrire : `${CLAUDE_PLUGIN_ROOT}/references/design-system-contract.md` et `${CLAUDE_PLUGIN_ROOT}/references/token-schema.md`.
-- **Ne JAMAIS écrire de manifeste** (`design/components.json`). Le manifeste est le vocabulaire fermé produit par `adjust`. Ici, l'inventaire de composants est écrit en **prose candidate** dans la section "Component inventory" de `design-system.md` — explicitement malléable et distinct du manifeste JSON figé.
+- **Ne JAMAIS écrire d'artefact du contrat** (`design/components.json`, `policies.json`, `oracle.json`) ni sa racine `design/release.json`. Ils sont produits par `adjust`. Ici, l'inventaire de composants est écrit en **prose candidate** dans la section "Component inventory" de `design-system.md` — explicitement malléable et distinct du manifeste JSON figé.
 - La charte produite porte la mention **"brouillon / non figé"** : `define` n'arbitre pas et ne canonise pas.
 - Identifier le **core trio d'abord, vite** — ancre de palette · type · jeu d'icônes — et le **présenter avant** de dériver le token set complet. Ce n'est pas un arrêt bloquant : poursuivre sauf objection, mais l'annoncer explicitement (« je pars sur X/Y/Z, dis-moi si ça cloche ») pour que la correction reste bon marché tant que la matière est malléable. Ne pas prétendre attendre une approbation qu'on n'attend pas.
 - Référencer, ne pas inventer : chaque token trace à une observation (extraction) ou à un attribut du brief (construction). Tout le reste va en § Open questions.

@@ -21,9 +21,9 @@ Le **challenge côté design**. Là où `aidd-refine:02-challenge` rethink un pl
 Deux usages, une seule mécanique :
 
 - **Mode entonnoir** — sur la sortie de `define` (matière malléable encore non figée). On critique la direction avant de la figer.
-- **Mode standalone** — sur un élément existant isolé (un composant, une page, un token set déjà en place). « Comment cet élément pourrait-il évoluer ? » Sur un projet déjà figé, l'action LIT le manifeste et la charte en vigueur pour situer ses pistes contre le vocabulaire fermé existant.
+- **Mode standalone** — sur un élément existant isolé (un composant, une page, un token set déjà en place). « Comment cet élément pourrait-il évoluer ? » Sur un projet déjà figé, l'action LIT le manifeste et la charte en vigueur pour situer ses pistes contre le vocabulaire du contrat existant.
 
-**Lecture seule sur le contrat.** `destructure` ne propose que des pistes et n'édite jamais `tokens.json`, `components.json` ni `design-system.md` — mais il persiste par défaut son propre rapport de critique sous `design/critique/` (chemin non-contractuel, opt-out `--no-write`). L'application d'une piste reste le travail d'`adjust` (ou d'un nouveau cycle `define`).
+**Lecture seule sur le contrat.** `destructure` ne propose que des pistes et n'édite jamais un artefact du contrat, sa racine `release.json` ni `design-system.md` — mais il persiste par défaut son propre rapport de critique sous `design/critique/` (chemin non-contractuel, opt-out `--no-write`). L'application d'une piste reste le travail d'`adjust` (ou d'un nouveau cycle `define`).
 
 ## Available actions
 
@@ -43,9 +43,9 @@ Trigger-to-action mapping :
 
 ## Transversal rules
 
-- **Lecture seule sur le contrat gelé et le code source.** `destructure` n'édite jamais `tokens.json`, `components.json`, `design-system.md` ni le code source — mais il persiste par défaut son propre rapport de critique sous `design/critique/<yyyy_mm_dd>-<cible>.md` (chemin non-contractuel ; opt-out `--no-write` / "ne sauvegarde pas" pour rester conversationnel). Le principe de lecture seule ne s'applique qu'au contrat gelé et au code source — jamais au rapport de critique lui-même.
+- **Lecture seule sur le contrat gelé et le code source.** `destructure` n'édite jamais un artefact du contrat, `release.json`, `design-system.md` ni le code source — mais il persiste par défaut son propre rapport de critique sous `design/critique/<yyyy_mm_dd>-<cible>.md` (chemin non-contractuel ; opt-out `--no-write` / "ne sauvegarde pas" pour rester conversationnel). Le principe de lecture seule ne s'applique qu'au contrat gelé et au code source — jamais au rapport de critique lui-même.
 - Chaque piste doit être **actionnable** et concrète — jamais « améliore le contraste » ou « rends-le plus moderne ». Utiliser les lentilles de `references/critique-lenses.md` pour forcer la précision.
-- En mode standalone sur un projet figé, **lire d'abord** `design/components.json` (manifeste) et `design/design-system.md` (charte) s'ils existent, pour situer chaque piste contre le vocabulaire fermé en vigueur — distinguer ce qui rentre dans le contrat actuel de ce qui demanderait un re-figeage par `adjust`.
+- En mode standalone sur un projet figé, **lire d'abord** `design/release.json` et les artefacts qu'il déclare, plus `design/design-system.md` (charte) s'il existe, pour situer chaque piste contre le vocabulaire du contrat en vigueur — distinguer ce qui rentre dans le contrat actuel de ce qui demanderait un re-figeage par `adjust`.
 - **Diverger, pas trancher** : proposer 2–4 pistes contrastées par axe critiqué, pas une seule "bonne" réponse. L'arbitrage est le rôle d'`adjust`.
 - Classer les trouvailles (générique / incohérent / risque a11y / risque UX / occasion manquée) et donner un **score** de distinction de la direction.
 - Signaler l'emoji-comme-icône explicitement (smell bloquant) et proposer le jeu d'icônes de remplacement.

@@ -2,7 +2,7 @@
 name: diffuse
 description: >
   Produit les éléments de design répétables que le LLM réutilise sans refaire la création
-  graphique. Définit l'élément en forme NEUTRE (consomme le manifeste, vocabulaire fermé),
+  graphique. Définit l'élément en forme NEUTRE (consomme le manifeste, vocabulaire du contrat),
   puis rend en HYBRIDE : (1) BASELINE adaptateur interne HTML+CSS (universel, sans pivot) ;
   (2) PIVOT technique vers sc-<techno>:design-bridge quand présent, pour un rendu natif
   idiomatique (block pattern WP via sc-php, composant Vue/React via sc-js).
@@ -55,7 +55,7 @@ define → destructure → adjust (figé) → enforce (gate) → diffuse (PRODUC
 
 ```
 diffuse
-  ├── 01-define-element → spec neutre (vocabulaire fermé)
+  ├── 01-define-element → spec neutre (vocabulaire du contrat)
   │
   └── 02-render
         ├── Sélectionne l'adaptateur

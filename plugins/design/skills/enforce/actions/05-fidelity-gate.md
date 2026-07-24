@@ -15,30 +15,12 @@ l'oracle déterministe (`adapters/measure/`) **par breakpoint**, on lit le regis
 pour distinguer un écart sanctionné d'une dérive, puis on déroule la boucle
 **mesurer → corriger à la source → re-mesurer** jusqu'à delta 0 (ou écart ledgeré).
 
-C'est le **second gate**, de nature différente du lint vocabulaire.
-
-## Pourquoi c'est nécessaire — deux natures de gate
-
-Le lint vocabulaire (`lint-core.mjs`, Gates 1-3) vérifie que le **vocabulaire fermé** est
-respecté (chaque valeur = un token, chaque classe ∈ `components.json`). Il est **aveugle au
-rendu calculé** : on peut être **lint-vert et visuellement faux** —
-- le bon token existe et est « utilisé », mais le markup applique le **mauvais** token ;
-- une cascade / spécificité fait diverger la valeur **calculée** de l'intention ;
-- aucune réduction mobile alors que la maquette en prévoit une.
-
-D'où **deux références complémentaires**, deux gates qui doivent être verts ensemble :
-
-| Gate | Oracle | Référence | Question |
-|------|--------|-----------|----------|
-| Vocabulaire (Gates 1-3) | `lint-core.mjs` (Node) | `components.json` / `tokens.json` | le vocabulaire fermé est-il respecté ? |
-| **Fidélité (ce gate)** | `measure.py` getComputedStyle (Python) | l'intention visuelle résolue (maquette arbitrée par `adjust`) | le rendu calculé colle-t-il à la cible ? |
-
-Le lint reste la référence **interne** (cohérence vocabulaire) ; la fidélité est la référence
-**externe** (fidélité à l'intention). Aucun des deux ne remplace l'autre.
+C'est le **second gate**, de nature différente du lint vocabulaire : ce que chacun établit et
+n'établit pas est énoncé une seule fois dans `${CLAUDE_PLUGIN_ROOT}/references/gate-natures.md`.
 
 ## Prérequis
 
-- Contrat figé (`tokens.json` + `components.json`) — produit par `adjust`.
+- Contrat figé (`release.json` et les artefacts qu'il déclare) — produit par `adjust`.
 - La référence visuelle résolue servie en HTTP (la maquette arbitrée).
 - L'oracle installé : `${CLAUDE_PLUGIN_ROOT}/adapters/measure/` (voir son README ; `python -m playwright install chromium`).
   Sous OD-1 le chemin Python est validé ; à défaut, mesure MCP en interactif — mais **le gate
@@ -62,7 +44,7 @@ Le lint reste la référence **interne** (cohérence vocabulaire) ; la fidélit�
    composant dans `components.json`) est **sanctionné** → ne fait pas échouer le gate. **Sans
    entrée → dérive → corriger** (défaut : rendu strictement identique).
 4. **Corriger à la bonne couche**, jamais en patch local : valeur → token ; mauvais token → markup ;
-   règle de composant → CSS `mau-*`/composant + manifeste. La **réalisation stack-spécifique** passe
+   règle de composant → CSS du composant + `components.json`. La **réalisation stack-spécifique** passe
    par le pivot (`sc-php:design-bridge` / `sc-js:design-bridge`, cf. `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md`) —
    pour WordPress : patterns, `render.php`/markup FSE, presets `theme.json`, lint DB via le CLI conteneur.
    **Corriger la source + réimporter, jamais la DB seule** — et pas seulement pour les patterns : tout
@@ -124,7 +106,7 @@ pas de visuel, un système de tokens dérivé de l'intention écrite) n'a, par c
 référence externe à comparer** : il n'y a rien à mesurer, donc l'oracle de fidélité **ne
 s'applique pas par nature** à ce chemin.
 
-- **Profil de gate pour ce cas** : vocabulaire seul (`lint-core.mjs`, Gates 1-3) + bonnes
+- **Profil de gate pour ce cas** : vocabulaire seul (`lint-core.mjs`) + bonnes
   pratiques visuelles (contraste WCAG, réduction mobile, cohérence des échelles — jugées en
   revue humaine, pas par un oracle automatisable). Pas de second gate mesuré.
 - Ceci n'est **pas** un oubli du contrat : c'est la même règle que la note app-JS-modern

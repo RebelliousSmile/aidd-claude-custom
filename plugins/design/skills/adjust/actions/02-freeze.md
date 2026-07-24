@@ -4,8 +4,11 @@
 
 Figer le contrat. Prend le brief d'arbitrage produit par `01-arbitrate` et :
 1. Canonise `design/tokens.json` (déduplique, vérifie les groupes requis).
-2. Écrit `design/components.json` conforme à `${CLAUDE_PLUGIN_ROOT}/skills/adjust/references/manifest-schema.md`.
+2. Écrit les artefacts dérivés — `components.json`, `policies.json`, et `oracle.json` seulement si le brief produit des cibles de mesure — conformes à `${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md`.
 3. Marque `design/design-system.md` comme figé et bumpe la version.
+4. Écrit la racine `design/release.json` : versions par artefact, empreintes, provenance, statut.
+
+Un contrat encore en 1.x se migre d'abord par `03-migrate` — le figeage ne convertit pas au passage.
 
 **Prérequis** : le brief d'arbitrage doit être complet (aucun cas non tranché). Si ce n'est pas le cas, interrompre et renvoyer à `01-arbitrate`.
 
@@ -39,16 +42,17 @@ Pour chaque thème sous `themes.<nom>` (§ Modes / themes de `${CLAUDE_PLUGIN_RO
 
 Réécrire `design/tokens.json` avec les tokens canonisés. Conserver le format W3C DTCG (chaque token = `{ "$type": "...", "$value": "..." }`).
 
-## Étape 2 — Écrire `design/components.json`
+## Étape 2 — Écrire les artefacts dérivés
 
-Construire le manifeste à partir des composants résolus dans le brief d'arbitrage, en suivant le schéma de `${CLAUDE_PLUGIN_ROOT}/skills/adjust/references/manifest-schema.md`.
+Construire les artefacts à partir des composants résolus dans le brief d'arbitrage, en suivant `${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md`. Chaque donnée vit dans un seul artefact ; ne rien dupliquer d'un fichier à l'autre.
 
 ### Structure minimale requise
 
+`design/components.json` — anatomie seule (schéma détaillé : `${CLAUDE_PLUGIN_ROOT}/skills/adjust/references/manifest-schema.md`) :
+
 ```json
 {
-  "$schema": "design/references/manifest-schema#",
-  "$version": "<semver>",
+  "$schema": "design/references/contract-schema#components",
   "components": {
     "<canonical-name>": {
       "base": "<BEM-block>",
@@ -61,29 +65,56 @@ Construire le manifeste à partir des composants résolus dans le brief d'arbitr
 }
 ```
 
+`design/policies.json` — ce qui est transverse au contrat :
+
+```json
+{
+  "$schema": "design/references/contract-schema#policies",
+  "mode": "bem",
+  "$utilityPrefixes": [],
+  "usage": { },
+  "adapters": [{ "artifact": "adapters/<fichier>", "consumer": "<rôle du consommateur>" }]
+}
+```
+
+`design/oracle.json` — cibles de mesure, écrit seulement si le brief en produit :
+
+```json
+{
+  "$schema": "design/references/contract-schema#oracle",
+  "components": {
+    "<canonical-name>": {
+      "elements": { "<label>": { "check_text": true, "props": [] } },
+      "collections": [{ "name": "", "item_selector": "", "ack": { } }]
+    }
+  }
+}
+```
+
+`$version` ne figure dans aucun des trois : les versions sont déclarées une seule fois, dans `release.json` (§ Écrire la racine `design/release.json`, dernière écriture de cette étape).
+
 ### Règles d'écriture
 
 1. **Noms canoniques en kebab-case** : `btn`, `card`, `hero`, `nav`, `form-field`, etc.
 2. **BEM strict** : `base` = le block ; `elements.*` = `block__element` ; `modifiers.*` = `block--modifier`.
 3. **Backgrounds token-référencés** : chaque chemin dans `.backgrounds` doit exister dans le `tokens.json` canonisé. Si un chemin est absent → erreur bloquante, corriger `tokens.json` d'abord.
-4. **Concordance avec la couche 3** : chaque composant listé dans `design-system.md § Inventaire des composants` doit avoir une entrée, et vice-versa. Si discordance → résoudre (ajouter l'entrée manquante ou retirer le composant de la charte).
+4. **Concordance avec la charte** : chaque composant listé dans `design-system.md § Inventaire des composants` doit avoir une entrée, et vice-versa. Si discordance → résoudre (ajouter l'entrée manquante ou retirer le composant de la charte).
 
-### Sous-étape — Auditer le bloc `usage` (mode utility-first)
+### Sous-étape — Auditer `policies.json`
 
-Si le brief d'arbitrage retient un contrat `mode: "utility-first"` (ou si `components` reste vide/partiel parce que le projet est Tailwind/Vue/React — cf. `adjust/references/manifest-schema.md § Mode utility-first`), auditer/écrire le bloc `usage` de `components.json` :
-
-- **`mode`** : écrire explicitement `"bem"` ou `"utility-first"` — ne jamais laisser à l'auto-détection dans un contrat figé (l'auto-détection est un filet pour les manifestes legacy, pas une pratique d'écriture pour un nouveau figeage).
+`mode` est **toujours** écrit, dans les deux modes : plus aucun outil ne le déduit, et un `mode` absent fait sortir `lint-core.mjs` en 2. Les champs suivants concernent le mode utility-first (ou un `components` partiel, cf. `${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md § Où porte le vocabulaire, selon mode`) :
 - **`usage.rawHexForbidden`** : `true` sauf raison documentée de l'omettre.
-- **`usage.colorUtilityPrefixes`** : la liste des préfixes de classe utilitaire porteurs de couleur réellement utilisés par le projet (ex. `["bg", "text", "border", "ring"]` pour Tailwind) — ne pas copier un préfixe non utilisé par la stack du projet.
+- **`usage.colorUtilityPrefixes`** : la liste des préfixes de classe utilitaire porteurs de couleur réellement utilisés par le projet — ne pas copier un préfixe qu'aucun fichier du projet n'emploie.
 - **`usage.rules[]`** : au minimum déclarer `state-colour-icon` (`enforcement: "pivot-only"`) si le design system a une notion de statut/état visuel ; ajouter toute autre règle sémantique identifiée pendant `destructure` qu'un scanner de chaînes ne peut pas vérifier.
-- **Cohérence de couche** : les namespaces de couleur autorisés dérivent des clés top-level de `tokens.json § color.*` — vérifier qu'aucun groupe de couleur nécessaire au projet n'est manquant de l'arbre de tokens avant de figer (sinon le namespace ne sera jamais reconnu par `lint-core.mjs`).
+- **`adapters[]`** : une entrée par artefact généré réellement présent sous `adapters/`, chacune nommant son consommateur. Un consommateur inconnu se complète à la main, il ne se devine pas.
+- **Cohérence avec les tokens** : les namespaces de couleur autorisés dérivent des clés top-level de `tokens.json § color.*` — vérifier qu'aucun groupe de couleur nécessaire au projet n'est manquant de l'arbre de tokens avant de figer (sinon le namespace ne sera jamais reconnu par `lint-core.mjs`).
 - Si le projet garde des composants BEM legacy à côté de l'utilitaire (transition), `components` peut rester partiel — c'est additif, pas une erreur (A5).
 
-### Bump `$version` avec le bloc `usage`
+### Bump de version avec le bloc `usage`
 
 Ajouter/étendre `usage` (nouveau namespace, nouvelle règle déclarée) suit la même table de bump que l'ajout de composant : **minor**. Une suppression de règle ou de namespace autorisé : **major** (rétrécit le vocabulaire accepté, peut casser du code existant qui en dépendait).
 
-### En mode re-figeage (components.json existant)
+### En mode re-figeage (contrat existant)
 
 - Conserver les entrées non touchées telles quelles.
 - Appliquer les modifications du brief (delta uniquement).
@@ -99,17 +130,27 @@ Ajouter/étendre `usage` (nouveau namespace, nouvelle règle déclarée) suit la
 | Renommage de `base`, suppression d'entrée ou de variante | **major** |
 | Suppression d'un thème ou d'un chemin d'overlay | **major** |
 | Suppression d'un namespace de couleur ou d'une règle `usage` | **major** |
-| Premier figeage (fichier inexistant) | **1.0.0** |
+| Premier figeage (contrat inexistant) | **1.0.0** |
+
+### Écrire la racine `design/release.json`
+
+Dernière écriture de l'Étape 2 : sans elle il n'y a pas de contrat lisible, et l'Étape 2bis ne peut pas s'exécuter. Champs et sémantique : `${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md § release.json`.
+
+- `artifacts.<nom>.version` — la version de chaque artefact, indépendante des autres. Un artefact non touché par ce figeage garde la sienne.
+- `artifacts.<nom>.sourceHash` — empreinte de la source dont l'artefact dérive, recalculée à chaque écriture.
+- `charter` — présence, chemin et version de `design-system.md`, relevés, jamais supposés.
+- `provenance` — quoi a écrit, quand, à partir de quoi.
+- `status` — la valeur rendue par `${CLAUDE_PLUGIN_ROOT}/tools/status.py --contract design/`. Ne jamais l'écrire à la main : le statut a une seule implémentation.
 
 ## Étape 2bis — Réconciliation avec le code réel (retrofit)
 
-> Nouvelle étape top-level, distincte de la sous-étape "Auditer le bloc `usage`" ci-dessus (qui, elle, reste une sous-partie de l'Étape 2). Cette étape-ci s'exécute une fois `components.json` écrit et **avant** de figer (Étape 3) ou de bumper la version.
+> Nouvelle étape top-level, distincte de la sous-étape "Auditer `policies.json`" ci-dessus (qui, elle, reste une sous-partie de l'Étape 2). Cette étape-ci s'exécute une fois les artefacts et `release.json` écrits, et **avant** de figer (Étape 3).
 
-Un manifeste peut être parfaitement cohérent avec la prose de `design-system.md` (concordance couche 2 ↔ couche 3, § Étape 2 Règle 4) tout en divergeant du code **déjà écrit** du projet consommateur — le cas **retrofit** : un projet qui a du markup/composants avant même que le contrat ne soit figé. Sans cette étape, cette dérive n'est repérée que bien plus tard, à `enforce/03-lint-instances`, une fois le contrat déjà figé et du travail déjà construit dessus. Réconcilier maintenant, pas après.
+Un manifeste peut être parfaitement cohérent avec la prose de `design-system.md` (concordance artefacts ↔ charte, § Étape 2 Règle 4) tout en divergeant du code **déjà écrit** du projet consommateur — le cas **retrofit** : un projet qui a du markup/composants avant même que le contrat ne soit figé. Sans cette étape, cette dérive n'est repérée que bien plus tard, à `enforce/03-lint-instances`, une fois le contrat déjà figé et du travail déjà construit dessus. Réconcilier maintenant, pas après.
 
 ### Portée du scan (mode-aware)
 
-Jamais de glob ou de jeu de règles codé en dur : les deux se dérivent du champ `mode` du contrat tout juste écrit à l'Étape 2.
+Jamais de glob ou de jeu de règles codé en dur : les deux se dérivent du champ `mode` de `policies.json` tout juste écrit à l'Étape 2.
 
 | Mode | Glob scanné | Règle de réconciliation |
 |------|-------------|--------------------------|
@@ -118,10 +159,10 @@ Jamais de glob ou de jeu de règles codé en dur : les deux se dérivent du cham
 
 ### Oracle de scan : `lint-core.mjs`, réutilisé tel quel
 
-Aucun nouveau scanner n'est écrit : `enforce/adapters/lint-core.mjs` est invoqué comme oracle, une fois par fichier du glob résolu ci-dessus, avec le `components.json` tout juste écrit comme contrat :
+Aucun nouveau scanner n'est écrit : `enforce/adapters/lint-core.mjs` est invoqué comme oracle, une fois par fichier du glob résolu ci-dessus, contre le contrat tout juste écrit :
 
 ```
-node lint-core.mjs <fichier-du-glob> <dossier-du-contrat-tout-juste-figé>
+node lint-core.mjs <fichier-du-glob> --contract <dossier-du-contrat-tout-juste-figé>
 ```
 
 Rule 1 (`class-vocab`, mode `bem`) et Rule 4 (`allowed colour namespaces`, mode `utility-first`) portent déjà exactement la direction **code → manifeste** ci-dessous : un `ERROR` remonté par `lint-core.mjs` sur un fichier du glob EST la divergence à traiter ici. Pour la direction **manifeste → code**, invoquer le mode additif `--report-unused` (voir `enforce/adapters/lint-core.mjs`) sur chaque fichier du glob ; une entrée n'est réellement "inutilisée dans le projet" que si **tous** les fichiers scannés la rapportent `UNUSED` — un seul fichier ne prouve que son absence locale.
@@ -147,7 +188,7 @@ Modifier l'en-tête de `design/design-system.md` :
 ```markdown
 ---
 status: figé
-version: <même semver que components.json>
+version: <semver de la charte>
 ---
 ```
 
@@ -158,9 +199,11 @@ Mettre à jour la section **Provenance** avec :
 
 Si `design-system.md` contient encore des "Open questions" qui n'ont pas été résolues, les conserver mais les marquer `[non résolu au figeage — à traiter]`.
 
-## Étape 4 — Synchroniser les versions
+## Étape 4 — Reporter la version de la charte dans `release.json`
 
-S'assurer que `$version` dans `components.json` et `version:` dans `design-system.md` sont identiques. C'est un invariant du contrat (vérifié par `enforce`).
+Relever la version de `design-system.md` et l'écrire dans `release.json § charter.version`, puis recalculer le statut (`tools/status.py`) — la charte vient de passer à `figé`.
+
+Il n'y a **plus d'invariant de parité** : la version de la charte n'a pas à égaler celle des artefacts. `release.json` déclare les deux ; un écart est une donnée constatée, pas une violation.
 
 ## Sortie attendue
 
@@ -170,6 +213,9 @@ Annoncer à l'utilisateur :
 >
 > - `design/tokens.json` — {N} tokens canoniques, {X} alias créés, {Y} groupes complétés
 > - `design/components.json` — {M} composants ({P} ajouts, {Q} modifications, {R} suppressions)
+> - `design/policies.json` — mode {mode}, {A} adapters
+> - `design/oracle.json` — {O} composants ciblés *(ligne omise si le fichier n'a pas été écrit)*
+> - `design/release.json` — statut {statut}, charte v{version charte}
 > - `design/design-system.md` — status: figé, version bumped {ancien} → {nouveau}
 >
 > Prochaine étape : `/design:enforce` pour installer le linter et câbler les gates.
@@ -178,11 +224,14 @@ Annoncer à l'utilisateur :
 
 Avant d'annoncer la complétion, vérifier mentalement :
 
-- [ ] `components.json.$version` == `design-system.md version:`
+- [ ] `release.json` existe, `$format` vaut `2.0`, et déclare `tokens.json`, `components.json` et `policies.json`, plus `oracle.json` si le brief en a produit un ; chaque artefact déclaré est présent sur disque, aucun artefact non déclaré ne traîne à côté
+- [ ] `release.json § status` provient de `tools/status.py`, jamais écrit à la main
+- [ ] Aucun `$version` ne subsiste dans `components.json`, `policies.json` ou `oracle.json`
 - [ ] Tous les chemins `.backgrounds` existent dans `tokens.json`
 - [ ] Tous les composants de l'inventaire prose ont une entrée dans `components.json`
 - [ ] Aucun token en doublon (valeurs identiques sur chemins différents sans alias)
 - [ ] Tous les chemins de `themes.*` (si présent) existent dans l'arbre de base ; aucune entrée d'overlay ne porte `$type` ; aucune clé `themes.default`
-- [ ] Si `usage` est présent : `mode` est écrit explicitement (jamais laissé à l'auto-détection dans un contrat figé) ; chaque namespace visé par `usage.colorUtilityPrefixes` correspond à un groupe existant sous `tokens.json § color.*`
+- [ ] `policies.json § mode` est écrit explicitement dans les deux modes ; chaque namespace visé par `usage.colorUtilityPrefixes` correspond à un groupe existant sous `tokens.json § color.*`
+- [ ] `policies.json § adapters` liste chaque fichier réellement présent sous `adapters/`, sans consommateur `unknown` restant
 - [ ] **Réconciliation Étape 2bis** : le scan mode-aware du code réel (via `lint-core.mjs`) ne remonte aucune divergence code→manifeste bloquante sur le glob concerné ; les divergences manifeste→code (le cas échéant) sont documentées en warning/ledger, jamais bloquantes ; comportement always-on confirmé (greenfield → scan vide → non-bloquant, rien à coder à part)
 - [ ] `design-system.md status:` == `figé`
