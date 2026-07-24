@@ -249,6 +249,70 @@ const validClasses = new Set();
 const knownBases = new Set();
 const utilityPrefixes = policies.$utilityPrefixes || [];
 
+// Shape refusal. An artifact whose shape does not match its declaration is an environment error
+// (exit 2), never a violation and never a pass. The sites below are taken on faith otherwise, and
+// the failure is silent rather than loud: a component that is a string leaves `comp.base`
+// undefined, `knownBases` holds `undefined`, no markup class ever matches a declared block, and
+// every class is treated as a utility — a green run over a contract that declares nothing.
+// Validation happens HERE, at derivation, not at each use site: a malformed contract is malformed
+// independently of the markup scanned, and `$utilityPrefixes` is only read under --strict on a
+// BEM-shaped undeclared class, which would make the refusal depend on the file passed.
+function shapeOf(v) {
+  if (v === null) return 'null';
+  if (v === undefined) return 'absent';
+  if (Array.isArray(v)) return 'an array';
+  const t = typeof v;
+  return /^[aeiou]/.test(t) ? `an ${t}` : `a ${t}`;
+}
+
+function refuseShape(artifact, fieldPath, expected, got) {
+  // The value is shown, not just its type: on `"btn"` or `42` the type alone leaves the reader
+  // hunting for which entry is wrong. Truncated, because a malformed field is often a whole
+  // object pasted at the wrong depth, and an untruncated dump buries the message it carries.
+  const seen = JSON.stringify(got) ?? String(got);
+  const shown = seen.length > 120 ? seen.slice(0, 117) + '...' : seen;
+  console.error(
+    `${artifact} § ${fieldPath} is ${shapeOf(got)}, expected ${expected}: ${resolve(contractDir, artifact)}\n` +
+    `  Got: ${shown}\n` +
+    '  The lint rules derive from this field. Read as is, the run would return a verdict about\n' +
+    '  a vocabulary the contract does not declare. Fix the artifact, or re-run its generator.'
+  );
+  process.exit(2);
+}
+
+const isPlainObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+
+if (manifest.components !== undefined && !isPlainObject(manifest.components)) {
+  refuseShape('components.json', 'components', 'an object', manifest.components);
+}
+for (const [name, comp] of Object.entries(components)) {
+  if (!isPlainObject(comp)) refuseShape('components.json', `components.${name}`, 'an object', comp);
+  if (typeof comp.base !== 'string' || !comp.base) {
+    refuseShape('components.json', `components.${name}.base`, 'a non-empty string', comp.base);
+  }
+  for (const sub of ['elements', 'modifiers']) {
+    if (comp[sub] === undefined) continue;
+    if (!isPlainObject(comp[sub])) {
+      refuseShape('components.json', `components.${name}.${sub}`, 'an object', comp[sub]);
+    }
+    for (const [key, cls] of Object.entries(comp[sub])) {
+      if (typeof cls !== 'string' || !cls) {
+        refuseShape('components.json', `components.${name}.${sub}.${key}`, 'a non-empty string', cls);
+      }
+    }
+  }
+}
+if (policies.$utilityPrefixes !== undefined) {
+  if (!Array.isArray(policies.$utilityPrefixes)) {
+    refuseShape('policies.json', '$utilityPrefixes', 'an array of strings', policies.$utilityPrefixes);
+  }
+  policies.$utilityPrefixes.forEach((p, i) => {
+    if (typeof p !== 'string') {
+      refuseShape('policies.json', `$utilityPrefixes[${i}]`, 'a string', p);
+    }
+  });
+}
+
 for (const comp of Object.values(components)) {
   validClasses.add(comp.base);
   knownBases.add(comp.base);

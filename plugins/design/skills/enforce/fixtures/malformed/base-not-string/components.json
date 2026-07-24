@@ -1,0 +1,11 @@
+{
+  "$schema": "design/references/contract-schema#components",
+  "components": {
+    "btn": {
+      "base": 42,
+      "elements": {
+        "label": "btn__label"
+      }
+    }
+  }
+}

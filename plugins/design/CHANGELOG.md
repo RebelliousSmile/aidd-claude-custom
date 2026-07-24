@@ -1,5 +1,35 @@
 # Changelog — design
 
+## [2.0.1] — 2026-07-24
+
+Patch — **un artefact structurellement invalide sort en 2 en nommant le champ, au lieu de rendre un verdict vert**. Le 2.0.0 avait posé la règle « une décision que l'outil refuse de deviner sort en 2 » et l'avait appliquée deux fois — `mode` non déclaré, argument de contrat manquant — sans balayer la classe. Cinq sites la prenaient encore pour acquise. Aucune règle de lint n'est ajoutée ni retirée, aucune surface CLI ne change, et la baseline des huit fixtures reste `0 1 0 1 0 1 0 1`.
+
+### Corrigé
+
+Le diagnostic initial supposait des exceptions non rattrapées (exit 1). La mesure sur fixtures a montré pire : côté `lint-core.mjs`, **les trois cas sortaient en 0**.
+
+| Site | Entrée | Avant | Après |
+|---|---|---|---|
+| `lint-core.mjs` — dérivation du vocabulaire | un composant qui est une chaîne | **exit 0** — `comp.base` vaut `undefined`, `knownBases` le contient, aucune classe du markup ne correspond jamais à un bloc déclaré, tout devient utilitaire : vert sur un contrat qui ne déclare rien | exit 2, `components.json`, le champ et la valeur reçue |
+| `lint-core.mjs` — idem | `base` absent ou non-chaîne | **exit 0** — la valeur entre dans le jeu de classes valides, où rien ne peut l'égaler | exit 2, idem |
+| `lint-core.mjs` — `$utilityPrefixes` | un objet au lieu d'un tableau | **exit 0** tant que le markup n'atteint pas le site ; `.some` lève dès qu'il l'atteint, sous `--strict` | exit 2, `policies.json` |
+| `migrate-contract.py` — racine du manifeste | un tableau | exit 1 + trace `AttributeError` | exit 2, le fichier et `$` |
+| `migrate-contract.py` — un composant | une chaîne | exit 1 + trace `AttributeError` | exit 2, le fichier et `$.components.<nom>` |
+
+La validation se fait **à la dérivation**, pas à chaque site d'usage : un contrat malformé l'est indépendamment du markup scanné, et `$utilityPrefixes` n'est lu que sous `--strict` sur une classe de forme BEM non déclarée — valider là aurait fait dépendre le refus du fichier passé. Côté migration, le contrôle précède aussi le chemin `--dry-run` : un dry-run qui plante n'est pas un dry-run.
+
+`status.py` nomme désormais le contrat évalué — sur **stderr**. `adjust/02-freeze.md` copie stdout tel quel dans `release.json § status` ; tout ajout à cette ligne aurait atterri dans le contrat.
+
+### Ajouté
+
+- `skills/enforce/fixtures/malformed/` — cinq contrats malformés à la main, un par site, chacun accompagné du défaut qu'il atteint. Trois en 2.0 pour le linter, deux en 1.x (`1x-`) pour la migration. Ils ne sont pas dans l'énumération des huit fixtures et ne touchent pas la baseline.
+- `skills/enforce/fixtures/migration/oracle-contract-level/` — la branche `$.oracle` de niveau contrat n'était couverte par aucune fixture. Elle produit bien `oracle.json § contract`, déclaré par `release.json`, avec l'anomalie qui signale que seule la forme par composant a un lecteur.
+- `references/contract-schema.md § Contrat incomplet` — une ligne : un champ dont la forme ne correspond pas à sa déclaration sort en 2.
+
+### Reporté
+
+`config-gen.py --wp-url` / `--maquette-url` nomment une plateforme et une abréviation dans un outil déclaré agnostique. Les renommer est une rupture de CLI, incompatible avec un patch : le renommage est porté par le **Lot 2**, qui touche déjà ce fichier et prend la fenêtre de rupture.
+
 ## [2.0.0] — 2026-07-24
 
 **BREAKING** — le contrat cesse d'être un monolithe. `components.json` portait quatre natures de données à la fois ; elles deviennent quatre artefacts adressables racinés par `release.json`. `lint-core.mjs` ne lit plus que ce format : un contrat 1.x est **diagnostiqué**, jamais parsé. La baseline des huit fixtures reste `0 1 0 1 0 1 0 1`. Décision : `aidd_docs/internal/decisions/005-design-2-0-contract-split.md`.

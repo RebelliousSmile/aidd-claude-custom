@@ -1,0 +1,33 @@
+{
+  "$schema": "design/references/contract-schema#release",
+  "$format": "2.0",
+  "designSystem": {
+    "version": "0.0.0"
+  },
+  "artifacts": {
+    "tokens.json": {
+      "version": "0.0.0",
+      "sourceHash": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "components.json": {
+      "version": "0.0.0",
+      "sourceHash": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "policies.json": {
+      "version": "0.0.0",
+      "sourceHash": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "charter": {
+    "present": false,
+    "path": "design-system.md",
+    "version": null
+  },
+  "provenance": {
+    "producedBy": "hand",
+    "producedAt": "2026-07-24T00:00:00+00:00",
+    "from": "fixture, hand-written malformed on purpose"
+  },
+  "checks": null,
+  "status": "extracted"
+}

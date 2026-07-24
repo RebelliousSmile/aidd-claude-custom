@@ -16,7 +16,7 @@
     },
     {
       "name": "design",
-      "version": "2.0.0",
+      "version": "2.0.1",
       "source": "./plugins/design",
       "description": "Design system funnel — 6 skills: the 5-verb pipeline define · destructure · adjust (freeze the 4-artifact contract rooted by release.json, migrate 1.x) · enforce (portable linter derived from the contract + sc-* pivot + 4 vocabulary gates: tokens.css import, generation rules, plan success_condition, pre-commit) · diffuse (elements under gate + sc-* pivot), plus harness (standalone mockup scaffold, outside the funnel). A 5th gate of a different nature measures rendering fidelity against the resolved mockup. Adds copycat (per-page mockup→contract reconciliation agent + Python fidelity oracle: machine CLOSED/OPEN verdict, structural completeness scan, coverage guard, deviation-ledger with id + registry validation, ledger-unused detection, active-frame isolation, check_text per-target, collections LCS-diff, collection-level ack, visual-diff companion). Adds config-gen.py (contract → oracle config) and migrate-contract.py (1.x → 2.0). BREAKING 2.0.0: the monolithic contract is split into components.json, policies.json, oracle.json and release.json; the linter reads the new format only and exits 3 on a 1.x contract.",
       "recommended": false

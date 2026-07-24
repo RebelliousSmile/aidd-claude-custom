@@ -14,7 +14,7 @@ skips a rung.
   rung 4  + contrast and declarative-state inputs — added by a later lot, never reached here
 
 Usage:  python status.py --contract <dir>
-Exit:   0 status printed on stdout · 2 unusable contract directory
+Exit:   0 status printed on stdout, contract directory on stderr · 2 unusable contract directory
 """
 from __future__ import annotations
 
@@ -97,6 +97,10 @@ def main(argv: list[str] | None = None) -> int:
     if not contract_dir.is_dir():
         print(f"Contract directory not found: {contract_dir}", file=sys.stderr)
         return 2
+    # The subject goes to stderr, the value to stdout. A rung with no contract named is
+    # unciteable as evidence, but `adjust/02-freeze.md` copies stdout verbatim into
+    # `release.json § status` — anything added to that line would land in the contract.
+    print(f"CONTRACT {contract_dir}", file=sys.stderr)
     print(compute(observe(contract_dir)))
     return 0
 

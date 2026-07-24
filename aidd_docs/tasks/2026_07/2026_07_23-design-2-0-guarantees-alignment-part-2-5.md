@@ -3,7 +3,7 @@ name: plan
 description: Lot 1.5 - sweep the exception paths Lot 1 fixed twice without fixing everywhere. A structurally invalid artifact exits 2 naming the field, never 1 and never a false green. Hardening only, no public surface changes.
 argument-hint: N/A
 objective: "Every tool that reads a contract artifact refuses a structurally invalid one the same way: exit 2, naming the artifact and the field, without crashing and without producing a green verdict on a set it silently mis-derived."
-success_condition: "With MAL=plugins/design/skills/enforce/fixtures/malformed, node plugins/design/skills/enforce/adapters/lint-core.mjs --contract $MAL/<case> exits 2 and prints the artifact filename and the offending field for <case> in component-not-object, base-not-string and utility-prefixes-not-array, AND python plugins/design/tools/migrate-contract.py --contract $MAL/<case> --dry-run exits 2 likewise for <case> in root-not-object and component-not-object, AND no exception trace reaches stdout or stderr in any of those five runs, AND the eight fixtures taken in the master's fixture enumeration order still reproduce the exit-code baseline 0 1 0 1 0 1 0 1, AND python plugins/design/tools/migrate-contract.py --contract plugins/design/skills/enforce/fixtures/migration/oracle-contract-level --dry-run exits 0 and prints a mapping line for $.oracle, AND python plugins/design/tools/status.py --contract plugins/design/skills/enforce/fixtures prints the contract directory alongside the rung, AND jq -r .version plugins/design/.claude-plugin/plugin.json equals 2.0.1 and matches .claude-plugin/marketplace.json and index.json"
+success_condition: "With MAL=plugins/design/skills/enforce/fixtures/malformed, node plugins/design/skills/enforce/adapters/lint-core.mjs $MAL/<case>/markup.html --contract $MAL/<case> exits 2 and prints the artifact filename, the offending field and the value received, for <case> in component-not-object, base-not-string and utility-prefixes-not-array, AND python plugins/design/tools/migrate-contract.py --contract $MAL/<case> --dry-run exits 2 likewise for <case> in 1x-root-not-object and 1x-component-not-object, AND no exception trace reaches stdout or stderr in any of those five runs, AND the eight fixtures taken in the master's fixture enumeration order still reproduce the exit-code baseline 0 1 0 1 0 1 0 1, AND python plugins/design/tools/migrate-contract.py --contract plugins/design/skills/enforce/fixtures/migration/oracle-contract-level --dry-run exits 0 and prints a mapping line for $.oracle, AND python plugins/design/tools/status.py --contract plugins/design/skills/enforce/fixtures prints the contract directory on stderr while stdout still carries the rung alone, AND jq -r .version plugins/design/.claude-plugin/plugin.json equals 2.0.1 and matches .claude-plugin/marketplace.json and index.json"
 iteration: 0
 created_at: "2026-07-24T00:00:00Z"
 ---
@@ -197,7 +197,30 @@ Named so they are traceable, deliberately out of scope:
 
 ## Amendments
 
+Three, all found while implementing, all recorded before the phases were closed.
+
+1. **Fixture names collide.** The plan listed one `component-not-object` used by both tools. They cannot share a directory: `lint-core.mjs` requires `release.json`, `migrate-contract.py` requires its absence. The 1.x cases are prefixed: `1x-root-not-object`, `1x-component-not-object`.
+
+2. **`status.py` writes the contract directory to stderr, not on the rung's line.** The plan said "on one line", written before `adjust/02-freeze.md:143` was identified as a consumer — it copies stdout *verbatim* into `release.json § status`. Anything added to that line would have been written into the contract, which is the exact failure this lot removes. stdout keeps the rung alone; stderr carries the subject.
+
+3. **The defect was worse than diagnosed.** The plan predicted exit 1 with an uncaught exception at the three `lint-core.mjs` sites. Measured on fixtures before any fix, all three exited **0**. A contract whose components are all malformed declares an empty vocabulary, every class is treated as a utility, and the run passes on any markup. The two Python sites behaved as predicted (exit 1 + traceback). The CHANGELOG records the measured behaviour, not the predicted one.
+
 ## Log
+
+- 2026-07-24 — Phases 1 to 6 implemented and verified. The five malformed fixtures were run against the unmodified tools first, to observe the defect before fixing it; that run is what produced amendment 3.
+
+## Verification run
+
+| Clause | Result |
+| ------ | ------ |
+| 3 lint-core cases exit 2, artifact + field + value named | ✅ |
+| 2 migrate cases exit 2 under `--dry-run` and without it, no traceback | ✅ |
+| Eight-fixture baseline `0 1 0 1 0 1 0 1` | ✅ unchanged |
+| 1.x contract still exits 3, missing argument still exits 2 | ✅ |
+| Four Lot 1 migration fixtures unchanged (`0 0 0`, `2`, `0` with `--mode`) | ✅ |
+| `oracle-contract-level` exits 0, maps `$.oracle`, writes `oracle.json § contract` declared by `release.json` | ✅ |
+| `status.py` stdout = rung alone, stderr = contract directory, exit 0 / 2 unchanged | ✅ |
+| Three registers at 2.0.1 | ✅ |
 
 ## Validation flow demonstration
 

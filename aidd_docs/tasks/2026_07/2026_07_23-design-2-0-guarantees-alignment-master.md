@@ -31,7 +31,7 @@ Assumed breaking change: the monolithic contract is split into four artifacts pl
 | --- | ----------------------------- | ----- | -------- | --------------- | ------- | --------- |
 | 1   | Truth of the discourse        | Lot 0 | 1.17.0   | `./2026_07_23-design-2-0-guarantees-alignment-part-1.md` | done | [x] |
 | 2   | Split contract, version identity | Lot 1 | 2.0.0 | `./2026_07_23-design-2-0-guarantees-alignment-part-2.md` | done | [ ] |
-| 2.5 | Sweep the exception paths     | Lot 1.5 | 2.0.1  | `./2026_07_23-design-2-0-guarantees-alignment-part-2-5.md` | pending | [ ] |
+| 2.5 | Sweep the exception paths     | Lot 1.5 | 2.0.1  | `./2026_07_23-design-2-0-guarantees-alignment-part-2-5.md` | done | [x] |
 | 3   | Deterministic generation      | Lot 2 | 2.1.0    | `./2026_07_23-design-2-0-guarantees-alignment-part-3.md` | blocked | [ ] |
 | 4   | Distributed enforcement       | Lot 3 | 2.2.0    | `./2026_07_23-design-2-0-guarantees-alignment-part-4.md` | blocked | [ ] |
 | 5   | Mandatory oracle, structured ledger | Lot 4 | 2.3.0 | `./2026_07_23-design-2-0-guarantees-alignment-part-5.md` | blocked | [ ] |

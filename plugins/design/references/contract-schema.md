@@ -236,3 +236,4 @@ Le registre d'écarts en Markdown reste hors contrat à cette version ; sa forme
 | `release.json` absent | Contrat 1.x — `lint-core.mjs` sort en 3 et imprime la commande de migration |
 | `release.json` présent, un artefact déclaré absent ou illisible | Contrat inutilisable — exit 2, l'artefact est nommé |
 | `policies.json § mode` absent | Décision que l'outil refuse de deviner — exit 2 |
+| Un champ dont la forme ne correspond pas à sa déclaration | Contrat invalide — exit 2, l'artefact, le champ et la valeur reçue sont nommés. Un artefact structurellement invalide n'est ni une violation (exit 1) ni un contrat plus petit : lu tel quel, il rend un verdict sur un vocabulaire que le contrat ne déclare pas |

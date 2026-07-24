@@ -19,8 +19,8 @@ Its absence is an environment error (exit 2), never a traceback — an uncaught 
 
 Exit:
   0  migrated, or already 2.0 (no-op)
-  2  invocation error, missing runtime dependency, or a decision the tool refuses to guess
-     (undeclared mode)
+  2  invocation error, missing runtime dependency, a structurally invalid artifact, or a
+     decision the tool refuses to guess (undeclared mode)
 """
 from __future__ import annotations
 
@@ -75,6 +75,46 @@ UNKNOWN_CONSUMER = "unknown"
 def fail(message: str) -> int:
     print(message, file=sys.stderr)
     return 2
+
+
+def shape_of(value) -> str:
+    if value is None:
+        return "null"
+    return {dict: "an object", list: "an array", str: "a string",
+            bool: "a boolean", int: "a number", float: "a number"}.get(
+        type(value), f"a {type(value).__name__}")
+
+
+def fail_shape(path: Path, field: str, expected: str, got) -> int:
+    """A structurally invalid artifact is an environment error, never a traceback.
+
+    Left unguarded these sites raise AttributeError, which exits 1 — the code the exit-code
+    space reserves for a violation — and prints a stack trace instead of naming the field.
+    """
+    seen = json.dumps(got, ensure_ascii=False)
+    if len(seen) > 120:
+        seen = seen[:117] + "..."
+    # Resolved, unlike the sibling fail() calls in this file: this message is meant to be
+    # pasted as evidence, and a relative path is unciteable outside the shell that produced it.
+    return fail(f"{path.name} {field} is {shape_of(got)}, expected {expected}: {path.resolve()}\n"
+                f"  Got: {seen}\n"
+                "  The redistribution reads this field. Read as is, the migration would crash, or\n"
+                "  write an artifact the linter cannot derive its rules from.")
+
+
+def check_shape(manifest, path: Path) -> int | None:
+    """Refuse a manifest the redistribution cannot walk. Returns an exit code, or None."""
+    if not isinstance(manifest, dict):
+        return fail_shape(path, "$", "an object", manifest)
+    components = manifest.get("components")
+    if components is None:
+        return None
+    if not isinstance(components, dict):
+        return fail_shape(path, "$.components", "an object", components)
+    for name, comp in components.items():
+        if not isinstance(comp, dict):
+            return fail_shape(path, f"$.components.{name}", "an object", comp)
+    return None
 
 
 def sha256(path: Path) -> str:
@@ -175,6 +215,12 @@ def migrate(contract_dir: Path, mode_arg: str | None, dry_run: bool, now: str) -
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     except ValueError as exc:
         return fail(f"Unreadable {COMPONENTS}: {exc}")
+
+    # Before any field is read, including in the dry-run path: a dry run that crashes is not a
+    # dry run, and the shape is what every read below takes on faith.
+    bad_shape = check_shape(manifest, manifest_path)
+    if bad_shape is not None:
+        return bad_shape
 
     declared_mode = manifest.get("mode")
     if declared_mode and mode_arg and declared_mode != mode_arg:
