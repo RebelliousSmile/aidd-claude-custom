@@ -1,0 +1,7 @@
+{
+  "$schema": "design/references/contract-schema#policies",
+  "mode": "bem",
+  "adapters": [
+    { "artifact": "adapters/tokens.tokens.json", "consumer": "platform token file" }
+  ]
+}

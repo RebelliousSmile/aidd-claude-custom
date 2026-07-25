@@ -1,5 +1,21 @@
 # Changelog — design
 
+## [2.6.0] — 2026-07-25
+
+Mineur — **le harness de maquette peut, en opt-in, parler les mêmes tokens que ceux contre lesquels l'implémentation est lintée.** Un nouveau flag optionnel `--contract <dir>` fait inline à la maquette générée la feuille de tokens **déjà produite** du contrat (l'entrée `policies.json § adapters[]` de `consumer:"stylesheet"`), avant le chrome, pour que la référence et l'implémentation partagent une source de vérité unique. Sans le flag, le scaffold est **inchangé** et sort toujours en 0.
+
+### Couplage opt-in, option C — inline, jamais dérivé
+
+`--contract` lit la feuille telle que produite par `tools/generate.py` et l'inline dans un `<style>` en tête de `<head>` ; le harness ne dérive ni ne régénère (un seul producteur, `generate.py`). Quand la feuille est inline, le cadrage LLM du fichier généré instruit l'auteur de consommer les tokens via `var(--…)` et de ne jamais coder en dur couleur/espacement/typographie.
+
+### Espace de codes de sortie — sous `--contract` uniquement
+
+Le harness rejoint l'espace fixe du plugin **seulement** sous `--contract` : `release.json` absent (contrat 1.x) → **3** (nomme `migrate-contract.py`) ; `release.json` présent mais JSON invalide → **2** (nomme `release.json`) ; `policies.json` ou l'adapter stylesheet déclaré absent/illisible → **2** (nomme `generate.py`) ; aucun adapter stylesheet déclaré → **0** avec un avertissement stderr et poursuite en scaffold. Le harness n'émet **jamais** 1 ni 4 ; le chemin historique « aucune page » sort désormais en 2, non en 1.
+
+### Trois échantillons device, jamais de media query
+
+Le modèle device est reformulé : trois vues discrètes **par classe** — desktop (fluide) · tablet 834 · mobile 390 —, des échantillons device et non des breakpoints, **rien n'étant dérivé** de `tokens.json § breakpoint.*`. Le template ne contient plus aucun `@media`. Accord documenté avec `measure.py` / `config-gen.py` (ensemble de viewports clos par construction) dans la nouvelle référence `references/harness-contract.md`. Ajoute des fixtures de contrat et `tools/harness-selftest.sh` (preuve exécutable des cinq branches).
+
 ## [2.5.0] — 2026-07-25
 
 Mineur — **un consommateur qui ne sait rien du plugin obtient, en une invocation, la carte des verbes et la séquence exécutable pour sa propre classe de cas, étendue par le workflow de plateforme quand le pivot correspondant est installé.** Introduit un **7ᵉ skill `detail` (verbe 0)** en tête d'entonnoir : lecture seule, aucun artefact de sortie, deux actions — `explain` rend la carte des verbes, `route` rend ce qu'il faut exécuter. Le corps agnostique de la stack porte **six classes de cas** exhaustives (signature d'entrée × état du contrat) ; les workflows de niveau plateforme, eux, **quittent `design` pour les pivots `sc-*`**, sous un squelette figé par le contrat de pivot. Aucun verbe existant ne change ; l'entonnoir de production reste `define → destructure → adjust → enforce → diffuse`.

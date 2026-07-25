@@ -10,11 +10,21 @@ Usage:
   python harness.py --out maquette.html
   python harness.py --out maquette.html --title "My Site" --pages "home:Accueil, contact:Contact"
   python harness.py --out maquette.html --title "My Site" --pages-json pages.json
+  python harness.py --out maquette.html --contract <dir>   # inline the contract's tokens
 
 Default (no --pages / --pages-json): single placeholder page "page-1" / "Page 1".
 
 pages.json format — list of objects (or {"pages": [...]}):
   [{"key": "home", "label": "Accueil"}, {"key": "about", "label": "À propos", "group": "Info"}]
+
+--contract (opt-in): inline the contract's already-generated stylesheet adapter — the
+  policies.json § adapters[] entry whose consumer is "stylesheet" — into the maquette, so
+  the reference speaks the same tokens the implementation is linted against. Nothing is
+  derived or regenerated here (option C): the artifact is read as produced by generate.py.
+  Exit codes under --contract: 0 ok (or no stylesheet adapter → one stderr warning, scaffold);
+  3 the contract is 1.x (no release.json) — migrate it (tools/migrate-contract.py); 2 any
+  required artifact is absent, unreadable, or structurally invalid. Never 1, never 4.
+  Without --contract the scaffold path is unchanged and always exits 0.
 """
 
 import argparse
@@ -100,6 +110,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 <title>%%TITLE%% — maquette de référence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+%%TOKENS_STYLE%%
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
@@ -141,6 +152,7 @@ TEMPLATE = r"""<!DOCTYPE html>
   }
   .preview-frame.tablet { max-width: 834px; border-radius: 24px; border: 10px solid #1F2A37; box-shadow: 0 30px 80px rgba(0,0,0,.25); margin: 24px auto; overflow: hidden; }
   .preview-frame.mobile { max-width: 390px; border-radius: 32px; border: 8px solid #1F2A37; box-shadow: 0 30px 80px rgba(0,0,0,.3); margin: 32px auto; overflow: hidden; }
+  /* 834 / 390 are fixed device samples, not contract breakpoints — see the RESPONSIVE note. */
   #page-container { display: block; width: 100%; }
 
   /* Placeholder until a page function is filled in. */
@@ -150,8 +162,10 @@ TEMPLATE = r"""<!DOCTYPE html>
   .ph code { background: #F4F4F4; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
 
   /* Author responsive overrides: `.preview-frame.mobile <sel>` / `.preview-frame.tablet <sel>`
-     They fire both in manual preview (frame class) AND under the fidelity oracle (real viewport + class).
-     @media also works under the oracle (it sets the viewport to the breakpoint width). */
+     They fire both in manual preview (frame class) AND under the fidelity oracle, which
+     toggles the same class via window.setViewport. Class-based only — no media queries.
+     The three frames are device samples (desktop fluid · tablet 834 · mobile 390),
+     not contract breakpoints: nothing here is derived from tokens.json § breakpoint.*. */
 </style>
 </head>
 <body>
@@ -191,9 +205,10 @@ TEMPLATE = r"""<!DOCTYPE html>
     Écrire les variations device en CLASSE dans le <style> du <head> :
         .preview-frame.mobile .hero__title { font-size: 28px; }
         .preview-frame.tablet .hero__inner { grid-template-columns: 1fr; }
-    @media fonctionne aussi pour la mesure oracle (l'oracle met la fenêtre
-    au breakpoint réel), mais le class-based est préféré pour l'aperçu manuel.
-    Devices : desktop (fluide) · tablet 834 · mobile 390.
+    JAMAIS de media query : la classe bascule à l'aperçu manuel ET sous l'oracle
+    (qui appelle window.setViewport). Les trois cadres sont des ÉCHANTILLONS
+    device — desktop (fluide) · tablet 834 · mobile 390 — pas des breakpoints
+    du contrat : rien ici ne dérive de tokens.json § breakpoint.*.
 
   ============================================================================
   PROMPT LLM (à copier pour faire remplir une page depuis un visuel/brief)
@@ -204,8 +219,8 @@ TEMPLATE = r"""<!DOCTYPE html>
       pour la page "<CLÉ>", remplis UNIQUEMENT le corps de la fonction `pageXxx()` :
       retourne le HTML (sans <html>/<head>/<body>), classes STABLES BEM,
       hiérarchie de titres (un seul h1), styles dans le <style> du <head> —
-      variations device en .preview-frame.mobile / .preview-frame.tablet
-      (jamais @media dans les fonctions). Ne modifie pas .preview-bar ni les scripts. »
+      variations device en .preview-frame.mobile / .preview-frame.tablet,
+      jamais de media query. Ne modifie pas .preview-bar ni les scripts. »%%TOKENS_NOTE_HEADER%%
   ============================================================================
 -->
   <div class="preview-bar">
@@ -237,8 +252,8 @@ TEMPLATE = r"""<!DOCTYPE html>
     // Rules:
     //   • return ONLY the page content (no <html>/<head>/<body>); global styles go in <head>.
     //   • stable, semantic class names (BEM) — the fidelity oracle measures by CSS selector.
-    //   • device variations as `.preview-frame.mobile|tablet <sel>` in <head> (not @media).
-    //   • never edit .preview-bar or the control scripts below.
+    //   • device variations as `.preview-frame.mobile|tablet <sel>` in <head>, no media queries.
+    //   • never edit .preview-bar or the control scripts below.%%TOKENS_NOTE_RULES%%
     function placeholder(key, label) {
       return '<div class="ph"><h2>' + label + '</h2>'
         + '<p>Page <code>' + key + '</code> — remplacez le corps de la fonction '
@@ -300,6 +315,93 @@ TEMPLATE = r"""<!DOCTYPE html>
 """
 
 
+# ─── Contract resolution (opt-in --contract) ─────────────────────────────────
+# Option C: inline the ALREADY-generated stylesheet adapter. Nothing is derived or
+# regenerated here — the harness reads what generate.py produced. Exit-code space is
+# 0 / 2 / 3, never 1, never 4 (master § Exit-code space; references/harness-contract.md).
+
+RELEASE = "release.json"
+POLICIES = "policies.json"
+
+TOKENS_NOTE_HEADER = (
+    "\n\n  CONTRAT INLINE (--contract)\n"
+    "    La feuille de tokens du contrat est inline dans le <head>, avant le chrome.\n"
+    "    Consomme ces tokens via var(--…) ; ne code jamais en dur couleur/espacement/typo."
+)
+TOKENS_NOTE_RULES = (
+    "\n    //   • when the contract stylesheet is inlined, consume its tokens via "
+    "var(--…); never hardcode color/spacing/type values."
+)
+
+
+def _fail(message):
+    """Print to stderr and return the invocation/invalid-artifact code (2)."""
+    print(message, file=sys.stderr)
+    return 2
+
+
+def resolve_tokens_style(contract):
+    """Resolve the contract's stylesheet adapter into an inline <style> block.
+
+    Returns (style, code). code is None on success; style is the <style> block, or ""
+    when the contract declares no stylesheet adapter (scaffold, one stderr warning).
+    A non-None code (3 = 1.x contract, 2 = missing/unreadable/invalid artifact) means
+    the caller stops with that code — the file is not written.
+    """
+    cdir = Path(contract)
+    release = cdir / RELEASE
+    if not release.is_file():
+        # Absence alone means 1.x — the only branch that yields 3.
+        print(f"1.x contract: no {RELEASE} in {cdir.resolve()}\n"
+              f"  Migrate it first: python tools/migrate-contract.py --contract {contract}",
+              file=sys.stderr)
+        return None, 3
+    try:
+        json.loads(release.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as exc:
+        # Present but corrupt is a broken contract, not a 1.x one: exit 2, not 3.
+        return None, _fail(f"Unreadable {RELEASE}: {exc}\n  {release.resolve()}\n"
+                           "  A present but invalid release.json is a broken contract, "
+                           "not 1.x — fix the artifact or re-freeze the contract.")
+
+    policies_path = cdir / POLICIES
+    if not policies_path.is_file():
+        return None, _fail(f"Missing artifact: {policies_path.resolve()}")
+    try:
+        policies = json.loads(policies_path.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as exc:
+        return None, _fail(f"Unreadable {POLICIES}: {exc}\n  {policies_path.resolve()}")
+    if not isinstance(policies, dict):
+        return None, _fail(f"{POLICIES} is not an object: {policies_path.resolve()}")
+
+    adapters = policies.get("adapters")
+    entry = None
+    if isinstance(adapters, list):
+        for candidate in adapters:
+            if isinstance(candidate, dict) and candidate.get("consumer") == "stylesheet":
+                entry = candidate
+                break
+    if entry is None:
+        print(f"Warning: no adapters[] entry declares consumer \"stylesheet\" in {POLICIES}; "
+              "continuing in scaffold mode (no tokens inlined).", file=sys.stderr)
+        return "", None
+
+    artifact = entry.get("artifact")
+    if not isinstance(artifact, str) or not artifact:
+        return None, _fail(f"{POLICIES} adapters[].artifact is not a non-empty string: "
+                           f"{policies_path.resolve()}")
+    css_path = cdir / artifact
+    try:
+        css = css_path.read_text(encoding="utf-8")
+    except (OSError, ValueError):
+        # Option C: the harness never derives the stylesheet — generate.py owns it.
+        return None, _fail(f"Declared stylesheet adapter is absent or unreadable: "
+                           f"{css_path.resolve()}\n"
+                           f"  Generate it first: python tools/generate.py --contract {contract}")
+    style = "<style>\n" + css.rstrip("\n") + "\n</style>"
+    return style, None
+
+
 # ─── Main ────────────────────────────────────────────────────────────────────
 
 def main():
@@ -310,7 +412,16 @@ def main():
                     help='Pages as "key:Label, key2:Label 2" (default: page-1:Page 1)')
     ap.add_argument("--pages-json", default=None,
                     help="Path to JSON file — list [{key, label, group?}] or {pages: [...]}")
+    ap.add_argument("--contract", default=None,
+                    help="Contract dir — inline its generated stylesheet adapter (opt-in)")
     args = ap.parse_args()
+
+    # Opt-in contract coupling. Absent, style stays "" and the scaffold path is unchanged.
+    style = ""
+    if args.contract is not None:
+        style, code = resolve_tokens_style(args.contract)
+        if code is not None:
+            return code
 
     if args.pages_json:
         data = json.loads(Path(args.pages_json).read_text("utf-8"))
@@ -321,10 +432,17 @@ def main():
         pages = [{"key": "page-1", "label": "Page 1"}]
 
     if not pages:
+        # An invocation error, not a violation (1) — 1 is not in the harness code space.
         print("Error: no pages defined.", file=sys.stderr)
-        sys.exit(1)
+        return 2
+
+    note_header = TOKENS_NOTE_HEADER if style else ""
+    note_rules = TOKENS_NOTE_RULES if style else ""
 
     html = (TEMPLATE
+            .replace("%%TOKENS_STYLE%%\n", (style + "\n") if style else "")
+            .replace("%%TOKENS_NOTE_HEADER%%", note_header)
+            .replace("%%TOKENS_NOTE_RULES%%", note_rules)
             .replace("%%TITLE%%", args.title)
             .replace("%%PAGE_OPTIONS%%", build_options(pages))
             .replace("%%PAGE_FUNCTIONS%%", build_functions(pages))
@@ -334,8 +452,9 @@ def main():
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")
-    print(f"✓ Harness written → {out}  ({len(pages)} page(s))")
+    print(f"Harness written -> {out}  ({len(pages)} page(s))")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

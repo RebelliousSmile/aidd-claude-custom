@@ -99,7 +99,13 @@ def _derive_props(tokens: dict) -> list[str]:
 
 
 def _derive_breakpoints(tokens: dict) -> list[dict]:
-    """Dérive les breakpoints depuis tokens.breakpoint.* ou fallback mobile+desktop."""
+    """Dérive les breakpoints depuis tokens.breakpoint.* ou fallback mobile+desktop.
+
+    Invariant prouvé, non vérifié au runtime : `mockup_viewport ∈ {desktop, tablet, mobile}`.
+    Toute clé `tokens.breakpoint.*` hors de `_BP_MAP` est ignorée (`:110-112`), le nom est
+    pris dans `_BP_MAP` (`:121-122`), et le fallback est mobile+desktop (`:55-56`). L'ensemble
+    est donc clos par construction — c'est exactement les trois échantillons device exposés
+    par le harness (references/harness-contract.md § Accord measure / oracle)."""
     bp_group = tokens.get("breakpoint", {})
     if not bp_group:
         return _DEFAULT_BREAKPOINTS

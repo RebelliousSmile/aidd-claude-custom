@@ -1,0 +1,11 @@
+[
+  { "prompt": "génère le harness de maquette pour ce projet", "expect_action": "scaffold" },
+  { "prompt": "crée la maquette de référence, pages accueil et contact", "expect_action": "scaffold" },
+  { "prompt": "initialise le fichier de maquette autonome", "expect_action": "scaffold" },
+  { "prompt": "génère le harness et inline les tokens du contrat figé", "expect_action": "contract-inline" },
+  { "prompt": "prépare la maquette couplée au contrat pour qu'elle parle les mêmes tokens que le lint", "expect_action": "contract-inline" },
+  { "prompt": "couple le harness au contrat mais il n'y a pas de release.json", "expect_action": "exit-3-migrate" },
+  { "prompt": "harness --contract sur un contrat 1.x", "expect_action": "exit-3-migrate" },
+  { "prompt": "le harness --contract échoue, l'adapter stylesheet est déclaré mais le fichier css est absent", "expect_action": "exit-2-generate" },
+  { "prompt": "le contrat ne déclare aucun adapter stylesheet, couple quand même le harness", "expect_action": "scaffold-warn" }
+]
