@@ -79,7 +79,7 @@ Le figeage grave dans `release.json § generated` l'empreinte de chaque source l
 | `adjust` | `/design:adjust` | Arbitrage maquettes + figeage du contrat (tokens · components · policies · oracle, racine release.json) + migration 1.x → 2.0. |
 | `enforce` | `/design:enforce` | Linter portable dérivé du contrat · 4 gates · pivot par langage · lint des instances existantes. |
 | `diffuse` | `/design:diffuse` | Éléments répétables sous gate lint · baseline HTML/CSS · pivot par langage. |
-| `harness` | `/design:harness` | Génère le harness HTML autonome (`setPage`/`setViewport`) piloté par l'oracle de fidélité et le fan-out `copycat`. |
+| `harness` | `/design:harness` | Génère le harness HTML autonome (`setPage`/`setViewport`) piloté par l'oracle de fidélité et le fan-out `copycat`. `--contract` (opt-in) : inline la feuille de tokens déjà générée du contrat figé, pour que la référence parle les mêmes tokens que l'implémentation lintée. |
 
 ## Enforcement hybride
 

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "my-marketplace",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "Local marketplace — personal overlay on the AIDD framework",
   "owner": {
     "name": "François-Xavier Guillois"
@@ -9,9 +9,9 @@
   "plugins": [
     {
       "name": "overcode",
-      "version": "3.7.0",
+      "version": "3.8.0",
       "source": "./plugins/overcode",
-      "description": "Extends the AIDD framework: dig, harvest, reconcile-normative, data-optimize, web-optimize, seo-optimize, behave, control (gouvernance de la suite de tests, pondérée par la phase de projet : décision de tier, audit des tests sans valeur, manques classés par risque, config d'outillage, état des lieux, alignement du document de stratégie), status. Alias: rechallenge, endtask, bump-plugin, previously, smarten, skillconf, weeklyemail, gitit, mirror, codex-vision.",
+      "description": "Extends the AIDD framework: harvest, reconcile-normative, data-optimize, web-optimize, seo-optimize, behave, control (gouvernance de la suite de tests, pondérée par la phase de projet : décision de tier, audit des tests sans valeur, manques classés par risque, config d'outillage, état des lieux, alignement du document de stratégie), status, baby (explications en langage simple). Alias: rechallenge, endtask, bump-plugin, previously, smarten, skillconf, weeklyemail, gitit, mirror, codex-vision.",
       "recommended": true
     },
     {
@@ -51,16 +51,16 @@
     },
     {
       "name": "sc-css",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "source": "./plugins/sc-css",
       "description": "CSS ecosystem skills: sniff (architecture + stack), audit (spécificité, code mort, magic numbers, a11y CSS), improve (custom properties, cascade layers, modernisation), legacy (float→flex/grid, px→rem, préfixes→standard, vars Sass→custom props), teach. design-bridge: tokens.json → custom properties CSS, components.json → BEM stylesheets en @layer.",
       "recommended": false
     },
     {
       "name": "sc-tiers",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "source": "./plugins/sc-tiers",
-      "description": "Third-party SaaS consumption rules: Firebase coding + Firebase/Supabase/DynamoDB/Hasura data pivots.",
+      "description": "Third-party SaaS consumption rules: Firebase (Firestore, Auth, Hosting), Klaviyo, GTM/Meta Pixel, Microsoft Clarity, PageSpeed Insights. Data pivot: Firebase/Firestore only.",
       "recommended": false
     },
     {

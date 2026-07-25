@@ -4,6 +4,27 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [3.3.0] - 2026-07-25
+
+### Added
+
+- **`overcode` (3.8.0)** — skill `baby` : explique, réécrit ou compare un sujet en langage simple et progressif, sans jargon non défini.
+- **`sc-css` (0.3.1)** — `README.md` créé (n'en avait jamais eu) et ajouté à l'index et à la table de référence rapide du README racine ; ses six skills (`sniff`, `audit`, `improve`, `legacy`, `teach`, `design-bridge`) étaient jusqu'ici invisibles depuis la documentation du marketplace bien qu'installables.
+
+### Removed
+
+- **`overcode` (3.8.0)** — skill `dig` (quiz interactif /20) retirée : supplantée pour l'explication passive par le output style natif Learning (blocs ★ Insight). Sa capacité de rappel actif noté n'a pas d'équivalent.
+
+### Fixed
+
+- **Dérive de README vs état réellement livré**, sur quatre plugins dont le `plugin.json`/`CHANGELOG` étaient déjà à jour mais dont le `README.md` avait pris du retard :
+  - `design` — la ligne `harness` ne mentionnait pas le flag `--contract` (2.6.0).
+  - `obs` — les lignes `tree`, `filler` et `mail` omettaient respectivement `judge`/`destinations`, `index`/`synthesize`, et l'action `reply`.
+  - `sc-js` — affirmait à tort que Svelte/SvelteKit n'étaient "pas encore" supportés ; `design-bridge` ne mentionnait pas le workflow de plateforme SPA.
+  - `sc-php` — `design-bridge` ne mentionnait pas le workflow de plateforme FSE.
+- **`sc-tiers` (0.2.1)** — `README.md` et `marketplace.json` affirmaient des data pivots Supabase/DynamoDB/Hasura qui n'ont jamais été implémentés (seul un pivot Firebase/Firestore existe). Fausse mention présente depuis l'entrée baseline du CHANGELOG du plugin, non corrigée pour préserver l'historique.
+- **`sc-python`** — CHANGELOG comblé pour les versions `0.5.0`/`0.5.1`/`0.5.2`, bumpées sans entrée documentée. Un écart résiduel est noté dans le CHANGELOG du plugin : le commit `315a499` (2026-05-31) a ajouté du contenu après le bump `0.5.2` sans bumper à son tour — non corrigé ici, faute de version taguée à lui attribuer.
+
 ## [3.2.0] - 2026-07-22
 
 ### Added

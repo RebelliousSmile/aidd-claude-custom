@@ -15,7 +15,6 @@ Plugin principal, installé globalement (`recommended`). Il ne cible pas une sta
 | `foresee` | `/foresee <cible> [--depth N]` | Analyse prospective docs/code/dépendances — problèmes à moyen terme |
 | `behave` | `/behave <action>` | Harness de tests comportementaux (skills, agents, loops) — scaffold de suites de scénarios, run dry-run jugé, régression |
 | `control` | `/control <action>` | Gouvernance de la suite de tests d'un projet, bornée par une **densité** (cas de test rapportés aux points de branchement, lue contre la médiane du projet lui-même — pas par un plafond de nombre) et pondérée par sa **phase** (`scaffolding` / `hardening` / `production` / `sustaining`, déclarée ou demandée, jamais déduite) — décide du tier avant écriture (`write`), traque les tests sans valeur (`audit`), classe par risque les tests manquants (`strengthen`), détecte l'outillage mal configuré (`configure`), donne l'état des lieux d'un coup d'œil (`stats`), et réaligne le document de stratégie du projet sur ce qu'il fait réellement — y compris le solde net d'une bascule de phase et son lot de suppression caractérisé par son critère (`align`) |
-| `dig` | `/dig` | Quiz interactif 5 questions sur le codebase ou la memory bank — noté /20 |
 | `web-optimize` | `/web-optimize` | Audit perf web (LCP, CLS, INP, bundle, N+1) selon une checklist stack-aware, roadmap priorisée |
 | `data-optimize` | `/data-optimize` | Audit perf de la couche données (N+1, index, pagination, cache), stack-aware |
 | `seo-optimize` | `/seo-optimize` | Audit SEO et GEO (référencement + moteurs génératifs) — indexabilité, title/meta/H1, données structurées, E-E-A-T, CWV → roadmap priorisée + copy prêt à coller |
@@ -25,6 +24,7 @@ Plugin principal, installé globalement (`recommended`). Il ne cible pas une sta
 | `decompose` | `/decompose` | Décompose un objectif en graphe de dépendances (méthode Mikado) |
 | `journey` | `/journey` | Exécute un parcours utilisateur depuis une issue GitHub/GitLab (résultats Playwright) |
 | `status` | `/status` | Santé projet — synthèse/export de la mémoire, rapport de santé, snapshot |
+| `baby` | `/baby` | Explique, réécrit ou compare un sujet en langage simple et progressif, sans jargon non défini |
 
 Chaînes d'alias fournies (via `alias`) : `rechallenge`, `endtask`, `bump-plugin`, `previously`, `smarten`, `skillconf`, `weeklyemail`, `gitit`, `mirror`, `codex-vision`.
 

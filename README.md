@@ -14,6 +14,7 @@ Le **détail des skills de chaque plugin vit dans son propre README** — ce tab
 | [`sc-godot`](plugins/sc-godot/README.md) | [README](plugins/sc-godot/README.md) · [CHANGELOG](plugins/sc-godot/CHANGELOG.md) | — | Stack Godot / GDScript : sniff, audit, improve, legacy, teach |
 | [`sc-js`](plugins/sc-js/README.md) | [README](plugins/sc-js/README.md) · [CHANGELOG](plugins/sc-js/CHANGELOG.md) | — | Stack JavaScript : Nuxt / Vue SPA / Vite / Alpine / Astro |
 | [`sc-php`](plugins/sc-php/README.md) | [README](plugins/sc-php/README.md) · [CHANGELOG](plugins/sc-php/CHANGELOG.md) | — | Stack PHP : Laravel / Symfony / WordPress / HTMX |
+| [`sc-css`](plugins/sc-css/README.md) | [README](plugins/sc-css/README.md) · [CHANGELOG](plugins/sc-css/CHANGELOG.md) | — | Couche CSS pure : architecture (BEM, utility-first, CSS Modules, ITCSS), audit, modernisation |
 | [`sc-python`](plugins/sc-python/README.md) | [README](plugins/sc-python/README.md) · [CHANGELOG](plugins/sc-python/CHANGELOG.md) | — | Stack Python : Django / FastAPI / Flask / Celery |
 | [`sc-rust`](plugins/sc-rust/README.md) | [README](plugins/sc-rust/README.md) · [CHANGELOG](plugins/sc-rust/CHANGELOG.md) | — | Stack Rust : Axum / Actix-web |
 | [`sc-tiers`](plugins/sc-tiers/README.md) | [README](plugins/sc-tiers/README.md) · [CHANGELOG](plugins/sc-tiers/CHANGELOG.md) | — | SaaS tiers : Firebase, Klaviyo, GTM, Clarity, PSI |
@@ -66,6 +67,7 @@ Par projet — `.claude/settings.json` du projet, ou via commande :
 | Design system / UI mobile-first | `design` |
 | Web JavaScript / Nuxt / Vue | `sc-js` |
 | Web PHP | `sc-php` |
+| CSS pur (architecture, audit, modernisation) | `sc-css` |
 | Web Python | `sc-python` |
 | Web Rust | `sc-rust` |
 | SaaS tiers (Firebase, Klaviyo, GTM…) | `sc-tiers` |

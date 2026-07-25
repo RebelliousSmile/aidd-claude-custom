@@ -2,6 +2,14 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/overcode plugins/aidd-overlay` (le plugin s'appelait `aidd-overlay` avant la 3.0.0).
 
+## [3.8.0] — 2026-07-25
+
+### Added — `baby`
+- **Nouvelle skill** (`skills/baby/SKILL.md`) — explique, réécrit ou compare un sujet en langage simple, progressif et concret, sans jargon non défini. Trois modes selon l'intention : explication d'un concept (structure en-bref / étape par étape / exemple / à retenir), réécriture d'un contenu existant (préservation du sens, faits et avertissements de la source, distinction explicite entre reformulation et ajout), et comparaison de choix techniques (critères, avantage/inconvénient/cas d'usage par option, recommandation conditionnelle si une inconnue pourrait la faire basculer). Pas d'actions séparées : la skill est un seul mode opératoire, sans état à faire persister entre les appels.
+
+### Removed — `dig`
+- **Skill retirée** (`skills/dig/`) — le quiz interactif noté /20 embodied par Ada perd sa raison d'être avec l'arrivée du output style natif Learning (blocs ★ Insight), qui couvre l'explication pédagogique automatique. Aucune autre skill du plugin n'en dépendait. Récupérable via `git log` si le besoin de rappel actif (vs explication passive) devait réapparaître.
+
 ## [3.7.0] — 2026-07-22
 
 ### Changed — `control`

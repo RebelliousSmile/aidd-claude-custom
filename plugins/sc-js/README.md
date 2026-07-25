@@ -6,8 +6,8 @@
 
 **Statut : 🧰 Beta.**
 
-- *Ça marche aujourd'hui :* détection runtime (web / desktop), framework (Nuxt 3, Vue SPA, Vite, Alpine.js, Astro, 11ty), ORMs (Prisma, Drizzle, TypeORM, Mongoose, GraphQL, tRPC), audit via `aidd-dev:reviewer`, migration Vue 2 → 3 / ESM / TypeScript, enseignement composables / réactivité / async
-- *Pas encore :* React, Svelte, Angular, Solid ; pivots routing (`vue-router`), i18n (`vue-i18n`), composables utilitaires (`@vueuse/core`), design system (UnoCSS, Tailwind)
+- *Ça marche aujourd'hui :* détection runtime (web / desktop), framework (Nuxt 3, Vue SPA, SvelteKit/Svelte, Vite, Alpine.js, Astro, 11ty), ORMs (Prisma, Drizzle, TypeORM, Mongoose, GraphQL, tRPC), audit via `aidd-dev:reviewer`, migration Vue 2 → 3 / ESM / TypeScript, enseignement composables / réactivité / async
+- *Pas encore :* React, Angular, Solid ; pivots routing (`vue-router`), i18n (`vue-i18n`), composables utilitaires (`@vueuse/core`), design system (UnoCSS, Tailwind)
 - *Prochaine étape :* couverture des gaps les plus fréquents (routing, composables utilitaires)
 
 ## Pourquoi
@@ -17,7 +17,7 @@
 - **Audit délégué à `aidd-dev:reviewer`** — pas une liste statique, une revue en contexte enrichi
 - **Perf et data sur mesure** — `web-optimize` et `data-optimize` lisent des checklists adaptées au stack réel
 
-Pertinent si tu travailles sur des projets Vue / Nuxt / Vite / Alpine avec le framework aidd. Pas applicable pour React, Angular, ou Svelte — aucun pivot disponible.
+Pertinent si tu travailles sur des projets Vue / Nuxt / SvelteKit / Vite / Alpine avec le framework aidd. Pas applicable pour React, Angular ou Solid — aucun pivot disponible.
 
 ## Prérequis
 
@@ -33,7 +33,7 @@ Pertinent si tu travailles sur des projets Vue / Nuxt / Vite / Alpine avec le fr
 /sc-js:improve        → analyse + plan d'amélioration ciblé
 /sc-js:legacy         → migration Vue 2 → 3, ESM, TypeScript strict
 /sc-js:teach          → explications composables, réactivité, patterns async
-/sc-js:design-bridge  → réceptacle du pivot design (règle ESLint + composant Vue 3/React) — rend au gate chaque règle assignée, réalisée ou non
+/sc-js:design-bridge  → réceptacle du pivot design (règle ESLint + composant Vue 3/React) — rend au gate chaque règle assignée, réalisée ou non ; possède le workflow de plateforme SPA (application à composants)
 /sc-js:wp-blocks      → round-trip de validité des blocs Gutenberg (Playwright) pour markup FSE généré hors éditeur
 ```
 

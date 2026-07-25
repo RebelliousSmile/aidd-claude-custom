@@ -1,5 +1,10 @@
 # Changelog — sc-css
 
+## [0.3.1] — 2026-07-25
+
+### Fixed
+- **`README.md` créé** — le plugin n'avait jamais eu de README, contrairement à tous ses pairs `sc-*` ; absent aussi de l'index et de la table de référence rapide du README racine. Les six skills (`sniff`, `audit`, `improve`, `legacy`, `teach`, `design-bridge`) étaient donc invisibles depuis la documentation du marketplace bien qu'installables.
+
 ## [0.3.0] — 2026-07-25
 
 ### Reçu du pivot design (design 2.5.0 — verbe 0 `detail`)
