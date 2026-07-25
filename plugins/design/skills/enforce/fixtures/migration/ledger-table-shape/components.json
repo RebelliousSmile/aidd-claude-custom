@@ -1,0 +1,14 @@
+{
+  "$schema": "design/references/manifest-schema#",
+  "$version": "1.0.0",
+  "mode": "bem",
+  "components": {
+    "card": {
+      "base": "card",
+      "elements": { "title": "card__title", "lede": "card__lede" },
+      "modifiers": {},
+      "backgrounds": ["color.semantic.surface"],
+      "a11y": { "role": "article", "requires": [] }
+    }
+  }
+}

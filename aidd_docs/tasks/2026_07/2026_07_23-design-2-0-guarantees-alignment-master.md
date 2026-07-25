@@ -36,7 +36,7 @@ Assumed breaking change: the monolithic contract is split into four artifacts pl
 | 4   | Distributed enforcement       | Lot 3 | 2.2.0    | `./2026_07_23-design-2-0-guarantees-alignment-part-4.md` | done | [x] |
 | 5   | Mandatory oracle, structured ledger | Lot 4 | 2.3.0 | `./2026_07_23-design-2-0-guarantees-alignment-part-5.md` | done | [x] |
 | 6   | Maturity at freeze            | Lot 5 | 2.4.0    | `./2026_07_23-design-2-0-guarantees-alignment-part-6.md` | done | [x] |
-| 7   | Migration of frozen contracts | ops   | unchanged | `./2026_07_23-design-2-0-guarantees-alignment-part-7.md` | blocked | [ ] |
+| 7   | Migration of frozen contracts | ops   | unchanged | `./2026_07_23-design-2-0-guarantees-alignment-part-7.md` | done | [x] |
 | 8   | Verb 0 `detail`, map and workflow router | Lot 6 | 2.5.0 | `./2026_07_23-design-2-0-guarantees-alignment-part-8.md` | done | [x] |
 
 <!-- Status values: pending, in-progress, done, blocked -->
@@ -108,7 +108,7 @@ Code 2 keeps and widens its pre-existing meaning; the 1.x diagnosis takes 3 so t
 4. [ ] Checkpoint 6: 2.4.0 published, fixtures green
 5. Unblock Plan 7, one human validation per project migrated
 6. Unblock Plan 8 as soon as Plan 6 is validated, independently of Plan 7
-7. [ ] Final: every frozen contract reads under 2.x, no contract left in 1.x, and the funnel carries its own map
+7. [x] Final: every frozen contract reads under 2.x, no contract left in 1.x (all six carry `release.json`, linter can no longer exit 3), and the funnel carries its own map (`detail` verb, 2.5.0)
 
 ## Estimations
 

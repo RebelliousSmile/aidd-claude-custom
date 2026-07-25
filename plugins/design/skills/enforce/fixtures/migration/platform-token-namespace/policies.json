@@ -1,0 +1,13 @@
+{
+  "$schema": "design/references/contract-schema#policies",
+  "mode": "bem",
+  "$utilityPrefixes": [
+    "u-"
+  ],
+  "usage": {
+    "rawHexForbidden": true,
+    "colorUtilityPrefixes": [],
+    "rules": []
+  },
+  "adapters": []
+}

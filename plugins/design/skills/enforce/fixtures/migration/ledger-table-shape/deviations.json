@@ -1,0 +1,38 @@
+{
+  "$schema": "design/references/contract-schema#deviations",
+  "active": [
+    {
+      "id": "DEV-001",
+      "target": "card__title",
+      "prop": "fontSize",
+      "expected": "17px",
+      "reason": "La maquette fixait 16px à la main sur mobile seul ; adopter le token de corps fluide unique retire une exception de breakpoint. +1px à 375 est sous le seuil perceptif.",
+      "breakpoint": "mobile",
+      "date": "2026-06-15",
+      "approver": "FX"
+    },
+    {
+      "id": "DEV-002",
+      "target": "card__lede",
+      "prop": "lineHeight",
+      "expected": "1.5",
+      "reason": "S'aligner sur le token d'interligne de corps unique retire une exception par section. Provisoire : à revoir une fois le token lede séparé du corps.",
+      "breakpoint": "all",
+      "date": "2026-06-18",
+      "expires": "2026-12-31",
+      "approver": "FX"
+    }
+  ],
+  "historical": [
+    {
+      "id": "DEV-000",
+      "target": "card",
+      "prop": "boxShadow",
+      "expected": "none",
+      "reason": "Ombre portée retirée à la source ; la dérogation ne sanctionne plus rien.",
+      "date": "2026-06-01",
+      "resolvedAt": "2026-06-22",
+      "approver": "FX"
+    }
+  ]
+}

@@ -35,7 +35,7 @@ catégories utilisées doivent être **enregistrées** (thème : `register_block
 3. **Regrouper les variantes** — toutes les ouvertures dans `hero` (héro service,
    contact, géo, hub…), toutes les preuves dans `proof`, etc. Un « Contact — Héro »
    va dans `hero`, pas dans un bucket contact.
-4. **Nommage** `Rôle — Variante`, sans préfixe de marque (« Mauceri — » retiré).
+4. **Nommage** `Rôle — Variante`, sans préfixe de marque (tout préfixe de marque est retiré).
 5. **Contrainte native** — une pattern rangée dans `blog` (ou toute catégorie
    marquée 100 %-natif par le projet) ne doit contenir aucun `wp:html` : si elle a
    des îlots (image, formulaire, CTA-lien), la ranger ailleurs (`content`, `contact`…).
