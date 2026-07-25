@@ -78,10 +78,15 @@ Routes (par ordre de préférence) :
 
 > Si un diff `fontSize` ne se ferme pas malgré un fix CSS : vérifier que le markup ne porte pas une classe `has-*-font-size` concurrente.
 
+## Workflow de plateforme (block theme / FSE)
+
+Ce pivot **possède** le workflow de plateforme FSE : `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/workflow-fse.md`. Il instancie les classes de cas agnostiques de `design:detail` sur un thème de blocs, sous le squelette figé par `sc-pivot-contract.md § Workflow de plateforme`. `design:detail/02-route` l'étend à la classe quand ce pivot est installé et la stack correspond.
+
 ## Références
 
-- `plugins/design/references/sc-pivot-contract.md` — format des specs reçus
+- `plugins/design/references/sc-pivot-contract.md` — format des specs reçus et squelette de workflow de plateforme
 - `plugins/design/references/gate-config-schema.md` — format du rapport à écrire
+- `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/workflow-fse.md` — workflow de plateforme FSE (classes de cas instanciées sur block theme)
 - `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md` — pièges WP
 - `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-lint-instances.md` — réalisation des règles `stored-content` (extraction du contenu en base)
 - `plugins/design/references/token-schema.md` — structure tokens.json

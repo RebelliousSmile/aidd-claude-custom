@@ -1,0 +1,20 @@
+[
+  { "prompt": "que fait le plugin design", "expect_action": "explain" },
+  { "prompt": "explique-moi l'entonnoir des verbes", "expect_action": "explain" },
+  { "prompt": "à quoi sert enforce dans le flux", "expect_action": "explain" },
+  { "prompt": "quels artefacts produit adjust", "expect_action": "explain" },
+  { "prompt": "c'est quoi le gate de fidélité par rapport au gate de vocabulaire", "expect_action": "explain" },
+  { "prompt": "quelle est la différence entre define et destructure", "expect_action": "explain" },
+  { "prompt": "j'ai une maquette de plusieurs pages, par quoi je commence", "expect_action": "route" },
+  { "prompt": "je n'ai qu'un brief écrit, quelle séquence lancer", "expect_action": "route" },
+  { "prompt": "j'hérite d'une base de code sans contrat, quoi jouer", "expect_action": "route" },
+  { "prompt": "le contrat est figé et un composant doit évoluer, comment procéder", "expect_action": "route" },
+  { "prompt": "mes instances divergent du contrat figé, que faire", "expect_action": "route" },
+  { "prompt": "le contrat est figé et vert, je dois juste livrer un élément", "expect_action": "route" },
+  { "prompt": "quelle séquence si le pivot correspondant n'est pas installé", "expect_action": "route" },
+  { "prompt": "fige le contrat et écris le manifeste", "expect_action": null },
+  { "prompt": "installe le linter et câble les gates", "expect_action": null },
+  { "prompt": "produis le composant natif pour la stack cible", "expect_action": null },
+  { "prompt": "challenge la direction visuelle de la charte", "expect_action": null },
+  { "prompt": "mesure les écarts de style calculé par breakpoint contre la maquette", "expect_action": null }
+]

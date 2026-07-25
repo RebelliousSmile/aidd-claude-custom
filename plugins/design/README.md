@@ -15,11 +15,12 @@ Le vocabulaire de classes est **ouvert par défaut** — une classe dont le bloc
 ## Flux
 
 ```
-define → destructure → adjust → enforce → diffuse
-  ↓           ↓            ↓         ↓         ↓
-poser      challenger     figer    verrou    produire
+detail → define → destructure → adjust → enforce → diffuse
+  ↓         ↓          ↓            ↓         ↓         ↓
+carte     poser    challenger     figer    verrou    produire
 ```
 
+- **detail** (verbe 0) — **lecture seule, aucun artefact.** Explique la carte de l'entonnoir (rôle · entrée · sortie · artefacts · gate · fichier autoritaire de chaque verbe) et route une intention vers l'une des six classes de cas agnostiques de la stack (`mockup-multipage`, `brief-only`, `codebase-inherited`, `element-evolution`, `contract-drift`, `element-production`). N'exécute jamais ce qu'il décrit. Quand le pivot `sc-*` correspondant est installé et que la stack correspond, la classe est étendue par le **workflow de plateforme** du pivot (squelette figé par le contrat de pivot). Voir [`references/sc-pivot-contract.md § Workflow de plateforme`](references/sc-pivot-contract.md).
 - **define** — pose, écoute, construit la matière : tokens de travail, inventaire composants candidat, charte brouillon. Depuis une référence (screenshot, Figma, URL) ou un brief. Peut injecter le profil mobile-first/a11y optionnel.
 - **destructure** — challenge la direction avant de la figer : critique des angles (a11y, cohérence, mobilité…), pistes alternatives. Pendant design de `aidd-refine:challenge`.
 - **adjust** — arbitre les maquettes divergentes (motif dominant gagne ; gate humain sur les cas non tranchables), **fige le contrat**, **génère les artefacts dérivés** (`tools/generate.py`) et **migre un contrat 1.x** vers le format 2.0.
@@ -72,6 +73,7 @@ Le figeage grave dans `release.json § generated` l'empreinte de chaque source l
 
 | Skill | Invocation | Description |
 |-------|-----------|-------------|
+| `detail` | `/design:detail` | **Verbe 0, lecture seule, aucun artefact.** `explain` : la carte des verbes. `route` : la séquence exécutable pour l'une des six classes de cas agnostiques, étendue par le workflow de plateforme du pivot `sc-*` installé. |
 | `define` | `/design:define` | Extraction depuis références/brief → tokens + inventaire + charte brouillon. Profil mobile-first optionnel. |
 | `destructure` | `/design:destructure` | Challenge la direction design — critique multi-angles + pistes alternatives. |
 | `adjust` | `/design:adjust` | Arbitrage maquettes + figeage du contrat (tokens · components · policies · oracle, racine release.json) + migration 1.x → 2.0. |

@@ -2,15 +2,16 @@
 
 | Champ | Valeur |
 |---|---|
-| Version courante | 2.4.0 |
+| Version courante | 2.5.0 |
 | Dernière release | 2026-07-25 |
 
-## Architecture — entonnoir 5 verbes
+## Architecture — verbe 0 + entonnoir 5 verbes
 
-`define → destructure → adjust → enforce → diffuse`
+`detail (0) → define → destructure → adjust → enforce → diffuse`
 
 | Verbe | Rôle |
 |---|---|
+| `detail` | **Verbe 0, lecture seule, aucun artefact** : `explain` (carte des verbes) + `route` (séquence exécutable pour une des 6 classes de cas). Voir `### Verbe 0 detail (Lot 6, 2.5.0)` |
 | `define` | Extraction depuis référence/brief → tokens + inventaire composants + charte brouillon |
 | `destructure` | Challenge multi-angles avant figeage |
 | `adjust` | Arbitrage + figeage du contrat + **génération des dérivés** + **migration 1.x → 2.0** |
@@ -113,6 +114,18 @@ La conformité n'est affirmée que par l'oracle **par propriété** ; tout écar
   - Les rôles/attributs ARIA restent du **markup → réalisé au pivot**.
 - **Figeage non bloquant** : `adjust/02-freeze` calcule contraste + états, enregistre `checks` et les `gaps` correspondants dans `release.json`, mais **ne bloque jamais** sur un a11y non-vert — il laisse `status.py` plafonner. Le refus d'affirmer la conformité est porté par le seuil au gate, pas par un arrêt au figeage.
 - **Fixtures de statut** : `skills/enforce/fixtures/status/` — `layer-3-absent` (charte absente → `extracted`), `no-contrast-run` (charte + contraste non couru → `normalized`, réutilise les artefacts sales pour reproduire les violations du Lot 3), `validated` (contrôles enregistrés → `validated`). L'`utility` reste `validated`, la racine `fixtures/` = `extracted`. Config gate `gates.below-threshold.config.json` (contrat = `no-contrast-run`, cibles sales) → exit 4 avec les mêmes violations que le Lot 3.
+
+### Verbe 0 detail (Lot 6, 2.5.0)
+
+**Un consommateur qui ne sait rien du plugin obtient, en une invocation, la carte des verbes et la séquence exécutable pour sa propre classe de cas, étendue par le workflow de plateforme quand le pivot correspondant est installé.**
+
+- **7ᵉ skill `detail`, verbe 0, lecture seule, aucun artefact de sortie.** Deux actions : `explain` rend la carte des verbes, `route` rend ce qu'il faut exécuter. N'exécute jamais ce qu'il décrit, ne fige rien, ne corrige rien en silence.
+- **Deux références autoritaires** : `skills/detail/references/funnel-map.md` (la carte — 8 colonnes, une ligne par verbe ; source unique lue par `01-explain`, jamais paraphrasée : le process reste chez le fichier autoritaire cité, dec-001) et `skills/detail/references/workflow-classes.md` (les six classes de cas).
+- **Six classes de cas — closes, agnostiques de la stack** : contrat absent → `mockup-multipage` · `brief-only` · `codebase-inherited` ; contrat figé → `element-evolution` · `contract-drift` · `element-production`. Exhaustives sur signature d'entrée × état du contrat. `harness` n'est **pas** une classe — c'est la précondition de `mockup-multipage`.
+- **Les workflows de plateforme quittent `design` pour les pivots (dec-002, prolonge le Lot 3)** : un workflow de plateforme est un COMMENT, il vit dans le pivot `sc-*`. Squelette **figé** dans `references/sc-pivot-contract.md § Workflow de plateforme` — chemin canonique `plugins/sc-<langage>/skills/design-bridge/references/workflow-<plateforme>.md`, **cinq titres imposés en anglais dans l'ordre** (`## Case classes covered` · `## Prerequisites (capabilities)` · `## Phases` · `## Gates` · `## Out of scope`), déclaration de phase input/output/verbe (ou `off-funnel`), prérequis en **capabilities jamais en vendors**, gates **instanciés jamais redéfinis**.
+- **Règle de résolution (par `02-route`)** : pivot installé ET stack correspondante → classe agnostique étendue par le workflow de plateforme ; pivot absent OU stack non correspondante → classe agnostique seule + absence énoncée + recommandation conditionnelle d'installer `sc-<langage>`.
+- **Trois premiers workflows livrés dans les pivots** : `sc-php:.../workflow-fse.md` (0.6.0 → 0.7.0), `sc-js:.../workflow-spa.md` (0.12.0 → 0.13.0), `sc-css:.../workflow-static.md` (0.2.0 → 0.3.0). Bumps MINOR — le plan part-8 listait les anciennes versions (le Lot 3 les avait déjà consommées) ; décision consignée en Amendement au plan.
+- **Périmètre — subtilité vérifiée par le success_condition** : le vocabulaire de plateforme (wordpress, fse, vue, react, tailwind…) est **interdit sous `skills/detail/`** (grep exit 1) mais **autorisé dans les pivots** (c'est le sens de la relocalisation). Ce qui reste interdit partout dans les pivots : les noms de vendor/hébergeur (alwaysdata, netlify, vercel…) et de projet (mauceri, scriptami).
 
 ## Profil optionnel
 

@@ -112,9 +112,14 @@ Une règle que ce réceptacle ne couvre pas s'écrit en `status: "unrealized"`. 
 
 Le cas fréquent ici : les règles de type `stylesheet`. Elles portent sur les feuilles réellement chargées, pas sur celles produites depuis le contrat. Une feuille applicative hors des sources déclarées est hors de portée — non réalisée, pas conforme.
 
+## Workflow de plateforme (feuilles de style seules / statique)
+
+Ce pivot **possède** le workflow de plateforme statique : `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/workflow-static.md`. Il instancie les classes de cas agnostiques de `design:detail` sur une cible sans runtime, sous le squelette figé par `sc-pivot-contract.md § Workflow de plateforme`. `design:detail/02-route` l'étend à la classe quand ce pivot est installé et la stack correspond.
+
 ## Références
 
-- `plugins/design/references/sc-pivot-contract.md` — format des specs reçus
+- `plugins/design/references/sc-pivot-contract.md` — format des specs reçus et squelette de workflow de plateforme
+- `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/workflow-static.md` — workflow de plateforme statique (classes de cas instanciées sur feuilles de style seules)
 - `plugins/design/references/gate-config-schema.md` — format du rapport à écrire
 - `plugins/design/references/token-schema.md` — structure tokens.json
 - `plugins/design/skills/adjust/references/manifest-schema.md` — structure components.json

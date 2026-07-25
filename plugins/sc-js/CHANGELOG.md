@@ -1,5 +1,12 @@
 # Changelog — sc-js
 
+## [0.13.0] — 2026-07-25
+
+### Reçu du pivot design (design 2.5.0 — verbe 0 `detail`)
+
+- **`design-bridge/references/workflow-spa.md`** (nouveau) — ce pivot possède désormais le **workflow de plateforme SPA** (application à composants : SFC Vue, composant React), sous le squelette figé par `plugins/design/references/sc-pivot-contract.md § Workflow de plateforme` (cinq titres, déclaration de phase input/output/verbe, prérequis en capabilities). Il instancie les classes de cas agnostiques de `design:detail` : phases `enforce`/`diffuse` natives + phases `off-funnel` (build, mise en ligne). `design:detail/02-route` l'étend à la classe quand ce pivot est installé et la stack correspond. Un workflow de plateforme est un COMMENT : il vit dans le pivot, jamais dans `design` (dec-002).
+- **`design-bridge/SKILL.md`** — section « Workflow de plateforme (application à composants / SPA) » + référence ajoutée.
+
 ## [0.12.0] — 2026-07-24
 
 ### Reçu du pivot design (design 2.2.0)

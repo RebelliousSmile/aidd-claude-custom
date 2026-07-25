@@ -144,6 +144,56 @@ Si aucun `sc-<langage>` ne couvre le langage du projet :
 
 ---
 
+## Workflow de plateforme (extension du contrat de pivot)
+
+Un **workflow de plateforme** instancie une classe de cas agnostique (`design:detail`, `skills/detail/references/workflow-classes.md`) sur une plateforme concrète. C'est un artefact **du pivot**, jamais de `design` : le plugin fige sa forme et sa règle de résolution ; il n'en porte jamais le contenu (dec-002 — `design` garde le QUOI, le pivot garde le COMMENT, et un workflow est un COMMENT).
+
+### Chemin canonique
+
+```
+plugins/sc-<langage>/skills/design-bridge/references/workflow-<plateforme>.md
+```
+
+Le suffixe nomme la **plateforme** que le pivot sert (`fse`, `spa`, `static`…), pas le langage — un même pivot peut en porter plusieurs.
+
+### Cinq titres requis, dans cet ordre
+
+```
+## Case classes covered
+## Prerequisites (capabilities)
+## Phases
+## Gates
+## Out of scope
+```
+
+Ces cinq chaînes sont un **jeton d'interface** : `design:detail/02-route` les attend à l'identique pour lire le workflow d'un pivot. Le corps de chaque section est libre ; les titres ne le sont pas.
+
+### Déclaration de phase
+
+Sous `## Phases`, chaque phase déclare trois champs :
+
+- **input** — ce que la phase consomme ;
+- **output** — ce qu'elle produit ;
+- **verbe** — le verbe design qu'elle instancie (`define`, `destructure`, `adjust`, `enforce`, `diffuse`), ou **`off-funnel`** quand elle n'en instancie aucun (préparation d'environnement, déploiement, recette de production).
+
+### Règle des capabilities
+
+Sous `## Prerequisites (capabilities)`, un prérequis s'écrit comme une **capability** — runtime conteneurisé, accès shell distant, base de données distante, hébergement statique — **jamais** comme un fournisseur, un hébergeur ou un nom de projet. La plateforme est nommée ; le vendor ne l'est pas.
+
+### Règle d'instanciation des gates
+
+Sous `## Gates`, un workflow **instancie** les gates que le contrat connaît déjà (vocabulaire, fidélité, seuil de maturité) : il en nomme le point d'application dans sa séquence. Il n'en **redéfinit aucun** et n'en **introduit aucun** que le contrat ignore. Un gate créé hors du contrat ferait croire à une conformité locale qui n'en est pas une.
+
+### Règle de résolution (par `02-route`)
+
+| État du terrain | Ce que `route` émet |
+|---|---|
+| pivot installé **et** stack correspondante | la classe agnostique **étendue** par le workflow de plateforme |
+| pivot absent | la classe agnostique **seule**, l'absence énoncée explicitement + recommandation conditionnelle d'installer `sc-<langage>` |
+| pivot installé mais stack non correspondante | la classe agnostique **seule**, la non-correspondance énoncée (le workflow présent ne couvre pas cette plateforme) |
+
+---
+
 ## Stack mapping
 
 Le réceptacle se déduit du **langage de la preuve** que la règle doit lire, pas de la plateforme du projet. Le langage des feuilles de style et celui du runtime peuvent différer, et désignent alors deux réceptacles distincts pour un même projet (`references/enforcement-registry.md`).

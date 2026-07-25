@@ -1,5 +1,27 @@
 # Changelog — design
 
+## [2.5.0] — 2026-07-25
+
+Mineur — **un consommateur qui ne sait rien du plugin obtient, en une invocation, la carte des verbes et la séquence exécutable pour sa propre classe de cas, étendue par le workflow de plateforme quand le pivot correspondant est installé.** Introduit un **7ᵉ skill `detail` (verbe 0)** en tête d'entonnoir : lecture seule, aucun artefact de sortie, deux actions — `explain` rend la carte des verbes, `route` rend ce qu'il faut exécuter. Le corps agnostique de la stack porte **six classes de cas** exhaustives (signature d'entrée × état du contrat) ; les workflows de niveau plateforme, eux, **quittent `design` pour les pivots `sc-*`**, sous un squelette figé par le contrat de pivot. Aucun verbe existant ne change ; l'entonnoir de production reste `define → destructure → adjust → enforce → diffuse`.
+
+### `detail` ne fait rien de ce qu'il décrit
+
+Le verbe 0 est **strictement en lecture seule** : il n'écrit aucun artefact, ne fige rien, ne corrige rien en silence. `explain` lit la carte autoritaire (`references/funnel-map.md`) sans jamais paraphraser le process d'un verbe — il cite le fichier autoritaire. `route` classe une intention dans l'une des six classes, relève l'état du contrat **observé** (et signale tout écart avec l'attendu au lieu de le corriger), applique la règle de résolution de pivot, émet la séquence et s'arrête.
+
+### Les six classes de cas — fermées, agnostiques de la stack
+
+`mockup-multipage` · `brief-only` · `codebase-inherited` (contrat absent) ; `element-evolution` · `contract-drift` · `element-production` (contrat figé). L'ensemble est **clos** : il couvre toute combinaison signature d'entrée × état du contrat. `harness` n'est **pas** une classe — c'est la précondition de `mockup-multipage`. Aucune classe ne présuppose de plateforme, de vendor ni de projet.
+
+### Les workflows de plateforme vivent dans les pivots (dec-002)
+
+Un workflow de plateforme est un COMMENT : il quitte le cœur agnostique pour le pivot qui sert la plateforme, sous un **squelette figé** (`references/sc-pivot-contract.md § Workflow de plateforme`) — cinq titres imposés, déclaration de phase input/output/verbe, prérequis écrits en capabilities (jamais en vendors), gates instanciés (jamais redéfinis). `02-route` étend la classe agnostique par ce workflow quand le pivot est installé **et** que la stack correspond ; sinon la classe seule, l'absence énoncée et l'installation de `sc-<langage>` recommandée.
+
+### Ajouté
+
+- `skills/detail/` — le 7ᵉ skill : `SKILL.md` (verbe 0, routage des deux actions, règles transversales de lecture seule), `actions/01-explain.md`, `actions/02-route.md`, `references/funnel-map.md` (la carte des verbes, source unique lue par `explain`), `references/workflow-classes.md` (les six classes de cas), `evals/scenarios.json` (18 scénarios `explain`/`route`/`null`).
+- `references/sc-pivot-contract.md § Workflow de plateforme` — le squelette figé des workflows de plateforme portés par les pivots (chemin canonique, cinq titres, déclaration de phase, règle des capabilities, règle d'instanciation des gates, règle de résolution par `02-route`).
+- Dans les pivots (livrés avec ce lot) : `sc-php:design-bridge/references/workflow-fse.md`, `sc-js:design-bridge/references/workflow-spa.md`, `sc-css:design-bridge/references/workflow-static.md` — les trois premiers workflows de plateforme instanciés.
+
 ## [2.4.0] — 2026-07-25
 
 Mineur — **chaque contrat porte un statut de maturité calculé qui commande l'invocation de la conformité, et tout écart connu plafonne ce statut au lieu d'être noté en prose**. Le statut est une échelle à quatre échelons — `extracted` (les artefacts existent) · `normalized` (+ charte) · `validated` (+ vérifications enregistrées) · `production-ready` (+ contraste vert et états déclaratifs complets) — calculée par une seule implémentation, `tools/status.py`. La conformité ne s'affirme qu'au **seuil `validated`** : en deçà, `tools/run-gates.py` **sort en 4** — les violations restent listées, mais la conformité n'est pas affirmée et le rapport nomme le chemin qui remonte le statut. Le seuil a une seule source humaine (`references/maturity-status.md`) et une seule source exécutable (la constante `THRESHOLD` de `status.py`, importée par `run-gates.py`). Aucune règle de lint n'est ajoutée ni retirée ; les configurations Lot 3 (contrat à `validated`) sortent toujours en 0 et 1.

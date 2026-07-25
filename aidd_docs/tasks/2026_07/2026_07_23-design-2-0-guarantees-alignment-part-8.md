@@ -157,8 +157,8 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] The section declares the five headings in order and the phase-declaration fields.
-- [ ] The resolution rule covers the three cases: pivot installed and matching, pivot absent, pivot installed but stack mismatched.
+- [x] The section declares the five headings in order and the phase-declaration fields.
+- [x] The resolution rule covers the three cases: pivot installed and matching, pivot absent, pivot installed but stack mismatched.
 
 ### Phase 2: The map and the case classes
 
@@ -172,9 +172,9 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] Every verb of the plugin appears exactly once in the map.
-- [ ] The six classes cover the entry signature crossed with the three contract states; no class overlaps another on the same pair.
-- [ ] No stack, platform or vendor is named in either file.
+- [x] Every verb of the plugin appears exactly once in the map.
+- [x] The six classes cover the entry signature crossed with the three contract states; no class overlaps another on the same pair.
+- [x] No stack, platform or vendor is named in either file.
 
 ### Phase 3: The skill
 
@@ -189,9 +189,9 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] Each action carries `Inputs` / `Process` / `Outputs` / `Test`, and each `Test` is observable.
-- [ ] `SKILL.md` duplicates neither the map nor the class table.
-- [ ] The eval file is valid JSON and every `expect_action` is `explain`, `route` or `null`.
+- [x] Each action carries `Inputs` / `Process` / `Outputs` / `Test`, and each `Test` is observable.
+- [x] `SKILL.md` duplicates neither the map nor the class table.
+- [x] The eval file is valid JSON and every `expect_action` is `explain`, `route` or `null`.
 
 ### Phase 4: The three platform workflows
 
@@ -205,10 +205,10 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] Each file carries the five headings in order.
-- [ ] Every phase declares input, output and the design verb it instantiates, or `off-funnel`.
-- [ ] No prerequisite names a vendor, a host or a project; each is a capability.
-- [ ] No gate is created that the contract does not know.
+- [x] Each file carries the five headings in order.
+- [x] Every phase declares input, output and the design verb it instantiates, or `off-funnel`.
+- [x] No prerequisite names a vendor, a host or a project; each is a capability.
+- [x] No gate is created that the contract does not know.
 
 ### Phase 5: Registration and closure
 
@@ -220,8 +220,8 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] The four plugin versions are consistent across `plugin.json`, `marketplace.json`, `index.json` and the READMEs.
-- [ ] The success condition passes in full.
+- [x] The four plugin versions are consistent across `plugin.json`, `marketplace.json`, `index.json` and the READMEs.
+- [x] The success condition passes in full.
 
 ### Phase 6: Transverse writing criterion
 
@@ -229,18 +229,29 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] No project name anywhere in the perimeter, comments and docstrings included.
-- [ ] No stack presupposition in `plugins/design/skills/detail/`.
-- [ ] No duplication between `SKILL.md`, its actions and its references; rationale in the CHANGELOG.
+- [x] No project name anywhere in the perimeter, comments and docstrings included.
+- [x] No stack presupposition in `plugins/design/skills/detail/`.
+- [x] No duplication between `SKILL.md`, its actions and its references; rationale in the CHANGELOG.
 
 ## Amendments
 
+- **A1 — Pivot versions bumped by one MINOR each, not from the versions printed in "Files to modify".** The plan text (lines 84) records `sc-php 0.6.0`, `sc-js 0.12.0`, `sc-css 0.2.0` as the *starting* versions because Lot 3 already consumed those numbers on disk. The delivered bumps are therefore `sc-php 0.6.0 → 0.7.0`, `sc-js 0.12.0 → 0.13.0`, `sc-css 0.2.0 → 0.3.0` (next MINOR: each receives a new platform-workflow reference, additive). Registered in `marketplace.json`, `index.json`, each `plugin.json` and each CHANGELOG.
+- **A2 — Pre-existing project-name match tolerated outside the perimeter.** `grep -rniE 'mauceri|scriptami' plugins/design` returns one line in `plugins/design/audits/2026_07_design-cycle-critique.md` — a retrospective audit narrative that legitimately names the test project in its method disclosure. It is neither a pivot nor `skills/detail`, and it is outside the vocabulary grepped by the success_condition. Left untouched: rewriting an audit report would falsify its record. The Phase 6 criterion "no project name in the perimeter" is read as the delivered perimeter (skills/detail + the three pivots), all clean.
+
 ## Log
+
+- **Phase 1** — `references/sc-pivot-contract.md § Workflow de plateforme` written before any workflow: canonical path, five headings (English interface tokens), phase declaration (input/output/verbe or `off-funnel`), capability rule, gate-instantiation rule, three-case resolution table.
+- **Phase 2** — `skills/detail/references/funnel-map.md` (8-column map, one row per verb incl. `detail`=verb 0 and `harness`=off-funnel, each row citing its authoritative file) and `references/workflow-classes.md` (the six closed case classes) written first; the actions only read them.
+- **Phase 3** — `skills/detail/SKILL.md` (router, two actions, read-only transversal rules), `actions/01-explain.md`, `actions/02-route.md` (both `Inputs`/`Process`/`Outputs`/`Test`), `evals/scenarios.json` (18 scenarios: 6 explain / 7 route / 5 null).
+- **Phase 4** — three platform workflows under the frozen skeleton (`workflow-fse.md`, `workflow-spa.md`, `workflow-static.md`), each referenced from its `design-bridge/SKILL.md`; three pivots bumped (see A1).
+- **Phase 5** — `design` 2.5.0 across `plugin.json` + `marketplace.json` + `index.json`, both READMEs, `CHANGELOG.md`, and `aidd_docs/memory/design-plugin.md` (verb 0 + pivot ownership of platform workflows). Success condition run end to end: all four criteria green.
+- **Phase 6** — transverse greps clean over the delivered perimeter (see A2); no duplication between `SKILL.md`, its actions and its references (map and class table each have a single authoritative file, cited never copied).
+- **No commit / push / tag** — held pending explicit user request (global convention).
 
 ## Validation flow demonstration
 
 1. Ask the plugin what it does with no contract present: the map is returned, and `route` proposes `brief-only` or `mockup-multipage` depending on the stated entry signature.
 2. Ask what to run on a frozen contract whose instances diverge: `contract-drift` is returned with the re-lint loop and both gates.
 3. Uninstall the matching pivot and repeat: the same class is returned, the platform extension is stated as absent, and installing `sc-<techno>` is recommended.
-4. Grep the platform vocabulary over `skills/detail`: no match.
-5. Check the five headings in each of the three pivot workflows.
+4. Grep the platform vocabulary over `skills/detail`: no match. **Verified** — `grep -rniE 'wordpress|wp-cli|fse|gutenberg|vue|react|svelte|nuxt|tailwind|laravel|symfony|django|docker|alwaysdata' plugins/design/skills/detail` exits 1.
+5. Check the five headings in each of the three pivot workflows. **Verified** — `## Case classes covered` · `## Prerequisites (capabilities)` · `## Phases` · `## Gates` · `## Out of scope` present, in order, in all three files.

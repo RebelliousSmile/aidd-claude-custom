@@ -61,9 +61,14 @@ Après exécution, renvoyer au contexte appelant (enforce ou diffuse) :
 - `01-realize-lint` : confirmation règle ESLint installée + wiring pre-commit réalisé + rapport écrit, règles réalisées et non réalisées nommées
 - `02-render` : fichier(s) composant produit(s) + instructions d'import + confirmation gate enforce exit 0
 
+## Workflow de plateforme (application à composants / SPA)
+
+Ce pivot **possède** le workflow de plateforme SPA : `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/workflow-spa.md`. Il instancie les classes de cas agnostiques de `design:detail` sur une application à composants, sous le squelette figé par `sc-pivot-contract.md § Workflow de plateforme`. `design:detail/02-route` l'étend à la classe quand ce pivot est installé et la stack correspond.
+
 ## Références
 
-- `plugins/design/references/sc-pivot-contract.md` — format des specs reçus
+- `plugins/design/references/sc-pivot-contract.md` — format des specs reçus et squelette de workflow de plateforme
+- `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/workflow-spa.md` — workflow de plateforme SPA (classes de cas instanciées sur application à composants)
 - `plugins/design/references/token-schema.md` — structure tokens.json
 - `plugins/design/skills/adjust/references/manifest-schema.md` — structure components.json
 - Références ESLint/Biome du plugin sc-js (si présentes dans `skills/sniff/references/`)
