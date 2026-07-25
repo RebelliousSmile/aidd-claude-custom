@@ -2,7 +2,7 @@
 
 ## Rôle
 
-Construire la **spec neutre** d'un élément répétable à partir du manifeste figé. La spec neutre est stack-agnostique : elle ne référence que des entrées de `components.json` (vocabulaire fermé) et des chemins de `design/tokens.json`. C'est la matière d'entrée de `02-render`.
+Construire la **spec neutre** d'un élément répétable à partir du manifeste figé. La spec neutre est stack-agnostique : elle ne référence que des entrées de `components.json` (vocabulaire du contrat) et des chemins de `design/tokens.json`. C'est la matière d'entrée de `02-render`.
 
 ## Entrée
 
@@ -55,7 +55,7 @@ Format de la spec neutre (en Markdown, dans la conversation) :
 ```
 ## Spec neutre — <canonical-name>
 
-**Source manifeste** : design/components.json v<$version>
+**Source manifeste** : design/components.json v<release.json § artifacts.components.version>
 **Base class** : <.base>
 
 ### Slots de contenu

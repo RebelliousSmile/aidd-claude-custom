@@ -73,11 +73,11 @@ nommage cohérent). Une bibliothèque complète mais mal rangée reste inutilisa
 
 > **Nom des scripts côté projet** : `builder-coverage.php` est la version
 > canonique généralisée. Un projet peut en garder une variante locale
-> spécialisée sous un autre nom (ex. Mauceri : `tools/qa/pattern-coverage.php`,
-> préfixe `mau-` en dur) — c'est acceptable tant que le verdict `GAPS: N` est
+> spécialisée sous un autre nom (ex. `tools/qa/pattern-coverage.php`, avec un
+> préfixe de marque en dur) — c'est acceptable tant que le verdict `GAPS: N` est
 > équivalent. Adapter les chemins des commandes ci-dessous au nom local.
 
-> **Maturité** : méthode et scripts **éprouvés sur 1 projet (Mauceri)** à ce
+> **Maturité** : méthode et scripts **éprouvés sur 1 thème FSE** à ce
 > jour. Le préfixe auto-détecté, `BC_POST_TYPES` et la taxonomie 9 rôles sont
 > conçus pour être portables mais n'ont pas encore tourné sur un autre thème FSE
 > — les vérifier sur un 2ᵉ projet consolidera la généralisation.

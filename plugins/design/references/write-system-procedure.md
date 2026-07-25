@@ -11,19 +11,38 @@ Followed by `define/04-write-material` (in draft mode). Writes the canonical des
 
 1. **Create the design home** `design/` if absent (or the recorded sub-package root).
 2. **Write `design/tokens.json`** — W3C DTCG, every required group from `token-schema.md`, `{alias}` references for semantic→ramp links. This is the source of truth.
-3. **Generate `design/adapters/tokens.css`** — flatten tokens to `--group-…-name` custom properties under `:root`, resolve aliases to `var(--…)`, add the "GENERATED — do not edit" banner.
-4. **Generate `design/adapters/theme.css`** — Tailwind v4 `@theme` mapping (or a v3 `tailwind.config.js` extend if the project is on v3; record which). Same banner.
-5. **Write `design/design-system.md`** with the contract's required sections:
+3. **Detect the consumers the project actually has, and record them** — see § Adapter emission rule below. No adapter file is written here.
+4. **Write `design/design-system.md`** with the contract's required sections:
    - Provenance (origin, date, `version:` line).
    - Foundations (narrative; point to `tokens.json` for values, don't restate every number).
    - Responsive strategy (named breakpoints; mobile core / enriched-only / mobile-only — aligned with the `08-design` rules).
-   - Component inventory table (component · purpose · options/variants · responsive divergence · spec file).
+   - Component inventory table (component · purpose · options/variants · responsive divergence · spec file). State in this section that the inventory is **candidate prose**, and that once `adjust` promotes it to the manifest the resulting vocabulary is **open by default**: a class whose block is not declared is treated as a utility and passes the gate. Declaring a component is what makes its own elements and modifiers enforceable — nothing else.
    - Open questions (assumptions, unresolved choices).
-6. **Do not author component spec files here** — list them in the inventory; `component` writes the specs on demand.
+5. **Do not author component spec files here** — list them in the inventory; `component` writes the specs on demand.
+
+## Adapter emission rule
+
+**Canonical statement. Every other document conditions adapter emission by pointing here.**
+
+Detection here, emission elsewhere. `tools/generate.py` is the only producer of an adapter file; it runs at freeze time and emits one artifact per `policies.json § adapters[]` entry declaring a `consumer`. This procedure decides **which entries that table will hold**.
+
+One entry per consumer **present in the project**, never per consumer the plugin knows how to write — read the project's declared dependencies and configuration files, not habit.
+
+| Consumer detected | `consumer` role | Condition |
+|---|---|---|
+| A stylesheet pipeline of any kind (always true for a browser-rendered project) | `stylesheet` | default; the only artifact every consuming stack can read |
+| A pre-processed stylesheet source in the build | `stylesheet source` | the pre-processor is a declared dependency |
+| A build step consuming tokens as a module | `build configuration` | the tool is a declared dependency |
+| A runtime platform with its own design-token file format | `platform token file` | the platform is the project's runtime |
+
+- No detected consumer beyond the stylesheet → one `stylesheet` entry alone. This is a complete result, not a degraded one.
+- Never declare a consumer the project does not have: an unread generated file drifts silently and is indistinguishable from a maintained one.
+- A detected consumer whose role is not in the table is recorded **without** a `consumer`. It is then declared and not emitted — the honest state for an artifact nobody knows how to produce.
+- Record in `design-system.md § Provenance` which consumers were detected and, for each, on what evidence. That record is the input `adjust` promotes into `policies.json § adapters[]`.
 
 ## Atomicity
 
-- Write `tokens.json` and regenerate **both** adapters in the same pass; never leave them inconsistent.
+- `tokens.json` is written here alone; no adapter exists yet to fall out of step with it. The pair exists from the freeze onward, kept consistent by `generate.py --check`.
 - If `design/tokens.json` already exists, diff against it: bump the version per the contract's rule and summarize what changed instead of silently overwriting.
 
 ## Report
@@ -35,4 +54,4 @@ Followed by `define/04-write-material` (in draft mode). Writes the canonical des
 
 ## Test
 
-`design/tokens.json`, `design/adapters/tokens.css`, `design/adapters/theme.css`, and `design/design-system.md` all exist; the adapters' values match `tokens.json`; `design-system.md` has all five required sections and a `version:` line.
+`design/tokens.json` and `design/design-system.md` exist; **no file was written under `design/adapters/`**; § Provenance names every detected consumer and its evidence; `design-system.md` has all five required sections and a `version:` line.

@@ -1,0 +1,18 @@
+{
+  "_doc": "Oracle fixture (conformant). One measured delta — lede fontSize 16→17px — sanctioned by DEV-001, which is an active entry carrying an expected value. Every other property matches. Verdict must be CLOSED.",
+  "reference_url": "mockup.html",
+  "reference_page": null,
+  "implementation_url": "implementation.html",
+  "breakpoints": [
+    { "name": "desktop", "width": 1440, "height": 900 }
+  ],
+  "props": ["fontSize", "fontWeight", "color"],
+  "targets": [
+    { "name": "Card · title", "mockup": ".card__title", "implementation": ".card__title" },
+    { "name": "Card · lede", "mockup": ".card__lede", "implementation": ".card__lede" }
+  ],
+  "ledger": [
+    { "id": "DEV-001", "target": "Card · lede", "prop": "fontSize",
+      "why": "adopts the single fluid body scale; +1px below the perceptual threshold" }
+  ]
+}

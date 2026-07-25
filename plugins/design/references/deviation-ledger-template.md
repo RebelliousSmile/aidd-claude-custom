@@ -1,53 +1,47 @@
-# Deviation ledger — template (copycat P3 mechanism)
+# Registre des écarts — gabarit de la vue générée
 
-> "DRY/SOLID-reusable first, pixel-identical otherwise" degenerates into laxity without a
-> trace. A tolerated visual deviation — where reusable/clean CSS is deliberately chosen
-> over matching the mockup pixel-for-pixel — MUST have an entry here. **No entry → the
-> default is render-strictly-identical** (the deviation is treated as drift and fixed).
->
-> Where a deviation maps to a contract component, cross-reference it: add
-> `deviation_refs: [<id>...]` on that component in `components.json` so the **fidelity
-> gate** (not the vocabulary lint) can tell a sanctioned deviation from accidental drift.
-> The charter (`design-system.md`) LINKS here; it does not duplicate entries.
+Cette vue Markdown est un **artefact généré** par `tools/generate.py` à partir de `deviations.json` (rôle-consommateur `deviation ledger`). On n'édite jamais la vue : une retouche à la main est une dérive que `generate.py --check` signale. On édite `deviations.json` ; la vue suit.
 
-## Entry format
+La source, les champs et les cas de verdict `OPEN` : `references/deviations-schema.md`. Ce gabarit ne décrit que la **forme rendue**.
 
-Each deviation is one entry. `id` is stable and referenced from `components.json`.
+## Forme rendue
 
-```
-### DEV-<NNN> — <short title>
+Une bannière, puis les écarts **actifs** puis **historiques**, chacun dans l'ordre source. Une entrée est un bloc `### <id> · <target>` suivi de ses champs. `expire` n'apparaît que si l'entrée le porte ; un champ requis absent est rendu `—` pour montrer le trou de la source plutôt que le masquer.
 
-- date:          <YYYY-MM-DD>
-- component:     <component key in components.json>  (or — if token-only)
-- selector(s):   <mockup selector ↔ contract selector>
-- breakpoint:    <mobile | tablet | desktop | all>
-- mockup value:  <prop = value>
-- contract value:<prop = value>   (what ships instead)
-- justification: <why the deviation buys SOLID/DRY/reusable CSS — concrete, not "cleaner">
-- gate evidence: <QA method + measured delta, e.g. "fidelity gate: lede fontSize 16→17px, +1px, accepted to keep one fluid scale token">
-- approver:      <name>
-```
+```markdown
+<!-- GENERATED from deviations.json - do not edit by hand. Regenerate via tools/generate.py. -->
+# Registre des écarts
 
-## Example
+## Actifs
 
-```
-### DEV-001 — Hero lede uses the shared fluid type scale
+### DEV-001 · Hero · lede
+- statut : active
+- propriété : fontSize
+- attendu : 17px
+- date : 2026-06-15
+- expire : 2026-12-31
+- raison : adopte le token fluide de corps unique ; +1px sous le seuil perceptif
 
-- date:          2026-06-15
-- component:     c.hero-lede
-- selector(s):   .page-hero__lede ↔ .mau-section--hero p.has-md-font-size
-- breakpoint:    mobile
-- mockup value:  fontSize = 16px
-- contract value:fontSize = 17px (clamp from the shared body scale)
-- justification: the mockup hand-tuned 16px on mobile only; adopting the single fluid
-                 body token (clamp 16→19px) removes a one-off breakpoint override and
-                 keeps every lede on one scale. +1px at 375 is below perceptual threshold.
-- gate evidence: fidelity gate, mobile, lede fontSize delta +1px, no other prop affected.
-- approver:      FX
+## Historiques
+
+### DEV-000 · Hero · title
+- statut : superseded
+- propriété : letterSpacing
+- attendu : -0.02em
+- date : 2026-05-02
+- décidé : 2026-06-10
+- raison : remplacé par DEV-004 après refonte de l'échelle typographique
 ```
 
-## Index (optional quick scan)
+## Correspondance champ → ligne
 
-| id | component | breakpoint | prop | mockup → contract | approver |
-|----|-----------|------------|------|--------------------|----------|
-| DEV-001 | c.hero-lede | mobile | fontSize | 16 → 17px | FX |
+| Champ `deviations.json` | Rendu | Section |
+|---|---|---|
+| `id`, `target` | titre `### <id> · <target>` | les deux |
+| `status` | `- statut :` | les deux |
+| `prop` | `- propriété :` | les deux |
+| `expected` | `- attendu :` (`—` si absent) | les deux |
+| `date` | `- date :` | les deux |
+| `expires` | `- expire :` — omis si absent | actifs |
+| `decidedAt` | `- décidé :` | historiques |
+| `reason` | `- raison :` | les deux |

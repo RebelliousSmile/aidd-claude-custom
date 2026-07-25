@@ -1,5 +1,21 @@
 # Changelog — sc-php
 
+## v0.7.0 — 2026-07-25
+
+### Reçu du pivot design (design 2.5.0 — verbe 0 `detail`)
+
+- **`design-bridge/references/workflow-fse.md`** (nouveau) — ce pivot possède désormais le **workflow de plateforme FSE**, sous le squelette figé par `plugins/design/references/sc-pivot-contract.md § Workflow de plateforme` (cinq titres, déclaration de phase input/output/verbe, prérequis en capabilities). Il instancie les classes de cas agnostiques de `design:detail` sur un thème de blocs : phases `enforce`/`diffuse` natives + phases `off-funnel` (environnement conteneurisé, import en base, déploiement). `design:detail/02-route` l'étend à la classe quand ce pivot est installé et la stack correspond. Un workflow de plateforme est un COMMENT : il vit dans le pivot, jamais dans `design` (dec-002).
+- **`design-bridge/SKILL.md`** — section « Workflow de plateforme (block theme / FSE) » + référence ajoutée.
+
+## v0.6.0 — 2026-07-24
+
+### Reçu du pivot design (design 2.2.0)
+
+- **Obligation de report** (`design-bridge/SKILL.md`) — toute règle reçue en `Declared rules` est rendue au gate, réalisée ou non, au format `plugins/design/references/gate-config-schema.md § Rapport de pivot`. Cas fréquent ici : les règles de type `stored-content`. Le vocabulaire vit en base, hors du dépôt, et n'est lisible qu'après extraction — sans instance extraite la règle est `unrealized`, quel que soit l'état du code. Un `pass` y mentirait sur du contenu jamais ouvert.
+- **`design-bridge/references/wordpress-lint-instances.md`** (reçu de `design`, ex-`design/skills/enforce/adapters/wordpress.md`) — réalisation des règles `stored-content` : extraction du contenu stocké en fichiers, lint, correction à la source, réécriture, re-lint.
+- **`design-bridge/references/wordpress-pitfalls.md`** (reçu de `design`, ex-`design/references/wordpress-pitfalls.md`) — les pièges de plateforme appartiennent au réceptacle qui la sert, plus au cœur agnostique. Les références internes (`actions/02-render.md`, `SKILL.md`) pointent désormais sur `${CLAUDE_PLUGIN_ROOT}`.
+- **`design-bridge/actions/01-realize-lint.md`** — écrit le rapport et le branche dans `gates.config.json § pivotReports` avec un `command`, au lieu d'étendre le hook pre-commit : le gate n'a qu'une commande, la même partout.
+
 ## v0.5.4 — 2026-06-26
 
 ### Changed

@@ -2,7 +2,7 @@
 
 ## Statut de la sortie
 
-Le rendu produit par cet adaptateur est une **preview autonome, non intégrée** (wrapper `diffuse-demo`) — pas un composant applicatif. Aucun chemin d'intégration automatique n'existe vers le code réel du projet (Vue/React/WP) : c'est un artefact de démonstration, jamais un livrable branché dans l'app. Un lint vert (`lint-core.mjs` exit 0) valide le vocabulaire du rendu, il n'implique jamais qu'il soit intégré. Ce statut est contractuel — le hand-off de promotion (quel composant/fichier réel il deviendrait, et la recommandation conditionnelle d'installer `sc-<techno>` si une stack JS/WP est détectée) est émis par `02-render.md` Étape 5. Voir aussi `SKILL.md § Ce que diffuse produit` (ligne "Rendu baseline").
+Le rendu produit par cet adaptateur est une **preview autonome, non intégrée** (wrapper `diffuse-demo`) — pas un composant applicatif. Aucun chemin d'intégration automatique n'existe vers le code réel du projet : c'est un artefact de démonstration, jamais un livrable branché dans l'app. Un lint vert (`lint-core.mjs` exit 0) valide le vocabulaire du rendu, il n'implique jamais qu'il soit intégré. Ce statut est contractuel — le hand-off de promotion (quel composant/fichier réel il deviendrait, et la recommandation conditionnelle d'installer `sc-<langage>` si un langage de cible est identifié) est émis par `02-render.md` Étape 5. Voir aussi `SKILL.md § Ce que diffuse produit` (ligne "Rendu baseline").
 
 Rendu universel sans dépendance externe. Produit un fichier HTML autonome (avec CSS inline ou lié) à partir de la spec neutre. Fonctionne sur toute stack, sans pivot.
 
@@ -35,7 +35,7 @@ Pour les styles inline nécessaires (fond du conteneur de démo), utiliser `var(
 </div>
 ```
 
-Le nom de la custom property correspond au chemin de token aplati avec `-` : `color.semantic.surface` → `--color-semantic-surface`.
+Le nom de la custom property se dérive du chemin de token par `${CLAUDE_PLUGIN_ROOT}/references/token-schema.md § Path-to-variable transform` — énoncé une seule fois, partagé avec le générateur et le linter.
 
 ### HTML sémantique
 

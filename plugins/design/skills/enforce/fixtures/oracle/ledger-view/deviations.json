@@ -1,0 +1,36 @@
+{
+  "$schema": "design/references/contract-schema#deviations",
+  "active": [
+    {
+      "id": "DEV-001",
+      "status": "active",
+      "target": "Card · lede",
+      "prop": "fontSize",
+      "expected": "17px",
+      "date": "2026-06-15",
+      "expires": "2026-12-31",
+      "reason": "adopte le token fluide de corps unique ; +1px sous le seuil perceptif"
+    },
+    {
+      "id": "DEV-002",
+      "status": "active",
+      "target": "Card · title",
+      "prop": "letterSpacing",
+      "expected": "-0.01em",
+      "date": "2026-06-20",
+      "reason": "le serrage vient du token de titre partagé, sans override par composant"
+    }
+  ],
+  "historical": [
+    {
+      "id": "DEV-000",
+      "status": "superseded",
+      "target": "Card · title",
+      "prop": "color",
+      "expected": "rgb(17, 17, 17)",
+      "date": "2026-05-02",
+      "decidedAt": "2026-06-10",
+      "reason": "remplacé par le token d'encre unique après refonte de la palette"
+    }
+  ]
+}

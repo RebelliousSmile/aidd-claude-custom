@@ -1,0 +1,6 @@
+{
+  "$schema": "design/references/contract-schema#components",
+  "components": {
+    "btn": "btn"
+  }
+}

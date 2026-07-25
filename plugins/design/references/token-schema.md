@@ -150,11 +150,63 @@ Resolution per theme (aliases resolved **in the theme they belong to**):
 
 Every path named above (`color.brand.primary`, `color.semantic.background`, `color.semantic.text`) exists in the base tree — the invariant holds. `grimoire-dark`, if a project needs it, would be its own flat theme name combining both deltas explicitly (never a computed intersection of `grimoire` and `dark`).
 
-## Adapter: `design/adapters/tokens.css`
+## Generator specification
 
-Flatten every token path to a CSS custom property named `--<group>-<…>-<name>`: prefix `--`, replace every `.` with `-`, **do not re-case any segment** (e.g. `font.lineHeight.base` → `--font-lineHeight-base`, `zIndex.modal` → `--zIndex-modal` — the segment keeps its literal spelling; some groups are deliberately camelCase to mirror the `getComputedStyle` DOM property name they measure against, per `adapters/measure/config-gen.py`). Resolve `{alias}` references to their target `var(--…)`. Emit under `:root`.
+`tools/generate.py` produces every derived artifact. No artifact below is authored by a model, and none is edited by hand: a hand edit is a drift failure with no ignore flag (`contract-schema.md § Enregistrement de dérive`).
 
-This is a mechanical, lossless transform — the only rule is `.` → `-`. `lint-core.mjs` derives its valid-var set the same way (path → var, never var → path); any generator or hand-written adapter must match it exactly, or the gate rejects valid tokens.
+### Inputs and selection
+
+| Input | Read for |
+|---|---|
+| `tokens.json` | every emitted artifact |
+| `policies.json § adapters[]` | the set of artifacts to emit, and the emitter to use for each |
+| `release.json § generated` | written, not read, at generation; read by `--check` |
+
+One artifact is emitted per `adapters[]` entry that declares a `consumer`. An entry without one is skipped — never emitted, never an error. The generator emits nothing the contract has not declared, and knows no artifact by name.
+
+### Emitters, keyed by consumer role
+
+The `consumer` value selects the emitter. The list is the closed one of `contract-schema.md § Table de correspondance des adapters`, and it names **roles**, never stacks — this is what keeps the generator free of any stack branch (DEC-002: the generator emits WHAT, a pivot renders for a given stack).
+
+| `consumer` | Emitted form |
+|---|---|
+| `stylesheet` | CSS custom properties under `:root`, plus one scoped block per theme (§ Theme-scoped emission) |
+| `stylesheet source` | same as `stylesheet`; the preprocessor consumes custom properties unchanged |
+| `platform token file` | a flat JSON object, key = the flattened path, value = the resolved value |
+| `build configuration` | a CommonJS module exporting the same flat object |
+| `unknown` | not emitted; reported as an anomaly |
+
+A stack that wants another shape — a framework's own theme at-rule, a plugin's config — gets it from the pivot that owns that stack, not from this generator.
+
+### Path-to-variable transform
+
+**Canonical statement. Every consumer of a token path points here.**
+
+Prefix `--`, replace every `.` with `-`, **do not re-case any segment**: `font.lineHeight.base` → `--font-lineHeight-base`, `zIndex.modal` → `--zIndex-modal`. A segment keeps its literal spelling; some groups are deliberately camelCase to mirror the `getComputedStyle` DOM property name they measure against (`adapters/measure/config-gen.py`).
+
+The transform is one-way. `lint-core.mjs` derives its valid-var set in the same direction — path → var, never var → path — and `generate.py` emits in that same direction. A consumer that inverts it will reject valid tokens.
+
+### Ordering and formatting
+
+Determinism is a requirement, not a property: identical inputs produce byte-identical outputs, so that a diff between two generations is empty and any diff is a drift.
+
+- Token paths are emitted in **depth-first source order** — the order of the keys in `tokens.json` — never re-sorted. A reordering of the source is a source change, visible as such.
+- Themes are emitted in the source order of `themes`, after the base block.
+- Within a theme, only overridden paths appear, in the same depth-first order.
+- One declaration per line, two-space indent, LF endings, a single trailing newline.
+- Every artifact opens with the "GENERATED — do not edit" banner naming the sources it derives from.
+
+### Alias resolution
+
+`{token.path}` resolves to a reference to the target's emitted form, not to the target's literal value — `var(--color-neutral-900)` for a stylesheet, the flattened key for the other roles. An alias inside a theme overlay resolves **within that theme**. A `{…}` pointing outside the base tree, or a cycle, is a contract error, not an emission choice.
+
+### Appending an artifact
+
+The specification above is written per role, so a further artifact is added by declaring it in `policies.json § adapters[]` under an existing role — no change to the three specified emissions. Lot 4 appends the deviation-ledger view this way.
+
+## Adapter: `design/adapters/tokens.css` — role `stylesheet`
+
+Every token path becomes a CSS custom property under `:root`, by the transform of § Path-to-variable transform. `{alias}` references resolve to `var(--…)`.
 
 ```css
 /* GENERATED from design/tokens.json — do not edit by hand. Regenerate via /design:define. */
@@ -204,7 +256,9 @@ When `tokens.json` has a `themes` overlay (§ Modes / themes), the adapter emits
 
 ## Adapter: Tailwind (`theme.css` v4 / `tailwind-tokens.cjs` v3)
 
-Tailwind consumes the token contract through one of two artifacts, chosen by the project's Tailwind major version — the emission mechanism differs (a CSS `@theme` at-rule vs a JS/CommonJS partial), but both carry the same token groups and the same theme overlays from § Modes / themes. Record the choice in `design-system.md`.
+> **Neither artifact below is written by hand.** They are the `stylesheet source` and `build configuration` roles of § Generator specification: declare the role in `policies.json § adapters[]`, and `tools/generate.py` emits the file. What follows documents the shape a consumer of that role expects — it is not a writing procedure. This section names one platform and therefore belongs to that platform's pivot, not to the contract reference; its relocation is assigned.
+
+Two artifacts, chosen by the consuming build's major version — the emission mechanism differs (a CSS `@theme` at-rule vs a JS/CommonJS partial), but both carry the same token groups and the same theme overlays from § Modes / themes. Record the choice in `design-system.md`.
 
 ### Tailwind v4 — `design/adapters/theme.css`
 
@@ -296,7 +350,7 @@ Part 1's theme overlays (§ Modes / themes) are carried by this same `.cjs` part
 
 ## Liaison tokens canoniques ↔ manifeste composants
 
-Après `adjust`, `tokens.json` (couche 1) et `components.json` (couche 2) forment un système cohérent. Les points de liaison :
+Après `adjust`, `tokens.json` (valeurs) et `components.json` (anatomie) forment un système cohérent. Les points de liaison :
 
 ### Backgrounds autorisés
 
@@ -308,11 +362,11 @@ Le champ `.backgrounds` d'un composant dans `components.json` référence des **
 }
 ```
 
-Le chemin `color.semantic.background` doit exister dans `tokens.json` sous `color.semantic.background.$value`. `enforce` valide ce lien ; un chemin mort est une violation `error`.
+Le chemin `color.semantic.background` doit exister dans `tokens.json` sous `color.semantic.background.$value`. Ce lien est vérifié **au figeage** par `adjust/02-freeze.md § Étape 2 Règle 3` ; un chemin mort y bloque le figeage. `lint-core.mjs` ne le revérifie pas : `.backgrounds` est inerte pour les cinq règles du linter.
 
 ### Tokens sémantiques = le pont
 
-Les tokens sémantiques (`color.semantic.*`) sont le pont entre couche 1 et couche 2. Ils doivent être résolus (alias vers un token de ramp) dans `tokens.json` pour que le lint de fond soit vérifiable statiquement :
+Les tokens sémantiques (`color.semantic.*`) sont le pont entre `tokens.json` et `components.json`. Ils doivent être résolus (alias vers un token de ramp) dans `tokens.json` pour que la vérification de `.backgrounds` au figeage porte sur un chemin réel :
 
 ```json
 "color": {
@@ -325,14 +379,16 @@ Les tokens sémantiques (`color.semantic.*`) sont le pont entre couche 1 et couc
 
 ### Tokens de fond autorisés pour les composants sombres
 
-Pour les variantes sombres (ex. `hero--dark`) dont `.backgrounds` liste un token foncé (ex. `color.neutral.900`), `enforce` vérifie que le contraste texte/fond satisfait WCAG AA. Le token de couleur de texte candidat est `color.semantic.text` (ou sa valeur calculée).
+Pour les variantes sombres (ex. `hero--dark`) dont `.backgrounds` liste un token foncé (ex. `color.neutral.900`), le contraste texte/fond attendu se calcule contre `color.semantic.text` (ou sa valeur résolue).
+
+> **Gap déclaré.** Aucun outil du plugin ne mesure ce contraste : ni `lint-core.mjs`, ni `adjust`, ni l'oracle de fidélité. La conformité WCAG d'un contrat figé est **non établie** ; elle relève d'une vérification externe.
 
 ### Ce que `adjust` fait lors du figeage
 
 1. Audite les groupes requis de `tokens.json` (tous les groupes de la table ci-dessus doivent exister).
 2. Déduplique les tokens redondants (valeurs identiques sur des chemins différents → alias l'un vers l'autre).
 3. Pour chaque composant de `components.json`, vérifie que tous les chemins de `.backgrounds` existent dans `tokens.json`.
-4. Bumpe `$version` dans les deux fichiers en cohérence.
+4. Déclare la version de chaque artefact dans `release.json` ; les versions sont indépendantes et un écart est une donnée, pas une violation.
 
 ## Invariants
 

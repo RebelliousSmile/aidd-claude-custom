@@ -1,5 +1,302 @@
 # Changelog — design
 
+## [2.5.0] — 2026-07-25
+
+Mineur — **un consommateur qui ne sait rien du plugin obtient, en une invocation, la carte des verbes et la séquence exécutable pour sa propre classe de cas, étendue par le workflow de plateforme quand le pivot correspondant est installé.** Introduit un **7ᵉ skill `detail` (verbe 0)** en tête d'entonnoir : lecture seule, aucun artefact de sortie, deux actions — `explain` rend la carte des verbes, `route` rend ce qu'il faut exécuter. Le corps agnostique de la stack porte **six classes de cas** exhaustives (signature d'entrée × état du contrat) ; les workflows de niveau plateforme, eux, **quittent `design` pour les pivots `sc-*`**, sous un squelette figé par le contrat de pivot. Aucun verbe existant ne change ; l'entonnoir de production reste `define → destructure → adjust → enforce → diffuse`.
+
+### `detail` ne fait rien de ce qu'il décrit
+
+Le verbe 0 est **strictement en lecture seule** : il n'écrit aucun artefact, ne fige rien, ne corrige rien en silence. `explain` lit la carte autoritaire (`references/funnel-map.md`) sans jamais paraphraser le process d'un verbe — il cite le fichier autoritaire. `route` classe une intention dans l'une des six classes, relève l'état du contrat **observé** (et signale tout écart avec l'attendu au lieu de le corriger), applique la règle de résolution de pivot, émet la séquence et s'arrête.
+
+### Les six classes de cas — fermées, agnostiques de la stack
+
+`mockup-multipage` · `brief-only` · `codebase-inherited` (contrat absent) ; `element-evolution` · `contract-drift` · `element-production` (contrat figé). L'ensemble est **clos** : il couvre toute combinaison signature d'entrée × état du contrat. `harness` n'est **pas** une classe — c'est la précondition de `mockup-multipage`. Aucune classe ne présuppose de plateforme, de vendor ni de projet.
+
+### Les workflows de plateforme vivent dans les pivots (dec-002)
+
+Un workflow de plateforme est un COMMENT : il quitte le cœur agnostique pour le pivot qui sert la plateforme, sous un **squelette figé** (`references/sc-pivot-contract.md § Workflow de plateforme`) — cinq titres imposés, déclaration de phase input/output/verbe, prérequis écrits en capabilities (jamais en vendors), gates instanciés (jamais redéfinis). `02-route` étend la classe agnostique par ce workflow quand le pivot est installé **et** que la stack correspond ; sinon la classe seule, l'absence énoncée et l'installation de `sc-<langage>` recommandée.
+
+### Ajouté
+
+- `skills/detail/` — le 7ᵉ skill : `SKILL.md` (verbe 0, routage des deux actions, règles transversales de lecture seule), `actions/01-explain.md`, `actions/02-route.md`, `references/funnel-map.md` (la carte des verbes, source unique lue par `explain`), `references/workflow-classes.md` (les six classes de cas), `evals/scenarios.json` (18 scénarios `explain`/`route`/`null`).
+- `references/sc-pivot-contract.md § Workflow de plateforme` — le squelette figé des workflows de plateforme portés par les pivots (chemin canonique, cinq titres, déclaration de phase, règle des capabilities, règle d'instanciation des gates, règle de résolution par `02-route`).
+- Dans les pivots (livrés avec ce lot) : `sc-php:design-bridge/references/workflow-fse.md`, `sc-js:design-bridge/references/workflow-spa.md`, `sc-css:design-bridge/references/workflow-static.md` — les trois premiers workflows de plateforme instanciés.
+
+### Migration des contrats figés (Part 7 — ops, version inchangée)
+
+Les six contrats consommateurs figés en 1.x sont migrés en 2.x par l'outillage livré (lots 1–5), un projet à la fois. La migration s'exécute **dans les dépôts consommateurs** et ne modifie ni règle ni verbe du plugin. Trois classes de cas rencontrées à la migration deviennent des fixtures, seul apport de Part 7 au périmètre du plugin — aucun changement de version.
+
+- `skills/enforce/fixtures/migration/oracle-empty/` — classe de cas : **aucune cible oracle**. `mode` déclaré, composants non vides, mais aucune clé `oracle`. La migration écrit `components`/`policies`/`release` sans `oracle.json` (`split()` ne pose pas d'oracle vide) ; le linter et `generate --check` sortent en 0. Complète `oracle-contract-level` (oracle de niveau contrat) et `nominal-*` (oracle par composant).
+- `skills/enforce/fixtures/migration/platform-token-namespace/` — classe de cas : **namespace de tokens de plateforme non possédé par le contrat**. Contrat 2.x migré + `sample.html` inlinant `var(--platform--accent)` (namespace **générique**, jamais lié à une plateforme nommée). La Rule 2 (`token-reference`) vérifie contre le seul `tokens.json` et sort en **1** — divergence **de frontière attendue**, pas une régression ; l'extension de couverture appartient à un pivot `sc-<langage>:design-bridge`, jamais à `lint-core.mjs`.
+- `skills/enforce/fixtures/migration/ledger-table-shape/` — classe de cas : **ledger en forme tableau**. `ds-deviation-ledger.md` en tableau pipe → `--ledger` lit **0 entrée** (le parseur attend des blocs `### DEV-NNN`). Un `deviations.json` préexistant plus riche fait autorité ; la passe ledger n'est pas jouée et la passe contrat ne le touche jamais. Complète `oracle/ledger-1x/` (ledger bien formé).
+
+## [2.4.0] — 2026-07-25
+
+Mineur — **chaque contrat porte un statut de maturité calculé qui commande l'invocation de la conformité, et tout écart connu plafonne ce statut au lieu d'être noté en prose**. Le statut est une échelle à quatre échelons — `extracted` (les artefacts existent) · `normalized` (+ charte) · `validated` (+ vérifications enregistrées) · `production-ready` (+ contraste vert et états déclaratifs complets) — calculée par une seule implémentation, `tools/status.py`. La conformité ne s'affirme qu'au **seuil `validated`** : en deçà, `tools/run-gates.py` **sort en 4** — les violations restent listées, mais la conformité n'est pas affirmée et le rapport nomme le chemin qui remonte le statut. Le seuil a une seule source humaine (`references/maturity-status.md`) et une seule source exécutable (la constante `THRESHOLD` de `status.py`, importée par `run-gates.py`). Aucune règle de lint n'est ajoutée ni retirée ; les configurations Lot 3 (contrat à `validated`) sortent toujours en 0 et 1.
+
+### Pas de droit acquis — un contrat migré entre à `normalized`
+
+Un contrat migré depuis 1.x n'hérite d'aucune conformité : il entre à `normalized`, donc **sous le seuil**, conformité suspendue jusqu'à ce que les vérifications soient enregistrées et le statut relevé. Le gate continue de bloquer les vraies violations (il ne se relâche jamais), mais il ne **certifie** rien tant que le contrat n'a pas grimpé. Le vert du linter porte sur le vocabulaire d'un fichier ; il n'a jamais valu attestation de maturité, et la sortie 4 rend cette distinction opposable.
+
+### L'a11y calculable est scindée par ce qui l'est, et quand (dec-002)
+
+- **Contraste texte/fond** — calculé par le plugin au figeage, déterministe, depuis les valeurs de tokens **résolues dans chaque thème** (`adapters/a11y/contrast.py`). Deux exécutions rendent une sortie octet-pour-octet identique, une ligne `pass`/`fail` par paire et par thème. Enregistré dans `release.json § checks.contrast` ; une paire qui échoue est un gap `contrast`.
+- **Présence déclarative des états** `disabled`/`error`/`focus` — vérifiée par le plugin au figeage, **sans aucun markup** (`tools/status.py --states`, lit `components.json § .states`). Une déclaration partielle est un gap `states`.
+- **Rôles et attributs ARIA** — restent du markup : réalisés par un pivot `sc-<langage>:design-bridge`, non réalisés à l'exécution sans pivot installé. Le plugin ne les affirme jamais.
+
+### Les écarts vivent dans l'artefact, plus dans la prose
+
+`release.json § gaps[]` porte chaque écart connu avec `class` / `caps` / `detail` ; le gap **plafonne** la maturité (charte absente → `extracted` · contraste jamais calculé → `normalized` · une paire de contraste ou un état qui échoue → `validated`). Le figeage ne **bloque plus** sur un point a11y non vert : il l'enregistre en gap et laisse `status.py` plafonner. Ce qui n'est pas atteint est constaté, jamais transformé en refus de figer ni dissous en commentaire.
+
+### Ajouté
+
+- `references/maturity-status.md` — l'énoncé humain unique des quatre statuts, du seuil et de la table classe-de-gap → plafond. Référencé par `enforce`, `diffuse` et `harness` ; aucun ne réénonce la valeur du seuil.
+- `adapters/a11y/contrast.py` — l'oracle de contraste WCAG AA par thème, déterministe, `--json`. Exit 0 ou 2.
+- `tools/status.py` étendu — constante `THRESHOLD`, `meets_threshold()`, contrôle des états (`--states`), plafonnement par `gaps[]`.
+- `skills/enforce/fixtures/status/{layer-3-absent,no-contrast-run,validated}` — trois contrats calculant exactement `extracted`, `normalized`, `validated`.
+- `skills/enforce/fixtures/gates.below-threshold.config.json` — contrat `no-contrast-run`, cibles dirty : le runner sort en 4 en listant les mêmes violations que la config dirty.
+
+### Modifié
+
+- `tools/run-gates.py` — oppose le seuil de maturité après le lint : sous le seuil, exit 4, violations toujours listées, chemin de remontée nommé. Importe `THRESHOLD` de `status.py`.
+- `skills/adjust/actions/02-freeze.md` — calcule contraste et états au figeage, enregistre `checks` et `gaps`, écrit le statut rendu par `status.py`. Ne refuse plus de figer sur un point a11y non vérifié.
+- `references/contract-schema.md`, `skills/adjust/references/manifest-schema.md`, `references/enforcement-registry.md` — champ `status` opposable, bloc `checks`, enregistrement des `gaps`, champ `.states` fermé (trois clés booléennes), table « qui réalise quel volet a11y ».
+
+## [2.3.0] — 2026-07-25
+
+Mineur — **la conformité n'est affirmée que par l'oracle par propriété, et tout écart toléré référence une entrée d'écart portant sa valeur attendue**. Le gate de fidélité cesse de pouvoir se rabattre sur un diff pixel vert : `measure.py` lit un registre d'écarts obligatoire, ne sanctionne un écart que via une entrée `active` non expirée portant son `expected`, et rend un verdict `CLOSED`/`OPEN` par propriété. Le registre `deviations.json` gagne une **vue Markdown générée** (`tools/generate.py`, rôle `deviation ledger`) : on édite le JSON, jamais la vue, et deux générations successives sont octet-pour-octet identiques. Un vocabulaire unique remplace le jargon projet dans tout l'oracle : `mockup`/`implementation` au lieu de `maq`/`wp`.
+
+### Breaking — trois changements incompatibles
+
+1. **`--ledger-registry` devient requis.** `measure.py` invoqué sans cet argument sort en **2** (erreur d'invocation) en nommant l'argument manquant, au lieu de mesurer. Un rendu non validé contre un registre n'est jamais déclaré conforme. Aucun alias, aucun défaut implicite.
+2. **Les valeurs de `--side` sont renommées.** `maq|wp` → `mockup|implementation`. Idem pour les clés de config et de rapport : `maq`/`maquette`/`wp` → `mockup`/`implementation`, `missing_in_wp`/`extra_in_wp` → `_in_implementation`, `maq_count`/`wp_count` → `mockup_count`/`implementation_count`, `maq_viewport` → `mockup_viewport`. Les anciennes clés ne sont plus lues.
+3. **La configuration d'exemple est remplacée.** Le config projet (`configs/mentions-legales.json`, adresses externes et sélecteurs spécifiques à une stack) est retiré ; `configs/example.json` le remplace — générique, deux adresses `localhost`, sélecteurs BEM neutres, aucun nom de projet.
+
+### Conséquence assumée — l'oracle exige un câblage explicite
+
+Le gate de fidélité refuse désormais d'affirmer la conformité quand une référence externe existe mais que l'oracle n'est pas câblé : il **refuse** et nomme l'étape (`config-gen.py` → config → `deviations.json` → `measure.py --ledger-registry`). Le refus est un état distinct du vert et du rouge. Ce n'est pas un durcissement gratuit : c'est le prix de ne plus laisser un diff pixel vert certifier une surface que l'oracle n'a pas mesurée.
+
+## [2.2.0] — 2026-07-24
+
+Mineur — **enforcement distribué : chaque règle déclarée a un réalisateur nommé, ou est visiblement déclarée non réalisée**. Le linter portable cesse d'être présenté comme le gate du système : son périmètre est écrit, et ce qu'il ne peut pas lire est typé, routé vers un pivot, et rendu au gate par un rapport. Un runner Python agrège le tout et renvoie **le même code de sortie aux trois sites d'appel**. Aucune règle de lint n'est ajoutée ni retirée, et la baseline des huit fixtures reste `0 1 0 1 0 1 0 1`.
+
+### Conséquence assumée — Python devient un prérequis de pre-commit
+
+Le runner est écrit en Python. **Tout projet consommateur doit donc disposer de Python 3.10+ pour armer son pre-commit, y compris un projet dont la source est du JavaScript pur** ; Node.js 18+ reste requis pour que le runner invoque `lint-core.mjs`. Ce n'est pas un effet de bord : c'est le prix de l'agrégation, énoncé plutôt que découvert. L'alternative — un runner Node — aurait rendu impossible l'appel depuis un projet sans Node, et le contrat en compte déjà (PHP, Python). Le prérequis est écrit une seule fois, dans `skills/enforce/references/gate-wiring.md`, et rappelé par l'exit **2** du runner quand un runtime manque : jamais un `1` silencieux, jamais une trace d'exception.
+
+### Ce qu'une règle non réalisée change
+
+Rien au code de sortie — et c'est le point. Une règle sans réalisateur n'est ni une violation ni une conformité : elle est **listée avec sa raison**. Avant, elle disparaissait ; un rapport vert certifiait alors une surface que personne n'avait ouverte. Aucun drapeau ne masque un `unrealized`.
+
+| Situation | Rapport du gate | Exit |
+|---|---|---|
+| règle réalisée, aucune violation | `REALIZED <id> (<type>) by <realizer>` | inchangé |
+| règle réalisée, violations | une entrée `VIOLATION` par occurrence | 1 |
+| réceptacle qui déclare ne pas la couvrir | `UNREALIZED <id> - <realizer> reports it unrealized` | inchangé |
+| réceptacle non lancé, ou rapport absent | `UNREALIZED <id> - no report from its realizer` | inchangé |
+
+### Ajouté
+
+- `tools/run-gates.py` — runner d'agrégation. **Il route, il n'évalue jamais** : il ne lit que la configuration, `policies.json`, la sortie `--json` du linter et les rapports de pivot ; il n'ouvre aucun fichier cible et ne fait correspondre aucun motif. Exits : `0` conforme · `1` violation · `2` invocation ou environnement (configuration illisible, type d'enforcement inconnu, runtime absent) · `3` contrat 1.x.
+- `references/enforcement-registry.md` — les valeurs typées de `enforcement`, leur réalisateur et leur cible de pivot. Le type est **la preuve que la règle doit lire**, jamais le nom d'une plateforme : `markup` · `stylesheet` · `source-graph` · `stored-content` · `platform-config` · `unrealized`.
+- `references/gate-config-schema.md` — `gates.config.json` (le périmètre exécutable : contrat, cibles, rapports de pivot) et le **format du rapport de pivot**, spécifié là parce que c'est le fichier d'entrée du runner, et dupliqué nulle part. Une entrée de `pivotReports` accepte `{ "path", "command" }` : avec `command`, le runner relance le réalisateur natif avant de lire — un rapport périmé devient impossible.
+- `skills/enforce/fixtures/gates.clean.config.json` et `gates.dirty.config.json` — le runner sort en 0 sur l'un, en 1 sur l'autre.
+- `lint-core.mjs --json` — sortie lisible par machine : violations, règles réalisées, fichier scanné. Aucune règle nouvelle.
+
+### Modifié
+
+- **Périmètre du linter portable, déclaré** (`skills/enforce/SKILL.md`) — c'est un scanner de chaînes, fichier par fichier, sans dépendance. Il ne résout ni cascade, ni graphe d'imports, ni liaison dynamique, ni contenu hors du disque. Ce périmètre est désormais écrit à côté du runner et du registre, comme trois choses distinctes.
+- **Obligation de report côté pivots** (`references/sc-pivot-contract.md`, `skills/enforce/actions/04-pivot.md`) — le spec d'enforcement émet les règles assignées avec leur type et un `Report path` ; le réceptacle écrit un rapport **pour chaque règle assignée, réalisée ou non**. Réalisée dans sc-css 0.2.0, sc-js 0.12.0, sc-php 0.6.0.
+- **Un seul appel, partout** (`skills/enforce/actions/02-wire-gates.md`, `references/gate-wiring.md`) — `python design/lint/run-gates.py --config design/lint/gates.config.json`, en local, en pre-commit et en CI. La boucle par fichier décrite dans le câblage pre-commit disparaît : un second linter appelé à côté produirait un deuxième verdict que rien n'agrège.
+
+### Déplacé — les plateformes quittent le cœur
+
+`references/wordpress-pitfalls.md` et `skills/enforce/adapters/wordpress.md` partent chez `sc-php`, contenu inchangé hors chemins de référence. Le principe qu'ils violaient : **une contrainte de plateforme appartient au réceptacle qui la sert**. Les fichiers d'instruction qui les citaient énoncent désormais la règle génériquement, la cible étant résolue par le registre d'enforcement.
+
+Conséquence sur le routage de `enforce` : la table « à deux tracks » nommée par plateforme est remplacée par **deux propriétés du terrain, indépendantes** — tout le markup vit-il dans des fichiers versionnés ? une référence visuelle externe existe-t-elle ? Un projet peut avoir du contenu stocké sans maquette, ou l'inverse. Le nom de la plateforme n'en décide aucune. L'adaptateur de mesure (`adapters/measure/`) reste la dernière surface à nommer une plateforme dans son API : renommée au lot suivant.
+
+## [2.1.0] — 2026-07-24
+
+Mineur — **les artefacts dérivés cessent d'être écrits par un modèle**. `tools/generate.py` en devient le seul producteur : il lit les sources JSON du contrat, émet un artefact par entrée de `policies.json § adapters[]` déclarant un `consumer`, et grave dans `release.json § generated` l'empreinte de chaque source lue. `--check` refuse une retouche manuelle et une source périmée. Aucune règle de lint ne change, la baseline des huit fixtures reste `0 1 0 1 0 1 0 1`.
+
+### Ce qui n'est plus écrit à la main
+
+`adapters/tokens.css` et tout autre artefact dérivé déclaré dans la table de correspondance. Avant : `define/04-write-material` les écrivait en brouillon, `diffuse` les supposait à jour, et rien ne mesurait l'écart. Après :
+
+| Étape | Avant | Après |
+|---|---|---|
+| `define/04-write-material` | écrit `tokens.json` **et** les adapters | écrit `tokens.json` seul ; **détecte** les consommateurs et les consigne en § Provenance |
+| `adjust/02-freeze` | écrit `release.json`, fin | écrit `release.json`, puis `generate.py --contract design/` — les artefacts et leur enregistrement de dérive |
+| `diffuse/02-render` | rend, puis lint | **Étape 0** : `generate.py --check` ; exit ≠ 0 ⇒ pas de rendu |
+
+Une retouche manuelle d'un artefact dérivé est désormais un échec de dérive, **et aucun drapeau ne la neutralise** : la correction est de changer la source puis de régénérer. Un artefact généré puis supprimé est également une dérive. Ne le sont pas : un contrat sans clé `generated` (rien n'a jamais été figé — `--check` n'a pas de repère) et une entrée `adapters[]` sans `consumer` (déclarée, jamais produite).
+
+### Ajouté
+
+- `tools/generate.py` — génération déterministe. Ordre de source jamais retrié, LF, une déclaration par ligne, bannière nommant les sources : deux exécutions produisent des arbres identiques octet pour octet. Exit `0` succès · `1` dérive · `2` invocation ou artefact structurellement invalide · `3` contrat 1.x.
+- `references/token-schema.md § Generator specification` — entrées, sélection, émetteurs **par rôle de consommateur**, ordre, formatage, résolution des alias et des thèmes. Aucun émetteur n'est indexé par un nom de stack : le contrat déclare un rôle, le générateur choisit l'émetteur, et une forme propre à une plateforme reste au pivot qui la possède (DEC-002).
+- `references/token-schema.md § Path-to-variable transform` — la transformation chemin → variable, énoncée **une seule fois**, partagée par le générateur, `lint-core.mjs` et l'adaptateur baseline de `diffuse`.
+- `references/contract-schema.md § Enregistrement de dérive` — `release.json § generated`, un `sha256` **par source réellement lue**, pas un hash unique sur le jeu concaténé : le message de dérive doit nommer la source qui a bougé, pas constater qu'une l'a fait.
+
+### Modifié
+
+- `policies.json § adapters[]` passe d'informationnel à **exécutable** : c'est la liste d'émission. `write-system-procedure.md § Adapter emission rule` décrit désormais une **détection** de consommateurs, table exprimée en rôles, et non plus une écriture de fichiers.
+- La résolution des alias dépend du rôle : `{color.neutral.50}` devient `var(--color-neutral-50)` pour un rôle feuille de style — la cascade porte les thèmes — et la valeur littérale pour les autres rôles, qui n'ont pas de cascade.
+- `config-gen.py` : `--maquette-url` → `--reference-url`, `--wp-url` → `--implementation-url` (dette annoncée en 2.0.1 § Reporté). Deux rôles au lieu d'une plateforme et d'une abréviation. **Les anciens noms restent acceptés** comme alias, et `measure.py` / `screenshot.py` lisent les anciennes clés de config en repli : un config déjà écrit reste mesurable sans réécriture. Clés canoniques : `reference_url`, `reference_page`, `implementation_url`.
+
+## [2.0.1] — 2026-07-24
+
+Patch — **un artefact structurellement invalide sort en 2 en nommant le champ, au lieu de rendre un verdict vert**. Le 2.0.0 avait posé la règle « une décision que l'outil refuse de deviner sort en 2 » et l'avait appliquée deux fois — `mode` non déclaré, argument de contrat manquant — sans balayer la classe. Cinq sites la prenaient encore pour acquise. Aucune règle de lint n'est ajoutée ni retirée, aucune surface CLI ne change, et la baseline des huit fixtures reste `0 1 0 1 0 1 0 1`.
+
+### Corrigé
+
+Le diagnostic initial supposait des exceptions non rattrapées (exit 1). La mesure sur fixtures a montré pire : côté `lint-core.mjs`, **les trois cas sortaient en 0**.
+
+| Site | Entrée | Avant | Après |
+|---|---|---|---|
+| `lint-core.mjs` — dérivation du vocabulaire | un composant qui est une chaîne | **exit 0** — `comp.base` vaut `undefined`, `knownBases` le contient, aucune classe du markup ne correspond jamais à un bloc déclaré, tout devient utilitaire : vert sur un contrat qui ne déclare rien | exit 2, `components.json`, le champ et la valeur reçue |
+| `lint-core.mjs` — idem | `base` absent ou non-chaîne | **exit 0** — la valeur entre dans le jeu de classes valides, où rien ne peut l'égaler | exit 2, idem |
+| `lint-core.mjs` — `$utilityPrefixes` | un objet au lieu d'un tableau | **exit 0** tant que le markup n'atteint pas le site ; `.some` lève dès qu'il l'atteint, sous `--strict` | exit 2, `policies.json` |
+| `migrate-contract.py` — racine du manifeste | un tableau | exit 1 + trace `AttributeError` | exit 2, le fichier et `$` |
+| `migrate-contract.py` — un composant | une chaîne | exit 1 + trace `AttributeError` | exit 2, le fichier et `$.components.<nom>` |
+
+La validation se fait **à la dérivation**, pas à chaque site d'usage : un contrat malformé l'est indépendamment du markup scanné, et `$utilityPrefixes` n'est lu que sous `--strict` sur une classe de forme BEM non déclarée — valider là aurait fait dépendre le refus du fichier passé. Côté migration, le contrôle précède aussi le chemin `--dry-run` : un dry-run qui plante n'est pas un dry-run.
+
+`status.py` nomme désormais le contrat évalué — sur **stderr**. `adjust/02-freeze.md` copie stdout tel quel dans `release.json § status` ; tout ajout à cette ligne aurait atterri dans le contrat.
+
+### Ajouté
+
+- `skills/enforce/fixtures/malformed/` — cinq contrats malformés à la main, un par site, chacun accompagné du défaut qu'il atteint. Trois en 2.0 pour le linter, deux en 1.x (`1x-`) pour la migration. Ils ne sont pas dans l'énumération des huit fixtures et ne touchent pas la baseline.
+- `skills/enforce/fixtures/migration/oracle-contract-level/` — la branche `$.oracle` de niveau contrat n'était couverte par aucune fixture. Elle produit bien `oracle.json § contract`, déclaré par `release.json`, avec l'anomalie qui signale que seule la forme par composant a un lecteur.
+- `references/contract-schema.md § Contrat incomplet` — une ligne : un champ dont la forme ne correspond pas à sa déclaration sort en 2.
+
+### Reporté
+
+`config-gen.py --wp-url` / `--maquette-url` nomment une plateforme et une abréviation dans un outil déclaré agnostique. Les renommer est une rupture de CLI, incompatible avec un patch : le renommage est porté par le **Lot 2**, qui touche déjà ce fichier et prend la fenêtre de rupture.
+
+## [2.0.0] — 2026-07-24
+
+**BREAKING** — le contrat cesse d'être un monolithe. `components.json` portait quatre natures de données à la fois ; elles deviennent quatre artefacts adressables racinés par `release.json`. `lint-core.mjs` ne lit plus que ce format : un contrat 1.x est **diagnostiqué**, jamais parsé. La baseline des huit fixtures reste `0 1 0 1 0 1 0 1`. Décision : `aidd_docs/internal/decisions/005-design-2-0-contract-split.md`.
+
+### Migrer
+
+```
+python plugins/design/tools/migrate-contract.py --contract <dossier> --dry-run
+python plugins/design/tools/migrate-contract.py --contract <dossier>
+```
+
+Le contrat 1.x est sauvegardé avant écriture, une seconde exécution est un no-op, et `--dry-run` n'écrit rien. Le mode n'est **jamais** deviné : un contrat qui ne déclare pas `mode` fait sortir le script en 2 en nommant `--mode`. Procédure complète, contrôle de non-régression compris : `skills/adjust/actions/03-migrate.md`.
+
+### Redistribution des champs
+
+Rien n'est inventé, rien n'est perdu — une clé hors de cette table est transportée telle quelle et signalée comme anomalie.
+
+| Source (1.x) | Cible (2.0) |
+|---|---|
+| `tokens.json` | inchangé |
+| `components.*` (`base`, `elements`, `modifiers`, `backgrounds`, `a11y`) | `components.json` |
+| `mode`, `$utilityPrefixes`, `usage.*` | `policies.json` |
+| `components.*.oracle` (`check_text`, `props`, `collections`, `ack`) | `oracle.json` |
+| `$version`, version de la charte | `release.json` |
+| nouveau : empreintes de source, provenance, statut de maturité | `release.json` |
+| nouveau : table de correspondance des adapters | `policies.json` |
+
+`oracle.json` n'est écrit et déclaré que si le contrat 1.x porte au moins une cible de mesure ; sans cible, la migration produit trois artefacts, pas quatre. `design-system.md` reste une **entrée** du contrat, pas un artefact : sa présence et sa version sont constatées dans `release.json`.
+
+### Rupture
+
+- **`release.json` est obligatoire.** Son absence est la signature d'un contrat 1.x : `lint-core.mjs` sort en **3** en imprimant la commande de migration. Il n'y a plus aucun chemin de lecture 1.x.
+- **`mode` est déclaré, jamais déduit.** L'inférence « jeu de composants vide ⇒ utility-first » est supprimée : elle transformait un contrat non écrit en run vert. Un `mode` absent ou inconnu → exit **2**.
+- **L'invariant de parité de versions disparaît.** `release.json` déclare une version par artefact et celle de la charte ; un écart est une donnée constatée, plus une violation.
+- **`$version` quitte les artefacts dérivés.** Il n'y a plus qu'un endroit où une version est écrite.
+
+### Ajouté
+
+- `tools/migrate-contract.py` — `--contract`, `--dry-run`, `--mode`, `--now`. Rapport : correspondance champ à champ, table des adapters dérivée des fichiers réellement présents, anomalies, statut initial.
+- `tools/status.py` — **seule** implémentation du statut de maturité (`extracted → normalized → validated → production-ready`). Les quatre littéraux n'existent nulle part ailleurs. Le statut est écrit dans `release.json` ; il n'est opposable à rien à cette version.
+- `references/contract-schema.md` — schéma des quatre artefacts et de la racine, chaque champ tagué *exécutable* (avec son consommateur nommé) ou *informationnel* ; table de redistribution depuis un contrat 1.x ; table de correspondance des adapters ; dérivation des règles de lint.
+- `skills/adjust/actions/03-migrate.md` — pilote le script : verdict de référence relevé **avant** écriture, dry-run validé par un humain, sauvegarde, puis contrôle de non-régression fichier par fichier.
+- `skills/enforce/fixtures/migration/` — quatre classes de cas : `nominal-1x` (+ sortie attendue `nominal-2x`), `no-layer-3` (charte absente), `version-skew` (versions divergentes), `mode-undeclared` (mode absent, composants non vides).
+
+### Modifié
+
+- `skills/enforce/adapters/lint-core.mjs` — lit `release.json`, `tokens.json`, `components.json`, `policies.json` et `oracle.json` ; présence et lisibilité vérifiées pour chaque artefact déclaré (absent ou illisible → exit 2). `mode` et `$utilityPrefixes` viennent de `policies.json`. **Aucune des cinq règles ne change.**
+- `skills/enforce/adapters/lint-core.mjs` — le dossier de contrat s'écrit `--contract <dossier>`, forme uniforme avec `migrate-contract.py` et `config-gen.py`. Le second positionnel continue de fonctionner : les hooks pre-commit déjà installés tournent sans retouche. Les deux formes ensemble ne sont acceptées que si elles désignent le même dossier, sinon exit **2**. Une option inconnue sort en 2 au lieu d'être ignorée. Toutes les invocations documentées passent en forme nommée.
+- `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `index.json` — une seule description, identique dans les trois registres. Elle décrivait un contrat à trois couches que le linter refuse désormais de lire, comptait cinq skills sur six (`harness` invisible) et annonçait « 4 gates » ici, « 3 gates » là. Un consommateur lit ces fichiers avant d'installer.
+- `adapters/measure/config-gen.py` — lit les hints dans `oracle.json` ; nouveau `--oracle`, par défaut le frère de `--components`.
+- `skills/adjust/actions/02-freeze.md` — écrit les quatre artefacts puis `release.json` (empreintes, provenance, statut rendu par `status.py`) avant la réconciliation retrofit ; l'Étape 4 reporte la version de la charte au lieu de tenir une parité.
+- `skills/adjust/SKILL.md` — route vers `03-migrate`.
+- `skills/adjust/references/manifest-schema.md` — réduit à `components.json` ; six invariants au lieu de sept. Le renvoi de `02-freeze.md` vers sa section « Mode utility-first », supprimée par cette réduction, pointe désormais vers `references/contract-schema.md § Où porte le vocabulaire, selon mode`.
+- `references/design-system-contract.md`, `references/token-schema.md`, `agents/copycat.md` et les skills concernées — le contrat n'est plus décrit comme trois couches.
+- `references/gate-natures.md` (nouveau) — énoncé canonique des deux natures de gate. `skills/enforce/SKILL.md`, `skills/enforce/actions/05-fidelity-gate.md` et `README.md` le portaient chacun, en trois tables aux colonnes différentes qui avaient divergé : l'une nommait « 4 points » là où l'autre disait « Gates 1-3 », l'une omettait `policies.json` de la référence interne, une autre la mesure par breakpoint. Les trois pointent désormais vers un seul texte. `05-fidelity-gate.md` demandait encore `tokens.json` + `components.json` en prérequis, formulation 1.x.
+
+### Corrigé — le remède offert à un contrat 1.x ne menait nulle part hors du dépôt
+
+- **Symptôme.** `lint-core.mjs` construisait le chemin de `migrate-contract.py` par `../../../tools/` relatif à lui-même. Juste dans le plugin ; or `01-build-linter.md` l'installe en `design/lint/` chez le consommateur, où `../../../` remonte au-dessus de la racine projet. Les six contrats 1.x figés se voyaient donc offrir, comme seule issue, un chemin mort.
+- **Second symptôme, même classe.** `migrate-contract.py` importe `status.py` en frère. Copié seul, l'import échouait en trace Python — sortie **1**, c'est-à-dire « violation de lint » dans l'espace de codes.
+- **Correctif.** Le script est **localisé**, jamais supposé : sondé à côté du linter, puis dans `../tools/`, puis dans `../../../tools/`. Aucun trouvé → le message nomme le plugin au lieu d'un fichier inexistant. L'import de `status.py` sort en **2** en nommant le fichier manquant. `01-build-linter.md` copie les trois fichiers à plat dans `design/lint/`.
+- **Vérifié.** Depuis le layout consommateur, la commande imprimée par l'exit 3 tourne réellement : dry-run 0, migration 0, re-lint lisible, rejeu no-op 0.
+
+### Corrigé — un `release.json` partiel désactivait des règles en silence
+
+- **Symptôme.** `release.json` étant écrit à la main au figeage, il pouvait ne déclarer qu'une partie des artefacts. `dirty.html` rendait 3 erreurs contre le contrat complet et **1** contre un `release.json` réduit à `tokens.json` + `policies.json` — sans `components.json`, la règle 1 tourne sur un vocabulaire vide et toute classe est valide. Aucun diagnostic.
+- **Correctif.** Les trois artefacts dont les cinq règles dérivent (`tokens.json`, `components.json`, `policies.json`) doivent être déclarés : un contrat qui n'en déclare pas les trois n'est pas un contrat plus petit, c'est une règle désactivée → **exit 2**, en nommant ce qui manque. `oracle.json` reste facultatif : il n'est écrit que si le brief produit des cibles de mesure, et aucune règle ne le lit.
+
+### Codes de sortie de `lint-core.mjs`
+
+| Code | Sens |
+|---|---|
+| 0 | aucune erreur |
+| 1 | au moins une violation |
+| 2 | erreur d'invocation ou d'environnement, y compris une décision que l'outil refuse de deviner |
+| 3 | contrat au format 1.x, migration requise |
+
+## [1.17.0] — 2026-07-23
+
+Minor — **vérité du discours : plus aucun énoncé normatif ne revendique un comportement que personne n'implémente**. Le plugin documentait des règles de fond, des règles a11y, une concordance de couches et un contraste WCAG par thème comme comportements d'`enforce` ; `lint-core.mjs` implémente cinq règles, aucune de celles-là. Le gabarit `.lintrc.json` déclarait des sévérités (`a11yRole`, `backgroundMismatch`) pour des règles jamais émises. Le mot « vocabulaire fermé » nommait un scanner ouvert par défaut. Les cinq règles du linter sont inchangées et la baseline des huit fixtures reste `0 1 0 1 0 1 0 1`. Un seul changement d'exécution accompagne ce lot, hors règles : la résolution de contrat cesse de deviner en silence (§ Corrigé).
+
+### Revendiqué, jamais implémenté — retiré ou requalifié
+
+| Énoncé | Où | Traitement |
+|---|---|---|
+| `a11yRole` — sévérité déclarée dans `.lintrc.json` | `skills/enforce/actions/01-build-linter.md` | **retiré** — aucune règle de `lint-core.mjs` n'émet ce code |
+| `backgroundMismatch` — idem | `skills/enforce/actions/01-build-linter.md` | **retiré** — idem |
+| « règle de fond » attribuée à `enforce` | `skills/adjust/references/manifest-schema.md § Consommation par enforce` | **retiré** ; `.backgrounds` déclaré **inerte** pour les cinq règles |
+| « règle a11y » attribuée à `enforce` | idem | **retiré** ; `.a11y.role` / `.a11y.requires` tagués **informationnel** |
+| « `enforce` valide ce lien ; un chemin mort est une violation `error` » | `references/token-schema.md` | **requalifié** — vérifié au figeage par `adjust/02-freeze.md § Étape 2 Règle 3`, jamais par le linter |
+| « `enforce` vérifie que le contraste texte/fond satisfait WCAG AA » | `references/token-schema.md` | **requalifié en gap déclaré** — aucun outil du plugin ne mesure un contraste ; la conformité WCAG d'un contrat figé est **non établie** |
+| « concordance vérifiée par `enforce` » (couche 3) | `references/design-system-contract.md` | **requalifié** — vérifiée une fois, au figeage (`02-freeze.md § Étape 2 Règle 4`) |
+| « invariant du contrat (vérifié par `enforce`) » (parité `$version`) | `skills/adjust/actions/02-freeze.md § Étape 4` | **requalifié** — tenu à cet endroit ; `lint-core.mjs` ne lit pas `design-system.md` |
+| « vocabulaire fermé » | `skills/adjust/SKILL.md`, `README.md`, `design-system-contract.md` | **requalifié** — nomenclature déclarée ; le vocabulaire est **ouvert par défaut**, il ne se referme que sous `--strict`, en `warning`, sur les seules classes de forme BEM hors `$utilityPrefixes` |
+| « `enforce` est le verrou ; aucun `diffuse` ni commit n'est valide sans gate vert » | `skills/enforce/SKILL.md` | **retiré** — remplacé par un énoncé de périmètre borné, placé avant toute affirmation de gate |
+
+### Ajouté
+
+- `skills/enforce/SKILL.md § Périmètre de lint-core.mjs` — table couvert / hors périmètre, énoncée **avant** toute revendication de gate. Ce qu'un vert établit : le markup passé au linter n'utilise pas de classe ni de token hors contrat. Ni la couverture des fichiers, ni l'a11y, ni le rendu.
+- `skills/adjust/references/manifest-schema.md § Champs` — colonne **Statut · consommateur** : chaque champ du manifeste est tagué *exécutable* (avec sa règle et son consommateur nommés) ou *informationnel*.
+- `references/write-system-procedure.md § Adapter emission rule` — **énoncé canonique unique** : un adapter par consommateur présent dans le projet, jamais par consommateur que le plugin sait écrire. Référencé depuis `define/04-write-material.md`, `references/design-system-contract.md` et `define/references/profile-mobile-first.md`. Un fichier généré que personne ne lit dérive silencieusement et devient indiscernable d'un fichier maintenu.
+- `plugins/design/README.md` — table « ce que les gates garantissent et ce qu'ils ne garantissent pas ».
+
+### Modifié
+
+- `skills/enforce/adapters/lint-core.mjs` — bannière d'usage portant le périmètre (en scope / hors scope / vocabulaire ouvert par défaut), blocs de commentaires compressés à ce qu'un mainteneur doit savoir pour modifier une règle. **Zéro changement de règle** ; la sortie d'usage sur invocation vide énumère désormais ce qui n'est pas couvert.
+- `skills/adjust/references/manifest-schema.md § Invariants` — les 7 invariants tagués un à un. 1 exécutable (Rule 1, conditions `--strict` + forme BEM explicites) · 2 informationnel · 3 et 4 exécutables **au figeage seulement**, consommateur nommé · 5 informationnel (aucun consommateur ne vérifie la parité de versions — son remplacement par des versions par artefact appartient au Lot 1) · 6 gap déclaré · 7 exécutable (`02-freeze.md § Étape 2bis`).
+- `agents/copycat.md` — Boundary 4 et Method §9/§12 dé-spécialisés : plus d'énumération d'artefacts d'une plateforme nommée ; la revendication « les deux gates doivent être verts » nomme désormais quel outil couvre quoi et ce que ni l'un ni l'autre n'établit.
+- `adapters/measure/measure.py` — docstring : l'exemple de SPA exposant `setPage`/`setViewport` ne nomme plus un projet. Docstring seule, aucun changement de comportement.
+
+### Corrigé — `skills/enforce/adapters/lint-core.mjs`, résolution de contrat silencieusement fausse
+
+- **Symptôme.** `node lint-core.mjs fixtures/utility-dirty.html` sans second argument retournait **0** alors que la fixture porte deux violations. Les huit `.html` sont à plat dans `fixtures/`, trois contrats sur quatre vivent dans `fixtures/{retrofit,themed,utility}/` : la résolution retombait sur le contrat BEM de `fixtures/`, ce qui laisse les règles 1, 3 et 4 inertes sur du markup utility-first. Un vert qui ne prouvait rien, sans un mot pour le signaler.
+- **Portée réelle.** Le piège n'était pas propre aux fixtures : tout markup voisin d'un contrat qui n'est pas le sien était linté contre ce contrat, sans trace.
+- **Correctif.** Une résolution **devinée** (répertoire du markup, ou `design/` à la racine) n'est acceptée que si elle est le seul contrat de son arbre. Un contrat imbriqué rend le choix indécidable → **exit 2**, en nommant les candidats, conformément à l'espace de codes réservant 2 à « une décision que l'outil refuse de deviner ». Un contrat passé en second argument est une décision : il n'est jamais remis en cause.
+- **Transparence.** Toute exécution imprime désormais `CONTRACT <dir> (<route de résolution>), mode <mode>`, succès comme échec. Un verdict n'a de sens que rapporté à un contrat nommé.
+- **Conséquence sur les fixtures.** Dans `fixtures/`, l'invocation nue sort maintenant en 2 pour les huit fichiers. La baseline `0 1 0 1 0 1 0 1` ne s'obtient qu'avec le répertoire de contrat explicite — elle est désormais reproductible par construction, non par discipline.
+
+### Non traité, sciemment
+
+- `adapters/measure/configs/mentions-legales.json` porte encore un nom de projet : le Lot 4 réécrit le format de configuration auquel ce fichier appartient et le supprime. Le neutraliser à moitié ici serait du travail perdu.
+- La relocalisation des fichiers spécifiques à une plateforme (`skills/enforce/adapters/wordpress.md`, table de routage à deux tracks) appartient au Lot 3, qui ouvre les trois pivots. Le renommage de l'API d'oracle nommée d'après une plateforme (`--side wp`, `maq`, `missing_in_wp`) appartient au Lot 4.
+
 ## [1.16.0] — 2026-07-05
 
 Minor — **le rendu baseline de `diffuse` est contractuellement une preview non intégrée, jamais un livrable implicite** — quand aucun pivot `sc-*:design-bridge` n'est détecté, `02-render` retombait sur l'adaptateur HTML/CSS baseline sans jamais énoncer que ce rendu est un artefact isolé, sans chemin d'intégration vers le vrai composant applicatif (Vue/React/WP) — un lint vert le faisait passer pour « livré » alors que personne ne le rebranchait dans l'app, 2nd-audit #4 (Med/Large). 1.16.0 rend ce statut et son hand-off **obligatoires** dans le message de livraison, sans jamais relâcher le gate enforce.

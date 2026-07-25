@@ -1,0 +1,14 @@
+{
+  "$schema": "design/references/contract-schema#deviations",
+  "active": [
+    {
+      "id": "DEV-001",
+      "status": "active",
+      "target": "Card · lede",
+      "prop": "fontSize",
+      "expected": "17px",
+      "date": "2026-06-15",
+      "reason": "adopts the single fluid body scale; +1px at the smallest breakpoint is below the perceptual threshold"
+    }
+  ]
+}

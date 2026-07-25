@@ -1,0 +1,18 @@
+{
+  "_doc": "Oracle fixture (unknown-deviation). The lede delta (16→17px) is tolerated by a ledger entry citing DEV-999, but DEV-999 is not an active entry of deviations.json. The exception references a deviation the registry does not carry → verdict must be OPEN.",
+  "reference_url": "mockup.html",
+  "reference_page": null,
+  "implementation_url": "implementation.html",
+  "breakpoints": [
+    { "name": "desktop", "width": 1440, "height": 900 }
+  ],
+  "props": ["fontSize", "fontWeight", "color"],
+  "targets": [
+    { "name": "Card · title", "mockup": ".card__title", "implementation": ".card__title" },
+    { "name": "Card · lede", "mockup": ".card__lede", "implementation": ".card__lede" }
+  ],
+  "ledger": [
+    { "id": "DEV-999", "target": "Card · lede", "prop": "fontSize",
+      "why": "cites a deviation that was never registered" }
+  ]
+}

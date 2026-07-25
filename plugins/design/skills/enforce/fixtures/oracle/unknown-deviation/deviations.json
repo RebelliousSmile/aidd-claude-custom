@@ -1,0 +1,14 @@
+{
+  "$schema": "design/references/contract-schema#deviations",
+  "active": [
+    {
+      "id": "DEV-001",
+      "status": "active",
+      "target": "Card · lede",
+      "prop": "fontSize",
+      "expected": "17px",
+      "date": "2026-06-15",
+      "reason": "the registry carries DEV-001, not the DEV-999 the config cites — the referenced sanction is unknown"
+    }
+  ]
+}

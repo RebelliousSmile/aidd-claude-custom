@@ -25,7 +25,7 @@ Identifier et lire toutes les sources présentes :
 - Pistes `destructure` dans le rapport de challenge courant
 - Maquettes ou références additionnelles mentionnées en contexte
 
-En mode re-figeage : lire aussi `design/components.json` existant pour n'opérer que sur le delta.
+En mode re-figeage : lire aussi le contrat existant en entier — `design/release.json` d'abord, qui déclare les artefacts présents, puis chacun d'eux (`components.json`, `policies.json`, `oracle.json` s'il est déclaré). Le delta porte sur les quatre volets, pas sur la seule nomenclature : une piste peut ne toucher qu'une politique d'usage ou qu'une cible de mesure.
 
 **Entrée optionnelle — critique persistée.** Si `design/critique/` existe, lire le rapport le plus récent (nom de fichier daté `<yyyy_mm_dd>-<cible>.md` — trier par date, prendre le dernier) comme entrée additionnelle au même titre que les pistes de la conversation courante ; reprendre chaque piste retenue avec son étiquette de coût contrat (`rentre dans le contrat` / `demande un re-figeage`) telle qu'émise par `destructure`. Absence de fichier : non-bloquant, poursuivre sans.
 

@@ -1,0 +1,14 @@
+{
+  "$schema": "design/references/manifest-schema#",
+  "$version": "1.3.0",
+  "mode": "bem",
+  "components": {
+    "btn": {
+      "base": "btn",
+      "elements": { "label": "btn__label" },
+      "modifiers": {},
+      "backgrounds": ["color.semantic.background"],
+      "a11y": { "role": "button", "requires": [] }
+    }
+  }
+}

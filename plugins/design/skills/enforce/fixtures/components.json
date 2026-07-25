@@ -1,32 +1,42 @@
 {
-  "$schema": "design/references/manifest-schema#",
-  "$version": "1.0.0",
+  "$schema": "design/references/contract-schema#components",
   "components": {
     "btn": {
       "base": "btn",
       "elements": {
-        "icon":  "btn__icon",
+        "icon": "btn__icon",
         "label": "btn__label"
       },
       "modifiers": {
-        "primary":   "btn--primary",
+        "primary": "btn--primary",
         "secondary": "btn--secondary"
       },
-      "backgrounds": ["color.semantic.background", "color.semantic.surface"],
-      "a11y": { "role": "button", "requires": [] }
+      "backgrounds": [
+        "color.semantic.background",
+        "color.semantic.surface"
+      ],
+      "a11y": {
+        "role": "button",
+        "requires": []
+      }
     },
     "card": {
       "base": "card",
       "elements": {
         "media": "card__media",
-        "body":  "card__body",
+        "body": "card__body",
         "title": "card__title"
       },
       "modifiers": {
         "featured": "card--featured"
       },
-      "backgrounds": ["color.semantic.surface"],
-      "a11y": { "role": "article", "requires": [] }
+      "backgrounds": [
+        "color.semantic.surface"
+      ],
+      "a11y": {
+        "role": "article",
+        "requires": []
+      }
     }
   }
 }

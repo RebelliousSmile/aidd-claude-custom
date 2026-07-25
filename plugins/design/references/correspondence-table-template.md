@@ -4,9 +4,10 @@
 > aggregates them. This table is the **human checkpoint (P2)**: nothing is frozen by
 > `adjust` and no token/markup is edited until a human signs off the AGGREGATED table.
 >
-> Generic — speaks the 3-layer contract (`tokens.json` · `components.json` ·
-> `design-system.md`). Target-specific bindings (e.g. WP `theme.json` ↔ `tokens.json`)
-> live in `target-adapters.md`, never here.
+> Generic — speaks the contract artifacts (`tokens.json` · `components.json` ·
+> `policies.json` · `oracle.json`) and the charter input (`design-system.md`).
+> Target-specific bindings (e.g. a platform theme file ↔ `tokens.json`) live in
+> `target-adapters.md`, never here.
 
 ## Header
 

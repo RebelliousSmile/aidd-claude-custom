@@ -133,7 +133,8 @@ Le HTML retourné est injecté dans `#page-container`. **Ne pas** inclure `<html
 
 - Harness ne remplit pas les pages (→ LLM guidé par le prompt en tête du fichier généré).
 - Harness ne mesure pas la fidélité (→ `enforce/05-fidelity-gate` + `adapters/measure/measure.py`).
-- Harness ne modifie pas le contrat tokens/components (→ `adjust`).
+- Harness ne modifie aucun artefact du contrat (→ `adjust`).
+- Harness n'affirme aucune conformité ni maturité — voir un aperçu n'atteste rien. Le statut du contrat et le seuil au-dessus duquel la conformité s'affirme relèvent de `${CLAUDE_PLUGIN_ROOT}/references/maturity-status.md` (opposé par `tools/run-gates.py`, exit 4 sous le seuil).
 
 ## Références
 

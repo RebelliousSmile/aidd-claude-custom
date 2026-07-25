@@ -1,0 +1,49 @@
+{
+  "$schema": "design/references/contract-schema#release",
+  "$format": "2.0",
+  "designSystem": {
+    "version": "1.0.0"
+  },
+  "artifacts": {
+    "tokens.json": {
+      "version": "1.0.0",
+      "sourceHash": "sha256:5e27c02277498bafe67826951fe084545c4edd2de7c7868b6ce2816c4855de49"
+    },
+    "components.json": {
+      "version": "1.0.0",
+      "sourceHash": "sha256:516e61a34e04ba0b589cac18943de4ab0c08b2cbf34e00e31dd763b3e82509e6"
+    },
+    "policies.json": {
+      "version": "1.0.0",
+      "sourceHash": "sha256:516e61a34e04ba0b589cac18943de4ab0c08b2cbf34e00e31dd763b3e82509e6"
+    },
+    "oracle.json": {
+      "version": "1.0.0",
+      "sourceHash": "sha256:516e61a34e04ba0b589cac18943de4ab0c08b2cbf34e00e31dd763b3e82509e6"
+    }
+  },
+  "charter": {
+    "present": false,
+    "path": "design-system.md",
+    "version": null
+  },
+  "provenance": {
+    "producedBy": "migrate-contract.py",
+    "producedAt": "2026-07-24T00:00:00+00:00",
+    "from": "1.x contract"
+  },
+  "checks": null,
+  "status": "extracted",
+  "generated": {
+    "adapters/tokens.css": {
+      "sources": {
+        "tokens.json": "sha256:5e27c02277498bafe67826951fe084545c4edd2de7c7868b6ce2816c4855de49"
+      }
+    },
+    "adapters/tokens.json": {
+      "sources": {
+        "tokens.json": "sha256:5e27c02277498bafe67826951fe084545c4edd2de7c7868b6ce2816c4855de49"
+      }
+    }
+  }
+}

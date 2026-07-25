@@ -1,0 +1,31 @@
+{
+  "$schema": "design/references/contract-schema#deviations",
+  "active": [
+    {
+      "id": "DEV-001",
+      "status": "active",
+      "target": "c.card-title",
+      "prop": "fontSize",
+      "expected": "17px (clamp from the shared body scale)",
+      "date": "2026-06-15",
+      "reason": "the mockup hand-tuned 16px on mobile only; adopting the single fluid body token removes a one-off breakpoint override and keeps every title on one scale. +1px at 375 is below the perceptual threshold."
+    },
+    {
+      "id": "DEV-002",
+      "status": "active",
+      "target": "c.section-lede",
+      "prop": "lineHeight",
+      "expected": "1.5 (the shared body token)",
+      "date": "2026-06-18",
+      "expires": "2026-12-31",
+      "reason": "aligning on the single body line-height token drops a per-section override. Provisional: revisit once the lede token is split from body."
+    },
+    {
+      "id": "DEV-003",
+      "status": "active",
+      "target": "c.footer-note",
+      "date": "2026-06-20",
+      "reason": "the mockup grey is off the token ramp; the replacement token is not chosen yet, so no contract value is recorded. The entry sanctions nothing until it is."
+    }
+  ]
+}

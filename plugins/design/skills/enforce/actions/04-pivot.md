@@ -2,83 +2,58 @@
 
 ## Rôle
 
-Détecter le langage du projet courant. Si un `sc-<techno>:design-bridge` est disponible pour ce langage, émettre le spec d'enforcement (cf `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md`) et relayer à `sc-<techno>:design-bridge`. Sinon, rester sur la baseline `lint-core.mjs` et le signaler.
+Assigner à un réceptacle chaque règle que le cœur portable ne réalise pas, puis brancher son rapport dans le gate. Ce qu'aucun réceptacle ne prend reste **déclaré non réalisé** — visible dans chaque rapport, jamais silencieux.
 
 ## Prérequis
 
-- `design/tokens.json` + `design/components.json` figés.
-- `lint-core.mjs` installé (baseline disponible).
+- Contrat figé, `usage.rules[]` typé (`${CLAUDE_PLUGIN_ROOT}/references/enforcement-registry.md`).
+- `01-build-linter` terminé : `run-gates.py` et `gates.config.json` installés.
 
-## Étape 1 — Détecter le langage
+## Étape 1 — Router chaque règle vers son réalisateur
 
-Indices par ordre de priorité :
+Le routage part de la **preuve** que la règle doit lire, pas de la stack du projet. Le type d'`enforcement` la nomme ; le registre en déduit le réceptacle.
 
-| Indice | Interprétation |
-|--------|---------------|
-| `package.json` + `pnpm-lock.yaml` présents | JavaScript/TypeScript → `sc-js` |
-| `composer.json` présent | PHP → `sc-php` |
-| `pyproject.toml` ou `requirements.txt` | Python → `sc-python` (non implémenté) |
-| `Cargo.toml` | Rust → `sc-rust` (non implémenté) |
-| WordPress (`functions.php`, `wp-env.json`) | PHP → `sc-php` |
-| Aucun indicateur clair | Inconnu → baseline uniquement |
+| `enforcement` | Réceptacle |
+|---|---|
+| `markup` | aucun — réalisé par le cœur portable, rien à assigner |
+| `stylesheet` | `sc-css:design-bridge` |
+| `source-graph` | `sc-<langage de la source>:design-bridge` |
+| `stored-content`, `platform-config` | `sc-<langage du runtime>:design-bridge` |
+| `unrealized` | aucun — déclaré sans réalisateur |
 
-Un projet peut combiner plusieurs stacks (ex. PHP + JS). Dans ce cas, émettre un spec pour chaque `sc-*` disponible.
+Un même contrat peut ainsi désigner deux réceptacles : le langage des feuilles de style et celui du runtime ne coïncident pas nécessairement.
 
-## Étape 2 — Vérifier la disponibilité du réceptacle
+## Étape 2 — Vérifier la disponibilité de chaque réceptacle désigné
 
-Les réceptacles implémentés :
-- `/sc-php:design-bridge` — PHP/WordPress (sc-php v0.5.0+)
-- `/sc-js:design-bridge` — JavaScript/TypeScript/Vue/React (sc-js v0.7.0+)
+Réceptacle absent de la session ⇒ ses règles restent assignées mais non réalisées. Ce n'est pas une erreur, et le gate ne rougit pas pour autant : c'est exactement ce que l'étape 4 rend lisible.
 
-Si le plugin sc-php ou sc-js n'est pas installé dans la session → dégradation gracieuse sur baseline.
+## Étape 3 — Émettre le spec, une fois par réceptacle
 
-## Étape 3a — Si réceptacle disponible : émettre le spec
+Format complet : `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md § Spec d'enforcement`. Deux champs portent le contrat de cette action :
 
-Construire le spec d'enforcement depuis `design/components.json` + `design/tokens.json` selon le format de `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md § Spec d'enforcement` :
+- **Declared rules** — uniquement les règles routées vers ce réceptacle, id et description repris verbatim du contrat. Un réceptacle ne reçoit jamais une règle qu'un autre réalise.
+- **Report path** — le fichier où le réceptacle écrit son rapport.
 
-```
-## Design enforcement spec
+Puis appeler `/sc-<langage>:design-bridge` avec ce spec en contexte.
 
-Source: design/tokens.json + design/components.json
-Version: <manifest.$version>
+## Étape 4 — Consommer le rapport
 
-### Valid class sets
-Base classes: <liste des comp.base>
-All valid classes: <union base + elements + modifiers>
+Déclarer chaque Report path dans `gates.config.json § pivotReports`. Sans cette ligne, le réceptacle peut réaliser toutes ses règles sans que le gate en sache rien : elles resteront listées non réalisées.
 
-### Token paths
-<liste des chemins aplatis depuis tokens.json>
+Re-jouer le gate et lire le rapport :
 
-### a11y requirements
-<par composant avec .a11y.requires non vide>
+| Ligne | Lecture |
+|---|---|
+| `REALIZED <id> (<type>) by <realizer>` | assignée, réalisée, sans violation |
+| `VIOLATION <realizer>: <message>` | réalisée, non conforme — exit 1 |
+| `UNREALIZED <id> — <realizer> reports it unrealized` | le réceptacle a lu la règle et dit ne pas la couvrir |
+| `UNREALIZED <id> — no report from its realizer` | aucun rapport : réceptacle absent, ou non lancé |
 
-### Enforcement target
-Language: <php | js>
-Targets: <globs détectés ou fournis>
-
-### Request
-[texte du spec pivot-contract.md]
-```
-
-Puis appeler `/sc-<techno>:design-bridge` avec ce spec en contexte.
-
-## Étape 3b — Si réceptacle absent : signaler et rester sur la baseline
-
-```
-Pivot non disponible pour <langage> : sc-<techno>:design-bridge n'est pas installé.
-Enforcement assuré par la baseline lint-core.mjs (portable, sans dépendance native).
-Pour une réalisation idiomatique native, installer le plugin sc-<techno> et re-jouer /design:enforce.
-```
-
-La baseline reste active et fonctionnelle — ce n'est pas une erreur.
+Les deux dernières lignes ne changent pas le code de sortie. Elles ne se ferment pas en les masquant, mais en installant le réceptacle manquant ou en re-typant la règle.
 
 ## Sortie attendue
 
-**Avec pivot** :
-> Pivot activé vers `sc-<techno>:design-bridge`.
-> Spec d'enforcement émis (version manifeste : <X.Y.Z>).
-> → Réalisation native en cours via sc-<techno>.
-
-**Sans pivot** :
-> Baseline lint-core.mjs active. Aucun sc-<techno> disponible pour <langage>.
-> Gate : `node design/lint/lint-core.mjs <cible> exits 0`.
+> Règles routées : N vers `sc-<langage>` (\<ids\>), M réalisées par le cœur portable, P déclarées `unrealized`.
+> Rapports branchés dans `gates.config.json § pivotReports` : \<chemins\>.
+> Gate : `python design/lint/run-gates.py --config design/lint/gates.config.json` → exit \<0|1\>.
+> Non réalisées après ce passage : \<liste, avec pour chacune le réceptacle attendu\>.

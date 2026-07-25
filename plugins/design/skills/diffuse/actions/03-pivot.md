@@ -2,23 +2,24 @@
 
 ## Rôle
 
-Détecter la stack cible. Si un `sc-<techno>:design-bridge` est disponible pour cette stack, émettre le spec de rendu (cf `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md`) et relayer à `sc-<techno>:design-bridge`. Sinon, utiliser la baseline `${CLAUDE_PLUGIN_ROOT}/skills/diffuse/adapters/html-css.md` et le signaler.
-
-Consomme `${CLAUDE_PLUGIN_ROOT}/references/wordpress-pitfalls.md` pour le cas WordPress FSE.
+Identifier le langage dans lequel l'artefact doit exister. Si un `sc-<langage>:design-bridge` est installé, émettre le spec de rendu (cf `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md`) et lui relayer. Sinon, utiliser la baseline `${CLAUDE_PLUGIN_ROOT}/skills/diffuse/adapters/html-css.md` et le signaler.
 
 ## Prérequis
 
 - Spec neutre complète (issue de `01-define-element`).
-- Stack cible identifiée (précisée par `02-render`).
+- Langage de la cible identifié (précisé par `02-render`).
 
-## Étape 1 — Mapper la stack vers le sc-*
+## Étape 1 — Mapper le langage vers le réceptacle
 
-| Stack cible | sc-* | Statut |
-|-------------|------|--------|
-| WordPress FSE (block pattern, theme template) | `/sc-php:design-bridge` | disponible (sc-php v0.5.0+) |
-| Vue.js, React, Nuxt, Next.js | `/sc-js:design-bridge` | disponible (sc-js v0.7.0+) |
-| Python templates (Django/Jinja) | `sc-python:design-bridge` | non encore implémenté |
-| Rust templates | `sc-rust:design-bridge` | non encore implémenté |
+Le routage se fait sur le langage, jamais sur le nom du framework ou de la plateforme : un même réceptacle sert toutes les cibles qui s'écrivent dans son langage.
+
+| Langage de l'artefact | Réceptacle | Statut |
+|---|---|---|
+| Feuilles de style seules | `/sc-css:design-bridge` | disponible |
+| JavaScript / TypeScript (composants, templates compilés) | `/sc-js:design-bridge` | disponible |
+| PHP (templates, gabarits) | `/sc-php:design-bridge` | disponible |
+| Python (gabarits) | `sc-python:design-bridge` | non implémenté |
+| Rust (gabarits) | `sc-rust:design-bridge` | non implémenté |
 | HTML+CSS pur | baseline (pas de pivot) | — |
 
 ## Étape 2a — Si sc-* disponible : émettre le spec de rendu
@@ -29,7 +30,7 @@ Construire le spec de rendu depuis la spec neutre, selon le format de `${CLAUDE_
 ## Design render spec
 
 Source: design/tokens.json + design/components.json
-Version: <manifest.$version>
+Version: <release.json § designSystem.version>
 
 ### Component to render
 Name: <canonical-name>
@@ -47,29 +48,25 @@ a11y: { role: <role>, requires: [<attr>, ...] }
 <liste des variantes de la spec neutre ou "toutes">
 
 ### Render target
-Language: <php-fse-block | vue | react | html-css>
+Language: <langage de l'artefact>
 Output dir: <design/components/<canonical-name>/ ou autre cible précisée>
 
 ### Request
 [Texte du contrat de pivot — § Spec de rendu]
 ```
 
-Puis appeler `/sc-<techno>:design-bridge` avec ce spec en contexte.
+Puis appeler `/sc-<langage>:design-bridge` avec ce spec en contexte.
 
-**Cas WordPress spécifique** : avant d'appeler `sc-php:design-bridge`, lire `${CLAUDE_PLUGIN_ROOT}/references/wordpress-pitfalls.md` et injecter les contraintes WP dans le spec :
-- Classes appariées `has-*` : documenter la décision (déclarer dans le manifeste ou exclure du lint).
-- CLI conteneur obligatoire pour la propagation en DB.
-- `wp eval-file` deprecated → utiliser `wp eval` avec `file_get_contents`.
-- Propagation block patterns : réimporter via `tools/import/` après chaque modification.
+Les contraintes propres à la plateforme du réceptacle — classes générées par elle, outillage d'accès à son magasin de contenu, propagation de ses copies — appartiennent au réceptacle et sont documentées chez lui. `03-pivot` ne les transporte pas : il émet un spec que n'importe quel réceptacle sait lire. Toute contrainte qui doit gouverner le rendu se déclare **dans le contrat** (manifeste ou `policies.json`), où elle vaut pour toutes les cibles, jamais dans le spec d'une seule.
 
-## Étape 2b — Si sc-* absent : baseline + signal
+## Étape 2b — Si le réceptacle est absent : baseline + signal
 
 Utiliser `${CLAUDE_PLUGIN_ROOT}/skills/diffuse/adapters/html-css.md` et informer :
 
 ```
-Pivot non disponible pour <stack> : sc-<techno>:design-bridge n'est pas installé.
+Pivot non disponible pour <langage> : sc-<langage>:design-bridge n'est pas installé.
 Rendu assuré par la baseline HTML+CSS (portable, universel).
-Pour un rendu natif idiomatique <stack>, installer sc-<techno> et re-jouer /design:diffuse.
+Pour un rendu natif idiomatique en <langage>, installer sc-<langage> et re-jouer /design:diffuse.
 ```
 
 La baseline est fonctionnelle — ce n'est pas une erreur, seulement une dégradation gracieuse.
@@ -83,9 +80,9 @@ Si le rendu du pivot sort en exit 1, corriger en appliquant uniquement des class
 ## Sortie attendue
 
 **Avec pivot** :
-> Spec de rendu émis vers `sc-<techno>:design-bridge` (stack: <stack>, composant: <name>).
+> Spec de rendu émis vers `sc-<langage>:design-bridge` (langage : <langage>, composant : <name>).
 > Retour de rendu → gate enforce en cours.
 
 **Sans pivot** :
-> Baseline HTML+CSS — aucun sc-<techno> disponible pour <stack>.
+> Baseline HTML+CSS — aucun `sc-<langage>` installé pour <langage>.
 > → Rendu via `adapters/html-css.md`, gate enforce en cours.

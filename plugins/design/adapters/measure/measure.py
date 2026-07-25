@@ -1,20 +1,26 @@
 #!/usr/bin/env python3
-"""Fidelity oracle — compares computed styles between a mockup and a target render,
+"""Fidelity oracle — compares computed styles between a mockup and an implementation render,
 per breakpoint, property by property. Deterministic: same inputs -> same numbers
 (the numbers come from Chromium via Playwright, not from an LLM).
 
 Two modes:
-  B (default) — diff a mockup page against a target render (mockup<->target).
+  B (default) — diff a mockup page against an implementation render (mockup<->implementation).
   A           — extract computed styles from a single side (seed a greenfield contract).
 
-The mockup may be an SPA exposing window.setPage()/window.setViewport() (mauceri v2);
+The mockup may be an SPA exposing window.setPage()/window.setViewport();
 those hooks are called when present. Output is a per-breakpoint JSON report written
 in UTF-8 (avoids console encoding loss); a short summary is printed to stdout.
 
+--ledger-registry is REQUIRED — the oracle asserts conformity from the per-property comparison
+alone, and every tolerated exception must resolve to an active entry of deviations.json carrying
+an expected value. There is no unregistered tolerance: absent the registry the tool exits 2
+instead of measuring, so a green run can never come from an unvouched sanction.
+
 Usage:
-  python measure.py --config <cfg> --out <project>/<qa-dir>/fidelity/<page>-B.json
-  python measure.py --config <cfg> --mode A --side wp --out <file>
-  python measure.py --config <cfg> --out <file> --ledger-registry <project>/ds-deviation-ledger.md
+  python measure.py --config <cfg> --ledger-registry <dir>/deviations.json \
+                    --out <project>/<qa-dir>/fidelity/<page>-B.json
+  python measure.py --config <cfg> --mode A --side mockup --ledger-registry <dir>/deviations.json \
+                    --out <file>
 
 --out is the CONSUMER's responsibility: always an absolute path into the consuming project's
 QA/artifacts tree (gitignored), never plugin-relative. The script writes wherever it is told;
@@ -22,12 +28,15 @@ keeping reports out of the plugin is a caller convention (see the copycat agent 
 
 Config (JSON):
   {
-    "maquette_url": "...", "maquette_page": "<setPage key|null>",
-    "wp_url": "...",
-    "breakpoints": [{"name":"desktop","width":1440,"height":900,"maq_viewport":"desktop"}],
+    "reference_url": "...", "reference_page": "<setPage key|null>",   # the mockup side
+    "implementation_url": "...",                                      # the implementation side
+    # reference_url / implementation_url carrying a scheme (http://, file://) are used verbatim.
+    # A value with no scheme is a path RELATIVE TO THE CONFIG FILE, resolved to a file:// URL —
+    # so a self-contained fixture stays portable across machines (no baked absolute path).
+    "breakpoints": [{"name":"desktop","width":1440,"height":900,"mockup_viewport":"desktop"}],
     "props": ["fontSize", ...],
-    "targets": [{"name":"Hero · title","maq":"<sel>","wp":"<sel>"}],
-    "headings_sel": {"maq":"h1, h2","wp":"h1, h2"},       # optional — completeness scan scope
+    "targets": [{"name":"Hero · title","mockup":"<sel>","implementation":"<sel>"}],
+    "headings_sel": {"mockup":"h1, h2","implementation":"h1, h2"},  # optional — completeness scope
     "coverage_ack": {"sections":["..."],"reason":"..."},  # optional — justify which sections
                                                           # are deliberately unmeasured (non-empty
                                                           # sections list required to disable guard)
@@ -40,7 +49,7 @@ Config (JSON):
                                                               # legitimately from placeholder copy.
                                                               # Use per-target to avoid false diffs. (P11)
     "collections": [                                          # optional — sequence parity check
-      {"name":"Stats hero","maq":".stat-item","wp":".stat-item",
+      {"name":"Stats hero","mockup":".stat-item","implementation":".stat-item",
        "ack":{"id":"DEV-004","reason":"..."}}               # P13 — sanction a deliberate divergence
       # Oracle enumerates ALL matching elements on both sides, normalises their text, diffs the
       # sequences → count diff, per-index label mismatch, missing/extra items, reordering.
@@ -49,21 +58,21 @@ Config (JSON):
       # divergence (different business content). Acked ok:false entries are excluded from
       # collection_failures. Their id is validated via --ledger-registry like row-level ledger.
     ],
-    "ledger": [                                           # deviation-ledger entries
+    "ledger": [                                           # deviation references
       {"id":"DEV-001","target":"Hero · title","prop":"fontSize","why":"..."}
       # id (DEV-xxx) is REQUIRED — unsigned entries are surfaced in ledger_ids for human review.
-      # If --ledger-registry is provided, each id is validated against that file; an id absent
-      # from the registry forces verdict=OPEN.
+      # Each id is validated against --ledger-registry (deviations.json): an id that is not an
+      # active entry carrying an expected value, or one past its expiry, forces verdict=OPEN.
     ]
   }
 
 Report shape (per breakpoint):
   Mode B
-    - diff row    : {"element","prop","maquette","local","match": bool}
+    - diff row    : {"element","prop","mockup","implementation","match": bool}
                     if ledgered: adds "ledgered":true, "why":"...", "ledger_id":"DEV-xxx"
     - missing row : {"element",
-                     "missing": {"maquette": "present"|"absent", "wp": "present"|"absent"},
-                     "searched": {"maquette": <sel>, "wp": <sel>}}
+                     "missing": {"mockup": "present"|"absent", "implementation": "present"|"absent"},
+                     "searched": {"mockup": <sel>, "implementation": <sel>}}
       -> "present"|"absent" is explicit on purpose: do NOT infer presence from null.
   Mode A
     - value row   : {"element","values": {<prop>: <computed>}}
@@ -74,17 +83,17 @@ Top-level (Mode B) — STRUCTURAL GATES, computed by the script, not claimed by 
   "ledger_unused":[{"id","target","prop"}, ...]
       -> ledger entries that matched no actual diff (stale sanction or already-fixed delta).
          Non-blocking for verdict but signals ledger bloat.
-  "completeness": {"maquette_headings":[...], "wp_headings":[...],
-                   "missing_in_wp":[...], "extra_in_wp":[...]}
-      -> structure before pixels: a heading present in the mockup but absent in the target
-         is a missing SECTION, the dominant delta. Defeats hero-only tunnel vision.
-  "coverage": {"wp_headings": N, "measured_targets": M, "ok": bool, "warning": "...",
+  "completeness": {"mockup_headings":[...], "implementation_headings":[...],
+                   "missing_in_implementation":[...], "extra_in_implementation":[...]}
+      -> structure before pixels: a heading present in the mockup but absent in the
+         implementation is a missing SECTION, the dominant delta. Defeats hero-only tunnel vision.
+  "coverage": {"implementation_headings": N, "measured_targets": M, "ok": bool, "warning": "...",
                "ack_sections": [...]}
       -> fewer targets than headings => under-coverage (a hero-only config "passing" while
          the body is unmeasured). OPEN unless coverage_ack supplies a non-empty sections list.
-  "collections": [{"name","maq_count","wp_count",
-                   "diffs":[{"index","maquette","wp","match":bool}],
-                   "missing_in_wp":[...], "extra_in_wp":[...], "ok":bool,
+  "collections": [{"name","mockup_count","implementation_count",
+                   "diffs":[{"index","mockup","implementation","match":bool}],
+                   "missing_in_implementation":[...], "extra_in_implementation":[...], "ok":bool,
                    "acked":bool, "ack_id":"DEV-xxx", "ack_reason":"..."}]  # P13 — when ack present
       -> sequence parity: count mismatch, per-index label diff, missing/extra items, reordering.
          Catches stat-block drift, card counts, nav items — structures invisible to getComputedStyle.
@@ -108,6 +117,7 @@ import argparse
 import json
 import re
 import sys
+from datetime import date, datetime, timezone
 from difflib import SequenceMatcher
 from pathlib import Path
 
@@ -161,16 +171,16 @@ _ISOLATE_FRAME = """(v) => {
 }"""
 
 
-def _prepare_mockup(page, page_key, maq_viewport):
+def _prepare_mockup(page, page_key, mockup_viewport):
     """Drive the SPA mockup: set its viewport mode + page, hide preview chrome,
     then isolate the active .preview-frame so querySelector targets the right DOM."""
-    if maq_viewport:
-        page.evaluate("(v) => window.setViewport && window.setViewport(v)", maq_viewport)
+    if mockup_viewport:
+        page.evaluate("(v) => window.setViewport && window.setViewport(v)", mockup_viewport)
     if page_key:
         page.evaluate("(k) => window.setPage && window.setPage(k)", page_key)
     page.evaluate("() => { const b = document.querySelector('.preview-bar'); if (b) b.style.display = 'none'; }")
     # Detach non-active frames so document.querySelector hits the right one (P3).
-    page.evaluate(_ISOLATE_FRAME, maq_viewport or "desktop")
+    page.evaluate(_ISOLATE_FRAME, mockup_viewport or "desktop")
     page.wait_for_timeout(400)
 
 
@@ -187,12 +197,12 @@ def _collect(page, collections, side):
     return page.evaluate(_COLLECT, {"collections": collections, "side": side})
 
 
-def _diff_collections(maq_items: dict, wp_items: dict, collections: list) -> list:
+def _diff_collections(mock_items: dict, impl_items: dict, collections: list) -> list:
     """Diff two sides of each named collection: count, LCS-aligned label diffs, missing/extra (P8+P12).
 
     P12 — uses SequenceMatcher (LCS) for per-item alignment so a single insertion at position 0
-    does not cascade all subsequent items as false mismatches. The set-based missing_in_wp /
-    extra_in_wp remain the authoritative verdict input; diffs[] is a human-readable trace.
+    does not cascade all subsequent items as false mismatches. The set-based missing/extra remain
+    the authoritative verdict input; diffs[] is a human-readable trace.
 
     P13 — collection-level ack: {"id":"DEV-xxx","reason":"..."} on a config entry sanctions
     a deliberate content/structure divergence (mirrors row-level ledger). An acked ok:false entry
@@ -201,31 +211,31 @@ def _diff_collections(maq_items: dict, wp_items: dict, collections: list) -> lis
     result = []
     for c in collections:
         name = c["name"]
-        maq = [_norm(t) for t in maq_items.get(name, [])]
-        wp = [_norm(t) for t in wp_items.get(name, [])]
+        mock = [_norm(t) for t in mock_items.get(name, [])]
+        impl = [_norm(t) for t in impl_items.get(name, [])]
         diffs: list = []
-        sm = SequenceMatcher(None, maq, wp, autojunk=False)
+        sm = SequenceMatcher(None, mock, impl, autojunk=False)
         for tag, i1, i2, j1, j2 in sm.get_opcodes():
             if tag == "equal":
                 for k in range(i2 - i1):
-                    diffs.append({"index": i1 + k, "maquette": maq[i1 + k],
-                                  "wp": wp[j1 + k], "match": True})
+                    diffs.append({"index": i1 + k, "mockup": mock[i1 + k],
+                                  "implementation": impl[j1 + k], "match": True})
             else:  # replace / delete / insert
-                maq_sl, wp_sl = maq[i1:i2], wp[j1:j2]
-                for k in range(max(len(maq_sl), len(wp_sl))):
-                    mv = maq_sl[k] if k < len(maq_sl) else None
-                    wv = wp_sl[k] if k < len(wp_sl) else None
-                    diffs.append({"index": i1 + k if k < len(maq_sl) else None,
-                                  "maquette": mv, "wp": wv, "match": False})
-        maq_set, wp_set = set(maq), set(wp)
-        ok = maq == wp
+                mock_sl, impl_sl = mock[i1:i2], impl[j1:j2]
+                for k in range(max(len(mock_sl), len(impl_sl))):
+                    mv = mock_sl[k] if k < len(mock_sl) else None
+                    iv = impl_sl[k] if k < len(impl_sl) else None
+                    diffs.append({"index": i1 + k if k < len(mock_sl) else None,
+                                  "mockup": mv, "implementation": iv, "match": False})
+        mock_set, impl_set = set(mock), set(impl)
+        ok = mock == impl
         entry: dict = {
             "name": name,
-            "maq_count": len(maq),
-            "wp_count": len(wp),
+            "mockup_count": len(mock),
+            "implementation_count": len(impl),
             "diffs": diffs,
-            "missing_in_wp": [t for t in maq if t not in wp_set],
-            "extra_in_wp": [t for t in wp if t not in maq_set],
+            "missing_in_implementation": [t for t in mock if t not in impl_set],
+            "extra_in_implementation": [t for t in impl if t not in mock_set],
             "ok": ok,
         }
         # P13 — propagate ack from config entry
@@ -241,15 +251,23 @@ def _diff_collections(maq_items: dict, wp_items: dict, collections: list) -> lis
     return result
 
 
-def measure(cfg: dict, mode: str, side: str) -> dict:
-    report: dict = {"mode": mode, "maquette_page": cfg.get("maquette_page"), "breakpoints": {}}
+def _resolve_url(raw: str, base_dir: Path) -> str:
+    """A config URL with a scheme is used verbatim; a bare path is resolved relative to the config
+    file and turned into a file:// URL, so a committed fixture needs no machine-specific path."""
+    if re.match(r"^[a-z][a-z0-9+.-]*://", raw, re.IGNORECASE):
+        return raw
+    return (base_dir / raw).resolve().as_uri()
+
+
+def measure(cfg: dict, mode: str, side: str, base_dir: Path) -> dict:
+    report: dict = {"mode": mode, "mockup_page": cfg.get("reference_page"), "breakpoints": {}}
     props = cfg["props"]
     targets = cfg["targets"]
     check_text = cfg.get("check_text", False)
     collections = cfg.get("collections", [])
-    hsel = cfg.get("headings_sel", {"maq": "h1, h2", "wp": "h1, h2"})
-    maq_headings = wp_headings = None
-    maq_coll = wp_coll = None  # collected once across breakpoints (content is layout-independent)
+    hsel = cfg.get("headings_sel", {"mockup": "h1, h2", "implementation": "h1, h2"})
+    mock_headings = impl_headings = None
+    mock_coll = impl_coll = None  # collected once across breakpoints (content is layout-independent)
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
@@ -257,25 +275,27 @@ def measure(cfg: dict, mode: str, side: str) -> dict:
             for bp in cfg["breakpoints"]:
                 ctx = browser.new_context(viewport={"width": bp["width"], "height": bp["height"]})
                 try:
-                    maq = wp = None
-                    if mode == "B" or side == "maq":
+                    mock = impl = None
+                    if mode == "B" or side == "mockup":
                         m = ctx.new_page()
-                        m.goto(cfg["maquette_url"], wait_until="networkidle", timeout=20000)
-                        _prepare_mockup(m, cfg.get("maquette_page"), bp.get("maq_viewport"))
-                        maq = _grab(m, targets, props, "maq", check_text)
-                        if maq_headings is None:
-                            maq_headings = _headings(m, hsel.get("maq", "h1, h2"))
-                        if collections and maq_coll is None:
-                            maq_coll = _collect(m, collections, "maq")
-                    if mode == "B" or side == "wp":
+                        m.goto(_resolve_url(cfg["reference_url"], base_dir),
+                               wait_until="networkidle", timeout=20000)
+                        _prepare_mockup(m, cfg.get("reference_page"), bp.get("mockup_viewport"))
+                        mock = _grab(m, targets, props, "mockup", check_text)
+                        if mock_headings is None:
+                            mock_headings = _headings(m, hsel.get("mockup", "h1, h2"))
+                        if collections and mock_coll is None:
+                            mock_coll = _collect(m, collections, "mockup")
+                    if mode == "B" or side == "implementation":
                         w = ctx.new_page()
-                        w.goto(cfg["wp_url"], wait_until="networkidle", timeout=20000)
+                        w.goto(_resolve_url(cfg["implementation_url"], base_dir),
+                               wait_until="networkidle", timeout=20000)
                         w.wait_for_timeout(300)
-                        wp = _grab(w, targets, props, "wp", check_text)
-                        if wp_headings is None:
-                            wp_headings = _headings(w, hsel.get("wp", "h1, h2"))
-                        if collections and wp_coll is None:
-                            wp_coll = _collect(w, collections, "wp")
+                        impl = _grab(w, targets, props, "implementation", check_text)
+                        if impl_headings is None:
+                            impl_headings = _headings(w, hsel.get("implementation", "h1, h2"))
+                        if collections and impl_coll is None:
+                            impl_coll = _collect(w, collections, "implementation")
                 finally:
                     ctx.close()
 
@@ -283,38 +303,39 @@ def measure(cfg: dict, mode: str, side: str) -> dict:
                 for t in targets:
                     name = t["name"]
                     if mode == "A":
-                        src = maq if side == "maq" else wp
+                        src = mock if side == "mockup" else impl
                         v = src[name]
                         rows.append({"element": name, "missing": True, "searched": {side: v["__missing"]}}
                                     if "__missing" in v
                                     else {"element": name, "values": v})
                         continue
-                    m_v, w_v = maq[name], wp[name]
-                    if "__missing" in m_v or "__missing" in w_v:
+                    m_v, i_v = mock[name], impl[name]
+                    if "__missing" in m_v or "__missing" in i_v:
                         rows.append({"element": name,
-                                     "missing": {"maquette": "absent" if "__missing" in m_v else "present",
-                                                 "wp": "absent" if "__missing" in w_v else "present"},
-                                     "searched": {"maquette": t.get("maq"), "wp": t.get("wp")}})
+                                     "missing": {"mockup": "absent" if "__missing" in m_v else "present",
+                                                 "implementation": "absent" if "__missing" in i_v else "present"},
+                                     "searched": {"mockup": t.get("mockup"),
+                                                  "implementation": t.get("implementation")}})
                         continue
                     for p in props:
                         rows.append({"element": name, "prop": p,
-                                     "maquette": m_v[p], "local": w_v[p], "match": m_v[p] == w_v[p]})
+                                     "mockup": m_v[p], "implementation": i_v[p], "match": m_v[p] == i_v[p]})
                     # P7+P11 — text parity: emit when JS captured __text (per-target or global)
-                    if "__text" in m_v and "__text" in w_v:
-                        mt, wt = _norm(m_v["__text"]), _norm(w_v["__text"])
+                    if "__text" in m_v and "__text" in i_v:
+                        mt, it = _norm(m_v["__text"]), _norm(i_v["__text"])
                         rows.append({"element": name, "prop": "text",
-                                     "maquette": mt, "local": wt, "match": mt == wt})
+                                     "mockup": mt, "implementation": it, "match": mt == it})
                 report["breakpoints"][bp["name"]] = rows
         finally:
             browser.close()
 
     if mode == "B":
         _apply_ledger(report, cfg.get("ledger", []))
-        report["completeness"] = _completeness(maq_headings or [], wp_headings or [])
-        report["coverage"] = _coverage(wp_headings or [], targets, cfg.get("coverage_ack"))
+        report["completeness"] = _completeness(mock_headings or [], impl_headings or [])
+        report["coverage"] = _coverage(impl_headings or [], targets, cfg.get("coverage_ack"))
         # P8 — collection parity (evaluated once, content is layout-independent)
         if collections:
-            report["collections"] = _diff_collections(maq_coll or {}, wp_coll or {}, collections)
+            report["collections"] = _diff_collections(mock_coll or {}, impl_coll or {}, collections)
             # P13 — merge collection ack ids into ledger_ids for --ledger-registry validation
             coll_ack_ids = [c["ack_id"] for c in report["collections"] if "ack_id" in c]
             if coll_ack_ids:
@@ -324,7 +345,7 @@ def measure(cfg: dict, mode: str, side: str) -> dict:
 
 
 def _apply_ledger(report: dict, ledger: list) -> None:
-    """Tag diffs sanctioned by a deviation-ledger entry (target+prop+id).
+    """Tag diffs sanctioned by a deviation reference (target+prop+id).
 
     Each entry MUST carry an 'id' field (DEV-xxx). Entries without id are applied
     but flagged as unsigned (visible in report['ledger_ids'] as empty string).
@@ -352,22 +373,78 @@ def _apply_ledger(report: dict, ledger: list) -> None:
     ]
 
 
-def _validate_ledger_registry(report: dict, registry_path: str) -> list[str]:
-    """Verify each ledger id against a deviation-ledger registry file.
+def _load_deviations(registry_path: str) -> tuple[dict, list[str]]:
+    """Load deviations.json and index its active entries by id.
 
-    Returns a list of validation error strings (empty = all ids present).
-    Only ids that are non-empty strings are checked (unsigned entries are skipped
-    here; they are already surfaced via ledger_ids as empty strings).
+    A structurally invalid registry is a validation error string, never a traceback: measure.py
+    must not exit 1 (the violation code) on a malformed registry. Returns (active_by_id, errors).
     """
     try:
-        registry_content = Path(registry_path).read_text(encoding="utf-8")
+        raw = Path(registry_path).read_text(encoding="utf-8")
     except OSError as exc:
-        return [f"ledger-registry unreadable: {exc}"]
-    errors = []
+        return {}, [f"ledger-registry unreadable: {exc}"]
+    try:
+        data = json.loads(raw)
+    except ValueError as exc:
+        return {}, [f"ledger-registry is not valid JSON ({registry_path}): {exc}"]
+    if not isinstance(data, dict):
+        return {}, [f"ledger-registry must be a JSON object ({registry_path})"]
+    active = data.get("active", [])
+    if not isinstance(active, list):
+        return {}, [f"ledger-registry .active must be an array ({registry_path})"]
+    by_id: dict = {}
+    for e in active:
+        if isinstance(e, dict) and e.get("id"):
+            by_id[e["id"]] = e
+    return by_id, []
+
+
+def _expired(expires: str, today: date) -> bool:
+    """A deviation past its declared expiry no longer sanctions. A malformed date is not treated
+    as expired here — it is surfaced as its own reason — so the verdict never turns on a parse."""
+    try:
+        return date.fromisoformat(str(expires)) < today
+    except ValueError:
+        return False
+
+
+def _validate_ledger_registry(report: dict, registry_path: str, today: date) -> list[str]:
+    """Verify each ledger id the config references resolves to an ACTIVE deviation that carries an
+    expected value and has not expired. Any failure is a reason string; the caller forces OPEN.
+
+    deviations.json is the authority (references/deviations-schema.md): an id sanctions a delta
+    only if it is in active[], carries a non-empty `expected`, and — if it declares `expires` —
+    has not passed it against the run clock. Absence, no expected, or expiry each reopen the verdict.
+    Returns a list of validation error strings (empty = every referenced id is a valid sanction).
+    """
+    by_id, errors = _load_deviations(registry_path)
+    if errors:
+        return errors
     for eid in report.get("ledger_ids", []):
-        if eid and not re.search(re.escape(eid), registry_content):
-            errors.append(f"ledger entry {eid} absent du registre ({registry_path})")
+        if not eid:
+            continue  # unsigned entries are already surfaced via ledger_ids (empty strings)
+        entry = by_id.get(eid)
+        if entry is None:
+            errors.append(f"ledger id {eid} absent des écarts actifs de {registry_path} — "
+                          "exception qui référence un écart inexistant ou révolu")
+            continue
+        if not str(entry.get("expected", "")).strip():
+            errors.append(f"ledger id {eid} sans valeur 'expected' dans {registry_path} — "
+                          "rien à sanctionner")
+        expires = entry.get("expires")
+        if expires and _expired(expires, today):
+            errors.append(f"ledger id {eid} expiré le {expires} — l'écart ne sanctionne plus")
+        elif expires and not _valid_date(expires):
+            errors.append(f"ledger id {eid} : date d'expiration illisible '{expires}' (ISO-8601 attendu)")
     return errors
+
+
+def _valid_date(value: str) -> bool:
+    try:
+        date.fromisoformat(str(value))
+        return True
+    except ValueError:
+        return False
 
 
 def _norm(s: str) -> str:
@@ -376,25 +453,25 @@ def _norm(s: str) -> str:
     the renderer's smart-quotes."""
     return (s.replace("’", "'").replace("‘", "'")
              .replace("”", '"').replace("“", '"')
-             .replace("–", "-").replace("—", "-").replace(" ", " "))
+             .replace("–", "-").replace("—", "-").replace(" ", " "))
 
 
-def _completeness(maq_headings: list, wp_headings: list) -> dict:
+def _completeness(mock_headings: list, impl_headings: list) -> dict:
     """Structure before pixels: which section headings exist on each side (quote-normalized)."""
-    maq_n, wp_n = {_norm(h) for h in maq_headings}, {_norm(h) for h in wp_headings}
-    return {"maquette_headings": maq_headings, "wp_headings": wp_headings,
-            "missing_in_wp": [h for h in maq_headings if _norm(h) not in wp_n],
-            "extra_in_wp": [h for h in wp_headings if _norm(h) not in maq_n]}
+    mock_n, impl_n = {_norm(h) for h in mock_headings}, {_norm(h) for h in impl_headings}
+    return {"mockup_headings": mock_headings, "implementation_headings": impl_headings,
+            "missing_in_implementation": [h for h in mock_headings if _norm(h) not in impl_n],
+            "extra_in_implementation": [h for h in impl_headings if _norm(h) not in mock_n]}
 
 
-def _coverage(wp_headings: list, targets: list, ack) -> dict:
+def _coverage(impl_headings: list, targets: list, ack) -> dict:
     """Fewer measured targets than headings => the body is likely unmeasured (tunnel vision).
 
     coverage_ack must be a structured dict {"sections": [...], "reason": "..."}
     with a non-empty sections list to disable the guard. A bare boolean true is
     accepted for backward compatibility but triggers a migration warning.
     """
-    cov = {"wp_headings": len(wp_headings), "measured_targets": len(targets)}
+    cov = {"implementation_headings": len(impl_headings), "measured_targets": len(targets)}
 
     # Parse coverage_ack
     ack_sections: list = []
@@ -407,7 +484,7 @@ def _coverage(wp_headings: list, targets: list, ack) -> dict:
     elif ack is True:
         ack_legacy = True
 
-    under = len(targets) < len(wp_headings)
+    under = len(targets) < len(impl_headings)
     if not under or ack_sections:
         cov["ok"] = True
         if ack_legacy:
@@ -417,11 +494,11 @@ def _coverage(wp_headings: list, targets: list, ack) -> dict:
     else:
         cov["ok"] = False
         if ack_legacy:
-            cov["warning"] = (f"under-coverage: {len(targets)} targets for {len(wp_headings)} headings — "
+            cov["warning"] = (f"under-coverage: {len(targets)} targets for {len(impl_headings)} headings — "
                               "coverage_ack:true accepted but opaque; upgrade to "
                               '{"sections":[...],"reason":"..."} listing the sections deliberately skipped')
         else:
-            cov["warning"] = (f"under-coverage: {len(targets)} targets for {len(wp_headings)} headings — "
+            cov["warning"] = (f"under-coverage: {len(targets)} targets for {len(impl_headings)} headings — "
                               'set coverage_ack:{"sections":[...],"reason":"..."} listing sections '
                               "deliberately not measured (non-empty list required)")
     return cov
@@ -437,7 +514,7 @@ def _verdict(report: dict) -> dict:
                 else:
                     total_diff += 1
         total_missing += sum(1 for r in rows if "missing" in r)
-    missing_sections = report.get("completeness", {}).get("missing_in_wp", [])
+    missing_sections = report.get("completeness", {}).get("missing_in_implementation", [])
     cov = report.get("coverage", {})
     ledger_ids = report.get("ledger_ids", [])
     ledger_unused = report.get("ledger_unused", [])
@@ -453,17 +530,19 @@ def _verdict(report: dict) -> dict:
     if total_missing:
         reasons.append(f"{total_missing} missing target(s) — stale selector or absent element")
     if missing_sections:
-        reasons.append(f"{len(missing_sections)} section(s) missing in target: {missing_sections}")
+        reasons.append(f"{len(missing_sections)} section(s) missing in implementation: {missing_sections}")
     if not cov.get("ok", True):
         reasons.append(cov.get("warning", "under-coverage"))
     for fc in failed_collections:
-        reasons.append(f"collection '{fc['name']}': {fc['maq_count']} maq vs {fc['wp_count']} wp"
-                       + (f", missing: {fc['missing_in_wp']}" if fc["missing_in_wp"] else "")
-                       + (f", extra: {fc['extra_in_wp']}" if fc["extra_in_wp"] else ""))
+        reasons.append(f"collection '{fc['name']}': {fc['mockup_count']} mockup vs "
+                       f"{fc['implementation_count']} implementation"
+                       + (f", missing: {fc['missing_in_implementation']}" if fc["missing_in_implementation"] else "")
+                       + (f", extra: {fc['extra_in_implementation']}" if fc["extra_in_implementation"] else ""))
     # Unsigned ledger entries (no id) — includes unsigned collection acks: surfaced but not alone blocking
     unsigned = [eid for eid in ledger_ids if not eid]
     if unsigned:
-        reasons.append(f"{len(unsigned)} unsigned ledger entry(ies) — add 'id' (DEV-xxx) and register in ds-deviation-ledger.md")
+        reasons.append(f"{len(unsigned)} unsigned ledger entry(ies) — add 'id' (DEV-xxx) and "
+                       "register it in deviations.json § active")
 
     closed = not reasons
     summary: dict = {"verdict": "CLOSED" if closed else "OPEN", "closed": closed, "reasons": reasons,
@@ -489,22 +568,20 @@ def _summarize(report: dict) -> str:
         missing = sum(1 for r in rows if "missing" in r)
         lines.append(f"  {bp:8s} : {oks} match · {diffs} diff · {led} ledgered · {missing} missing")
     comp = report.get("completeness")
-    if comp and comp["missing_in_wp"]:
-        lines.append(f"  ! sections missing in target : {comp['missing_in_wp']}")
+    if comp and comp["missing_in_implementation"]:
+        lines.append(f"  ! sections missing in implementation : {comp['missing_in_implementation']}")
     cov = report.get("coverage")
     if cov and not cov.get("ok", True):
         lines.append(f"  ! {cov['warning']}")
     for fc in report.get("collections", []):
         if not fc.get("ok"):
+            head = f"collection '{fc['name']}': {fc['mockup_count']} mockup vs {fc['implementation_count']} implementation"
+            miss = f"  missing={fc['missing_in_implementation']}" if fc["missing_in_implementation"] else ""
+            extra = f"  extra={fc['extra_in_implementation']}" if fc["extra_in_implementation"] else ""
             if fc.get("acked"):
-                lines.append(f"  ~ collection '{fc['name']}': {fc['maq_count']} maq vs {fc['wp_count']} wp"
-                             + f" [ACKED {fc.get('ack_id') or 'unsigned'}]"
-                             + (f"  missing={fc['missing_in_wp']}" if fc["missing_in_wp"] else "")
-                             + (f"  extra={fc['extra_in_wp']}" if fc["extra_in_wp"] else ""))
+                lines.append(f"  ~ {head} [ACKED {fc.get('ack_id') or 'unsigned'}]{miss}{extra}")
             else:
-                lines.append(f"  ! collection '{fc['name']}': {fc['maq_count']} maq vs {fc['wp_count']} wp"
-                             + (f"  missing={fc['missing_in_wp']}" if fc["missing_in_wp"] else "")
-                             + (f"  extra={fc['extra_in_wp']}" if fc["extra_in_wp"] else ""))
+                lines.append(f"  ! {head}{miss}{extra}")
         elif fc.get("ack_unused"):
             lines.append(f"  ~ collection '{fc['name']}': ok but ack {fc.get('ack_id') or 'unsigned'} unused")
     unused = report.get("ledger_unused", [])
@@ -524,21 +601,24 @@ def main():
     ap.add_argument("--config", required=True, help="Path to the JSON config.")
     ap.add_argument("--out", required=True, help="Path to write the JSON report (UTF-8).")
     ap.add_argument("--mode", choices=["A", "B"], default="B",
-                    help="A=extract one side, B=diff mockup<->target.")
-    ap.add_argument("--side", choices=["maq", "wp"], default="wp",
+                    help="A=extract one side, B=diff mockup<->implementation.")
+    ap.add_argument("--side", choices=["mockup", "implementation"], default="implementation",
                     help="Mode A only: which side to extract.")
-    ap.add_argument("--ledger-registry", default=None,
-                    help="Path to the canonical ds-deviation-ledger.md. When provided, each "
-                         "ledger id in the config is validated against this file; an id absent "
-                         "from the registry forces verdict=OPEN.")
+    ap.add_argument("--ledger-registry", required=True,
+                    help="Path to deviations.json. REQUIRED: every tolerated exception must resolve "
+                         "to an active entry carrying an expected value. Each ledger id in the config "
+                         "is validated against this file; an id that is not an active, unexpired entry "
+                         "with an expected value forces verdict=OPEN.")
     args = ap.parse_args()
 
     cfg = json.loads(Path(args.config).read_text(encoding="utf-8"))
-    report = measure(cfg, args.mode, args.side)
+    base_dir = Path(args.config).resolve().parent
+    report = measure(cfg, args.mode, args.side, base_dir)
 
-    # P1 — validate ledger ids against the canonical registry if provided
-    if args.ledger_registry and args.mode == "B":
-        registry_errors = _validate_ledger_registry(report, args.ledger_registry)
+    # P1 — validate ledger ids against deviations.json (the authority) in mode B
+    if args.mode == "B":
+        today = datetime.now(timezone.utc).date()
+        registry_errors = _validate_ledger_registry(report, args.ledger_registry, today)
         if registry_errors:
             s = report.get("summary", {})
             s["reasons"] = registry_errors + s.get("reasons", [])

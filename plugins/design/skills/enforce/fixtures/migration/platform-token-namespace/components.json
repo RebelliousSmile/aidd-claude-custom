@@ -1,0 +1,19 @@
+{
+  "$schema": "design/references/contract-schema#components",
+  "components": {
+    "btn": {
+      "base": "btn",
+      "elements": {
+        "label": "btn__label"
+      },
+      "modifiers": {},
+      "backgrounds": [
+        "color.semantic.background"
+      ],
+      "a11y": {
+        "role": "button",
+        "requires": []
+      }
+    }
+  }
+}

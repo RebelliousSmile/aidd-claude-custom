@@ -47,15 +47,28 @@ Pour `01-realize-lint`, le framework importe moins : la règle ESLint/Biome s'ap
 
 Le linter et le rendu **dérivent du spec reçu** — ils n'inventent pas de règles ni de classes. Toute classe dans un composant rendu doit être dans le spec's valid class sets. Toute règle de lint doit correspondre à un token path ou une classe du spec.
 
+## Obligation de report
+
+Toute règle reçue en `Declared rules` est **rendue au gate**, réalisée ou non. Le rapport s'écrit au `Report path` du spec, au format `plugins/design/references/gate-config-schema.md § Rapport de pivot`.
+
+Une règle que ce réceptacle ne couvre pas s'écrit en `status: "unrealized"`. Ce n'est pas un aveu à minimiser : sans elle, une règle hors de portée et une règle oubliée laissent la même trace — aucune — et le gate ne peut que les confondre.
+
+Le cas fréquent ici : les liaisons dynamiques (`:class`, `class:list`, `x-bind:class`, chaînes calculées). Une règle dont la preuve n'est lisible qu'à l'exécution ne se réalise pas par AST — elle se déclare non réalisée.
+
 ## Retour au design
 
 Après exécution, renvoyer au contexte appelant (enforce ou diffuse) :
-- `01-realize-lint` : confirmation règle ESLint installée + wiring pre-commit réalisé
+- `01-realize-lint` : confirmation règle ESLint installée + wiring pre-commit réalisé + rapport écrit, règles réalisées et non réalisées nommées
 - `02-render` : fichier(s) composant produit(s) + instructions d'import + confirmation gate enforce exit 0
+
+## Workflow de plateforme (application à composants / SPA)
+
+Ce pivot **possède** le workflow de plateforme SPA : `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/workflow-spa.md`. Il instancie les classes de cas agnostiques de `design:detail` sur une application à composants, sous le squelette figé par `sc-pivot-contract.md § Workflow de plateforme`. `design:detail/02-route` l'étend à la classe quand ce pivot est installé et la stack correspond.
 
 ## Références
 
-- `plugins/design/references/sc-pivot-contract.md` — format des specs reçus
+- `plugins/design/references/sc-pivot-contract.md` — format des specs reçus et squelette de workflow de plateforme
+- `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/workflow-spa.md` — workflow de plateforme SPA (classes de cas instanciées sur application à composants)
 - `plugins/design/references/token-schema.md` — structure tokens.json
 - `plugins/design/skills/adjust/references/manifest-schema.md` — structure components.json
 - Références ESLint/Biome du plugin sc-js (si présentes dans `skills/sniff/references/`)

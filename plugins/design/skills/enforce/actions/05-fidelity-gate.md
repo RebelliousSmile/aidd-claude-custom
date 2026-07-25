@@ -1,49 +1,42 @@
 # 05-fidelity-gate
 
-Track: WP-maquette (profil pleine forme — l'oracle mesure un rendu contre une maquette résolue,
-par nature un scénario maquette-vs-rendu). Note app-JS-modern / from-code courte : l'oracle
-**s'applique identiquement, quelle que soit la stack**, dès qu'une maquette de référence externe
-existe (SPA incluse) — il n'est WP-flavoured que dans ses exemples. **Sans maquette externe**
-(construction depuis un brief, `define/03-construct`), l'oracle ne s'applique pas *par nature* —
-voir `## Chemin construction-depuis-brief — pas de gate de fidélité` plus bas.
+Applicable **dès qu'une référence visuelle externe existe**, quelle que soit la stack : l'oracle
+mesure un rendu contre une maquette résolue, propriété par propriété, et cette comparaison ne
+dépend d'aucune plateforme. **Sans référence externe** (construction depuis un brief,
+`define/03-construct`), l'oracle ne s'applique pas *par nature* — voir
+`## Chemin construction-depuis-brief` plus bas.
 
 ## Rôle
 
-Vérifier la **fidélité du rendu** à la référence visuelle résolue (l'intention design figée
-par `adjust`), pas seulement la conformité au vocabulaire. On MESURE les styles calculés via
-l'oracle déterministe (`adapters/measure/`) **par breakpoint**, on lit le registre d'écarts
-pour distinguer un écart sanctionné d'une dérive, puis on déroule la boucle
-**mesurer → corriger à la source → re-mesurer** jusqu'à delta 0 (ou écart ledgeré).
+Vérifier la **fidélité du rendu** à la référence visuelle résolue (l'intention figée par
+`adjust`), pas seulement la conformité au vocabulaire. La preuve de conformité vient de l'oracle
+**par propriété** (`adapters/measure/measure.py`, styles calculés par breakpoint) et de lui seul.
+Il lit `deviations.json` pour distinguer un écart sanctionné d'une dérive, puis on déroule la
+boucle **mesurer → corriger à la source → re-mesurer** jusqu'à delta 0 (ou écart couvert).
 
-C'est le **second gate**, de nature différente du lint vocabulaire.
-
-## Pourquoi c'est nécessaire — deux natures de gate
-
-Le lint vocabulaire (`lint-core.mjs`, Gates 1-3) vérifie que le **vocabulaire fermé** est
-respecté (chaque valeur = un token, chaque classe ∈ `components.json`). Il est **aveugle au
-rendu calculé** : on peut être **lint-vert et visuellement faux** —
-- le bon token existe et est « utilisé », mais le markup applique le **mauvais** token ;
-- une cascade / spécificité fait diverger la valeur **calculée** de l'intention ;
-- aucune réduction mobile alors que la maquette en prévoit une.
-
-D'où **deux références complémentaires**, deux gates qui doivent être verts ensemble :
-
-| Gate | Oracle | Référence | Question |
-|------|--------|-----------|----------|
-| Vocabulaire (Gates 1-3) | `lint-core.mjs` (Node) | `components.json` / `tokens.json` | le vocabulaire fermé est-il respecté ? |
-| **Fidélité (ce gate)** | `measure.py` getComputedStyle (Python) | l'intention visuelle résolue (maquette arbitrée par `adjust`) | le rendu calculé colle-t-il à la cible ? |
-
-Le lint reste la référence **interne** (cohérence vocabulaire) ; la fidélité est la référence
-**externe** (fidélité à l'intention). Aucun des deux ne remplace l'autre.
+C'est le **second gate**, de nature différente du lint vocabulaire : ce que chacun établit et
+n'établit pas est énoncé une seule fois dans `${CLAUDE_PLUGIN_ROOT}/references/gate-natures.md`.
 
 ## Prérequis
 
-- Contrat figé (`tokens.json` + `components.json`) — produit par `adjust`.
+- Contrat figé (`release.json` et les artefacts qu'il déclare) — produit par `adjust`.
 - La référence visuelle résolue servie en HTTP (la maquette arbitrée).
 - L'oracle installé : `${CLAUDE_PLUGIN_ROOT}/adapters/measure/` (voir son README ; `python -m playwright install chromium`).
   Sous OD-1 le chemin Python est validé ; à défaut, mesure MCP en interactif — mais **le gate
   CI reste Python** (un gate automatisable ne peut pas dépendre d'un agent).
-- Le registre d'écarts : `ds-deviation-ledger.md` (cf. `${CLAUDE_PLUGIN_ROOT}/references/deviation-ledger-template.md`).
+- **L'oracle par propriété câblé** : un config de mesure (cibles, propriétés, breakpoints — via
+  `config-gen.py`) *et* le registre `deviations.json`, passé en argument requis `--ledger-registry`.
+  Schéma du registre : `${CLAUDE_PLUGIN_ROOT}/references/deviations-schema.md`.
+
+## Refus d'affirmer la conformité
+
+Quand une référence externe existe mais que l'oracle par propriété **n'est pas câblé** (pas de
+config de mesure, ou pas de `deviations.json` à valider), le gate **n'affirme pas la conformité** —
+il **refuse** et nomme l'étape de câblage : générer le config (`config-gen.py`), le compléter,
+écrire `deviations.json`, puis mesurer avec `measure.py --ledger-registry`. Un rendu non mesuré
+par propriété n'est jamais déclaré conforme, et **aucun diff pixel global ne tient lieu de preuve**
+à sa place (cf. `## Le diff pixel est un détecteur`). Le refus est un état distinct du vert et du
+rouge : rien n'est prouvé tant que l'oracle n'est pas câblé.
 
 ## Approche
 
@@ -51,51 +44,63 @@ Le lint reste la référence **interne** (cohérence vocabulaire) ; la fidélit�
    ```bash
    # --out pointe TOUJOURS vers l'arbre QA du projet consommateur (chemin absolu), jamais le plugin
    python adapters/measure/measure.py --config <config-projet> \
+       --ledger-registry <projet>/<contrat>/deviations.json \
        --out <projet>/<qa-dir>/fidelity/<page>-B.json   # Mode B (rendu vs référence)
    ```
-   Le mapping de sélecteurs et les cibles viennent de la table de correspondance (P2). Le
-   rapport et la config sont des **données projet** (gitignored), pas des assets du plugin —
-   le `out/` du plugin ne sert qu'à ses propres fixtures de self-test.
+   Le mapping de sélecteurs et les cibles viennent de la table de correspondance (P2). Le rapport
+   et la config sont des **données projet** (gitignored), pas des assets du plugin — le `out/` du
+   plugin ne sert qu'à ses propres fixtures de self-test.
 2. **Classer chaque delta** à sa couche (token / markup / composant / contenu) — déléguer ce
    jugement à l'agent `copycat` (par page/unité) ; la mesure, elle, reste dans le script.
-3. **Lire le registre** : un delta couvert par une entrée `DEV-NNN` (avec `deviation_refs` sur le
-   composant dans `components.json`) est **sanctionné** → ne fait pas échouer le gate. **Sans
-   entrée → dérive → corriger** (défaut : rendu strictement identique).
+3. **Le registre sanctionne, l'oracle le valide** : un delta n'est toléré que s'il référence une
+   entrée **active** de `deviations.json` portant sa **valeur attendue** et non expirée. `measure.py`
+   valide chaque référence via `--ledger-registry` : entrée absente, sans `expected`, ou expirée →
+   verdict `OPEN`. **Sans entrée → dérive → corriger** (défaut : rendu strictement identique). Les
+   cas exacts de bascule `OPEN` : `${CLAUDE_PLUGIN_ROOT}/references/deviations-schema.md`.
 4. **Corriger à la bonne couche**, jamais en patch local : valeur → token ; mauvais token → markup ;
-   règle de composant → CSS `mau-*`/composant + manifeste. La **réalisation stack-spécifique** passe
-   par le pivot (`sc-php:design-bridge` / `sc-js:design-bridge`, cf. `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md`) —
-   pour WordPress : patterns, `render.php`/markup FSE, presets `theme.json`, lint DB via le CLI conteneur.
-   **Corriger la source + réimporter, jamais la DB seule** — et pas seulement pour les patterns : tout
-   contenu généré/seedé (`post_content`, menus, nav, options produits par `tools/import/`) s'édite à sa
-   **source** ; une édition DB directe est une violation P1 (écrasée au prochain import, absente de git).
+   règle de composant → CSS du composant + `components.json`. La **réalisation dans le langage de la
+   cible** passe par le pivot (`sc-<langage>:design-bridge`, cf. `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md`).
+   **Corriger la source, jamais le magasin de contenu seul** : tout contenu généré ou seedé s'édite à
+   sa **source**, puis se réécrit depuis elle. Une édition directe du magasin est écrasée à la
+   prochaine génération et n'existe pas dans l'historique — le correctif disparaît sans rien signaler.
 5. **Réconcilier le config si le markup change** : modifier une classe/un sélecteur désynchronise la
    table de correspondance → l'oracle ressort `missing` (= non vérifié), ce qui *masque* le correctif au
    lieu de le confirmer. Mettre à jour les sélecteurs (ou cibler des classes DS stables) dans le même geste.
-6. **Re-mesurer pour clore** : la clôture est le **verdict du script** `summary.verdict == "CLOSED"`
-   (calculé : 0 diff ET 0 missing ET aucune `missing_in_wp` ET `coverage.ok`), **pas** une affirmation
-   de l'opérateur. Coller le bloc `summary`/`completeness`/`coverage` comme preuve. Un `coverage.ok=false`
-   = sous-mesure (tunnel vision hero-only) → ajouter une cible par section. Un écart toléré n'est exclu
-   que par une entrée ledger référencée, jamais par omission. « Vérifié en relisant ma source » ≠ clôture.
+6. **Re-mesurer pour clore** : la clôture est le **verdict par propriété du script**
+   `summary.verdict == "CLOSED"` (calculé : 0 diff ET 0 missing ET aucune section absente de la cible
+   ET `coverage.ok` ET toute exception validée contre `deviations.json`), **pas** une affirmation de
+   l'opérateur ni un diff pixel vert. Coller le bloc `summary`/`completeness`/`coverage` comme preuve.
+   Un `coverage.ok=false` = sous-mesure (tunnel vision hero-only) → ajouter une cible par section. Un
+   écart toléré n'est exclu que par une entrée `active` référencée, jamais par omission. « Vérifié en
+   relisant ma source » ≠ clôture.
 7. **Tablette sans source maquette** : valider en best-practice (pas de diff maquette) — capture +
-   inspection (overflow/reflow) ; ledgeré si règle tablette délibérée.
+   inspection (overflow/reflow) ; couvert par une entrée `active` si règle tablette délibérée.
+
+## Le diff pixel est un détecteur
+
+La comparaison pixel globale (`screenshot.py` + `pixeldiff.py`) **pointe** des zones divergentes que
+les styles calculés ne couvrent pas (layout, effets composites, éléments non mappés). Elle n'est
+**jamais** une preuve de conformité : un diff pixel à zéro ne clôt pas le gate, et un diff non nul ne
+le fait pas échouer par lui-même — il alimente le classement (§2). La clôture vient du verdict par
+propriété (§6). Protocole d'analyse des zones : `${CLAUDE_PLUGIN_ROOT}/references/visual-diff-procedure.md`.
 
 ## La boucle mesurer → corriger → re-mesurer
 
 ```
-mesurer (oracle, par breakpoint)
+mesurer (oracle par propriété, par breakpoint)
     │
-    ├── delta 0 (ou couvert par le ledger) → gate fidélité vert ✓
+    ├── delta 0 (ou couvert par une entrée active) → gate fidélité vert ✓
     │
     └── delta non sanctionné
           │
           ├── classer la couche (copycat) → corriger à la source (token/markup/composant)
           │
-          ├── si toléré pour DRY/SOLID → entrée ds-deviation-ledger + deviation_refs au manifeste
+          ├── si toléré pour DRY/SOLID → entrée active dans deviations.json + deviation_refs au manifeste
           │
           └── re-mesurer → recommencer
 ```
 
-Terminée quand chaque unité touchée sort à delta 0 **ou** porte un écart ledgeré, à tous les breakpoints.
+Terminée quand chaque unité touchée sort à delta 0 **ou** porte un écart couvert, à tous les breakpoints.
 
 ## Câblage
 
@@ -108,8 +113,11 @@ Le gate de fidélité s'arme **à côté** du lint vocabulaire (cf. `${CLAUDE_PL
 ## Pièges à éviter
 
 - Viewport **identique par breakpoint** : sinon les `clamp()`/`vw` faussent la comparaison.
-- NFC/NFD sur Windows pour les noms de fichiers (cf. `${CLAUDE_PLUGIN_ROOT}/references/wordpress-pitfalls.md`).
+- Normalisation Unicode des noms de fichiers (NFC/NFD) : deux graphies d'un même nom accentué ne
+  résolvent pas au même fichier selon le système. Comparer sur la forme normalisée, pas sur l'octet.
 - Ne pas confondre les deux gates : un lint vert ne dispense pas du gate de fidélité.
+- Un diff pixel vert n'est pas une clôture ; un oracle non câblé ne se rabat jamais sur le diff pixel
+  comme preuve — il refuse (cf. `## Refus d'affirmer la conformité`).
 - Un `missing` au rapport n'est **pas** un pass : c'est un sélecteur qui ne résout pas (souvent
   un config désynchronisé après une modif de markup). Le résoudre avant de clore — jamais le lire
   comme « rien à corriger ».
@@ -122,12 +130,13 @@ fidélité d'un rendu à une **référence visuelle externe** (une maquette rés
 Un projet construit **depuis un brief** (`${CLAUDE_PLUGIN_ROOT}/skills/define/actions/03-construct.md` —
 pas de visuel, un système de tokens dérivé de l'intention écrite) n'a, par construction, **aucune
 référence externe à comparer** : il n'y a rien à mesurer, donc l'oracle de fidélité **ne
-s'applique pas par nature** à ce chemin.
+s'applique pas par nature** à ce chemin. C'est distinct du refus ci-dessus : là, aucune référence
+n'existe ; ici, une référence existe mais l'oracle n'est pas encore câblé.
 
-- **Profil de gate pour ce cas** : vocabulaire seul (`lint-core.mjs`, Gates 1-3) + bonnes
+- **Profil de gate pour ce cas** : vocabulaire seul (`lint-core.mjs`) + bonnes
   pratiques visuelles (contraste WCAG, réduction mobile, cohérence des échelles — jugées en
   revue humaine, pas par un oracle automatisable). Pas de second gate mesuré.
-- Ceci n'est **pas** un oubli du contrat : c'est la même règle que la note app-JS-modern
+- Ceci n'est **pas** un oubli du contrat : c'est la même règle que la note d'applicabilité
   ci-dessus, vue de l'autre côté — *la fidélité exige une référence ; un projet brief-only n'en
   a aucune*. Dès qu'une référence apparaît ultérieurement (ex. une maquette est produite après
   coup pour valider le résultat du brief), ce gate redevient applicable normalement.
@@ -140,5 +149,6 @@ s'applique pas par nature** à ce chemin.
 
 ## Sortie attendue
 
-> Gate fidélité : N unités mesurées sur B breakpoints, M deltas résolus, K écarts ledgerés.
-> [vert : tous à delta 0 ou ledgerés / rouge : liste des dérives non sanctionnées].
+> Gate fidélité : N unités mesurées sur B breakpoints, M deltas résolus, K écarts couverts.
+> [vert : tous à delta 0 ou couverts / rouge : liste des dérives non sanctionnées /
+> refus : oracle non câblé, étape de câblage nommée].
