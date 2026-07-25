@@ -1,0 +1,14 @@
+{
+  "$schema": "design/references/contract-schema#release",
+  "$format": "2.0",
+  "designSystem": { "version": "1.0.0" },
+  "artifacts": {
+    "tokens.json": { "version": "1.0.0", "sourceHash": "sha256:0" },
+    "components.json": { "version": "1.0.0", "sourceHash": "sha256:0" },
+    "policies.json": { "version": "1.0.0", "sourceHash": "sha256:0" }
+  },
+  "charter": { "present": false, "path": "design-system.md", "version": null },
+  "provenance": { "producedBy": "fixture", "producedAt": "2026-07-25T00:00:00+00:00", "from": "direct freeze" },
+  "checks": null,
+  "status": "extracted"
+}

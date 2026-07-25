@@ -2,7 +2,7 @@
 
 | Champ | Valeur |
 |---|---|
-| Version courante | 2.5.0 |
+| Version courante | 2.6.0 |
 | Dernière release | 2026-07-25 |
 
 ## Architecture — verbe 0 + entonnoir 5 verbes
@@ -139,6 +139,18 @@ La conformité n'est affirmée que par l'oracle **par propriété** ; tout écar
 - **Anomalie récurrente reportée, jamais perdue** : les règles `enforcement: pivot-only` (1.x) sont retypées `unrealized` et listées à chaque passe.
 - **Lacunes outillage devenues fixtures** `enforce/fixtures/migration/`, nommées par classe de cas, agnostiques (aucun nom projet/vendor/stack), vérifiées : `oracle-empty` (A6, dry-run sans oracle), `platform-token-namespace` (A7, `sample.html` → linter exit 1 sur `var(--platform--accent)` générique), `ledger-table-shape` (A8, `--ledger` → `ENTRIES 0`). A7 porte un contrat 2.x complet car c'est un gap de frontière du linter, pas du script. Tracées au CHANGELOG [2.5.0] (Part 7 ops, version inchangée).
 - **Dette A9 corrigée** : noms de projet préexistants dans `sc-php/skills/builder-coverage/` et `sc-python/skills/sniff/…/django-activitypub.md` généralisés en place (matériau stack conservé, seule l'identité projet retirée : préfixe grep `activitypub/`, « 1 thème FSE », « préfixe de marque retiré »). Re-grep du périmètre `design`+`sc-*` = 0 nom de projet.
+
+### Harness couplé au contrat 2.0 (2.6.0)
+
+`design:harness` gagne un mode **opt-in `--contract <dir>`**. Sans le drapeau, le scaffold est **inchangé octet pour octet** (chrome placeholder). Avec, la maquette parle les tokens du contrat.
+
+- **Option C — jamais dériver** : sous `--contract`, `resolve_tokens_style()` inline la feuille de style *déjà générée* nommée par l'entrée `consumer:"stylesheet"` de `policies.json § adapters[]`, via un slot `%%TOKENS_STYLE%%` placé **avant** le chrome (les `:root` définis avant tout usage `var()`). Aucune régénération DTCG→CSS dans le harness (une seconde projection divergente corromprait la baseline oracle).
+- **Espace de sortie 0/2/3 sous `--contract` seulement, jamais 1 ni 4** (l'exit 4 reste la propriété de `run-gates.py`, le harness n'affirme aucune maturité) : `release.json` absent → **3** (nomme `migrate-contract.py`) ; `release.json` présent mais JSON invalide → **2** (l'absence seule = 1.x, un contrat corrompu est une erreur d'env) ; `policies.json` illisible → **2** ; adapter stylesheet déclaré mais fichier absent → **2** (nomme `generate.py`) ; **aucun** adapter stylesheet → **un** warning stderr + scaffold, **exit 0**. `main()` renvoie désormais un int via `sys.exit(main())` ; l'ancien chemin « aucune page » est passé de 1 à **2**.
+- **Trois vues device = échantillons figés, pas des breakpoints. Zéro `@media` dans le harness.** Largeurs 834 (tablet) / 390 (mobile) fixes, rien dérivé de `tokens.json § breakpoint.*`. Séparation **spec/build** : le harness porte les trois états discrets (la spec, oblige le LLM à traiter les trois cas sans approximation) ; c'est aux pivots aval (`diffuse`/`sc-*`) de synthétiser la vue adaptative `@media` (le build). La prose de cadrage dit « media query » (pas le littéral `@media`, interdit partout par le grep d'AC, même en négation).
+- **Cadrage LLM embarqué, conditionnel** : le bloc `<!-- -->` d'en-tête + les `//` au-dessus du registre `pages` instruisent « consomme les tokens via `var(--…)`, ne code jamais en dur » **uniquement quand une feuille est inline** ; le cadrage scaffold est inchangé. Sans cette consigne le couplage serait cosmétique (le LLM coderait en dur sous une feuille de tokens inutilisée).
+- **Accord config-gen = invariant fermé prouvé** (pas de vérif runtime) : `_derive_breakpoints` ignore toute clé hors `_BP_MAP` ; `mockup_viewport ∈ {mobile, tablet, desktop}` **toujours** (fallback mobile+desktop). Un commentaire cite les lignes et renvoie `references/harness-contract.md`.
+- **Preuve** : `tools/harness-selftest.sh` (`mktemp -d`, portable Git Bash/Windows) pilote cinq fixtures agnostiques (`2x`, `2x-no-stylesheet`, `2x-missing-artifact`, `2x-bad-release`, `1x`) + le scaffold, asserte chaque code + la bannière inline + zéro `@media`. C'est le `success_condition` du plan.
+- **⚠ Piège Windows cp1252** : un `print()` console avec caractères non-ASCII (`✓`/`→`) lève `UnicodeEncodeError` sur stdout cp1252 ; une fois câblé dans `sys.exit(main())`, ça **fuit en exit 1** et casse le critère « scaffold exit 0 ». Bannières console en ASCII ; le contenu du **fichier** généré (écrit UTF-8) n'est pas concerné.
 
 ## Profil optionnel
 

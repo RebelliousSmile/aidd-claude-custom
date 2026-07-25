@@ -14,6 +14,7 @@ requires:
   - "un chemin de sortie (--out)"
 references:
   - adapters/harness/harness.py
+  - references/harness-contract.md
 ---
 
 # harness
@@ -51,6 +52,24 @@ Et une barre `.preview-bar` (masquée par l'oracle avant la mesure) avec :
 | `--title` | `"Maquette"` | Titre du projet (affiché dans la barre et le `<title>`) |
 | `--pages` | `"page-1:Page 1"` | Pages au format `"key:Label, key2:Label 2"` |
 | `--pages-json` | — | Chemin vers un JSON `[{key, label, group?}]` ou `{pages:[...]}` |
+| `--contract` | — | Répertoire d'un contrat figé — inline sa feuille de tokens générée (opt-in) |
+
+### Couplage au contrat (`--contract`, opt-in)
+
+Sans `--contract`, le scaffold est inchangé et sort en 0. Avec, le harness **inline la feuille de tokens déjà générée** du contrat — l'entrée `policies.json § adapters[]` dont `consumer` vaut `"stylesheet"` — dans un `<style>` avant le chrome, pour que la référence parle les mêmes tokens que ceux contre lesquels l'implémentation est lintée. Rien n'est dérivé ni régénéré ici (`generate.py` reste le seul producteur). Quand la feuille est inline, le cadrage LLM du fichier généré instruit l'auteur de consommer les tokens via `var(--…)` et de ne jamais coder en dur couleur/espacement/typographie.
+
+Codes de sortie **sous `--contract` uniquement** (jamais 1, jamais 4) :
+
+| Situation | Code |
+|---|---|
+| Feuille inline, ou pas de flag | 0 |
+| Aucun adapter `consumer:"stylesheet"` déclaré | 0 + un avertissement stderr, poursuite en scaffold |
+| `release.json` absent (contrat 1.x) | 3 — nomme `tools/migrate-contract.py` |
+| `release.json` présent mais JSON invalide | 2 — nomme `release.json` |
+| `policies.json` absent, illisible ou pas un objet | 2 |
+| Adapter `stylesheet` déclaré, fichier absent/illisible | 2 — nomme `tools/generate.py` |
+
+Détail du couplage, option C et accord measure/oracle : `references/harness-contract.md`.
 
 ### Exemple — invocation minimale
 
@@ -104,7 +123,7 @@ Les variations de rendu device s'écrivent **en classe** dans le `<style>` du `<
 .preview-frame.tablet .hero__inner  { grid-template-columns: 1fr; }
 ```
 
-Les classes basculent au clic des boutons device (aperçu manuel) **et** sous l'oracle (qui appelle `setViewport` après avoir mis la fenêtre au breakpoint réel). `@media` fonctionne aussi pour la mesure oracle mais pas pour l'aperçu manuel (le cadre est plus petit que la fenêtre).
+Les classes basculent au clic des boutons device (aperçu manuel) **et** sous l'oracle (qui appelle `setViewport` après avoir mis la fenêtre au breakpoint réel). **Jamais de media query** dans le harness : les trois vues sont des **échantillons device** — desktop (fluide) · tablet 834 · mobile 390 —, des largeurs fixes et non des breakpoints, rien n'étant dérivé de `tokens.json § breakpoint.*`.
 
 ### Pages (registre JS)
 
@@ -138,6 +157,7 @@ Le HTML retourné est injecté dans `#page-container`. **Ne pas** inclure `<html
 
 ## Références
 
+- `references/harness-contract.md` — couplage `--contract`, option C, espace de codes de sortie, échantillons device, accord measure/oracle
 - `adapters/harness/harness.py` — générateur (stdlib Python uniquement, aucune dépendance)
 - `adapters/measure/measure.py` — oracle de fidélité (pilote `setPage` / `setViewport`)
 - `agents/copycat.md` — agent de réconciliation maquette→contrat
