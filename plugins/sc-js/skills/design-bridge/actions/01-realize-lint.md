@@ -169,30 +169,43 @@ Biome ne supporte pas encore les plugins custom stables. Fallback : générer le
 
 Signaler que pour Biome, la règle native n'est pas disponible ; lint-core.mjs fait office de linter design.
 
-## Étape 2 — Wiring pre-commit
+## Étape 2 — Écrire le rapport et le brancher au gate
 
-Étendre le hook `scripts/hooks/pre-commit` (câblé par enforce/02-wire-gates). Construire l'extension glob **depuis les `targets` du spec reçu** — même règle qu'à l'étape 1a-bis : n'inclure `js` que si l'archétype B (vanilla) est présent parmi les targets, sinon exclure `\.js$` du pattern pour éviter les faux positifs sur du JS applicatif sans classes DOM :
+Le hook pre-commit n'est **pas** étendu : il exécute la commande unique du gate, et cette commande est la même en local et en CI (`design/skills/enforce/references/gate-wiring.md § La commande unique`). Un second linter appelé à côté produirait un deuxième verdict que rien n'agrège.
 
-```bash
-# Ajouter dans scripts/hooks/pre-commit
-# EXT_PATTERN dérivé des `targets` du spec d'enforcement — ne pas coder en dur.
-# Exemple si targets = [jsx, vue] (pas de vanilla) : EXT_PATTERN='\.(jsx|vue)$'
-# Exemple si targets inclut vanilla (archétype B) : EXT_PATTERN='\.(jsx|vue|js)$'
-EXT_PATTERN='\.(jsx|vue)$'  # ← remplacer par le pattern réellement dérivé des targets ci-dessus avant d'insérer ce bloc
+### 2a — Émettre le rapport
 
-# Garde-fou : un pattern vide ferait matcher `grep -E ""` sur toutes les lignes (tous les fichiers
-# stagés lintés, faux positifs massifs) — échouer bruyamment plutôt que de silencieusement tout scanner.
-if [ -z "$EXT_PATTERN" ]; then
-  echo "[design lint js] EXT_PATTERN non défini — wiring incomplet, corriger le hook avant de committer." >&2
-  exit 1
-fi
+Ajouter un script qui lance la règle et convertit sa sortie au format `plugins/design/references/gate-config-schema.md § Rapport de pivot`. Les cibles viennent des `targets` du spec — même règle qu'à l'étape 1a-bis : n'enrôler `.js` que si l'archétype B (vanilla) est présent, sinon faux positifs sur du JS applicatif.
 
-CHANGED_JS=$(git diff --cached --name-only --diff-filter=ACM | grep -E "$EXT_PATTERN")
-if [ -n "$CHANGED_JS" ]; then
-  echo "[design lint js] Checking staged component files..."
-  pnpm eslint --rule 'design/class-vocab: error' $CHANGED_JS || FAIL=1
-fi
+```json
+{
+  "scripts": {
+    "lint:design:js": "node design/lint/eslint-design-report.mjs"
+  }
+}
 ```
+
+Le script écrit une entrée par règle de `Declared rules` :
+
+| Règle | Statut à écrire |
+|---|---|
+| réalisée, aucune violation sur les cibles | `pass` |
+| réalisée, violations trouvées | `fail` + une entrée `violations` par occurrence, fichier et ligne nommés |
+| non couverte par un archétype disponible | `unrealized` |
+
+Les liaisons dynamiques (`:class`, `class:list`, `x-bind:class`, chaînes calculées) tombent dans la troisième ligne : leur preuve n'existe qu'à l'exécution. Les déclarer `unrealized` est le seul moyen de ne pas faire passer un angle mort pour une couverture.
+
+### 2b — Le déclarer dans la configuration du gate
+
+```json
+{
+  "pivotReports": [
+    { "path": "reports/design-js.json", "command": ["pnpm", "lint:design:js"] }
+  ]
+}
+```
+
+Avec `command`, le runner relance la règle avant de lire le rapport — un rapport périmé devient impossible. Sans `command`, le gate lit ce que le dernier passage a laissé.
 
 ## Étape 3 — Tester
 
@@ -206,6 +219,7 @@ pnpm eslint --rule 'design/class-vocab: error' /tmp/test.jsx  # doit reporter 1 
 
 > Règle ESLint `design/class-vocab` installée — cibles couvertes : <React/Vue/Svelte/Astro/Alpine-HTML/vanilla selon détection>.
 > Parsers enrôlés : <liste>. Angles morts non couverts : <liaisons dynamiques `:class`/`class:list`/`x-bind:class`, chaînes calculées>.
-> `scripts/hooks/pre-commit` étendu.
+> Rapport écrit à `<Report path>` — réalisées : <ids>, non réalisées : <ids + raison>.
+> Branché dans `gates.config.json § pivotReports` avec `command`.
 >
 > Retour à design:enforce — gate JS opérationnel.

@@ -1,0 +1,16 @@
+{
+  "_doc": "Example measure.py config — a starting point, not a working setup. Replace the two local addresses, the selectors and the targets with your own. 'reference' is the mockup that decides; 'implementation' is what is measured against it. Generate a real one from a contract with config-gen.py; run it with measure.py --config <this> --ledger-registry <deviations.json>.",
+  "reference_url": "http://localhost:8080",
+  "reference_page": null,
+  "implementation_url": "http://localhost:8888",
+  "breakpoints": [
+    { "name": "mobile", "width": 375, "height": 812, "mockup_viewport": "mobile" },
+    { "name": "desktop", "width": 1440, "height": 900, "mockup_viewport": "desktop" }
+  ],
+  "props": ["fontSize", "fontWeight", "lineHeight", "color"],
+  "targets": [
+    { "name": "Header · title", "mockup": ".header__title", "implementation": ".header__title", "check_text": true },
+    { "name": "Header · lede", "mockup": ".header__lede", "implementation": ".header__lede" }
+  ],
+  "headings_sel": { "mockup": "h1, h2, h3", "implementation": "h1, h2, h3" }
+}

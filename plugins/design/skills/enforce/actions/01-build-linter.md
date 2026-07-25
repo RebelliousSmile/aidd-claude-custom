@@ -2,108 +2,96 @@
 
 ## Rôle
 
-Installer `lint-core.mjs` dans le projet courant et vérifier qu'il tourne correctement sur le contrat figé.
+Installer le gate dans le projet courant — runner d'agrégation, cœur portable, périmètre — et vérifier qu'il tourne sur le contrat figé.
 
 ## Prérequis
 
 - `design/release.json` existe et déclare au moins `tokens.json`, `components.json` et `policies.json` (produits par `adjust`). Sans `release.json`, le contrat est au format 1.x : jouer `adjust/03-migrate` d'abord.
-- Node.js ≥ 18 disponible dans l'environnement du projet.
-- Python ≥ 3.9 si le projet peut avoir à migrer un contrat 1.x.
+- Runtimes : `${CLAUDE_PLUGIN_ROOT}/skills/enforce/references/gate-wiring.md § Prérequis d'exécution`.
 
 ## Étape 1 — Créer le répertoire de lint
 
 ```
 design/
   lint/
-    lint-core.mjs        ← copie du cœur portable (source : ${CLAUDE_PLUGIN_ROOT}/skills/enforce/adapters/lint-core.mjs)
-    migrate-contract.py  ← copie du script de migration (source : ${CLAUDE_PLUGIN_ROOT}/tools/migrate-contract.py)
-    status.py            ← copie du calcul de statut (source : ${CLAUDE_PLUGIN_ROOT}/tools/status.py)
-    .lintrc.json         ← config projet (chemins, préfixe BEM optionnel)
+    run-gates.py         ← runner d'agrégation (source : ${CLAUDE_PLUGIN_ROOT}/tools/run-gates.py)
+    lint-core.mjs        ← cœur portable (source : ${CLAUDE_PLUGIN_ROOT}/skills/enforce/adapters/lint-core.mjs)
+    migrate-contract.py  ← script de migration (source : ${CLAUDE_PLUGIN_ROOT}/tools/migrate-contract.py)
+    status.py            ← calcul du statut de maturité (source : ${CLAUDE_PLUGIN_ROOT}/tools/status.py)
+    gates.config.json    ← périmètre du gate (schéma : ${CLAUDE_PLUGIN_ROOT}/references/gate-config-schema.md)
 ```
 
 Créer `design/lint/` s'il n'existe pas.
 
-## Étape 2 — Copier les trois fichiers
+## Étape 2 — Copier les quatre fichiers
 
-Copier `skills/enforce/adapters/lint-core.mjs`, `tools/migrate-contract.py` et `tools/status.py` depuis `${CLAUDE_PLUGIN_ROOT}` vers `design/lint/`, à plat.
+Copier `tools/run-gates.py`, `skills/enforce/adapters/lint-core.mjs`, `tools/migrate-contract.py` et `tools/status.py` depuis `${CLAUDE_PLUGIN_ROOT}` vers `design/lint/`, à plat.
 
-Les trois voyagent ensemble : sur un contrat 1.x, `lint-core.mjs` sort en 3 et imprime la commande de migration, cherchée à côté de lui ; `migrate-contract.py` importe `status.py` en frère, seule implémentation du statut de maturité. Un fichier manquant fait sortir l'outil en 2 en le nommant — jamais un chemin mort ni une trace d'exception. Sans eux, la seule issue reste de rejouer `adjust/03-migrate` depuis le plugin.
+Ils voyagent ensemble : `run-gates.py` invoque `lint-core.mjs` en frère ; sur un contrat 1.x, les deux sortent en 3 et impriment la commande de migration, cherchée à côté d'eux ; `migrate-contract.py` importe `status.py` en frère, seule implémentation du statut de maturité. Un fichier manquant fait sortir l'outil en 2 en le nommant — jamais un chemin mort ni une trace d'exception.
 
-Si le projet gère déjà Node avec un `package.json`, ajouter un script :
+Si le projet a un gestionnaire de paquets, ajouter un script pointant sur la commande unique de `references/gate-wiring.md § La commande unique` :
 
 ```json
 {
   "scripts": {
-    "lint:design": "node design/lint/lint-core.mjs --contract design"
+    "lint:design": "python design/lint/run-gates.py --config design/lint/gates.config.json"
   }
 }
 ```
 
-## Étape 3 — Créer `.lintrc.json`
+## Étape 3 — Créer `gates.config.json`
 
-`design/lint/.lintrc.json` n'est pas consommé directement par `lint-core.mjs` (qui lit ses règles depuis les artefacts déclarés par `release.json`, jamais depuis un fichier de config séparé) — c'est un **fichier de référence projet**, documentant pour les humains/CI quelles cibles linter et comment calibrer les sévérités du wiring (hook pre-commit, script CI). Il n'existe pas de `.lintrc.json` canonique dans ce plugin ; ce qui suit est le gabarit à créer dans le projet consommateur.
+C'est le **seul** endroit où le périmètre du gate est déclaré, et il est exécutable : ce qui n'y figure pas n'est pas linté. Champ par champ : `${CLAUDE_PLUGIN_ROOT}/references/gate-config-schema.md`.
 
-Deux profils selon le mode du contrat (`policies.json § mode`, cf. `${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md`) :
+Les deux modes de contrat (`policies.json § mode`) ne diffèrent que par `targets` :
 
-**Profil `bem`** (wireframes HTML, templates WP FSE) :
+**Mode `bem`** — le vocabulaire porte sur les noms de classe, donc sur le markup :
 
 ```json
 {
-  "contractDir": "design",
-  "targets": ["design/wireframes/**/*.html"],
-  "severity": {
-    "unknownClass": "error",
-    "unknownToken": "error"
-  }
+  "$schema": "design/references/gate-config-schema",
+  "contract": "..",
+  "linter": "lint-core.mjs",
+  "targets": ["../wireframes/**/*.html"]
 }
 ```
 
-**Profil `utility-first`** (aucune classe BEM dans le code, `usage` déclaré dans `policies.json`) :
+**Mode `utility-first`** — le vocabulaire porte sur l'usage des tokens : couvrir **tous** les fichiers de composants, pas seulement le markup statique, sinon la majorité du code échappe au gate :
 
 ```json
 {
-  "contractDir": "design",
-  "targets": ["src/**/*.{vue,jsx,tsx,html}"],
-  "severity": {
-    "unknownToken": "error",
-    "rawHexForbidden": "error",
-    "colorNamespace": "error",
-    "stateColourIcon": "pivot-only"
-  }
+  "$schema": "design/references/gate-config-schema",
+  "contract": "..",
+  "linter": "lint-core.mjs",
+  "targets": ["../../src/**/*.{vue,jsx,tsx,html}"]
 }
 ```
 
-- `contractDir` : chemin vers le répertoire contenant `release.json` et les artefacts qu'il déclare (relatif à la racine projet). C'est la valeur de `--contract` — la fournir toujours explicitement.
-- `targets` : globs à linter par défaut (hook pre-commit, CI). En `utility-first`, les cibles doivent couvrir **tous** les fichiers de composants, pas seulement le HTML — sinon la majorité du code échappe au gate.
-- `severity` : ne référencer ici que des règles réellement émises par `lint-core.mjs` (`${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md § Dérivation des règles de lint`). `stateColourIcon` est la seule entrée `pivot-only` du gabarit : déclarée dans `usage.rules[]`, jamais émise par la baseline (cf. `references/sc-pivot-contract.md`).
+Les chemins sont relatifs au fichier de configuration lui-même.
 
 ## Étape 4 — Vérification de fonctionnement
 
-Demander à l'utilisateur (ou exécuter si le contexte le permet) :
-
 ```bash
-# Test baseline sur les wireframes existants
-node design/lint/lint-core.mjs design/wireframes/<premier-fichier>.html --contract design
+python design/lint/run-gates.py --config design/lint/gates.config.json
 ```
 
-Si exit 0 → installation OK. Si exit 1 → des violations existent avant même de commencer ; les documenter et proposer de jouer `03-lint-instances` pour les résoudre.
+| Exit | Lecture | Suite |
+|---|---|---|
+| 0 | installation OK, aucune violation | `02-wire-gates` |
+| 1 | des violations préexistent | les documenter, proposer `03-lint-instances` |
+| 2 | runtime ou configuration | le message nomme ce qui manque (`references/gate-wiring.md § Prérequis d'exécution`) |
+| 3 | contrat 1.x | `adjust/03-migrate` d'abord |
 
-Si aucun wireframe n'existe encore, utiliser les fixtures du plugin comme smoke test :
+Le rapport liste aussi les règles **non réalisées** : déclarées, sans réalisateur disponible. Elles ne rougissent pas le gate et ne doivent pas être lues comme vérifiées.
+
+Si aucune cible du projet n'existe encore, smoke test sur les fixtures du plugin :
 
 ```bash
-# Profil bem
-node plugins/design/skills/enforce/adapters/lint-core.mjs \
-  plugins/design/skills/enforce/fixtures/clean.html \
-  --contract plugins/design/skills/enforce/fixtures
-
-# Profil utility-first
-node plugins/design/skills/enforce/adapters/lint-core.mjs \
-  plugins/design/skills/enforce/fixtures/utility-clean.html \
-  --contract plugins/design/skills/enforce/fixtures/utility
+python plugins/design/tools/run-gates.py --config plugins/design/skills/enforce/fixtures/gates.clean.config.json
 ```
 
 ## Sortie attendue
 
-> lint-core.mjs installé dans `design/lint/`. Config `.lintrc.json` créée.
-> Smoke test : [OK / N erreurs trouvées].
+> `run-gates.py` + `lint-core.mjs` installés dans `design/lint/`, `gates.config.json` créé (N cibles).
+> Gate : [exit 0 / N violations] · règles non réalisées : [liste ou aucune].
 > Prochaine étape : `/design:enforce` → 02-wire-gates.

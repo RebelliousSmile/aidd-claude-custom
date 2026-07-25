@@ -1,6 +1,8 @@
 # Adaptateur WordPress — lint instances DB
 
-Instructions spécifiques pour linter le contenu d'un projet WordPress FSE contre le manifeste design system. À lire en complément de `03-lint-instances.md` et `${CLAUDE_PLUGIN_ROOT}/references/wordpress-pitfalls.md`.
+Réalisation des règles de type `stored-content` sur un projet WordPress FSE : le vocabulaire du design system y vit en base, hors de tout fichier du dépôt, donc hors de portée du cœur portable. À lire avec `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md`.
+
+Le contenu est extrait en fichiers, linté, puis le résultat est écrit dans le rapport de pivot (`design/references/gate-config-schema.md § Rapport de pivot`). L'extraction est la seule raison d'être de ce détour : sans elle, il n'y a rien à lire.
 
 ## Règle absolue : CLI du conteneur
 
@@ -17,7 +19,7 @@ pnpm dlx @wordpress/env run cli wp post get <ID> \
   > /tmp/post-<ID>.html
 
 # Linter l'export
-node design/lint/lint-core.mjs /tmp/post-<ID>.html --contract design
+node design/lint/lint-core.mjs /tmp/post-<ID>.html --contract design --json
 ```
 
 ## Lister les pages publiées pour audit systématique
@@ -48,7 +50,7 @@ pnpm dlx @wordpress/env run cli wp post get <ID> \
   --field=post_content > /tmp/pattern-<ID>.html
 
 # Linter
-node design/lint/lint-core.mjs /tmp/pattern-<ID>.html --contract design
+node design/lint/lint-core.mjs /tmp/pattern-<ID>.html --contract design --json
 ```
 
 **Après correction d'un block pattern**, réimporter via le script d'import dédié du projet (ex. `tools/import/`). Ne jamais corriger uniquement en DB sans mettre à jour la source — la source fait foi.
@@ -59,11 +61,11 @@ Gutenberg génère des classes de style en paires obligatoires :
 - `has-<color-slug>-background-color` requiert `has-background`
 - `has-<color-slug>-color` requiert `has-text-color`
 
-Si le manifeste ne déclare pas ces classes comme modifiers, `lint-core.mjs` les signalera. Deux options :
+Si le manifeste ne déclare pas ces classes comme modifiers, le lint les signalera. La décision se prend **dans le contrat**, jamais dans le linter : celui-ci en dérive, le patcher ferait diverger la règle de son autorité.
 1. Les déclarer comme modifiers dans `components.json` (si le projet utilise des blocs natifs WP).
-2. Les exclure du lint (modifier `lint-core.mjs` pour ignorer les classes `has-*` générées par Gutenberg).
+2. Les laisser hors du manifeste et assumer les violations comme un écart documenté.
 
-Voir `${CLAUDE_PLUGIN_ROOT}/references/wordpress-pitfalls.md` pour la décision recommandée.
+Voir `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md` pour la décision recommandée.
 
 ## Piège : `wp eval-file` deprecated en PHP 8.2
 

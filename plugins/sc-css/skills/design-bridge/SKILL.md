@@ -33,6 +33,7 @@ Lire `plugins/design/references/sc-pivot-contract.md` pour le format attendu.
 |---|--------|-------------|--------|
 | 01 | `realize-tokens` | spec reçu de enforce ou diffuse, `tokens.json` présent | `design/css/tokens.css` (`:root { --token-path: value; }`) |
 | 02 | `realize-components` | spec reçu, `components.json` présent | `design/css/<component>.css` par composant |
+| 03 | `realize-lint` | spec d'enforcement portant des règles de type `stylesheet` | vérification native + rapport de pivot branché au gate |
 
 ## Règle de dérivation stricte
 
@@ -103,8 +104,17 @@ Le fichier d'entrée CSS du projet doit déclarer l'ordre des layers :
 ```
 sc-css:design-bridge signale si ce fichier n'existe pas et propose sa création.
 
+## Obligation de report
+
+Toute règle reçue en `Declared rules` est **rendue au gate**, réalisée ou non. Le rapport s'écrit au `Report path` du spec, au format `plugins/design/references/gate-config-schema.md § Rapport de pivot`.
+
+Une règle que ce réceptacle ne couvre pas s'écrit en `status: "unrealized"`. Sans elle, une règle hors de portée et une règle oubliée laissent la même trace — aucune — et le gate ne peut que les confondre.
+
+Le cas fréquent ici : les règles de type `stylesheet`. Elles portent sur les feuilles réellement chargées, pas sur celles produites depuis le contrat. Une feuille applicative hors des sources déclarées est hors de portée — non réalisée, pas conforme.
+
 ## Références
 
 - `plugins/design/references/sc-pivot-contract.md` — format des specs reçus
+- `plugins/design/references/gate-config-schema.md` — format du rapport à écrire
 - `plugins/design/references/token-schema.md` — structure tokens.json
 - `plugins/design/skills/adjust/references/manifest-schema.md` — structure components.json

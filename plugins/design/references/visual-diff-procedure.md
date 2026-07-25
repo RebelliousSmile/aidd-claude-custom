@@ -1,5 +1,12 @@
 # Procédure — visual-diff pass (complémentaire à l'oracle style)
 
+## Statut : détecteur grossier, jamais preuve
+
+Le diff pixel **pointe** où regarder ; il ne **prouve** rien. Un diff à zéro ne clôt pas le gate
+de fidélité, un diff non nul ne le fait pas échouer par lui-même : la preuve de conformité vient
+du verdict par propriété de `measure.py` (`${CLAUDE_PLUGIN_ROOT}/skills/enforce/actions/05-fidelity-gate.md`).
+Cette passe alimente le classement des deltas, elle ne le remplace pas.
+
 ## Quand l'utiliser
 
 En parallèle de l'oracle style (`measure.py`), dans §4 de la méthode copycat. Elle couvre ce
@@ -15,25 +22,25 @@ config (éléments non mappés).
 | Effets composites | box-shadow + border-radius perçus comme « border » ; gradient overlay masquant une image |
 | Décalages de positionnement | z-index, transform: translateY, sticky header qui pousse le contenu |
 | Typographie perçue vs calculée | line-height juste mais interlignage visuel différent (leading trim, descenders) |
-| États injectés par le CMS | ::before/::after WP, focus outline, classes utilitaires ajoutées dynamiquement |
+| États injectés par la plateforme | `::before`/`::after` générés, focus outline, classes utilitaires ajoutées dynamiquement |
 
 ## Commandes
 
 ```bash
 # 1 — captures full-page par breakpoint (mockup + cible)
-#     Même config JSON que measure.py — maquette_url, wp_url, breakpoints réutilisés.
+#     Même config JSON que measure.py — reference_url, implementation_url, breakpoints réutilisés.
 python ${CLAUDE_PLUGIN_ROOT}/adapters/measure/screenshot.py \
   --config <config-projet> \
   --out <projet>/<qa-dir>/shots/<page>
-# → <page>__maq__desktop.png  /  <page>__wp__desktop.png  (+ mobile, tablet)
+# → <page>__mockup__desktop.png  /  <page>__implementation__desktop.png  (+ mobile, tablet)
 
 # 2 — pixel diff par breakpoint
 python ${CLAUDE_PLUGIN_ROOT}/adapters/measure/pixeldiff.py \
-  --a <shots>/<page>__maq__<bp>.png \
-  --b <shots>/<page>__wp__<bp>.png \
+  --a <shots>/<page>__mockup__<bp>.png \
+  --b <shots>/<page>__implementation__<bp>.png \
   --out <projet>/<qa-dir>/shots/<page>/<bp>
 # → <bp>-diff.png  (pixels divergents en magenta)
-# → <bp>-sbs.png   (côte-à-côte : maquette | wp | diff)
+# → <bp>-sbs.png   (côte-à-côte : maquette | cible | diff)
 ```
 
 ## Analyse des diff images
@@ -41,7 +48,7 @@ python ${CLAUDE_PLUGIN_ROOT}/adapters/measure/pixeldiff.py \
 Lire le `-sbs.png` par breakpoint. Pour chaque **bloc magenta continu** :
 
 1. **Localiser** — quelle section de page, quel composant.
-2. **Décrire l'écart** — « gap inter-cartes ~32px maquette vs ~16px wp ».
+2. **Décrire l'écart** — « gap inter-cartes ~32px maquette vs ~16px cible ».
 3. **Identifier le CSS probable** — gap, margin, padding, transform, z-index, box-shadow…
 4. **Classifier à la couche** — token / markup / component / content (mêmes routes que §5).
 5. **Estimer la confiance** :
@@ -84,5 +91,5 @@ Un delta `source: visual` n'est **pas clos par re-capture seule**. Séquence obl
 
 Si l'oracle reste CLOSED après correction mais le diff persiste → l'écart n'est pas rattachable
 à une propriété CSS mesurable → investiguer (effet composite, état injecté, rendu natif spécifique).
-Options : enrichir le config oracle pour couvrir la propriété manquante, ou ledger entry si
-l'écart est délibéré.
+Options : enrichir le config oracle pour couvrir la propriété manquante, ou une entrée `active`
+dans `deviations.json` si l'écart est délibéré (schéma : `${CLAUDE_PLUGIN_ROOT}/references/deviations-schema.md`).

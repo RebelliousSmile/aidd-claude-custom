@@ -11,5 +11,7 @@
   { "prompt": "audite cette page contre le système", "expect_action": null },
   { "prompt": "réconcilie cette maquette multi-pages avec notre design system", "expect_action": "copycat-fanout" },
   { "prompt": "copie conforme de ces 45 pages en mesurant chaque breakpoint", "expect_action": "copycat-fanout" },
-  { "prompt": "fan-out copycat sur toutes les pages de la maquette", "expect_action": "copycat-fanout" }
+  { "prompt": "fan-out copycat sur toutes les pages de la maquette", "expect_action": "copycat-fanout" },
+  { "prompt": "écris tokens.json et génère tokens.css dans la foulée", "expect_action": "write-material" },
+  { "prompt": "génère les adapters depuis tokens.json", "expect_action": null }
 ]

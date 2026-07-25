@@ -14,7 +14,7 @@
       {
         "id": "state-colour-icon",
         "description": "Un badge d'état doit porter un token couleur ET une icône — jamais la couleur seule.",
-        "enforcement": "pivot-only"
+        "enforcement": "unrealized"
       }
     ]
   },

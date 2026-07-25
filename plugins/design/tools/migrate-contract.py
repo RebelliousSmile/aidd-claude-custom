@@ -1,17 +1,25 @@
 #!/usr/bin/env python3
-"""migrate-contract.py — turn a 1.x monolithic contract into the four 2.0 artifacts.
+"""migrate-contract.py — turn a 1.x monolithic contract into the 2.0 artifacts.
 
-One idempotent, replayable pass. The redistribution applied is the table of
-`references/contract-schema.md § Redistribution depuis un contrat 1.x`; nothing is invented
-and nothing is dropped — a key the table does not name is carried verbatim and reported as
-an anomaly, never discarded.
+Two independent, idempotent, replayable passes:
 
-The maturity status is not computed here: `status.py` is the only implementation, and this
-script prints back what it returns.
+  --contract <dir>  redistributes the 1.x manifest into tokens/components/policies/oracle +
+                    release.json, applying the table of
+                    `references/contract-schema.md § Redistribution depuis un contrat 1.x`.
+                    Nothing is invented and nothing is dropped — a key the table does not name
+                    is carried verbatim and reported as an anomaly, never discarded.
+
+  --ledger <dir>    converts the Markdown deviation ledger (ds-deviation-ledger.md) into the
+                    structured deviations.json, one entry per `### DEV-NNN` block. An entry the
+                    parser cannot map to a sanctionable deviation is reported, never dropped.
+
+Exactly one pass per invocation. The maturity status is not computed here: `status.py` is the
+only implementation, and this script prints back what it returns.
 
 Usage:
   python migrate-contract.py --contract <dir> [--dry-run] [--mode bem|utility-first]
                              [--now <ISO-8601>]
+  python migrate-contract.py --ledger <dir> [--dry-run]
 
 `status.py` travels with this script: both are copied side by side into a consuming project.
 Its absence is an environment error (exit 2), never a traceback — an uncaught ImportError exits
@@ -27,6 +35,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import sys
 from datetime import datetime, timezone
@@ -53,9 +62,26 @@ TOKENS, COMPONENTS, POLICIES, ORACLE, RELEASE = (
     "tokens.json", "components.json", "policies.json", "oracle.json", "release.json")
 ARTIFACTS = (TOKENS, COMPONENTS, POLICIES, ORACLE)
 
+# --ledger pass. The Markdown ledger is read by a fixed name so the pass needs no second argument;
+# deviations.json is written beside it. Both live in the contract directory in a real project.
+DEVIATIONS = "deviations.json"
+LEDGER_FILE = "ds-deviation-ledger.md"
+# A block header: "### DEV-001 — <title>" with any dash (em/en/hyphen) and any spacing.
+LEDGER_HEADING = re.compile(r"^###\s+(DEV-\d+)\b\s*[—–-]?\s*(.*)$")
+# A field line inside a block: "- key: value" (the ledger uses no space after the colon on some
+# lines, e.g. "contract value:fontSize = 17px" — so \s* not \s+).
+LEDGER_FIELD = re.compile(r"^\s*[-*]\s*([^:]+?):\s*(.*)$")
+# "contract value: <prop> = <value>" — split on the first '=' only; the value may itself contain '='.
+LEDGER_CONTRACT_VALUE = re.compile(r"^\s*([A-Za-z][\w-]*)\s*=\s*(.+)$")
+
 # The 1.x keys the redistribution table names. Anything else is carried verbatim and reported.
 KNOWN_TOP = {"$schema", "$version", "mode", "$utilityPrefixes", "components", "usage", "oracle"}
 KNOWN_COMPONENT = {"base", "elements", "modifiers", "backgrounds", "a11y", "oracle"}
+
+# 1.x enforcement values, retyped against references/enforcement-registry.md. "pivot-only"
+# named no evidence, so it names no realizer: it lands on the marker, never on a guess.
+UNREALIZED = "unrealized"
+ENFORCEMENT_1X = {"baseline": "markup"}
 
 # Adapter consumer by extension - a role, never a platform.
 CONSUMER_BY_SUFFIX = {
@@ -171,7 +197,22 @@ def split(manifest: dict, mode: str) -> tuple[dict, list[tuple[str, str]], list[
         policies["$utilityPrefixes"] = manifest["$utilityPrefixes"]
         mapping.append(("$.$utilityPrefixes", f"{POLICIES}.$utilityPrefixes"))
     if "usage" in manifest:
-        policies["usage"] = manifest["usage"]
+        usage = dict(manifest["usage"])
+        rules = []
+        for rule in usage.get("rules") or []:
+            rule = dict(rule)
+            before = rule.get("enforcement")
+            after = ENFORCEMENT_1X.get(before, UNREALIZED)
+            rule["enforcement"] = after
+            if after == UNREALIZED:
+                anomalies.append(
+                    f"$.usage.rules[{rule.get('id', '?')}].enforcement: "
+                    f"{before or 'absent'} names no realizer, written {UNREALIZED}; "
+                    "re-type it from references/enforcement-registry.md")
+            rules.append(rule)
+        if rules:
+            usage["rules"] = rules
+        policies["usage"] = usage
         mapping.append(("$.usage", f"{POLICIES}.usage"))
 
     oracle: dict = {"$schema": f"{SCHEMA}#oracle", "components": oracle_components}
@@ -304,14 +345,126 @@ def migrate(contract_dir: Path, mode_arg: str | None, dry_run: bool, now: str) -
     return 0
 
 
+def parse_ledger(text: str) -> list[dict]:
+    """Split a Markdown deviation ledger into one raw block per `### DEV-NNN` heading.
+
+    Order is source order — the report and deviations.json both preserve it, so a replay writes
+    a byte-identical file. Lines before the first heading (title, index table) are ignored.
+    """
+    blocks: list[dict] = []
+    current: dict | None = None
+    last_key: str | None = None
+    for line in text.splitlines():
+        head = LEDGER_HEADING.match(line)
+        if head:
+            current = {"id": head.group(1), "title": head.group(2).strip(), "fields": {}}
+            blocks.append(current)
+            last_key = None
+            continue
+        if current is None:
+            continue
+        field = LEDGER_FIELD.match(line)
+        if field:
+            last_key = field.group(1).strip().lower()
+            current["fields"][last_key] = field.group(2).strip()
+            continue
+        # A wrapped field value: indented continuation of the previous field (the template aligns
+        # multi-line justifications under their key). Indentation is the discriminator — a section
+        # heading or an index-table row starts at column 0, so neither is absorbed here.
+        if last_key and line[:1].isspace() and line.strip():
+            current["fields"][last_key] += " " + line.strip()
+    return blocks
+
+
+def ledger_to_deviations(blocks: list[dict]) -> tuple[list[dict], list[str]]:
+    """Map each raw block onto a deviations.json § active entry, per deviations-schema.md.
+
+    An entry the parser cannot turn into a sanctionable deviation (no target, no prop/expected)
+    is still emitted and reported — never dropped — so the human reconciling the migration sees
+    every gap. The schema field it lacks is what later makes the oracle answer OPEN, honestly.
+    """
+    active: list[dict] = []
+    anomalies: list[str] = []
+    for block in blocks:
+        eid, fields = block["id"], block["fields"]
+        entry: dict = {"id": eid, "status": "active"}
+
+        target = fields.get("component") or fields.get("selector(s)") or ""
+        entry["target"] = target
+        if not target:
+            anomalies.append(f"{eid}: no 'component' or 'selector(s)' line - target left empty, "
+                             "reconcile it with the oracle target name by hand")
+
+        contract_value = fields.get("contract value", "")
+        match = LEDGER_CONTRACT_VALUE.match(contract_value)
+        if match:
+            entry["prop"] = match.group(1)
+            entry["expected"] = match.group(2).strip()
+        else:
+            anomalies.append(f"{eid}: no parseable 'contract value: <prop> = <value>' - the entry "
+                             "carries no expected value, so the oracle would answer OPEN")
+
+        entry["date"] = fields.get("date", "")
+        if fields.get("expires"):
+            entry["expires"] = fields["expires"]
+        entry["reason"] = fields.get("justification") or block["title"]
+        active.append(entry)
+    return active, anomalies
+
+
+def migrate_ledger(ledger_dir: Path, dry_run: bool) -> int:
+    if not ledger_dir.is_dir():
+        return fail(f"Ledger directory not found: {ledger_dir}")
+    source = ledger_dir / LEDGER_FILE
+    if not source.is_file():
+        return fail(f"No {LEDGER_FILE} in {ledger_dir}. The --ledger pass reads the Markdown "
+                    "deviation ledger by that name and writes deviations.json beside it.")
+
+    blocks = parse_ledger(source.read_text(encoding="utf-8"))
+    active, anomalies = ledger_to_deviations(blocks)
+    payload = {"$schema": f"{SCHEMA}#deviations", "active": active}
+
+    width = max((len(b["id"]) for b in blocks), default=0)
+    lines = [f"LEDGER   {source}", f"ENTRIES  {len(active)}", "IDENTIFIERS"]
+    for entry in active:
+        detail = f"target={entry['target'] or '(empty)'}  prop={entry.get('prop', '(none)')}  " \
+                 f"expected={entry.get('expected', '(none)')}"
+        lines.append(f"  {entry['id'].ljust(width)}  ->  {detail}")
+    if not active:
+        lines.append("  (none)")
+    lines.append("ANOMALIES")
+    lines += [f"  {a}" for a in anomalies] or ["  (none)"]
+
+    if dry_run:
+        lines.append("DRY RUN  nothing written")
+        print("\n".join(lines))
+        return 0
+
+    (ledger_dir / DEVIATIONS).write_text(dump(payload), encoding="utf-8")
+    lines.append(f"WRITTEN  {DEVIATIONS}")
+    print("\n".join(lines))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Migrate a 1.x design-system contract to the 2.0 artifacts.")
-    parser.add_argument("--contract", required=True, metavar="DIR", help="contract directory")
+    parser = argparse.ArgumentParser(description="Migrate a 1.x design-system contract, or its "
+                                                 "Markdown deviation ledger, to the 2.0 artifacts.")
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--contract", metavar="DIR", help="contract directory (1.x monolith → 2.0 artifacts)")
+    source.add_argument("--ledger", metavar="DIR",
+                        help=f"directory holding {LEDGER_FILE} (Markdown ledger → {DEVIATIONS})")
     parser.add_argument("--dry-run", action="store_true", help="report only, write nothing")
     parser.add_argument("--mode", choices=MODES, help="vocabulary mode, when the contract declares none")
     parser.add_argument("--now", metavar="ISO-8601",
                         help="pin provenance.producedAt, so a migration is byte-reproducible")
     args = parser.parse_args(argv)
+
+    if args.ledger:
+        for name, value in (("--mode", args.mode), ("--now", args.now)):
+            if value:
+                return fail(f"{name} belongs to the --contract pass, not --ledger.")
+        return migrate_ledger(Path(args.ledger), args.dry_run)
+
     now = args.now or datetime.now(timezone.utc).isoformat(timespec="seconds")
     return migrate(Path(args.contract), args.mode, args.dry_run, now)
 

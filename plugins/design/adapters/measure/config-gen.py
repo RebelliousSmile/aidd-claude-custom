@@ -1,32 +1,31 @@
 #!/usr/bin/env python3
 """config-gen — génère un config oracle (measure.py) depuis le contrat design system.
 
-Lit design/components.json + design/tokens.json et produit un config JSON exploitable
-directement par measure.py, screenshot.py et pixeldiff.py. Élimine la construction manuelle
-du selector mapping pour les composants déclarés dans le manifeste.
+Lit design/components.json + design/tokens.json + design/oracle.json et produit un config JSON
+exploitable directement par measure.py. Élimine la construction manuelle du selector mapping
+pour les composants déclarés dans le manifeste.
 
 Usage:
   python config-gen.py \\
     --components design/components.json \\
     --tokens design/tokens.json \\
-    --maquette-url http://localhost:8080 \\
-    --wp-url http://localhost:8888 \\
+    --reference-url http://localhost:8080 \\
+    --implementation-url http://localhost:8888 \\
     --page accueil \\
     --out aidd_docs/qa/fidelity/accueil.config.json
 
 Le config produit est un point de départ :
-  - Sélecteurs WP  : dérivés du manifeste (classes BEM canoniques) — déjà corrects.
-  - Sélecteurs maq : identiques aux WP par défaut. Surcharger si la maquette utilise
-    des classes différentes (hors harness). Inspecter les deux DOMs pour confirmer.
-  - Props           : dérivées des groupes de tokens présents dans tokens.json.
-  - Breakpoints     : dérivés de tokens.breakpoint.* ou fallback mobile 375 + desktop 1440.
-  - Hints oracle    : check_text et collections lus depuis le champ components.oracle si
-    présent dans le manifeste (cf. manifest-schema.md).
+  - Sélecteurs implémentation : dérivés du manifeste (classes BEM canoniques) — déjà corrects.
+  - Sélecteurs mockup         : identiques à l'implémentation par défaut. Surcharger si le mockup
+    utilise des classes différentes. Inspecter les deux DOMs pour confirmer.
+  - Props                     : dérivées des groupes de tokens présents dans tokens.json.
+  - Breakpoints               : dérivés de tokens.breakpoint.* ou fallback mobile 375 + desktop 1440.
+  - Hints oracle              : check_text et collections lus depuis oracle.json si présent.
 
 Après génération :
   1. Vérifier que les sélecteurs résolvent sur les deux DOMs —
      measure.py signale les targets manquants en "missing".
-  2. Surcharger le champ "maq" des targets où la maquette diffère des classes DS.
+  2. Surcharger le champ "mockup" des targets où le mockup diffère des classes DS.
   3. Ajouter coverage_ack si des sections sont délibérément non mesurées.
   4. Ajouter des targets manuels pour les éléments hors manifeste découverts via visual-diff.
 """
@@ -53,8 +52,8 @@ _GROUP_PROPS: list[tuple[str, list[str]]] = [
 ]
 
 _DEFAULT_BREAKPOINTS = [
-    {"name": "mobile",  "width": 375,  "height": 812,  "maq_viewport": "mobile"},
-    {"name": "desktop", "width": 1440, "height": 900,  "maq_viewport": "desktop"},
+    {"name": "mobile",  "width": 375,  "height": 812,  "mockup_viewport": "mobile"},
+    {"name": "desktop", "width": 1440, "height": 900,  "mockup_viewport": "desktop"},
 ]
 
 # Heuristiques de nommage pour les tokens breakpoint.*
@@ -120,7 +119,7 @@ def _derive_breakpoints(tokens: dict) -> list[dict]:
         except ValueError:
             w = default_w
         breakpoints.append({"name": name, "width": w, "height": default_h,
-                            "maq_viewport": name})
+                            "mockup_viewport": name})
         seen_names.add(name)
 
     if not breakpoints:
@@ -149,7 +148,7 @@ def _derive_targets_and_collections(
 
         # Target racine du composant (élément de layout — pas de check_text par défaut)
         root_sel = _dot_selector(base)
-        targets.append({"name": comp_name, "maq": root_sel, "wp": root_sel})
+        targets.append({"name": comp_name, "mockup": root_sel, "implementation": root_sel})
 
         # Targets par élément BEM
         for elem_label, elem_class in comp.get("elements", {}).items():
@@ -157,8 +156,8 @@ def _derive_targets_and_collections(
             sel = _dot_selector(elem_class)
             target: dict = {
                 "name": f"{comp_name} · {elem_label}",
-                "maq": sel,
-                "wp": sel,
+                "mockup": sel,
+                "implementation": sel,
             }
             if hint.get("check_text"):
                 target["check_text"] = True
@@ -171,8 +170,8 @@ def _derive_targets_and_collections(
             item_sel = _dot_selector(coll.get("item_selector", ""))
             entry: dict = {
                 "name": coll.get("name", f"{comp_name} · items"),
-                "maq": item_sel,
-                "wp": item_sel,
+                "mockup": item_sel,
+                "implementation": item_sel,
             }
             if coll.get("ack"):
                 entry["ack"] = coll["ack"]
@@ -184,8 +183,8 @@ def _derive_targets_and_collections(
 def generate(
     components_path: str,
     tokens_path: str,
-    maquette_url: str,
-    wp_url: str,
+    reference_url: str,
+    implementation_url: str,
     page: str | None = None,
     oracle_path: str | None = None,
 ) -> dict:
@@ -206,15 +205,15 @@ def generate(
 
     cfg: dict = {
         "_generated_by": "config-gen.py — review selectors before use",
-        "maquette_url": maquette_url,
-        "wp_url": wp_url,
+        "reference_url": reference_url,
+        "implementation_url": implementation_url,
         "breakpoints": breakpoints,
         "props": props,
         "targets": targets,
-        "headings_sel": {"maq": "h1, h2, h3", "wp": "h1, h2, h3"},
+        "headings_sel": {"mockup": "h1, h2, h3", "implementation": "h1, h2, h3"},
     }
     if page:
-        cfg["maquette_page"] = page
+        cfg["reference_page"] = page
     if collections:
         cfg["collections"] = collections
     return cfg
@@ -230,18 +229,20 @@ def main():
                     help="Chemin vers design/tokens.json")
     ap.add_argument("--oracle", default=None,
                     help="Chemin vers design/oracle.json (défaut : frère de --components)")
-    ap.add_argument("--maquette-url", required=True, dest="maquette_url",
-                    help="URL de la maquette de référence (servie en HTTP)")
-    ap.add_argument("--wp-url", required=True, dest="wp_url",
-                    help="URL du rendu cible")
+    # Deux rôles, jamais deux plateformes : la référence est ce qui fait foi, l'implémentation
+    # est ce qui est mesuré contre elle.
+    ap.add_argument("--reference-url", required=True, dest="reference_url",
+                    help="URL de la référence qui fait foi (servie en HTTP)")
+    ap.add_argument("--implementation-url", required=True, dest="implementation_url",
+                    help="URL de l'implémentation mesurée contre la référence")
     ap.add_argument("--page", default=None,
-                    help="Clé setPage pour les maquettes SPA (window.setPage)")
+                    help="Clé setPage pour les mockups SPA (window.setPage)")
     ap.add_argument("--out", required=True,
                     help="Chemin de sortie du config JSON (ex. aidd_docs/qa/fidelity/accueil.config.json)")
     args = ap.parse_args()
 
     cfg = generate(args.components, args.tokens,
-                   args.maquette_url, args.wp_url, args.page, args.oracle)
+                   args.reference_url, args.implementation_url, args.page, args.oracle)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -254,7 +255,7 @@ def main():
     print(f"Config -> {out}")
     print(f"  {n_t} target(s)  ·  {n_c} collection(s)  ·  {n_b} breakpoint(s)  ·  {n_p} prop(s)")
     print("  Vérifier : les sélecteurs résolvent sur les deux DOMs (measure.py -> 'missing' sinon)")
-    print("  Surcharger le champ 'maq' si la maquette utilise des classes différentes des classes DS")
+    print("  Surcharger le champ 'mockup' si le mockup utilise des classes différentes des classes DS")
 
 
 if __name__ == "__main__":

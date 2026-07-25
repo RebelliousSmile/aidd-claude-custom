@@ -1,6 +1,6 @@
 # 04 - write-material
 
-Écrire la matière de design **malléable** depuis le token set dérivé (par `02-extract` ou `03-construct`) : `design/tokens.json`, les adapters, et `design/design-system.md` en **brouillon non figé**. Aucun manifeste n'est écrit ici.
+Écrire la matière de design **malléable** depuis le token set dérivé (par `02-extract` ou `03-construct`) : `design/tokens.json` et `design/design-system.md` en **brouillon non figé**. Aucun manifeste, aucun artefact dérivé.
 
 ## Inputs
 
@@ -22,12 +22,12 @@ Suivre la procédure partagée : `${CLAUDE_PLUGIN_ROOT}/references/write-system-
 ### Artefacts écrits (par la procédure partagée)
 
 - `design/tokens.json` — W3C DTCG, source de vérité, alias `{group.name}` pour les liens sémantique→ramp.
-- `design/adapters/…` — **un adapter par consommateur présent dans le projet, aucun autre.** Règle canonique : `${CLAUDE_PLUGIN_ROOT}/references/write-system-procedure.md § Adapter emission rule`.
+- *(aucun adapter)* — un artefact dérivé n'est produit que par `${CLAUDE_PLUGIN_ROOT}/tools/generate.py`, au figeage. Ici on **détecte** les consommateurs présents dans le projet et on les consigne en § Provenance : `${CLAUDE_PLUGIN_ROOT}/references/write-system-procedure.md § Adapter emission rule`.
 - `design/design-system.md` — sections requises du contrat : Provenance · Foundations · Responsive strategy · Component inventory (prose candidate) · Open questions.
 
 ## Atomicity
 
-- Écrire `tokens.json` et régénérer **tous les adapters émis** dans la même passe ; ne jamais les laisser incohérents.
+- `tokens.json` est écrit seul : aucun adapter n'existe encore, donc rien ne peut se désynchroniser de lui à ce stade.
 - Si `design/tokens.json` existe déjà, differ : bumper la version selon le contrat et résumer ce qui change au lieu d'écraser silencieusement.
 
 ## Report
@@ -39,4 +39,4 @@ Suivre la procédure partagée : `${CLAUDE_PLUGIN_ROOT}/references/write-system-
 
 ## Test
 
-`design/tokens.json`, les adapters listés en § Provenance et `design/design-system.md` existent ; aucun adapter hors de cette liste n'a été écrit ; les valeurs des adapters correspondent à `tokens.json` ; `design-system.md` a les 5 sections requises, une ligne `version:`, le statut **brouillon**, et un inventaire de composants en **prose candidate** ; **aucun** artefact du contrat (`components.json`, `policies.json`, `oracle.json`, `release.json`) n'a été écrit.
+`design/tokens.json` et `design/design-system.md` existent ; **rien n'a été écrit sous `design/adapters/`** ; § Provenance nomme chaque consommateur détecté et sa preuve ; `design-system.md` a les 5 sections requises, une ligne `version:`, le statut **brouillon**, et un inventaire de composants en **prose candidate** ; **aucun** artefact du contrat (`components.json`, `policies.json`, `oracle.json`, `release.json`) n'a été écrit.

@@ -1,0 +1,20 @@
+{
+  "$schema": "design/references/contract-schema#release",
+  "$format": "2.0",
+  "designSystem": {
+    "version": "1.0.0"
+  },
+  "charter": {
+    "present": false,
+    "path": "design-system.md",
+    "version": null
+  },
+  "status": "extracted",
+  "generated": {
+    "ds-deviation-ledger.md": {
+      "sources": {
+        "deviations.json": "sha256:fc80adb3b4ffe5e941e0cd57d9d0487c2347f095f9a1b21d38357f55488a5f64"
+      }
+    }
+  }
+}

@@ -26,17 +26,15 @@ on the context you are invoked in:
 Default model: **Sonnet** (the fan-out workhorse). A caller may override per page via
 `opts.model` — Haiku for a trivial page, Opus for a known-complex one.
 
-## Track boundary
+## Applicability
 
-Track: WP/maquette (by nature — copycat's whole job is reconciling a page **against a mockup**,
-whichever stack renders it). It applies equally to any stack **that has a mockup to reconcile
-against** (a Vue/React SPA with a resolved reference render is in scope exactly like WP). It does
-**not** apply to a pure from-code SPA extraction with no mockup, nor to a from-brief construction
-(`define/03-construct`, no reference visual) — those paths have nothing for copycat to measure
-against; see `${CLAUDE_PLUGIN_ROOT}/skills/enforce/actions/05-fidelity-gate.md § Chemin
-construction-depuis-brief` for the stated limit. copycat's WP-heavy examples throughout this file
-(pivot to `sc-php`/`sc-js:design-bridge`, block patterns) are illustrative of its most common
-terrain, not a restriction to WordPress.
+copycat's whole job is reconciling a page **against a mockup**, whichever stack renders it. The
+single condition is that a resolved reference render exists to reconcile against; nothing else
+about the stack matters. It does **not** apply to a from-code extraction with no mockup, nor to a
+from-brief construction (`define/03-construct`, no reference visual) — those paths have nothing
+for copycat to measure against; see
+`${CLAUDE_PLUGIN_ROOT}/skills/enforce/actions/05-fidelity-gate.md § Chemin
+construction-depuis-brief` for the stated limit.
 
 # Boundaries (MUST hold)
 
@@ -53,14 +51,14 @@ terrain, not a restriction to WordPress.
    and the oracle for your unit; you NEVER spawn further agents. The fan-out is owned by `define`.
 4. **Stack-specific realization goes through the PIVOT — you own the QUOI, not the COMMENT.**
    You classify a delta to its contract layer and decide align/extend (the QUOI). Every
-   language/framework-specific *realization* is delegated to `sc-<techno>:design-bridge` per
+   language/framework-specific *realization* is delegated to `sc-<language>:design-bridge` per
    `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md`: platform markup and templates, platform
    preset/theme files, and linting content held in a datastore. Never hand-code a platform idiom
    yourself. **Never edit generated or seeded content in its datastore only** — any artifact
    produced by a generator (import script, seed, migration) is authored at its **source**. Edit
    the source, re-run the generator, re-import, then re-measure. A datastore-only edit is a
    **P1 violation** — lost on the next import, invisible to version control, unreviewable. If a
-   generator writes it, the generator owns it. If no `sc-<techno>` covers the stack, fall back to
+   generator writes it, the generator owns it. If no `sc-<language>` covers the language, fall back to
    the baseline and say so.
 
 # Responsive (ask-or-derive)
@@ -124,7 +122,7 @@ is always the consumer's path; it is never plugin-relative.
      --components design/components.json \
      --tokens design/tokens.json \
      --oracle design/oracle.json \
-     --maquette-url <maq-url> --wp-url <wp-url> \
+     --reference-url <url-référence> --implementation-url <url-implémentation> \
      --page <setPage-key-if-spa> \
      --out <project>/<qa-dir>/fidelity/<page>.config.json
    ```
@@ -132,7 +130,7 @@ is always the consumer's path; it is never plugin-relative.
    → CSS), breakpoints (`tokens.breakpoint.*`), and any `check_text`/`collections` hints
    declared in `oracle.json § components`. **Then extend/validate** by inspecting both DOMs:
    confirm generated selectors resolve on both sides (`measure.py` reports them `missing` if
-   not, which is your cue to override the `maq` or `wp` field). Add page-specific targets for
+   not, which is your cue to override the `mockup` or `implementation` field). Add page-specific targets for
    elements not covered by the manifest (discovered in §2 or from visual zones in §4). The
    config is project data, not a plugin asset — always write it to the project's QA tree by
    absolute path. **Prefer classes declared in `components.json`** over ad-hoc/utility
@@ -142,12 +140,12 @@ is always the consumer's path; it is never plugin-relative.
    *hides* your own fix instead of confirming it.
    **Mandatory in every Mode B config (not optional, not "when relevant"):**
    - `"check_text": true` on each **key-label target** (eyebrow, heading, CTA, stat value, badge):
-     set it on the **target object** (`{"name":…,"maq":…,"wp":…,"check_text":true}`) — never
+     set it on the **target object** (`{"name":…,"mockup":…,"implementation":…,"check_text":true}`) — never
      globally if any target contains prose (body copy, testimonials, placeholders vs live text).
      A global flag on a prose-heavy page produces dozens of non-match rows you'd need to ledger
      one by one, which is exactly the human judgment the oracle is meant to eliminate.
    - One `collections` entry per repeated structure inventoried in §2. Before interpreting diffs,
-     **verify `maq_count` and `wp_count` match expectations** — a selector that grabs 4 buttons
+     **verify `mockup_count` and `implementation_count` match expectations** — a selector that grabs 4 buttons
      instead of 2 (too broad) pollutes the sequence and produces false mismatches that obscure
      the real gap. Narrow the selector or add a scope ancestor until the count is correct.
      If the count/label divergence is a **deliberate content/business choice** (e.g. a product
@@ -163,7 +161,7 @@ is always the consumer's path; it is never plugin-relative.
    `measure.py --config <project-config> --out <project>/<qa-dir>/fidelity/<page>-<mode>.json`
    **Visual companion** (run in parallel on the same config — surfaces what getComputedStyle cannot):
    `screenshot.py --config <project-config> --out <project>/<qa-dir>/shots/<page>`
-   `pixeldiff.py --a <shots>/<page>__maq__<bp>.png --b <shots>/<page>__wp__<bp>.png --out <shots>/<page>/<bp>`
+   `pixeldiff.py --a <shots>/<page>__mockup__<bp>.png --b <shots>/<page>__implementation__<bp>.png --out <shots>/<page>/<bp>`
    The `-sbs.png` per breakpoint shows divergent pixels in magenta. Analyze each continuous magenta
    block as a visual zone: layout relationships, composite effects, unmapped elements — things the
    style oracle cannot reach. See `${CLAUDE_PLUGIN_ROOT}/references/visual-diff-procedure.md` for
@@ -177,8 +175,8 @@ is always the consumer's path; it is never plugin-relative.
    - competing override that prevents the component CSS from governing → **markup** with
      `action: align`, `action_detail: remove-override` (see below)
    - `prop:"text"` non-match → **content** (P1) if the label is copy that must follow the mockup
-     (eyebrow, CTA, badge, stat label); **markup** if it is authored inside a block pattern or
-     template (fix at the source, re-import, re-measure); **ledger** only if the content
+     (eyebrow, CTA, badge, stat label); **markup** if it is authored inside a template or a
+     stored composition (fix at the source, rewrite the instance, re-measure); **ledger** only if the content
      difference is explicitly sanctioned (e.g. placeholder vs live copy, i18n variant).
    - `collections` failure (count drift, missing item, extra item, reorder) →
      **content/structure**: realign the repeated structure at its source (import script, pattern,
@@ -190,8 +188,8 @@ is always the consumer's path; it is never plugin-relative.
      collection. **Never omit from the config** — omission = invisible divergence in all future runs.
 6. Decide **align vs extend** (DS-prime): bend to an existing token/component unless the
    mockup reveals a genuine new need — then propose an `extend` with justification.
-   **When the fix is to REMOVE a competing override** (e.g. a WP block attribute that injects
-   `.has-xl-font-size`, an inline style, a utility class applied in markup) so the component CSS
+   **When the fix is to REMOVE a competing override** (a markup attribute that makes the platform
+   emit a preset class, an inline style, a utility class applied in markup) so the component CSS
    can govern without fighting it: route to `routed_layer: markup`, `action: align`,
    `action_detail: remove-override`. This is preferable to adding a counter-`!important` — it
    removes the conflict at its source and keeps the component rule authoritative.
@@ -210,7 +208,7 @@ is always the consumer's path; it is never plugin-relative.
    language edits the platform's markup, templates and preset files. **First locate the source**:
    if the target is generated or seeded, edit the generator and re-run it; never write to the
    datastore directly.
-   If no `sc-<techno>` exists, use the baseline and say so — but never hand-drive the stack to
+   If no `sc-<language>` exists, use the baseline and say so — but never hand-drive the stack to
    skip the pivot. Resolve `missing_sections` here too: a missing section is rebuilt from the
    mockup's content at the source, not faked.
 10. If a fix changed a class/selector/element, **reconcile the measure config** (§3) so its
@@ -229,11 +227,11 @@ is always the consumer's path; it is never plugin-relative.
 - [ ] The fix lives at the **source** (generator, template, preset file, component CSS), never in
       the datastore only. If a generator owns the target, you edited the generator, re-ran it
       **and re-imported** so the live target reflects the source (source ≠ live = not done).
-- [ ] Stack-specific realization went **through the pivot** (`sc-<techno>:design-bridge`), or
-      you explicitly recorded that no `sc-<techno>` exists and used the baseline.
+- [ ] Stack-specific realization went **through the pivot** (`sc-<language>:design-bridge`), or
+      you explicitly recorded that no `sc-<language>` exists and used the baseline.
 - [ ] Any class/markup change is **reconciled in the config** (no stale selector → no false `missing`).
 - [ ] **The oracle's own `summary.verdict` is `CLOSED`** — and you paste that block as proof.
-      The script computes the verdict (`closed` iff 0 diff AND 0 missing AND no `missing_in_wp`
+      The script computes the verdict (`closed` iff 0 diff AND 0 missing AND no `missing_in_implementation`
       section AND coverage ok AND `collection_failures == 0` AND every `prop:"text"` row matched
       or ledgered); you do **not** get to declare it. A residual delta tolerated for DRY/SOLID is
       excluded only by a real ledger entry referenced in the report — never by omission.
@@ -267,8 +265,8 @@ oracle_report: <project-qa-dir>/fidelity/<page>-<mode>.json   # project tree, gi
 missing_sections: []        # in mockup, absent in target — the DOMINANT delta, resolved/ledgered first
 extra_sections: []          # in target, absent in mockup — surfaced for review
 collections_checked:        # repeated-structure parity (from oracle collections[], measured once)
-  - { name: <…>, maq_count: N, wp_count: M, ok: bool,
-      missing_in_wp: [], extra_in_wp: [],
+  - { name: <…>, mockup_count: N, implementation_count: M, ok: bool,
+      missing_in_implementation: [], extra_in_implementation: [],
       acked: bool, ack_id: DEV-xxx }  # P13 — present when divergence is sanctioned (ok:false + ack)
 rows:
   - element: <name>

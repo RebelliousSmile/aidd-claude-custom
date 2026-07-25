@@ -29,7 +29,7 @@ Profil **injectable et optionnel** rapatrié de l'ancien `design:setup`. `define
 
 ## 4. Discipline des design tokens
 
-- `design/tokens.json` est canonique (W3C DTCG) ; le consommer via l'adapter émis pour la stack du projet (`adapters/tokens.css` par défaut — règle d'émission : `references/write-system-procedure.md § Adapter emission rule`) ; ne jamais éditer un adapter généré ; les régénérer tous ensemble.
+- `design/tokens.json` est canonique (W3C DTCG) ; le consommer via l'adapter émis pour la stack du projet (`adapters/tokens.css` par défaut — règle d'émission : `references/write-system-procedure.md § Adapter emission rule`) ; ne jamais éditer un adapter généré : `tools/generate.py` les réécrit tous ensemble, et `--check` sanctionne toute retouche.
 - **No magic number** : couleur, type, espace, radius, ombre, motion viennent des tokens ; jamais de hex ni de px en dur ; une valeur one-off = un nouveau token, pas un littéral inline.
 - Tokens sémantiques plutôt que ramps brutes dans les composants (`--color-semantic-surface`, pas `--color-neutral-50`) ; nommer par rôle (`danger`, pas `red`).
 

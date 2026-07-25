@@ -121,9 +121,9 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] Every field of the existing Markdown entry format maps to a schema field.
-- [ ] Active and historical entries are distinct in the schema.
-- [ ] Only an active entry can sanction a divergence.
+- [x] Every field of the existing Markdown entry format maps to a schema field.
+- [x] Active and historical entries are distinct in the schema.
+- [x] Only an active entry can sanction a divergence.
 
 ### Phase 2: Ledger migration pass
 
@@ -139,9 +139,9 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] The dry-run report accounts for every identifier present in the source.
-- [ ] A second run produces no diff.
-- [ ] An unmappable entry is reported, never dropped.
+- [x] The dry-run report accounts for every identifier present in the source.
+- [x] A second run produces no diff.
+- [x] An unmappable entry is reported, never dropped.
 
 ### Phase 3: Oracle sources and generated view
 
@@ -160,14 +160,14 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] The conformant fixture report reads `summary.verdict` equal to `CLOSED`.
-- [ ] The unknown-deviation fixture report reads `summary.verdict` equal to `OPEN`.
-- [ ] A fixture whose referenced entry is expired reads `summary.verdict` equal to `OPEN`.
-- [ ] Omitting `--ledger-registry` exits 2 naming the argument, and measures nothing.
-- [ ] Two consecutive generations of the Markdown view are byte-identical.
-- [ ] The Lot 2 drift check still passes on the three artifacts it already covered.
-- [ ] `grep -rniE '\bwp\b|_in_wp|\bmaq\b' plugins/design/adapters/measure/measure.py plugins/design/adapters/measure/config-gen.py` returns nothing, and the same grep over `plugins/design/` returns matches only in `CHANGELOG.md` and under `audits/`.
-- [ ] Every caller of the renamed arguments, in the actions, the references and the fixtures, uses the new names; none uses both.
+- [x] The conformant fixture report reads `summary.verdict` equal to `CLOSED`.
+- [x] The unknown-deviation fixture report reads `summary.verdict` equal to `OPEN`.
+- [x] A fixture whose referenced entry is expired reads `summary.verdict` equal to `OPEN`.
+- [x] Omitting `--ledger-registry` exits 2 naming the argument, and measures nothing.
+- [x] Two consecutive generations of the Markdown view are byte-identical.
+- [x] The Lot 2 drift check still passes on the three artifacts it already covered.
+- [x] `grep -rniE '\bwp\b|_in_wp|\bmaq\b' plugins/design/adapters/measure/measure.py plugins/design/adapters/measure/config-gen.py` returns nothing, and the same grep over `plugins/design/` returns matches only in `CHANGELOG.md` and under `audits/`.
+- [x] Every caller of the renamed arguments, in the actions, the references and the fixtures, uses the new names; none uses both.
 
 ### Phase 4: Gate semantics
 
@@ -183,10 +183,10 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] No document presents a global pixel comparison as proof of conformity.
-- [ ] The gate refuses to assert conformity when the oracle is not wired, and names the wiring step.
-- [ ] `plugins/design/adapters/measure/configs/` contains `example.json` and no other file.
-- [ ] `example.json` contains no project name, no external address and no stack-specific selector.
+- [x] No document presents a global pixel comparison as proof of conformity.
+- [x] The gate refuses to assert conformity when the oracle is not wired, and names the wiring step.
+- [x] `plugins/design/adapters/measure/configs/` contains `example.json` and no other file.
+- [x] `example.json` contains no project name, no external address and no stack-specific selector.
 
 ### Phase 5: Version and release
 
@@ -198,8 +198,8 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] The three version registers agree on 2.3.0.
-- [ ] The CHANGELOG carries a Breaking heading naming the three incompatible changes.
+- [x] The three version registers agree on 2.3.0.
+- [x] The CHANGELOG carries a Breaking heading naming the three incompatible changes.
 
 ### Phase 6: Transverse writing criterion
 
@@ -207,22 +207,39 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] No project name appears in the schema, the fixtures, the sample configuration or the gate action.
-- [ ] No stack is presupposed by the oracle documents.
-- [ ] Every field of the previous Markdown format is still covered after compression.
-- [ ] No duplication between `05-fidelity-gate.md`, `visual-diff-procedure.md` and `deviations-schema.md`.
+- [x] No project name appears in the schema, the fixtures, the sample configuration or the gate action.
+- [x] No stack is presupposed by the oracle documents.
+- [x] Every field of the previous Markdown format is still covered after compression.
+- [x] No duplication between `05-fidelity-gate.md`, `visual-diff-procedure.md` and `deviations-schema.md`.
 
 ## Amendments
 
+- **`generate.py` généralisé par rôle, pas seulement étendu.** Le plan (Phase 3 §5) demandait « d'ajouter » la vue ledger. L'implémentation a exigé un changement structurel : `generate.py` codait `tokens.json` comme source unique de tout émetteur. Ajout de `source_for(role)` (rôle `deviation ledger` → `deviations.json`, tous les autres → `tokens.json`) et d'un cache de sources dans `produce()`, sans toucher les trois émetteurs de tokens (drift-check Lot 2 resté vert). Sans cela, la vue aurait dérivé du mauvais artefact.
+- **`screenshot.py` renommé au-delà du gate grep.** Le gate strict ne scanne que `measure.py`+`config-gen.py`, et `screenshot.py` ne le déclenchait pas (occurrences collées à `_`). Mais il pilotait `maq_viewport` quand `config-gen.py` émet `mockup_viewport` — un décalage silencieux de viewport SPA. Renommé pour un vocabulaire unique, hors périmètre strict du gate mais dans l'intention de la Phase 3 §8 (« every caller … uses the new names »).
+- **`copycat-checklist-schema.md` génériqué.** Résidu Phase 6 non listé dans les fichiers à modifier : un exemple de schéma portait `"page": "mentions-legales"` / `out/mentions-legales.json`. Remplacé par `pricing` — un nom de projet dans un schéma viole le critère d'agnosticité.
+
 ## Log
+
+- Phase 1 — schéma `deviations.json` : `active`/`historical` distincts, seul `active` sanctionne, chaque champ du format Markdown a une correspondance. `references/deviations-schema.md`.
+- Phase 2 — passe `--ledger` de `migrate-contract.py` : dry-run rend une ligne par identifiant (DEV-001/002/003), anomalie signalée pour l'entrée sans `expected` (DEV-003), jamais silencieuse. Idempotente.
+- Phase 3 — `--ledger-registry` requis (absence → exit 2) ; statut+expiry honorés ; verdict `OPEN` sur id inconnu ou sans `expected` ; vue ledger dans `generate.py` (rôle `deviation ledger`, source `deviations.json`) octet-identique ; template requalifié en sortie ; deux fixtures oracle autoportantes (HTML local `file://`) ; renommage `maq|wp` → `mockup|implementation` propagé à tous les appelants.
+- Phase 4 — `05-fidelity-gate.md` réécrit (oracle câblé requis, refus nommé, diff pixel = détecteur jamais preuve) ; `visual-diff-procedure.md` réécrit ; `mentions-legales.json` supprimée, `example.json` générique créée ; scénario d'éval ajouté (2 prompts).
+- Phase 5 — 2.3.0 dans les trois registres ; CHANGELOG avec en-tête Breaking nommant les trois incompatibilités ; deux READMEs (contrat = cinq artefacts, topologie registre) et `design-plugin.md` (section Lot 4 + péremption des alias 2.1.0) mis à jour.
+- Phase 6 — aucun nom de projet dans schéma/fixtures/example/gate (résidu `copycat-checklist-schema.md` corrigé) ; aucun stack présupposé par les docs oracle ; format Markdown intégralement couvert ; pas de duplication entre les trois références (renvois croisés).
 
 ## Validation flow demonstration
 
-1. Run the ledger migration pass in dry-run on the Markdown fixture and check one report line per identifier.
-2. Write the structured source and run the pass again: no diff.
-3. Run `measure.py` on the conformant fixture and read `summary.verdict` in the written report: `CLOSED`.
-4. Run it on the fixture whose exception references an unknown identifier: `OPEN`.
-5. Expire an entry and rerun: `OPEN`.
-6. Call `measure.py` without `--ledger-registry` and confirm it refuses instead of measuring.
-7. Regenerate the Markdown view twice and confirm the two outputs are byte-identical.
-8. Confirm the three version registers read 2.3.0.
+Exécutée avec le venv `adapters/measure/.venv`, `FCONF=skills/enforce/fixtures/oracle/conformant`, `FUNK=skills/enforce/fixtures/oracle/unknown-deviation`, `FLED=skills/enforce/fixtures/oracle/ledger-1x`. `jq` indisponible → verdicts extraits en Python.
+
+| # | Étape | Commande | Résultat mesuré |
+|---|-------|----------|-----------------|
+| 1 | Migration ledger dry-run, une ligne par identifiant | `migrate-contract.py --ledger $FLED --dry-run` | ENTRIES 3 · DEV-001/002/003 listés · DEV-003 anomalie (pas d'`expected`) · exit 0 ✓ |
+| 2 | Source structurée, seconde passe sans diff | `generate.py` ×2 sur `ledger-view` puis `diff -r` | diff exit 0 (octet-identique) ✓ |
+| 3 | Conformant → `CLOSED` | `measure.py --config $FCONF/… --ledger-registry $FCONF/deviations.json` | `summary.verdict = CLOSED`, exit 0 ✓ |
+| 4 | Exception vers id inconnu → `OPEN` | `measure.py --config $FUNK/… --ledger-registry $FUNK/deviations.json` | `OPEN — ledger id DEV-999 absent des écarts actifs` ✓ |
+| 5 | Entrée expirée → `OPEN` | registre dérivé, `DEV-001.expires=2020-01-01` | `OPEN — ledger id DEV-001 expiré le 2020-01-01` ✓ |
+| 6 | Sans `--ledger-registry` → refus, pas de mesure | `measure.py --config $FCONF/… --out …` | exit 2, `error: the following arguments are required: --ledger-registry`, rien mesuré ✓ |
+| 7 | Vue Markdown générée deux fois, octet-identique | `generate.py` ×2 → `diff -r` | diff exit 0 ✓ |
+| 8 | Trois registres à 2.3.0 | lecture `plugin.json`/`marketplace.json`/`index.json` | 2.3.0 · 2.3.0 · 2.3.0 ✓ |
+
+Gate grep confirmé : `grep -rniE '\bwp\b|_in_wp|\bmaq\b'` sur `measure.py`+`config-gen.py` → aucun match (exit 1) ; le même scan sur `plugins/design/` ne matche que `CHANGELOG.md` et `audits/`. Drift-check Lot 2 sur le contrat de base et sur `ledger-view` → exit 0 (pas de dérive). L'usage de `measure.py` affiche `--side {mockup,implementation}` (renommage effectif).

@@ -23,15 +23,17 @@
     }
   },
   "charter": {
-    "present": false,
+    "present": true,
     "path": "design-system.md",
-    "version": null
+    "version": "1.0.0"
   },
   "provenance": {
-    "producedBy": "migrate-contract.py",
+    "producedBy": "adjust/02-freeze.md",
     "producedAt": "2026-07-24T00:00:00+00:00",
-    "from": "1.x contract"
+    "from": "direct freeze"
   },
-  "checks": null,
-  "status": "extracted"
+  "checks": {
+    "states": { "ran": true, "allPass": true }
+  },
+  "status": "validated"
 }

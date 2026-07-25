@@ -1,0 +1,17 @@
+/* GENERATED from tokens.json - do not edit by hand. Regenerate via tools/generate.py. */
+:root {
+  --color-brand-primary: #1f6feb;
+  --color-neutral-50: #f7f8fa;
+  --color-neutral-900: #11151c;
+  --color-semantic-background: var(--color-neutral-50);
+  --color-semantic-text: var(--color-neutral-900);
+}
+
+.dark {
+  --color-semantic-background: var(--color-neutral-900);
+  --color-semantic-text: var(--color-neutral-50);
+}
+
+[data-theme="grimoire"] {
+  --color-brand-primary: #7c3aed;
+}

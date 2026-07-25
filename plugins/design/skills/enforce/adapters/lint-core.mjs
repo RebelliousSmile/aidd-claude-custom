@@ -17,7 +17,7 @@
 //   The class vocabulary is OPEN by default: a class whose block is not declared is treated
 //   as a utility and ignored. It closes only under --strict, as a WARNING, and only on
 //   BEM-shaped classes (containing __ or --) outside $utilityPrefixes.
-//   Extending coverage belongs to a sc-<techno>:design-bridge pivot, never to a rule here.
+//   Extending coverage belongs to a sc-<language>:design-bridge pivot, never to a rule here.
 //   Every run states the contract it resolved and by which route; a guessed contract that is
 //   not the only one of its tree is refused (exit 2) rather than picked.
 //
@@ -38,19 +38,26 @@ import { fileURLToPath } from 'url';
 const rawArgs = process.argv.slice(2);
 const strict = rawArgs.includes('--strict');
 const reportUnused = rawArgs.includes('--report-unused');
+// Machine-readable report for tools/run-gates.py. Under --json, stdout is either empty or
+// exactly one JSON object: every diagnostic path already writes to stderr, so nothing else
+// can reach it. Adds no rule and changes no exit code — it is a second rendering of the run.
+const jsonOut = rawArgs.includes('--json');
 
 const usageBanner =
-  'Usage: node lint-core.mjs <markup-file> [--contract <dir>] [<contract-dir>] [--strict] [--report-unused]\n' +
-  '  Scans ONE markup file as text: class vocabulary (BEM mode), var(--…) references,\n' +
-  '  raw hex in style="…"/<style>, colour-utility namespaces (utility-first mode).\n' +
+  'Usage: node lint-core.mjs <markup-file> [--contract <dir>] [<contract-dir>] [--strict] [--report-unused] [--json]\n' +
+  '  Scans ONE markup file as text. Five rules, one file at a time, no state between runs:\n' +
+  '  class vocabulary (BEM mode), var(--…) references, raw hex in style="…"/<style>,\n' +
+  '  colour-utility namespaces (utility-first mode), unused manifest entries (--report-unused).\n' +
   '  Not covered: CSS, dynamic bindings, stored content, contrast, ARIA, cross-file checks.\n' +
-  '  Class vocabulary is open by default; --strict warns on BEM-shaped undeclared blocks.';
+  '  Class vocabulary is open by default; --strict warns on BEM-shaped undeclared blocks.\n' +
+  '  Rules outside this perimeter are declared in policies.json § usage.rules[] and realized\n' +
+  '  elsewhere — see references/enforcement-registry.md.';
 
 const positional = [];
 let namedContract = null;
 for (let i = 0; i < rawArgs.length; i++) {
   const a = rawArgs[i];
-  if (a === '--strict' || a === '--report-unused') continue;
+  if (a === '--strict' || a === '--report-unused' || a === '--json') continue;
   if (a === '--contract' || a.startsWith('--contract=')) {
     const value = a.startsWith('--contract=') ? a.slice('--contract='.length) : rawArgs[++i];
     if (!value || value.startsWith('--')) {
@@ -362,11 +369,16 @@ const validVars = new Set([...tokenPaths].map((p) => '--' + p.replace(/\./g, '-'
 
 const errors = [];
 const warnings = [];
+// Which of the five rules actually ran, marked at the rule site so the list cannot drift from
+// the guards. A rule left inert by `mode` or by an absent `usage` block is absent here: a green
+// run says nothing about a rule that never executed, and the runner must be able to see that.
+const realized = [];
 
 // Rule 1: class vocabulary (ERROR) — BEM mode only; Rules 3/4 carry utility-first instead.
 // Flags only classes whose block part is a declared base. Literal `class="…"`/`className="…"`
-// only — dynamic bindings are an accepted gap, covered by the sc-<techno>:design-bridge pivot.
+// only — dynamic bindings are an accepted gap, covered by the sc-<language>:design-bridge pivot.
 if (mode !== 'utility-first') {
+  realized.push('class-vocabulary');
   for (const match of html.matchAll(/class(?:Name)?\s*=\s*["']([^"']+)["']/g)) {
     for (const cls of match[1].trim().split(/\s+/)) {
       if (!cls) continue;
@@ -391,6 +403,7 @@ if (mode !== 'utility-first') {
 
 // Rule 2: CSS custom property reference check (ERROR)
 // Catches var(--token-name) references to non-existent tokens.
+realized.push('token-reference');
 for (const match of html.matchAll(/var\((--[\w-]+)\)/g)) {
   const varName = match[1];
   if (!validVars.has(varName)) {
@@ -403,6 +416,7 @@ for (const match of html.matchAll(/var\((--[\w-]+)\)/g)) {
 // hex-shaped strings elsewhere (`href="#cafe"`, hash routes) cannot false-positive. Generated
 // adapters are never lint targets, so they need no path exclusion.
 if (usage && usage.rawHexForbidden) {
+  realized.push('raw-hex');
   const hexRe = /#[0-9a-fA-F]{3,8}\b/g;
   for (const match of html.matchAll(/style\s*=\s*["']([^"']*)["']/g)) {
     for (const hex of match[1].matchAll(hexRe)) {
@@ -424,6 +438,7 @@ if (usage && usage.rawHexForbidden) {
 // not colours), and only `<prefix>-<namespace>-<2-3 digit shade>` is treated as a colour
 // reference. Trade-off: unshaded keywords (`bg-white`) escape the check.
 if (mode === 'utility-first' && usage && Array.isArray(usage.colorUtilityPrefixes) && usage.colorUtilityPrefixes.length) {
+  realized.push('colour-namespace');
   const colorNamespaces = new Set(Object.keys(baseTokens.color || {}));
   const escaped = usage.colorUtilityPrefixes.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
   const classRe = new RegExp(`^(?:${escaped.join('|')})-(.+)$`);
@@ -452,6 +467,7 @@ if (mode === 'utility-first' && usage && Array.isArray(usage.colorUtilityPrefixe
 // positive, which is why this direction never blocks.
 const unused = [];
 if (reportUnused) {
+  realized.push('unused-declaration');
   for (const comp of Object.values(components)) {
     const entries = [comp.base, ...Object.values(comp.elements || {}), ...Object.values(comp.modifiers || {})];
     for (const entry of entries) {
@@ -463,6 +479,24 @@ if (reportUnused) {
 // Report. The resolved contract is stated on every run, pass or fail: a verdict is only
 // meaningful against a named contract, and a reader must never have to infer which one.
 const label = `[lint-core] ${htmlFile}`;
+
+if (jsonOut) {
+  process.stdout.write(JSON.stringify({
+    tool: 'lint-core',
+    file: htmlFile,
+    contract: contractDir,
+    contractOrigin,
+    mode,
+    strict,
+    realized,
+    errors,
+    warnings,
+    unused,
+    exit: errors.length ? 1 : 0,
+  }) + '\n');
+  process.exit(errors.length ? 1 : 0);
+}
+
 console.log(`  CONTRACT ${contractDir} (${contractOrigin}), mode ${mode}`);
 for (const w of warnings) console.warn(`  WARN  ${w}`);
 for (const e of errors) console.error(`  ERROR ${e}`);

@@ -1,0 +1,8 @@
+{
+  "$schema": "design/references/gate-config-schema",
+  "contract": "utility",
+  "linter": "../adapters/lint-core.mjs",
+  "targets": ["utility-dirty.html"],
+  "strict": false,
+  "pivotReports": []
+}

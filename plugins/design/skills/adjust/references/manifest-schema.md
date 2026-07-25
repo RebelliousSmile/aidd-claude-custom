@@ -15,7 +15,8 @@ Les quatre autres fichiers du contrat, l'étiquetage des champs, la dérivation 
       "elements":  { "<element-label>": "<BEM-element>" },
       "modifiers": { "<variant-label>": "<BEM-modifier>" },
       "backgrounds": ["<token.path>"],
-      "a11y": { "role": "<ARIA-role>", "requires": ["<attribute>"] }
+      "a11y": { "role": "<ARIA-role>", "requires": ["<attribute>"] },
+      "states": { "disabled": <bool>, "error": <bool>, "focus": <bool> }
     }
   }
 }
@@ -34,8 +35,9 @@ Chaque champ est **exécutable** — un consommateur nommé le lit et en tire un
 | `.elements` | non | exécutable · `lint-core.mjs` Règles 1 et 5 · `config-gen.py` (une cible par élément) | Map `label → BEM-element` |
 | `.modifiers` | non | exécutable · `lint-core.mjs` Règles 1 et 5 | Map `label → BEM-modifier` |
 | `.backgrounds` | non | exécutable · `adjust/02-freeze.md` (existence du chemin, au figeage) | Chemins de tokens autorisés comme fond. Omis = pas de contrainte. Aucune règle de lint ne vérifie le fond réellement appliqué (Invariant 4) |
-| `.a11y.role` | non | informationnel | Rôle ARIA attendu. Aucun consommateur ne le vérifie |
-| `.a11y.requires` | non | informationnel | Attributs ARIA requis. Aucun consommateur ne les vérifie |
+| `.a11y.role` | non | exécutable · pivot (`markup`) | Rôle ARIA attendu. Non calculable au figeage ; réalisé par un pivot de markup (`references/enforcement-registry.md`) |
+| `.a11y.requires` | non | exécutable · pivot (`markup`) | Attributs ARIA requis. Même réalisateur que `role` |
+| `.states` | non | exécutable · `tools/status.py` (contrôle d'états au figeage) | Présence déclarative des états interactifs. Trois clés booléennes fermées — `disabled`, `error`, `focus` : `true` = le composant présente l'état, `false` = il l'omet intentionnellement. Objet omis = composant statique. Objet **partiel** (une clé manquante) = gap `states` (§ Invariant 7) |
 
 La version de cet artefact vit dans `release.json § artifacts["components.json"].version` — jamais ici.
 
@@ -47,8 +49,9 @@ Chaque invariant porte une étiquette : **exécutable** — un consommateur nomm
 2. **Pas de doublons** — *informationnel*. Deux composants ne peuvent pas partager le même `.base`.
 3. **Concordance avec la charte** — *exécutable · `adjust/02-freeze.md § Étape 2 Règle 4`, au figeage seulement*. Chaque composant listé dans `design-system.md § Inventaire des composants` a une entrée ici, et réciproquement. Aucun lint ne re-vérifie cette concordance après le figeage.
 4. **Backgrounds token-référencés** — *exécutable · `adjust/02-freeze.md § Étape 2 Règle 3`, au figeage seulement*. Chaque chemin de `.backgrounds` doit exister dans `tokens.json` ; un chemin absent bloque le figeage. `lint-core.mjs` ne porte aucune règle de fond : il ne lit pas `.backgrounds` et ne compare aucune couleur de conteneur.
-5. **Contraste par thème** — *gap déclaré, non vérifié à cette version*. Pour une variante sombre dont `.backgrounds` liste un token surchargé dans un thème (`token-schema.md § Modes / themes`), le contraste WCAG AA texte/fond devrait être évalué contre la valeur **résolue dans le thème concerné**, jamais contre la valeur `default`. Aucun outil du plugin ne calcule ce ratio. La conformité contraste d'un contrat figé est **non établie**.
+5. **Contraste par thème** — *exécutable · `adjust/02-freeze.md`, au figeage, via `adapters/a11y/contrast.py`*. Le contraste WCAG AA texte/fond est calculé depuis les valeurs de tokens **résolues dans chaque thème** (`token-schema.md § Modes / themes`), jamais contre la seule valeur `default`. Le résultat est enregistré dans `release.json § checks.contrast` et pèse sur le statut de maturité (`contract-schema.md § Statut de maturité`) ; une paire qui échoue est un gap `contrast`. Ce contrôle ne lit aucun markup : il n'établit pas que le fond est réellement appliqué (Invariant 4), seulement que les valeurs déclarées contrastent.
 6. **Concordance avec le code réel (retrofit)** — *exécutable · `adjust/02-freeze.md § Étape 2bis`, au figeage, via `lint-core.mjs` Règles 1 et 4*. `components.json` doit concorder avec les classes/utilitaires réellement présents dans le code préexistant, pas seulement avec la prose de la charte (Invariant 3, concordance distincte). Mode-aware, always-on, auto-neutralisante en greenfield. Divergence **code → manifeste** : bloquante. Divergence **manifeste → code** (`--report-unused`) : jamais bloquante, ledger optionnel.
+7. **Présence déclarative des états** — *exécutable · `adjust/02-freeze.md`, au figeage, via `tools/status.py`*. Le contrôle lit `.states` **par composant** et rapporte sa présence, sans inspecter aucun markup. Une déclaration `.states` doit être complète — les trois clés `disabled`/`error`/`focus` présentes ; une déclaration partielle est un gap `states`. Le figeage vérifie que l'état interactif est déclarativement rendu compte (présent ou intentionnellement omis), jamais qu'il est réellement implémenté dans le rendu — cet aspect relève du pivot de markup, côté HOW (dec-002).
 
 La parité de versions entre artefacts n'est plus un invariant : `release.json` déclare une version par artefact et un écart est une donnée (`contract-schema.md § Disparition de l'invariant 5`).
 
@@ -67,7 +70,8 @@ La parité de versions entre artefacts n'est plus un invariant : `release.json` 
         "ghost":     "btn--ghost"
       },
       "backgrounds": ["color.semantic.background", "color.semantic.surface", "color.brand.primary"],
-      "a11y": { "role": "button", "requires": [] }
+      "a11y": { "role": "button", "requires": [] },
+      "states": { "disabled": true, "error": false, "focus": true }
     },
     "card": {
       "base": "card",

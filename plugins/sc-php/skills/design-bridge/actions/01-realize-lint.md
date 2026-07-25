@@ -22,11 +22,11 @@ Vérifier que le spec est présent avant de continuer. Si absent, signaler que `
 
 WordPress FSE combine PHP (templates), JSON (block patterns, theme.json) et HTML (contenu en DB). La stratégie est en deux couches :
 
-| Couche | Outil | Cible |
-|--------|-------|-------|
-| HTML/classes dans templates PHP | Script PHP checker | Fichiers `.php` contenant des attributs `class="..."` |
-| Contenu HTML en DB | `lint-core.mjs` existant | Via export `wp post get` (voir `wordpress.md`) |
-| theme.json (palette WP) | Vérification JSON | Cohérence avec tokens.json |
+| Type d'enforcement | Couche | Outil | Cible |
+|---|--------|-------|-------|
+| `source-graph` | classes dans les templates PHP | script PHP checker | fichiers `.php` portant des attributs `class="…"` |
+| `stored-content` | contenu HTML en base | `lint-core.mjs`, sur export | via `wp post get` (`${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-lint-instances.md`) |
+| `platform-config` | palette déclarée par la plateforme | vérification JSON | cohérence `theme.json` ↔ `tokens.json` |
 
 ## Étape 1 — Générer le PHP class checker
 
@@ -107,21 +107,31 @@ console.log(JSON.stringify(slugs));
 
 Chaque slug WP doit correspondre à un chemin de token dans le spec. Une divergence est signalée comme warning (non bloquant mais documenté).
 
-## Étape 3 — Wiring pre-commit
+## Étape 3 — Écrire le rapport et le brancher au gate
 
-Ajouter la vérification PHP au hook pre-commit existant (`scripts/hooks/pre-commit` câblé par enforce/02-wire-gates) :
+Le hook pre-commit n'est **pas** étendu : il exécute la commande unique du gate (`design/skills/enforce/references/gate-wiring.md § La commande unique`). Un checker appelé à côté produirait un second verdict que rien n'agrège.
 
-```bash
-# Ajouter dans scripts/hooks/pre-commit après le bloc HTML existant
+Le checker écrit son résultat au format `plugins/design/references/gate-config-schema.md § Rapport de pivot`, une entrée par règle de `Declared rules` :
 
-CHANGED_PHP=$(git diff --cached --name-only --diff-filter=ACM | grep '\.php$')
-if [ -n "$CHANGED_PHP" ]; then
-  echo "[design lint php] Checking staged PHP files..."
-  for f in $CHANGED_PHP; do
-    php design/lint/check-classes.php "$f" || FAIL=1
-  done
-fi
+| Règle | Statut à écrire |
+|---|---|
+| réalisée, aucune violation | `pass` |
+| réalisée, violations trouvées | `fail` + une entrée `violations` par occurrence, fichier nommé |
+| aucune instance extraite, ou couche indisponible | `unrealized` |
+
+La troisième ligne est le cas courant des règles `stored-content` : sans extraction préalable, il n'y a rien à lire, et un `pass` y serait un mensonge sur du contenu jamais ouvert.
+
+Puis déclarer le rapport dans la configuration du gate :
+
+```json
+{
+  "pivotReports": [
+    { "path": "reports/design-php.json", "command": ["php", "design/lint/check-classes.php", "--report"] }
+  ]
+}
 ```
+
+Avec `command`, le runner relance le checker avant de lire — un rapport périmé devient impossible.
 
 ## Étape 4 — Tester
 
@@ -137,8 +147,9 @@ php design/lint/check-classes.php /tmp/test.php         # exit 1
 ## Sortie attendue
 
 > Linter PHP/WP installé :
-> - `design/lint/check-classes.php` (classes PHP templates)
-> - `scripts/hooks/pre-commit` étendu (PHP)
-> - Cohérence theme.json : [OK / N warnings]
+> - `design/lint/check-classes.php` (classes dans les templates)
+> - Rapport écrit à `<Report path>` — réalisées : \<ids\>, non réalisées : \<ids + raison\>
+> - Branché dans `gates.config.json § pivotReports` avec `command`
+> - Cohérence de la configuration de plateforme : [OK / N warnings]
 >
 > Retour à design:enforce — gate PHP opérationnel.

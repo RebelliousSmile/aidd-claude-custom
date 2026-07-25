@@ -8,19 +8,38 @@ Prendre la spec neutre produite par `01-define-element` et la rendre dans la sta
 
 - Spec neutre complète et validée (issue de `01-define-element`).
 - `design/lint/lint-core.mjs` installé (ou utiliser le plugin source : `plugins/design/skills/enforce/adapters/lint-core.mjs`).
+- Contrat figé (`release.json` présent) — les artefacts dérivés n'existent qu'à partir du figeage.
+
+## Étape 0 — Gate de dérive (obligatoire)
+
+Rendre sur des dérivés périmés, c'est valider contre un état que les sources ont quitté.
+
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/tools/generate.py --check --contract design/
+```
+
+| Exit | Sens | Suite |
+|---|---|---|
+| 0 | dérivés à jour | rendre |
+| 1 | dérive — retouche manuelle, ou source non régénérée | **stop** : le message nomme le fichier ; corriger la **source**, relancer `generate.py --contract design/` |
+| 2 | contrat invalide | **stop** → `/design:adjust` |
+| 3 | contrat 1.x | **stop** → `adjust/03-migrate` |
+
+Aucun drapeau ne neutralise un exit 1.
 
 ## Étape 1 — Sélectionner l'adaptateur
 
+L'adaptateur se choisit sur **le langage dans lequel l'artefact doit exister**, jamais sur le nom du framework ou de la plateforme : c'est le langage qui décide quel réceptacle sait l'écrire.
+
 | Condition | Adaptateur |
 |-----------|-----------|
-| Stack cible = WordPress FSE ET sc-php disponible | `03-pivot` → sc-php:design-bridge |
-| Stack cible = Vue / React / JS ET sc-js disponible | `03-pivot` → sc-js:design-bridge |
-| Aucun sc-* disponible OU stack non identifiée | `${CLAUDE_PLUGIN_ROOT}/skills/diffuse/adapters/html-css.md` (baseline) |
+| Langage de la cible identifié ET `sc-<langage>` installé | `03-pivot` → `sc-<langage>:design-bridge` |
+| Langage identifié, `sc-<langage>` absent OU langage non identifié | `${CLAUDE_PLUGIN_ROOT}/skills/diffuse/adapters/html-css.md` (baseline) |
 
-Si la stack cible n'a pas été précisée dans `01-define-element`, demander avant de continuer :
-> Stack cible pour ce rendu ? (WordPress FSE / Vue / React / HTML+CSS baseline / autre)
+Si le langage de la cible n'a pas été précisé dans `01-define-element`, demander avant de continuer :
+> Dans quel langage l'artefact doit-il exister ? (langage de template ou de composant du projet / HTML+CSS baseline)
 
-Si la branche **baseline** est retenue (dernière ligne du tableau), le rendu produit est contractuellement une **preview non intégrée** (cf. `adapters/html-css.md § Statut de la sortie`), jamais un livrable applicatif. Si une stack JS ou WP est détectée sans que le `sc-<techno>` correspondant soit installé, noter dès cette étape la recommandation conditionnelle : « installer `sc-<techno>` pour un rendu natif `design-bridge` ». Sur une cible statique ou une stack non identifiée, pas de recommandation de pivot — seule la preview + sa note de promotion sont dues (Étape 5).
+Si la branche **baseline** est retenue, le rendu produit est contractuellement une **preview non intégrée** (cf. `adapters/html-css.md § Statut de la sortie`), jamais un livrable applicatif. Si un langage de cible est identifié sans que le `sc-<langage>` correspondant soit installé, noter dès cette étape la recommandation conditionnelle : « installer `sc-<langage>` pour un rendu natif `design-bridge` ». Sur une cible statique ou un langage non identifié, pas de recommandation de pivot — seule la preview + sa note de promotion sont dues (Étape 5).
 
 ## Étape 2 — Rendre
 
@@ -51,14 +70,16 @@ Annoncer le résultat et proposer la prochaine action.
 
 **Ne jamais livrer un rendu en exit 1.** Si la correction est bloquée (la spec neutre elle-même référence une classe qui n'est plus dans le manifeste), interrompre et proposer de re-figer via `/design:adjust`.
 
-## Étape 4 — Propagation WP (si applicable)
+## Étape 4 — Propagation aux instances (si applicable)
 
-Si le rendu produit un block pattern WordPress, déléguer la propagation à `${CLAUDE_PLUGIN_ROOT}/skills/enforce/actions/03-lint-instances.md` :
-- Le pattern source est mis à jour.
-- Le pattern est réimporté en DB via le script d'import du projet.
-- Les pages qui utilisent ce pattern sont re-lintées.
+Applicable dès que le rendu est **recopié** dans un magasin de contenu au lieu d'y être référencé : chaque instance est alors une copie indépendante, que corriger la source ne met pas à jour. C'est le type d'enforcement `stored-content` (`${CLAUDE_PLUGIN_ROOT}/references/enforcement-registry.md`).
 
-Voir `${CLAUDE_PLUGIN_ROOT}/references/wordpress-pitfalls.md § Piège 2 : Block patterns = copies indépendantes`.
+Déléguer la propagation à `${CLAUDE_PLUGIN_ROOT}/skills/enforce/actions/03-lint-instances.md` :
+- La source du rendu est mise à jour.
+- Les instances déjà stockées sont réécrites depuis cette source.
+- Les instances sont re-lintées après réécriture.
+
+Une source corrigée sans propagation laisse le gate vert sur les fichiers et faux sur le contenu servi.
 
 ## Étape 5 — Livraison
 
@@ -66,11 +87,11 @@ Voir `${CLAUDE_PLUGIN_ROOT}/references/wordpress-pitfalls.md § Piège 2 : Block
 
 Annoncer à l'utilisateur :
 
-> Rendu livré : `<fichier>` (<stack>)
+> Rendu livré : `<fichier>` (<langage de la cible>)
 > Gate enforce : vert (0 erreur, <N> warning(s))
 > Variantes produites : <liste>
 >
-> [Si WP] Propagation nécessaire → relancer `${CLAUDE_PLUGIN_ROOT}/skills/enforce/actions/03-lint-instances` pour mettre à jour les instances en DB.
+> [Si le rendu est recopié en instances] Propagation nécessaire → relancer `${CLAUDE_PLUGIN_ROOT}/skills/enforce/actions/03-lint-instances` pour réécrire les instances stockées.
 
 ### Rendu baseline (preview non intégrée)
 
@@ -78,8 +99,8 @@ Le message de livraison énonce systématiquement les trois éléments du hand-o
 
 > Rendu livré : `<fichier>` — **preview HTML/CSS non intégrée**, pas un composant applicatif.
 > Gate enforce : vert (0 erreur, <N> warning(s)) — **un lint vert n'implique pas un artefact intégré** : ce hand-off est une obligation de livraison additionnelle, pas un relâchement du gate.
-> Chemin de promotion : ce rendu deviendrait `<composant/fichier réel envisagé, ex. components/Card.vue ou template-parts/card.php>` une fois porté dans la stack cible.
-> [Si stack JS/WP détectée sans pivot installé] Installer `sc-<techno>` pour un rendu natif `design-bridge` (composant Vue/React idiomatique ou block pattern WP) au lieu de cette preview.
+> Chemin de promotion : ce rendu deviendrait `<chemin réel du composant ou du template dans le projet>` une fois porté dans le langage de la cible.
+> [Si un langage de cible est identifié sans pivot installé] Installer `sc-<langage>` pour un rendu natif `design-bridge` — artefact idiomatique du langage — au lieu de cette preview.
 
 ## Exemple — rendu baseline d'un `card` (fixture enforce)
 

@@ -30,7 +30,7 @@ Resume rule: a run spawns agents only for pages whose `status` is not `signed-of
   "mode": "bulk",
   "generated_at": "<ts>",
   "units": [
-    { "page": "mentions-legales", "status": "measured", "breakpoints": {"desktop":"measured","mobile":"measured","tablet":"derived"}, "oracle_report": "out/mentions-legales.json", "model": "haiku", "notes": "eyebrow missing on target" }
+    { "page": "pricing", "status": "measured", "breakpoints": {"desktop":"measured","mobile":"measured","tablet":"derived"}, "oracle_report": "out/pricing.json", "model": "haiku", "notes": "eyebrow missing on target" }
   ]
 }
 ```

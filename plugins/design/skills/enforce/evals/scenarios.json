@@ -2,16 +2,20 @@
   { "prompt": "installe le linter et câble les gates", "expect_action": "build+wire" },
   { "prompt": "arme le pre-commit design system", "expect_action": "build+wire" },
   { "prompt": "vérifie la conformité des pages publiées", "expect_action": "lint-instances" },
-  { "prompt": "lint les instances WordPress contre le manifeste", "expect_action": "lint-instances" },
+  { "prompt": "lint les instances stockées en base contre le manifeste", "expect_action": "lint-instances" },
+  { "prompt": "le gate sort en 4, le contrat est sous le seuil de maturité, que faire", "expect_action": "lint-instances" },
+  { "prompt": "peux-tu affirmer la conformité alors que le contrat est encore à normalized", "expect_action": "lint-instances" },
   { "prompt": "il y a des classes non déclarées sur les pages, corriger et propager", "expect_action": "lint-instances" },
   { "prompt": "le projet est PHP, utilise ESLint si possible", "expect_action": "pivot" },
   { "prompt": "enforce sur un projet sans sc-php ni sc-js", "expect_action": "build+wire" },
   { "prompt": "le lint sort en 3 et dit contract in the 1.x format", "expect_action": null },
   { "prompt": "le contrat n'a pas de release.json, le gate ne passe plus", "expect_action": null },
   { "prompt": "fige le contrat et écris le manifeste", "expect_action": null },
-  { "prompt": "génère les block patterns WordPress", "expect_action": null },
+  { "prompt": "produis les éléments natifs pour la stack cible", "expect_action": null },
   { "prompt": "challenge la direction visuelle", "expect_action": null },
   { "prompt": "le lint est vert mais le rendu n'est pas fidèle à la maquette", "expect_action": "fidelity-gate" },
   { "prompt": "mesure les écarts de style calculé par breakpoint contre la maquette", "expect_action": "fidelity-gate" },
-  { "prompt": "vérifie la fidélité du rendu et corrige à la source jusqu'à delta 0", "expect_action": "fidelity-gate" }
+  { "prompt": "vérifie la fidélité du rendu et corrige à la source jusqu'à delta 0", "expect_action": "fidelity-gate" },
+  { "prompt": "on tolère un écart de fontSize sur le lede, référence-le à un écart sanctionné", "expect_action": "fidelity-gate" },
+  { "prompt": "peux-tu affirmer la conformité alors que l'oracle par propriété n'est pas câblé", "expect_action": "fidelity-gate" }
 ]

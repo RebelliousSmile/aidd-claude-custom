@@ -2,72 +2,60 @@
 
 ## Rôle
 
-Câbler les 4 gates du linter dans le projet : import `tokens.css`, rules de génération, success_condition des plans, hook pre-commit auto-armé. Voir `${CLAUDE_PLUGIN_ROOT}/skills/enforce/references/gate-wiring.md` pour la spécification complète de chaque gate.
+Câbler les 4 gates dans le projet : import de la feuille de tokens, rules de génération, `success_condition` des plans, hook pre-commit auto-armé. Spécification complète de chaque point : `${CLAUDE_PLUGIN_ROOT}/skills/enforce/references/gate-wiring.md`.
 
 ## Prérequis
 
-`lint-core.mjs` installé dans le projet (`01-build-linter` terminé, gate vert ou violations documentées).
+`01-build-linter` terminé : `run-gates.py`, `lint-core.mjs` et `gates.config.json` installés dans le projet, gate vert ou violations documentées.
 
 ## Processus
 
 ### Étape 1 — Identifier le périmètre
 
-Déterminer quels fichiers et templates sont concernés par le design system dans ce projet :
-- Fichiers HTML (wireframes, templates, pages)
-- Templates PHP/Twig/Blade/Nunjucks qui émettent du HTML
-- Block patterns WordPress (HTML stocké en DB)
+Lister les fichiers qui portent le vocabulaire du design system : markup statique, templates qui émettent du markup, composants du build. Ce périmètre s'écrit dans `gates.config.json § targets` — c'est là qu'il est lu, nulle part ailleurs.
 
-Documenter la liste dans le compte-rendu (utilisée par les gates 2 et 3).
+Ce qui n'est pas un fichier du dépôt (feuilles de style, contenu stocké, configuration de plateforme) ne va pas dans `targets` : ces règles se déclarent en `usage.rules[]` avec leur type d'enforcement et sont réalisées par un pivot (`${CLAUDE_PLUGIN_ROOT}/references/enforcement-registry.md`).
 
-### Étape 2 — Vérifier/câbler Gate 0 (Import `tokens.css`)
+### Étape 2 — Vérifier/câbler Gate 0 (import de la feuille de tokens)
 
-Vérifier que `design/adapters/tokens.css` (et `theme.css`/l'extend Tailwind si présent) est bien importé comme **premier** stylesheet de l'app, sans `:root` concurrent. Si `adjust/02-freeze` l'a déjà câblé, ne rien refaire — juste confirmer. Sinon, câbler maintenant selon la stack (cf. `gate-wiring.md § Gate 0`) et signaler l'absence de câblage préexistant comme un finding si l'app avait ses propres variables ad hoc.
+Vérifier que les artefacts émis par `generate.py` sont chargés en tête, sans `:root` concurrent (`gate-wiring.md § Gate 0`). Déjà câblé par `adjust/02-freeze` ⇒ confirmer sans refaire. Sinon câbler, et signaler l'absence préexistante comme un finding si l'app avait ses propres variables.
 
-### Étape 3 — Câbler Gate 1 (Rules de génération)
-
-Selon le contexte du projet :
+### Étape 3 — Câbler Gate 1 (rules de génération)
 
 **Projet avec rules Claude Code** : créer ou compléter `.claude/rules/08-design/01-enforce.md` :
 
 ```markdown
 ## Design system gate
 
-Avant de générer du HTML ou des classes CSS :
+Avant de générer du markup ou des classes :
 - Lire `design/components.json` (classes) et `design/tokens.json` (valeurs) — n'utiliser QUE ce qui y est déclaré.
 - Toute classe non déclarée dans `components.json` est une violation ; STOP avant de générer.
-- Pour ajouter une classe : d'abord re-figer via `/design:adjust`, puis re-jouer `/design:enforce`.
+- Pour ajouter une classe : re-figer via `/design:adjust`, puis re-jouer `/design:enforce`.
 ```
 
-**Projet sans rules Claude Code** : noter l'instruction dans le SKILL.md de `diffuse` (partie `requires:`).
+**Projet sans rules Claude Code** : porter l'instruction dans le `SKILL.md` de `diffuse` (partie `requires:`).
 
-### Étape 4 — Câbler Gate 2 (success_condition)
+### Étape 4 — Câbler Gate 2 (`success_condition`)
 
-Pour chaque plan aidd-dev actif ou à créer qui touche du markup, ajouter dans son frontmatter la condition mono- ou multi-cibles de `gate-wiring.md § Gate 2`. Une cible par invocation : le linter scanne un fichier à la fois.
+Ajouter la condition de `gate-wiring.md § Gate 2` au frontmatter de chaque plan touchant du markup. Une seule condition, quel que soit le nombre de cibles.
 
 ### Étape 5 — Câbler Gate 3 (pre-commit)
 
-Créer `scripts/hooks/pre-commit` avec le contenu de `${CLAUDE_PLUGIN_ROOT}/skills/enforce/references/gate-wiring.md § Gate 3`.
+Créer `scripts/hooks/pre-commit` avec le contenu de `gate-wiring.md § Gate 3`, le rendre exécutable, ajouter le `postinstall` d'auto-armement.
 
-Rendre exécutable :
-```bash
-chmod +x scripts/hooks/pre-commit
-```
-
-Ajouter le `postinstall` dans `package.json` pour l'auto-armement.
-
-Valider : modifier un fichier HTML avec une violation et vérifier que `git commit` est bloqué.
+Valider : introduire une violation dans une cible et vérifier que `git commit` est refusé.
 
 ### Étape 6 — Versionner et documenter
 
-1. Committer `scripts/hooks/pre-commit` et la mise à jour de `package.json`.
+1. Committer `scripts/hooks/pre-commit`, `design/lint/gates.config.json` et l'auto-armement.
 2. Documenter dans `design-system.md § Provenance` : "Gates enforce câblés le [date]".
 
 ## Sortie attendue
 
 > Gates câblés :
-> - Gate 0 (import `tokens.css`) : déjà câblé par `adjust` / câblé maintenant — `:root` concurrents supprimés
+> - Gate 0 (import) : déjà câblé par `adjust` / câblé maintenant — `:root` concurrents supprimés
 > - Gate 1 (rules) : `.claude/rules/08-design/01-enforce.md` créé
-> - Gate 2 (success_condition) : N plans mis à jour
-> - Gate 3 (pre-commit) : `scripts/hooks/pre-commit` créé, `postinstall` ajouté
+> - Gate 2 (`success_condition`) : N plans mis à jour
+> - Gate 3 (pre-commit) : `scripts/hooks/pre-commit` créé, auto-armement ajouté
 >
 > Test Gate 3 : commit avec violation → bloqué ✓

@@ -193,7 +193,16 @@ flowchart TD
 
 ## Amendments
 
+- **A1 — `define` ne peut pas appeler le générateur.** Phase 4 tâche 2 demandait d'invoquer le générateur depuis `define/04-write-material`. Impossible : `define` a interdiction d'écrire `release.json` et `policies.json`, qui sont les entrées **requises** du générateur. Résolution : `define` écrit `tokens.json` + la charte et **détecte** les rôles consommateurs en § Provenance ; les artefacts dérivés n'existent qu'à partir du figeage (`adjust/02-freeze`). L'intention du lot est tenue — aucun modèle n'écrit d'artefact dérivé — sans casser l'invariant de séparation des phases.
+- **A2 — branche.** Travail porté par `feat/design-2-0`, pas par une branche `…/lot-2-generate`.
+- **A3 — renommage `config-gen.py` fait, et fait additivement.** Le CHANGELOG 2.0.1 § Reporté justifiait le report par « le Lot 2 touche déjà ce fichier » : c'est faux, `config-gen.py` n'est pas dans la liste de fichiers du Lot 2. La promesse est honorée quand même, mais **sans rupture** — anciens drapeaux conservés en alias, anciennes clés de config lues en repli par `measure.py` et `screenshot.py`. Une 2.1.0 est mineure : retirer un drapeau requis y serait illégitime. La fenêtre de rupture reste disponible pour une majeure.
+- **A4 — critère « fichiers d'instruction plus courts qu'avant » : non tenu, assumé.** Décomptes en mots : `02-freeze` +132, `02-render` +116, `write-system-procedure` +84, `diffuse/SKILL` +65, `04-write-material` +8, `html-css` +11. Après passe de compression (tables resserrées, redites supprimées), le solde reste positif : le lot **ajoute un gate obligatoire et un enregistrement de dérive** à trois points de l'entonnoir. Documenter une obligation nouvelle en moins de mots qu'avant supposerait de retirer de la norme. Les trois autres critères de la Phase 6 sont tenus. Le critère reste valable pour les lots qui remplacent plutôt qu'ils n'ajoutent.
+- **A5 — résidus stack/projet laissés au Lot 3.** `references/token-schema.md § Adapter: Tailwind` (section entière nommant une plateforme) et `adapters/measure/configs/mentions-legales.json` (nom de projet). Le plan maître assigne la **relocalisation** au Lot 3, qui ouvre les trois pivots. Traitement Lot 2, minimal et non relocalisant : un chapeau sur la section rappelle que ces deux artefacts sont les rôles `stylesheet source` / `build configuration` du générateur, ne s'écrivent pas à la main, et que la section est en attente de relocalisation.
+- **A6 — fixtures figées avec leurs dérivés.** Les contrats `fixtures/` et `fixtures/themed/` portent désormais `release.json § generated` **et** les artefacts correspondants sous `adapters/`. Sans cela le `--check` des fixtures échouait en permanence (« generated, then deleted ») — un contrat de test doit être un contrat cohérent. `fixtures/utility` et `fixtures/retrofit` ne déclarent aucun `consumer` : rien à émettre, exit 0.
+
 ## Log
+
+- **2026-07-24** — Lot 2 livré sur `feat/design-2-0`. `tools/generate.py` créé (seul producteur, émetteurs indexés par rôle de consommateur), `token-schema.md § Generator specification` + `§ Path-to-variable transform`, `contract-schema.md § Enregistrement de dérive`, `policies.json § adapters[]` promu exécutable. Câblages : `adjust/02-freeze` génère après `release.json`, `diffuse/02-render` Étape 0 = `--check` bloquant, `define/04-write-material` détecte sans écrire (cf. A1). Bonus hors périmètre : renommage additif des drapeaux de `config-gen.py` (cf. A3). Version 2.1.0 dans les trois registres. Non commité — le commit reste à la main de l'utilisateur.
 
 ## Validation flow demonstration
 
@@ -202,3 +211,20 @@ flowchart TD
 3. Change a source without regenerating and run the check: fails on the stale hash.
 4. Remove the consumer declaration of one adapter and regenerate: that adapter is not emitted.
 5. Confirm the three version registers read 2.1.0.
+
+## Verification run — 2026-07-24
+
+| # | Contrôle | Commande | Résultat |
+|---|---|---|---|
+| 1 | Déterminisme | `generate.py --contract fixtures --out g1` puis `--out g2`, `diff -r g1 g2` | exit 0, arbres identiques octet pour octet (3 artefacts, 1 skip) |
+| 2 | Arbre intact | `generate.py --check --contract fixtures` | exit 0 |
+| 3 | Retouche manuelle | édition de `g1/adapters/tokens.css` puis `--check` | exit 1, message nommant le fichier |
+| 4 | Source périmée | hash falsifié dans `release.json` puis `--check` | exit 1, `recorded` / `current` affichés |
+| 5 | Entrée sans `consumer` | `adapters/legacy.styl` dans `policies.json` | non émis, `skipped … no declared consumer` sur stderr |
+| 6 | Contrat 1.x | `--contract fixtures/migration` | exit 3 + commande de migration |
+| 7 | Répertoire absent | `--contract fixtures/nope` | exit 2 |
+| 8 | Aucun consommateur déclaré | `--check --contract fixtures/utility`, idem `fixtures/retrofit` | exit 0, `Nothing to emit` |
+| 9 | Thèmes | `fixtures/themed` généré puis `--check` | exit 0 ; CSS `:root` + `.dark` + `[data-theme="grimoire"]`, mêmes noms de variables |
+| 10 | Non-régression linter | baseline des huit fixtures, ordre lexicographique | `0 1 0 1 0 1 0 1` — inchangée |
+| 11 | Registres de version | `plugin.json`, `marketplace.json`, `index.json` | 2.1.0 concordants (diff : exactement 3 lignes) |
+| 12 | Agnosticité du générateur | grep noms de projet et de plateforme dans `tools/` | aucune occurrence |

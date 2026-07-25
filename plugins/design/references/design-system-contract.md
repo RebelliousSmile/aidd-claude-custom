@@ -52,7 +52,7 @@ design/
 `design/critique/` n'est **pas** un artefact du contrat : c'est un rapport informationnel, non versionné, produit par `destructure` (voir Consumption rules ci-dessous). L'ancien chemin `design/destructure-report.md` reste un alias accepté en lecture pour compatibilité.
 
 - If a project already nests UI under a sub-package (monorepo), prefer that package root; record the chosen home at the top of `design-system.md`.
-- Never scatter tokens across multiple sources. `tokens.json` is canonical; `adapters/*` are **generated** and must never be hand-edited (a header banner says so). Which adapters get generated is conditioned on the consumers present in the project — canonical rule: `write-system-procedure.md § Adapter emission rule`.
+- Never scatter tokens across multiple sources. `tokens.json` is canonical; `adapters/*` are produced by `tools/generate.py` alone and must never be hand-edited — a header banner says so, and `generate.py --check` fails on any edit, with no flag to suppress it. Which adapters get generated is conditioned on the consumers present in the project — canonical rule: `write-system-procedure.md § Adapter emission rule`.
 - Les quatre artefacts et `release.json` sont absents avant `adjust` — c'est normal. `define` et `destructure` travaillent sur la matière malléable ; `adjust` est le seul verbe autorisé à les écrire.
 
 ## Anatomie des composants

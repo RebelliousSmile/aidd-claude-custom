@@ -7,7 +7,9 @@ phone-frame are neutralized before capture so the screenshot is the bare page.
 
 Usage:
   python screenshot.py --config configs/<page>.json --out out/shots
-Outputs: <out>/<page>__<side>__<breakpoint>.png  (filenames NFC-normalized).
+Outputs: <out>/<page>__<side>__<breakpoint>.png  (side is mockup | implementation,
+filenames NFC-normalized). Config keys are the ones config-gen.py emits: reference_url,
+reference_page, mockup_viewport, implementation_url — one vocabulary with measure.py.
 """
 from __future__ import annotations
 
@@ -41,7 +43,7 @@ def _slug(s: str) -> str:
 
 def capture(cfg: dict, out_dir: Path) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
-    page_key = cfg.get("maquette_page") or "page"
+    page_key = cfg.get("reference_page") or "page"
     written: list[Path] = []
 
     with sync_playwright() as pw:
@@ -50,25 +52,28 @@ def capture(cfg: dict, out_dir: Path) -> list[Path]:
             for bp in cfg["breakpoints"]:
                 ctx = browser.new_context(viewport={"width": bp["width"], "height": bp["height"]})
                 try:
-                    # mockup side
-                    if cfg.get("maquette_url"):
+                    # mockup side — the reference that decides
+                    ref_url = cfg.get("reference_url")
+                    ref_page = cfg.get("reference_page")
+                    if ref_url:
                         m = ctx.new_page()
-                        m.goto(cfg["maquette_url"], wait_until="networkidle", timeout=20000)
-                        if bp.get("maq_viewport"):
-                            m.evaluate("(v) => window.setViewport && window.setViewport(v)", bp["maq_viewport"])
-                        if cfg.get("maquette_page"):
-                            m.evaluate("(k) => window.setPage && window.setPage(k)", cfg["maquette_page"])
+                        m.goto(ref_url, wait_until="networkidle", timeout=20000)
+                        if bp.get("mockup_viewport"):
+                            m.evaluate("(v) => window.setViewport && window.setViewport(v)", bp["mockup_viewport"])
+                        if ref_page:
+                            m.evaluate("(k) => window.setPage && window.setPage(k)", ref_page)
                         m.evaluate(_PREPARE)
                         m.wait_for_timeout(500)
-                        p = out_dir / f"{_slug(page_key)}__maq__{bp['name']}.png"
+                        p = out_dir / f"{_slug(page_key)}__mockup__{bp['name']}.png"
                         m.screenshot(path=str(p), full_page=True)
                         written.append(p)
-                    # target side
-                    if cfg.get("wp_url"):
+                    # implementation side — what is measured against the reference
+                    impl_url = cfg.get("implementation_url")
+                    if impl_url:
                         w = ctx.new_page()
-                        w.goto(cfg["wp_url"], wait_until="networkidle", timeout=20000)
+                        w.goto(impl_url, wait_until="networkidle", timeout=20000)
                         w.wait_for_timeout(300)
-                        p = out_dir / f"{_slug(page_key)}__wp__{bp['name']}.png"
+                        p = out_dir / f"{_slug(page_key)}__implementation__{bp['name']}.png"
                         w.screenshot(path=str(p), full_page=True)
                         written.append(p)
                 finally:

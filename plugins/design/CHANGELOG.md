@@ -1,5 +1,119 @@
 # Changelog — design
 
+## [2.4.0] — 2026-07-25
+
+Mineur — **chaque contrat porte un statut de maturité calculé qui commande l'invocation de la conformité, et tout écart connu plafonne ce statut au lieu d'être noté en prose**. Le statut est une échelle à quatre échelons — `extracted` (les artefacts existent) · `normalized` (+ charte) · `validated` (+ vérifications enregistrées) · `production-ready` (+ contraste vert et états déclaratifs complets) — calculée par une seule implémentation, `tools/status.py`. La conformité ne s'affirme qu'au **seuil `validated`** : en deçà, `tools/run-gates.py` **sort en 4** — les violations restent listées, mais la conformité n'est pas affirmée et le rapport nomme le chemin qui remonte le statut. Le seuil a une seule source humaine (`references/maturity-status.md`) et une seule source exécutable (la constante `THRESHOLD` de `status.py`, importée par `run-gates.py`). Aucune règle de lint n'est ajoutée ni retirée ; les configurations Lot 3 (contrat à `validated`) sortent toujours en 0 et 1.
+
+### Pas de droit acquis — un contrat migré entre à `normalized`
+
+Un contrat migré depuis 1.x n'hérite d'aucune conformité : il entre à `normalized`, donc **sous le seuil**, conformité suspendue jusqu'à ce que les vérifications soient enregistrées et le statut relevé. Le gate continue de bloquer les vraies violations (il ne se relâche jamais), mais il ne **certifie** rien tant que le contrat n'a pas grimpé. Le vert du linter porte sur le vocabulaire d'un fichier ; il n'a jamais valu attestation de maturité, et la sortie 4 rend cette distinction opposable.
+
+### L'a11y calculable est scindée par ce qui l'est, et quand (dec-002)
+
+- **Contraste texte/fond** — calculé par le plugin au figeage, déterministe, depuis les valeurs de tokens **résolues dans chaque thème** (`adapters/a11y/contrast.py`). Deux exécutions rendent une sortie octet-pour-octet identique, une ligne `pass`/`fail` par paire et par thème. Enregistré dans `release.json § checks.contrast` ; une paire qui échoue est un gap `contrast`.
+- **Présence déclarative des états** `disabled`/`error`/`focus` — vérifiée par le plugin au figeage, **sans aucun markup** (`tools/status.py --states`, lit `components.json § .states`). Une déclaration partielle est un gap `states`.
+- **Rôles et attributs ARIA** — restent du markup : réalisés par un pivot `sc-<langage>:design-bridge`, non réalisés à l'exécution sans pivot installé. Le plugin ne les affirme jamais.
+
+### Les écarts vivent dans l'artefact, plus dans la prose
+
+`release.json § gaps[]` porte chaque écart connu avec `class` / `caps` / `detail` ; le gap **plafonne** la maturité (charte absente → `extracted` · contraste jamais calculé → `normalized` · une paire de contraste ou un état qui échoue → `validated`). Le figeage ne **bloque plus** sur un point a11y non vert : il l'enregistre en gap et laisse `status.py` plafonner. Ce qui n'est pas atteint est constaté, jamais transformé en refus de figer ni dissous en commentaire.
+
+### Ajouté
+
+- `references/maturity-status.md` — l'énoncé humain unique des quatre statuts, du seuil et de la table classe-de-gap → plafond. Référencé par `enforce`, `diffuse` et `harness` ; aucun ne réénonce la valeur du seuil.
+- `adapters/a11y/contrast.py` — l'oracle de contraste WCAG AA par thème, déterministe, `--json`. Exit 0 ou 2.
+- `tools/status.py` étendu — constante `THRESHOLD`, `meets_threshold()`, contrôle des états (`--states`), plafonnement par `gaps[]`.
+- `skills/enforce/fixtures/status/{layer-3-absent,no-contrast-run,validated}` — trois contrats calculant exactement `extracted`, `normalized`, `validated`.
+- `skills/enforce/fixtures/gates.below-threshold.config.json` — contrat `no-contrast-run`, cibles dirty : le runner sort en 4 en listant les mêmes violations que la config dirty.
+
+### Modifié
+
+- `tools/run-gates.py` — oppose le seuil de maturité après le lint : sous le seuil, exit 4, violations toujours listées, chemin de remontée nommé. Importe `THRESHOLD` de `status.py`.
+- `skills/adjust/actions/02-freeze.md` — calcule contraste et états au figeage, enregistre `checks` et `gaps`, écrit le statut rendu par `status.py`. Ne refuse plus de figer sur un point a11y non vérifié.
+- `references/contract-schema.md`, `skills/adjust/references/manifest-schema.md`, `references/enforcement-registry.md` — champ `status` opposable, bloc `checks`, enregistrement des `gaps`, champ `.states` fermé (trois clés booléennes), table « qui réalise quel volet a11y ».
+
+## [2.3.0] — 2026-07-25
+
+Mineur — **la conformité n'est affirmée que par l'oracle par propriété, et tout écart toléré référence une entrée d'écart portant sa valeur attendue**. Le gate de fidélité cesse de pouvoir se rabattre sur un diff pixel vert : `measure.py` lit un registre d'écarts obligatoire, ne sanctionne un écart que via une entrée `active` non expirée portant son `expected`, et rend un verdict `CLOSED`/`OPEN` par propriété. Le registre `deviations.json` gagne une **vue Markdown générée** (`tools/generate.py`, rôle `deviation ledger`) : on édite le JSON, jamais la vue, et deux générations successives sont octet-pour-octet identiques. Un vocabulaire unique remplace le jargon projet dans tout l'oracle : `mockup`/`implementation` au lieu de `maq`/`wp`.
+
+### Breaking — trois changements incompatibles
+
+1. **`--ledger-registry` devient requis.** `measure.py` invoqué sans cet argument sort en **2** (erreur d'invocation) en nommant l'argument manquant, au lieu de mesurer. Un rendu non validé contre un registre n'est jamais déclaré conforme. Aucun alias, aucun défaut implicite.
+2. **Les valeurs de `--side` sont renommées.** `maq|wp` → `mockup|implementation`. Idem pour les clés de config et de rapport : `maq`/`maquette`/`wp` → `mockup`/`implementation`, `missing_in_wp`/`extra_in_wp` → `_in_implementation`, `maq_count`/`wp_count` → `mockup_count`/`implementation_count`, `maq_viewport` → `mockup_viewport`. Les anciennes clés ne sont plus lues.
+3. **La configuration d'exemple est remplacée.** Le config projet (`configs/mentions-legales.json`, adresses externes et sélecteurs spécifiques à une stack) est retiré ; `configs/example.json` le remplace — générique, deux adresses `localhost`, sélecteurs BEM neutres, aucun nom de projet.
+
+### Conséquence assumée — l'oracle exige un câblage explicite
+
+Le gate de fidélité refuse désormais d'affirmer la conformité quand une référence externe existe mais que l'oracle n'est pas câblé : il **refuse** et nomme l'étape (`config-gen.py` → config → `deviations.json` → `measure.py --ledger-registry`). Le refus est un état distinct du vert et du rouge. Ce n'est pas un durcissement gratuit : c'est le prix de ne plus laisser un diff pixel vert certifier une surface que l'oracle n'a pas mesurée.
+
+## [2.2.0] — 2026-07-24
+
+Mineur — **enforcement distribué : chaque règle déclarée a un réalisateur nommé, ou est visiblement déclarée non réalisée**. Le linter portable cesse d'être présenté comme le gate du système : son périmètre est écrit, et ce qu'il ne peut pas lire est typé, routé vers un pivot, et rendu au gate par un rapport. Un runner Python agrège le tout et renvoie **le même code de sortie aux trois sites d'appel**. Aucune règle de lint n'est ajoutée ni retirée, et la baseline des huit fixtures reste `0 1 0 1 0 1 0 1`.
+
+### Conséquence assumée — Python devient un prérequis de pre-commit
+
+Le runner est écrit en Python. **Tout projet consommateur doit donc disposer de Python 3.10+ pour armer son pre-commit, y compris un projet dont la source est du JavaScript pur** ; Node.js 18+ reste requis pour que le runner invoque `lint-core.mjs`. Ce n'est pas un effet de bord : c'est le prix de l'agrégation, énoncé plutôt que découvert. L'alternative — un runner Node — aurait rendu impossible l'appel depuis un projet sans Node, et le contrat en compte déjà (PHP, Python). Le prérequis est écrit une seule fois, dans `skills/enforce/references/gate-wiring.md`, et rappelé par l'exit **2** du runner quand un runtime manque : jamais un `1` silencieux, jamais une trace d'exception.
+
+### Ce qu'une règle non réalisée change
+
+Rien au code de sortie — et c'est le point. Une règle sans réalisateur n'est ni une violation ni une conformité : elle est **listée avec sa raison**. Avant, elle disparaissait ; un rapport vert certifiait alors une surface que personne n'avait ouverte. Aucun drapeau ne masque un `unrealized`.
+
+| Situation | Rapport du gate | Exit |
+|---|---|---|
+| règle réalisée, aucune violation | `REALIZED <id> (<type>) by <realizer>` | inchangé |
+| règle réalisée, violations | une entrée `VIOLATION` par occurrence | 1 |
+| réceptacle qui déclare ne pas la couvrir | `UNREALIZED <id> - <realizer> reports it unrealized` | inchangé |
+| réceptacle non lancé, ou rapport absent | `UNREALIZED <id> - no report from its realizer` | inchangé |
+
+### Ajouté
+
+- `tools/run-gates.py` — runner d'agrégation. **Il route, il n'évalue jamais** : il ne lit que la configuration, `policies.json`, la sortie `--json` du linter et les rapports de pivot ; il n'ouvre aucun fichier cible et ne fait correspondre aucun motif. Exits : `0` conforme · `1` violation · `2` invocation ou environnement (configuration illisible, type d'enforcement inconnu, runtime absent) · `3` contrat 1.x.
+- `references/enforcement-registry.md` — les valeurs typées de `enforcement`, leur réalisateur et leur cible de pivot. Le type est **la preuve que la règle doit lire**, jamais le nom d'une plateforme : `markup` · `stylesheet` · `source-graph` · `stored-content` · `platform-config` · `unrealized`.
+- `references/gate-config-schema.md` — `gates.config.json` (le périmètre exécutable : contrat, cibles, rapports de pivot) et le **format du rapport de pivot**, spécifié là parce que c'est le fichier d'entrée du runner, et dupliqué nulle part. Une entrée de `pivotReports` accepte `{ "path", "command" }` : avec `command`, le runner relance le réalisateur natif avant de lire — un rapport périmé devient impossible.
+- `skills/enforce/fixtures/gates.clean.config.json` et `gates.dirty.config.json` — le runner sort en 0 sur l'un, en 1 sur l'autre.
+- `lint-core.mjs --json` — sortie lisible par machine : violations, règles réalisées, fichier scanné. Aucune règle nouvelle.
+
+### Modifié
+
+- **Périmètre du linter portable, déclaré** (`skills/enforce/SKILL.md`) — c'est un scanner de chaînes, fichier par fichier, sans dépendance. Il ne résout ni cascade, ni graphe d'imports, ni liaison dynamique, ni contenu hors du disque. Ce périmètre est désormais écrit à côté du runner et du registre, comme trois choses distinctes.
+- **Obligation de report côté pivots** (`references/sc-pivot-contract.md`, `skills/enforce/actions/04-pivot.md`) — le spec d'enforcement émet les règles assignées avec leur type et un `Report path` ; le réceptacle écrit un rapport **pour chaque règle assignée, réalisée ou non**. Réalisée dans sc-css 0.2.0, sc-js 0.12.0, sc-php 0.6.0.
+- **Un seul appel, partout** (`skills/enforce/actions/02-wire-gates.md`, `references/gate-wiring.md`) — `python design/lint/run-gates.py --config design/lint/gates.config.json`, en local, en pre-commit et en CI. La boucle par fichier décrite dans le câblage pre-commit disparaît : un second linter appelé à côté produirait un deuxième verdict que rien n'agrège.
+
+### Déplacé — les plateformes quittent le cœur
+
+`references/wordpress-pitfalls.md` et `skills/enforce/adapters/wordpress.md` partent chez `sc-php`, contenu inchangé hors chemins de référence. Le principe qu'ils violaient : **une contrainte de plateforme appartient au réceptacle qui la sert**. Les fichiers d'instruction qui les citaient énoncent désormais la règle génériquement, la cible étant résolue par le registre d'enforcement.
+
+Conséquence sur le routage de `enforce` : la table « à deux tracks » nommée par plateforme est remplacée par **deux propriétés du terrain, indépendantes** — tout le markup vit-il dans des fichiers versionnés ? une référence visuelle externe existe-t-elle ? Un projet peut avoir du contenu stocké sans maquette, ou l'inverse. Le nom de la plateforme n'en décide aucune. L'adaptateur de mesure (`adapters/measure/`) reste la dernière surface à nommer une plateforme dans son API : renommée au lot suivant.
+
+## [2.1.0] — 2026-07-24
+
+Mineur — **les artefacts dérivés cessent d'être écrits par un modèle**. `tools/generate.py` en devient le seul producteur : il lit les sources JSON du contrat, émet un artefact par entrée de `policies.json § adapters[]` déclarant un `consumer`, et grave dans `release.json § generated` l'empreinte de chaque source lue. `--check` refuse une retouche manuelle et une source périmée. Aucune règle de lint ne change, la baseline des huit fixtures reste `0 1 0 1 0 1 0 1`.
+
+### Ce qui n'est plus écrit à la main
+
+`adapters/tokens.css` et tout autre artefact dérivé déclaré dans la table de correspondance. Avant : `define/04-write-material` les écrivait en brouillon, `diffuse` les supposait à jour, et rien ne mesurait l'écart. Après :
+
+| Étape | Avant | Après |
+|---|---|---|
+| `define/04-write-material` | écrit `tokens.json` **et** les adapters | écrit `tokens.json` seul ; **détecte** les consommateurs et les consigne en § Provenance |
+| `adjust/02-freeze` | écrit `release.json`, fin | écrit `release.json`, puis `generate.py --contract design/` — les artefacts et leur enregistrement de dérive |
+| `diffuse/02-render` | rend, puis lint | **Étape 0** : `generate.py --check` ; exit ≠ 0 ⇒ pas de rendu |
+
+Une retouche manuelle d'un artefact dérivé est désormais un échec de dérive, **et aucun drapeau ne la neutralise** : la correction est de changer la source puis de régénérer. Un artefact généré puis supprimé est également une dérive. Ne le sont pas : un contrat sans clé `generated` (rien n'a jamais été figé — `--check` n'a pas de repère) et une entrée `adapters[]` sans `consumer` (déclarée, jamais produite).
+
+### Ajouté
+
+- `tools/generate.py` — génération déterministe. Ordre de source jamais retrié, LF, une déclaration par ligne, bannière nommant les sources : deux exécutions produisent des arbres identiques octet pour octet. Exit `0` succès · `1` dérive · `2` invocation ou artefact structurellement invalide · `3` contrat 1.x.
+- `references/token-schema.md § Generator specification` — entrées, sélection, émetteurs **par rôle de consommateur**, ordre, formatage, résolution des alias et des thèmes. Aucun émetteur n'est indexé par un nom de stack : le contrat déclare un rôle, le générateur choisit l'émetteur, et une forme propre à une plateforme reste au pivot qui la possède (DEC-002).
+- `references/token-schema.md § Path-to-variable transform` — la transformation chemin → variable, énoncée **une seule fois**, partagée par le générateur, `lint-core.mjs` et l'adaptateur baseline de `diffuse`.
+- `references/contract-schema.md § Enregistrement de dérive` — `release.json § generated`, un `sha256` **par source réellement lue**, pas un hash unique sur le jeu concaténé : le message de dérive doit nommer la source qui a bougé, pas constater qu'une l'a fait.
+
+### Modifié
+
+- `policies.json § adapters[]` passe d'informationnel à **exécutable** : c'est la liste d'émission. `write-system-procedure.md § Adapter emission rule` décrit désormais une **détection** de consommateurs, table exprimée en rôles, et non plus une écriture de fichiers.
+- La résolution des alias dépend du rôle : `{color.neutral.50}` devient `var(--color-neutral-50)` pour un rôle feuille de style — la cascade porte les thèmes — et la valeur littérale pour les autres rôles, qui n'ont pas de cascade.
+- `config-gen.py` : `--maquette-url` → `--reference-url`, `--wp-url` → `--implementation-url` (dette annoncée en 2.0.1 § Reporté). Deux rôles au lieu d'une plateforme et d'une abréviation. **Les anciens noms restent acceptés** comme alias, et `measure.py` / `screenshot.py` lisent les anciennes clés de config en repli : un config déjà écrit reste mesurable sans réécriture. Clés canoniques : `reference_url`, `reference_page`, `implementation_url`.
+
 ## [2.0.1] — 2026-07-24
 
 Patch — **un artefact structurellement invalide sort en 2 en nommant le champ, au lieu de rendre un verdict vert**. Le 2.0.0 avait posé la règle « une décision que l'outil refuse de deviner sort en 2 » et l'avait appliquée deux fois — `mode` non déclaré, argument de contrat manquant — sans balayer la classe. Cinq sites la prenaient encore pour acquise. Aucune règle de lint n'est ajoutée ni retirée, aucune surface CLI ne change, et la baseline des huit fixtures reste `0 1 0 1 0 1 0 1`.

@@ -38,15 +38,23 @@ Lire `plugins/design/references/sc-pivot-contract.md` pour le format attendu du 
 
 Le linter et le rendu **dérivent du spec reçu** — ils n'inventent pas de règles ni de classes. Toute classe produite par `02-render` doit être dans le spec's valid class sets. Toute règle de lint dans `01-realize-lint` doit correspondre à un token path ou une classe du spec.
 
+## Obligation de report
+
+Toute règle reçue en `Declared rules` est **rendue au gate**, réalisée ou non. Le rapport s'écrit au `Report path` du spec, au format `plugins/design/references/gate-config-schema.md § Rapport de pivot`.
+
+Une règle que ce réceptacle ne couvre pas s'écrit en `status: "unrealized"`. Sans elle, une règle hors de portée et une règle oubliée laissent la même trace — aucune — et le gate ne peut que les confondre.
+
+Le cas fréquent ici : les règles de type `stored-content`. Le vocabulaire vit en base, hors du dépôt ; il n'est lisible qu'après extraction (`references/wordpress-lint-instances.md`). Sans instance extraite, la règle est non réalisée, quel que soit l'état du code.
+
 ## Retour au design
 
 Après exécution, renvoyer au contexte appelant (enforce ou diffuse) :
-- `01-realize-lint` : confirmation linter installé + wiring pre-commit réalisé
+- `01-realize-lint` : confirmation linter installé + wiring pre-commit réalisé + rapport écrit, règles réalisées et non réalisées nommées
 - `02-render` : fichier(s) produit(s) + instructions d'intégration + confirmation gate enforce exit 0
 
 ## Pièges WP
 
-Lire `plugins/design/references/wordpress-pitfalls.md` avant toute action WP :
+Lire `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md` avant toute action WP :
 - CLI conteneur obligatoire (`pnpm dlx @wordpress/env run cli wp`)
 - Classes appariées `has-background` / `has-text-color`
 - `wp eval-file` deprecated en PHP 8.2
@@ -73,6 +81,8 @@ Routes (par ordre de préférence) :
 ## Références
 
 - `plugins/design/references/sc-pivot-contract.md` — format des specs reçus
-- `plugins/design/references/wordpress-pitfalls.md` — pièges WP
+- `plugins/design/references/gate-config-schema.md` — format du rapport à écrire
+- `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md` — pièges WP
+- `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-lint-instances.md` — réalisation des règles `stored-content` (extraction du contenu en base)
 - `plugins/design/references/token-schema.md` — structure tokens.json
 - `plugins/design/skills/adjust/references/manifest-schema.md` — structure components.json

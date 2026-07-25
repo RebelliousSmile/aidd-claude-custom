@@ -11,7 +11,7 @@ Followed by `define/04-write-material` (in draft mode). Writes the canonical des
 
 1. **Create the design home** `design/` if absent (or the recorded sub-package root).
 2. **Write `design/tokens.json`** — W3C DTCG, every required group from `token-schema.md`, `{alias}` references for semantic→ramp links. This is the source of truth.
-3. **Generate the adapters the project actually consumes** — see § Adapter emission rule below. Shapes and naming: `token-schema.md`. Every generated file carries the "GENERATED — do not edit" banner.
+3. **Detect the consumers the project actually has, and record them** — see § Adapter emission rule below. No adapter file is written here.
 4. **Write `design/design-system.md`** with the contract's required sections:
    - Provenance (origin, date, `version:` line).
    - Foundations (narrative; point to `tokens.json` for values, don't restate every number).
@@ -24,21 +24,25 @@ Followed by `define/04-write-material` (in draft mode). Writes the canonical des
 
 **Canonical statement. Every other document conditions adapter emission by pointing here.**
 
-One adapter is emitted per consumer **present in the project**, never per consumer the plugin knows how to write. Detect from the project's declared dependencies and configuration files, not from habit.
+Detection here, emission elsewhere. `tools/generate.py` is the only producer of an adapter file; it runs at freeze time and emits one artifact per `policies.json § adapters[]` entry declaring a `consumer`. This procedure decides **which entries that table will hold**.
 
-| Consumer detected | Artifact | Condition |
+One entry per consumer **present in the project**, never per consumer the plugin knows how to write — read the project's declared dependencies and configuration files, not habit.
+
+| Consumer detected | `consumer` role | Condition |
 |---|---|---|
-| A stylesheet pipeline of any kind (always true for a browser-rendered project) | `design/adapters/tokens.css` | default; the only adapter every consuming stack can read |
-| A utility-CSS framework consuming a theme declaration | its own theme artifact, in the form and major version installed (`token-schema.md § Adapter: Tailwind`) | the framework is a declared dependency |
-| A platform with its own design-token file format | that platform's file, written by the pivot that owns the platform | the platform is the project's runtime |
+| A stylesheet pipeline of any kind (always true for a browser-rendered project) | `stylesheet` | default; the only artifact every consuming stack can read |
+| A pre-processed stylesheet source in the build | `stylesheet source` | the pre-processor is a declared dependency |
+| A build step consuming tokens as a module | `build configuration` | the tool is a declared dependency |
+| A runtime platform with its own design-token file format | `platform token file` | the platform is the project's runtime |
 
-- No detected consumer beyond CSS → emit `tokens.css` alone. This is a complete result, not a degraded one.
-- Never emit an adapter for a stack the project does not use: an unread generated file drifts silently and is indistinguishable from a maintained one.
-- Record in `design-system.md § Provenance` which adapters were emitted and, for each, on what evidence.
+- No detected consumer beyond the stylesheet → one `stylesheet` entry alone. This is a complete result, not a degraded one.
+- Never declare a consumer the project does not have: an unread generated file drifts silently and is indistinguishable from a maintained one.
+- A detected consumer whose role is not in the table is recorded **without** a `consumer`. It is then declared and not emitted — the honest state for an artifact nobody knows how to produce.
+- Record in `design-system.md § Provenance` which consumers were detected and, for each, on what evidence. That record is the input `adjust` promotes into `policies.json § adapters[]`.
 
 ## Atomicity
 
-- Write `tokens.json` and regenerate **every emitted** adapter in the same pass; never leave them inconsistent.
+- `tokens.json` is written here alone; no adapter exists yet to fall out of step with it. The pair exists from the freeze onward, kept consistent by `generate.py --check`.
 - If `design/tokens.json` already exists, diff against it: bump the version per the contract's rule and summarize what changed instead of silently overwriting.
 
 ## Report
@@ -50,4 +54,4 @@ One adapter is emitted per consumer **present in the project**, never per consum
 
 ## Test
 
-`design/tokens.json`, `design/adapters/tokens.css` and `design/design-system.md` exist; every adapter listed in § Provenance exists and no other adapter file was written; the adapters' values match `tokens.json`; `design-system.md` has all five required sections and a `version:` line.
+`design/tokens.json` and `design/design-system.md` exist; **no file was written under `design/adapters/`**; § Provenance names every detected consumer and its evidence; `design-system.md` has all five required sections and a `version:` line.

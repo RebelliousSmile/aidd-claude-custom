@@ -1,5 +1,12 @@
 # Changelog — sc-js
 
+## [0.12.0] — 2026-07-24
+
+### Reçu du pivot design (design 2.2.0)
+
+- **Obligation de report** (`design-bridge/SKILL.md`) — toute règle reçue en `Declared rules` est rendue au gate, réalisée ou non, au format `plugins/design/references/gate-config-schema.md § Rapport de pivot`. Cas fréquent ici : les **liaisons dynamiques** (`:class`, `class:list`, `x-bind:class`, chaînes calculées). Une règle dont la preuve n'est lisible qu'à l'exécution ne se réalise pas par AST — elle se déclare `unrealized`. Sans cette déclaration, elle est indistinguable d'une règle oubliée.
+- **`design-bridge/actions/01-realize-lint.md § Étape 2`** — le hook pre-commit n'est plus étendu par ce pivot. Il exécute la **commande unique du gate**, identique en local, en pre-commit et en CI (`design/skills/enforce/references/gate-wiring.md § La commande unique`) ; un second linter appelé à côté produirait un deuxième verdict que rien n'agrège. L'étape écrit désormais le rapport et le branche dans `gates.config.json § pivotReports` avec un `command`, pour que le runner relance la vérification avant de lire.
+
 ## [0.11.0] — 2026-07-22
 
 ### Pivot `testing` — frontières externes

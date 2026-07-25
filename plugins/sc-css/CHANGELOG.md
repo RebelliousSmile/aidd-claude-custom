@@ -1,5 +1,13 @@
 # Changelog — sc-css
 
+## [0.2.0] — 2026-07-24
+
+### Reçu du pivot design (design 2.2.0)
+
+- **`design-bridge/actions/03-realize-lint.md`** (nouveau) — réalisation native des règles de type `stylesheet` : celles dont la preuve est **les feuilles de style réellement chargées**, sélecteurs compris. Le cœur portable de `design:enforce` scanne du markup fichier par fichier ; il ne peut ni résoudre une cascade ni voir un second `:root` redéclarant une custom property du contrat — le cas le plus destructeur, puisque le markup reste littéralement conforme pendant que la valeur dérive. Le périmètre est déclaré (feuilles dérivées du contrat + feuilles applicatives de `Enforcement target`) : une feuille hors périmètre et un style injecté à l'exécution sortent en `unrealized`, jamais en `pass`.
+- **Obligation de report** (`design-bridge/SKILL.md`) — toute règle reçue en `Declared rules` est rendue au gate, réalisée ou non, au format `plugins/design/references/gate-config-schema.md § Rapport de pivot`. Sans `status: "unrealized"` explicite, une règle hors de portée et une règle oubliée laissent la même trace — aucune — et le gate ne peut que les confondre.
+- Le rapport se déclare dans `gates.config.json § pivotReports` avec un `command` : le runner relance la vérification avant de lire, ce qui rend un rapport périmé impossible.
+
 ## [0.1.0] — 2026-06-16
 
 Initial release — **couche CSS technique du pipeline design**.

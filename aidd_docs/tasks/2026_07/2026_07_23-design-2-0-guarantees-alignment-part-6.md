@@ -128,9 +128,9 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] Each status states its requirement and its authorization.
-- [ ] `maturity-status.md` carries a table mapping each gap class to the status it caps at, so the same recorded gaps always yield the same status.
-- [ ] The threshold has one executable source, the constant in `status.py`, and one human source, `maturity-status.md`. Nothing else under `plugins/design/` carries the value: the three routers that mention the threshold, `enforce`, `diffuse` and `harness`, reference `maturity-status.md` and restate no literal, and `run-gates.py` reads the constant rather than repeating it.
+- [x] Each status states its requirement and its authorization.
+- [x] `maturity-status.md` carries a table mapping each gap class to the status it caps at, so the same recorded gaps always yield the same status.
+- [x] The threshold has one executable source, the constant in `status.py`, and one human source, `maturity-status.md`. Nothing else under `plugins/design/` carries the value: the three routers that mention the threshold, `enforce`, `diffuse` and `harness`, reference `maturity-status.md` and restate no literal, and `run-gates.py` reads the constant rather than repeating it.
 
 ### Phase 2: Computable a11y checks
 
@@ -145,9 +145,9 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] Two consecutive runs of `contrast.py` over the same contract produce byte-identical output.
-- [ ] The state check reports presence per component, without inspecting markup.
-- [ ] Roles and attributes appear in the registry with a pivot realizer, not as a plugin claim.
+- [x] Two consecutive runs of `contrast.py` over the same contract produce byte-identical output.
+- [x] The state check reports presence per component, without inspecting markup.
+- [x] Roles and attributes appear in the registry with a pivot realizer, not as a plugin claim.
 
 ### Phase 3: Status computation at freeze
 
@@ -162,10 +162,10 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] `fixtures/status/layer-3-absent` computes exactly `extracted`.
-- [ ] `fixtures/status/no-contrast-run` computes exactly `normalized`.
-- [ ] `fixtures/status/validated` computes exactly `validated`.
-- [ ] No freeze path fails on an unverified point; each records a gap instead.
+- [x] `fixtures/status/layer-3-absent` computes exactly `extracted`.
+- [x] `fixtures/status/no-contrast-run` computes exactly `normalized`.
+- [x] `fixtures/status/validated` computes exactly `validated`.
+- [x] No freeze path fails on an unverified point; each records a gap instead.
 
 ### Phase 4: Opposability
 
@@ -181,9 +181,9 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] Below the threshold, the runner exits 4, the report still lists every violation found, and the message names the raising path.
-- [ ] At or above the threshold, the exit codes of Lot 3 are unchanged: 0 on the clean configuration, 1 on the dirty one.
-- [ ] `run-gates.py` reads the threshold constant from `status.py` and hard-codes no status literal of its own.
+- [x] Below the threshold, the runner exits 4, the report still lists every violation found, and the message names the raising path.
+- [x] At or above the threshold, the exit codes of Lot 3 are unchanged: 0 on the clean configuration, 1 on the dirty one.
+- [x] `run-gates.py` reads the threshold constant from `status.py` and hard-codes no status literal of its own.
 
 ### Phase 5: Version and release
 
@@ -195,8 +195,8 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] The three version registers agree on 2.4.0.
-- [ ] The CHANGELOG states that migrated contracts enter at normalized.
+- [x] The three version registers agree on 2.4.0.
+- [x] The CHANGELOG states that migrated contracts enter at normalized.
 
 ### Phase 6: Transverse writing criterion
 
@@ -204,14 +204,24 @@ flowchart TD
 
 #### Acceptance criteria
 
-- [ ] No project name appears in the maturity documents, the tools or the fixtures.
-- [ ] No status requirement presupposes a stack.
-- [ ] Every previously recorded open question is now a recorded gap, none lost.
-- [ ] No duplication between `maturity-status.md`, `02-freeze.md` and the `enforce`, `diffuse` and `harness` routers: each router references the reference, none restates it.
+- [x] No project name appears in the maturity documents, the tools or the fixtures.
+- [x] No status requirement presupposes a stack.
+- [x] Every previously recorded open question is now a recorded gap, none lost.
+- [x] No duplication between `maturity-status.md`, `02-freeze.md` and the `enforce`, `diffuse` and `harness` routers: each router references the reference, none restates it.
 
 ## Amendments
 
+- **Chemin du runner corrigé.** L'« Architecture projection » et le `success_condition` nomment `plugins/design/skills/enforce/adapters/run-gates.py`. Le runner réel, livré au Lot 3, est `plugins/design/tools/run-gates.py` ; ce répertoire `adapters/` ne contient que `lint-core.mjs`. Le chemin du plan est périmé, aucun `run-gates.py` n'a jamais vécu sous `adapters/`. Le Lot 5 édite et exécute `tools/run-gates.py` ; le `success_condition` est vérifié contre ce chemin réel. Aucun fichier n'a été déplacé — seul le plan portait le mauvais chemin.
+- **Séparation stdout/stderr de `status.py` assumée.** Le `success_condition` dit « prints exactly extracted ». `status.py` imprime une ligne d'en-tête `CONTRACT <dir>` sur **stderr** et le seul mot de statut sur **stdout**. « prints exactly extracted » est donc tenu sur stdout ; l'en-tête de diagnostic ne pollue pas la valeur.
+
 ## Log
+
+- **Phase 1** — `references/maturity-status.md` écrit (quatre statuts : exigence + autorisation + table gap→cap + énoncé du seuil) ; `references/contract-schema.md` : champ `status` requalifié calculé et opposable, `gaps[]` enregistrés dans l'artefact release.
+- **Phase 2** — `adapters/a11y/contrast.py` : ratio WCAG depuis valeurs de tokens résolues, par thème, déterministe (thèmes triés, fonds×surfaces triés, `sort_keys`) ; `status.py --states` constate la présence déclarative de `disabled`/`error`/`focus` dans `components.json § .states` sans lire le markup ; rôles/attributs ARIA restent assignés aux pivots dans `enforcement-registry.md`.
+- **Phase 3** — `status.py` étendu (pas réécrit) avec les entrées contraste et états ; `adjust/02-freeze.md` calcule les contrôles, enregistre `checks` + `gaps` et écrit le statut, **sans jamais bloquer** sur un a11y non-vert ; trois fixtures `status/` ajoutées (`layer-3-absent`→extracted, `no-contrast-run`→normalized, `validated`→validated).
+- **Phase 4** — `tools/run-gates.py` oppose le seuil en dernier : sous `validated`, exit **4** (supersède le 1 d'une violation et le 0 d'un run propre), rapport conservant les violations, chemin de relèvement imprimé, constante `THRESHOLD` importée de `status.py` sans littéral local ; `gates.below-threshold.config.json` ajoutée ; scénarios d'éval `adjust` + `enforce` complétés.
+- **Phase 5** — 2.4.0 dans les trois registres ; entrée CHANGELOG (échelle de maturité, no-grandfathering, split a11y DEC-002, écarts en artefact) ; deux READMEs + `aidd_docs/memory/design-plugin.md` à jour.
+- **Phase 6** — contrôles transverses passés : aucun nom de projet/plateforme dans les artefacts Lot 5, aucun prérequis de statut ne présuppose une stack, littéral `"validated"` en une seule source exécutable (`status.py:37`) importé par le runner, les trois routeurs renvoient à `maturity-status.md` sans re-citer le littéral.
 
 ## Validation flow demonstration
 
@@ -221,3 +231,15 @@ flowchart TD
 4. Raise the contract to validated and confirm conformity is asserted again.
 5. Confirm no open-question prose remains where a gap is now recorded.
 6. Confirm the three version registers read 2.4.0.
+
+### Résultats mesurés (2026-07-25)
+
+Toutes les commandes exécutées avec le Python du venv `adapters/measure/.venv/Scripts/python.exe`, depuis `plugins/design/`.
+
+1. **Contraste déterministe** — deux exécutions de `contrast.py --contract skills/enforce/fixtures --json` **identiques octet pour octet** ; sortie portant un `pass`/`fail` par paire de tokens **et par thème** (`ratio`, `bgValue`/`fgValue`, `theme`). ✓
+2. **Statut par cas** (stdout, en-tête `CONTRACT` sur stderr) — `layer-3-absent`→`extracted`, `no-contrast-run`→`normalized`, `validated`→`validated`. ✓
+3. **Sous le seuil** — `run-gates.py --config gates.below-threshold.config.json` (contrat `status/no-contrast-run`, cibles sales) → **exit 4**, rapport listant **les mêmes 2 violations** que le Lot 3 dirty (raw-hex `#ff00aa` + namespace `bg-red-500`), message `BELOW THRESHOLD status "normalized" is under "validated"` + chemin de relèvement + renvoi à `maturity-status.md`. ✓
+4. **Configs Lot 3 au seuil** (contrat `utility` = `validated`) — clean → **exit 0**, dirty → **exit 1** (2 violations). Inchangés sous le nouveau gate seuil. ✓
+5. **Écarts en artefact** — les fixtures Lot 5 portent leurs gaps dans `release.json § gaps[]` (`charter-absent`→caps extracted, `contrast`→caps validated), aucune prose d'open-question résiduelle. ✓
+6. **Versions** — `plugin.json` = `marketplace.json` (design) = `index.json` = **2.4.0**. ✓
+7. **Agnosticité / non-duplication** — aucun nom de projet ou plateforme dans les artefacts Lot 5 ; littéral `"validated"` en une seule source exécutable (`status.py:37`, importé par `run-gates.py`) ; les trois routeurs (`enforce`/`diffuse`/`harness`) renvoient à `maturity-status.md` sans re-citer le littéral. ✓

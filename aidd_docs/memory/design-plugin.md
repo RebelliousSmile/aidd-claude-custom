@@ -2,8 +2,8 @@
 
 | Champ | Valeur |
 |---|---|
-| Version courante | 2.0.0 |
-| Dernière release | 2026-07-24 |
+| Version courante | 2.4.0 |
+| Dernière release | 2026-07-25 |
 
 ## Architecture — entonnoir 5 verbes
 
@@ -13,18 +13,18 @@
 |---|---|
 | `define` | Extraction depuis référence/brief → tokens + inventaire composants + charte brouillon |
 | `destructure` | Challenge multi-angles avant figeage |
-| `adjust` | Arbitrage + figeage du contrat + **migration 1.x → 2.0** |
-| `enforce` | Linter portable + 3 gates + pivot sc-* |
+| `adjust` | Arbitrage + figeage du contrat + **génération des dérivés** + **migration 1.x → 2.0** |
+| `enforce` | Linter portable borné + runner d'agrégation + 4 gates + pivot par **langage** |
 | `diffuse` | Éléments répétables sous gate lint |
 
 ## Contrat 2.0 — quatre artefacts, une racine (cristallise à `adjust`)
 
 | Artefact | Contenu | Lecteur nommé |
 |---|---|---|
-| `design/release.json` | **racine** — versions par artefact, empreintes de source, provenance, statut de maturité | racine du contrat |
+| `design/release.json` | **racine** — versions par artefact, empreintes de source, provenance, statut de maturité, `generated` (enregistrement de dérive) | racine du contrat, `tools/generate.py` |
 | `design/tokens.json` (W3C DTCG) | valeurs nommées, source unique | `lint-core.mjs`, adapters |
 | `design/components.json` | anatomie seule | `lint-core.mjs` |
-| `design/policies.json` | `mode`, `$utilityPrefixes`, `usage`, table des adapters | `lint-core.mjs` |
+| `design/policies.json` | `mode`, `$utilityPrefixes`, `usage`, liste d'émission des adapters | `lint-core.mjs`, `tools/generate.py` |
 | `design/oracle.json` | cibles de mesure de fidélité | `config-gen.py` |
 
 `design/design-system.md` est une **entrée**, pas un artefact : `release.json § charter` constate sa présence et sa version.
@@ -37,7 +37,7 @@
 - **`mode` déclaré, jamais déduit.** Fini l'inférence `utility-first` depuis un `components` vide (un vert sur rien). Absent → exit 2.
 - **Parité de versions supprimée.** L'invariant 5 (`$version` ↔ `version:` de la charte) disparaît : versions par artefact, un écart est une donnée.
 - **Migration outillée** : `python plugins/design/tools/migrate-contract.py --contract <dir> [--dry-run] [--mode bem|utility-first] [--now <ISO>]`. Sauvegarde en `.contract-1x/`, seconde exécution no-op, aucun champ perdu (clé inconnue transportée + signalée en anomalie). Action : `adjust/03-migrate`.
-- **Statut de maturité** : `tools/status.py` détient seul l'échelle `extracted → normalized → validated → production-ready`. Écrit dans `release.json`, opposable à rien avant le Lot 5.
+- **Statut de maturité** : `tools/status.py` détient seul l'échelle `extracted → normalized → validated → production-ready`. Écrit dans `release.json` ; **opposé au seuil `validated` depuis le Lot 5** (voir `### Maturité au figeage`).
 - **Codes de sortie** `lint-core.mjs` : 0 ok · 1 violation · 2 invocation/environnement (dont une décision refusée) · 3 contrat 1.x.
 - Décision : `aidd_docs/internal/decisions/005-design-2-0-contract-split.md`. Schéma : `plugins/design/references/contract-schema.md`.
 
@@ -50,15 +50,69 @@ Le plugin documentait des règles de fond, a11y, concordance de couches et contr
 - **Gaps déclarés, non vérifiés** : contraste WCAG, rôles ARIA, fond réellement appliqué.
 - Invariants 3, 4, 7 du manifeste sont réels mais tenus **au figeage** par `adjust/02-freeze.md`, jamais par le linter.
 - Baseline des huit fixtures (ordre lexicographique) : `0 1 0 1 0 1 0 1` — pinnée par le plan Lot 0, à re-vérifier après toute modification du linter **et après toute migration de contrat** (c'est le contrôle de non-régression du Lot 1). Ne s'obtient qu'en fournissant le répertoire de contrat en `--contract`.
-- Émission des adapters conditionnée à la stack : règle canonique unique dans `references/write-system-procedure.md § Adapter emission rule`.
+- Émission des adapters : règle canonique unique dans `references/write-system-procedure.md § Adapter emission rule` — **détection de rôles consommateurs**, pas écriture de fichiers.
 
-## Enforcement hybride
+## Génération déterministe (2.1.0, Lot 2)
 
-1. **Baseline** — `lint-core.mjs` (Node.js portable, dérivé du contrat à l'exécution, 0 hard-code)
-2. **Pivot** — `sc-php:design-bridge` (PHP/WP FSE) ou `sc-js:design-bridge` (Vue/React/TS) si disponibles
-3. **Dégradation gracieuse** : pas de sc-* → baseline active, non bloquant
+`tools/generate.py` est le **seul producteur** d'un artefact dérivé. Aucun modèle, aucune procédure n'en écrit un.
+
+- **Entrée** : `policies.json § adapters[]` — devenue **exécutable**. Un artefact émis par entrée déclarant un `consumer` ; entrée sans `consumer` (ou `unknown`) = déclarative, non émise, signalée une fois sur stderr.
+- **Émetteurs indexés par rôle de consommateur, jamais par stack** — c'est ce qui tient DEC-002 (le générateur émet le QUOI ; le rendu propre à une stack reste aux pivots `sc-*`) et le critère d'agnosticité : `generate.py` ne contient aucune branche nommant une plateforme. `CSS_ROLES = ("stylesheet", "stylesheet source")` · `FLAT_ROLES = ("platform token file", "build configuration")`.
+- **Résolution des alias dépendante du rôle** : rôles CSS → `var(--…)` (la cascade porte les thèmes) ; rôles plats → littéral résolu (pas de cascade). Thèmes : `dark` en classe, tout autre thème en attribut `[data-theme="…"]`, mêmes noms de variables dans chaque bloc.
+- **Déterminisme** : ordre de source jamais retrié, LF, une déclaration par ligne, bannière nommant les sources. Deux exécutions ⇒ arbres identiques octet pour octet.
+- **Enregistrement de dérive** : `release.json § generated` porte un `sha256` **par source lue** (pas un hash unique sur le jeu concaténé — le message doit nommer la source qui a bougé). Écrit au figeage par `adjust/02-freeze`, en préservant les fins de ligne du fichier (il est écrit à la main).
+- **Gate** : `diffuse/02-render` **Étape 0** = `generate.py --check`. Exit ≠ 0 ⇒ pas de rendu. Retouche manuelle et source périmée sortent en **1**, et **aucun drapeau ne neutralise l'échec**.
+- Exits (espace du plan maître, non réassignable) : `0` · `1` dérive · `2` invocation/artefact invalide · `3` contrat 1.x.
+- Contrainte tenue : `define` **ne peut pas** appeler le générateur — il lui est interdit d'écrire `release.json` et `policies.json`, qui en sont les entrées requises. `define` écrit `tokens.json` + la charte et **détecte** les consommateurs ; les dérivés n'existent qu'à partir du figeage.
+
+## Enforcement distribué (2.2.0, Lot 3)
+
+**Une règle déclarée a un réalisateur nommé, ou est visiblement déclarée non réalisée.** Le linter portable n'est plus présenté comme le gate du système : il en est un réalisateur parmi d'autres.
+
+- **Type d'enforcement = la preuve que la règle doit lire**, jamais le nom d'une plateforme. Registre : `references/enforcement-registry.md` — `markup` (lint-core.mjs) · `stylesheet` (sc-css) · `source-graph` (sc-js) · `stored-content` (sc-php) · `platform-config` (pivot du langage) · `unrealized` (marqueur). Retirés : `baseline` (→ `markup`) et `pivot-only` (→ re-typé par l'auteur).
+- **Routage sur le langage de la preuve**, pas sur la plateforme ni le framework : le nommage `sc-<langage>` remplace partout l'ancien `sc-<techno>`. Un projet peut désigner deux réceptacles distincts (langage des feuilles ≠ langage du runtime).
+- **Runner** `tools/run-gates.py` — **il route, il n'évalue jamais** : il ne lit que la configuration, `policies.json`, la sortie `lint-core.mjs --json` et les rapports de pivot. Une seule commande aux trois sites d'appel : `python design/lint/run-gates.py --config design/lint/gates.config.json` (local · pre-commit · CI). Exits : `0` · `1` violation · `2` invocation/environnement · `3` contrat 1.x.
+- **Prérequis Python assumé** : le runner est Python, donc Python 3.10+ devient un prérequis de pre-commit **même sur un projet 100 % JavaScript** (Node 18+ reste requis pour le linter invoqué). Énoncé une fois dans `skills/enforce/references/gate-wiring.md`. Un runtime absent sort en **2**, jamais en 1 et jamais en traceback.
+- **Configuration** `gates.config.json` + format du rapport de pivot : `references/gate-config-schema.md` (spécifiés là parce que c'est l'entrée du runner ; dupliqués nulle part). Une entrée `pivotReports` accepte `{ "path", "command" }` — avec `command`, le runner relance le réalisateur avant de lire, ce qui rend un rapport périmé impossible.
+- **Obligation de report des pivots** (sc-css 0.2.0, sc-js 0.12.0, sc-php 0.6.0) : un rapport par règle assignée, réalisée ou non. Sans `status: "unrealized"` explicite, une règle hors de portée et une règle oubliée laissent la même trace — aucune.
+- **Un `unrealized` ne change jamais le code de sortie** et aucun drapeau ne le masque. Ce n'est ni une violation ni une conformité : c'est le refus de certifier une surface que personne n'a ouverte.
+- **Dégradation gracieuse** : aucun `sc-<langage>` installé → le cœur portable tourne seul, les règles qui exigeaient un réceptacle sont listées non réalisées, exit inchangé.
 
 Gate `enforce` = **obligatoire** avant toute livraison via `diffuse` (refus absolu si lint exit 1) — dans la portée énoncée ci-dessus, jamais au-delà.
+
+### Les plateformes quittent le cœur (Lot 3)
+
+`references/wordpress-pitfalls.md` et `skills/enforce/adapters/wordpress.md` sont partis chez `sc-php` (`skills/design-bridge/references/`). Principe : **une contrainte de plateforme appartient au réceptacle qui la sert**.
+
+Le routage de `enforce` ne se fait plus par nom de plateforme mais par **deux propriétés du terrain, indépendantes** : tout le markup vit-il dans des fichiers versionnés ? une référence visuelle externe existe-t-elle ? Les deux se combinent (contenu stocké sans maquette, ou l'inverse).
+
+Dernière surface à nommer une plateforme sous `plugins/design/` : l'API de `adapters/measure/` (`--side wp|maq`, `*_in_wp`) et les citations de ces identifiants dans `agents/copycat.md` et `references/visual-diff-procedure.md` — **renommées au Lot 4** (voir `### Oracle obligatoire, registre structuré (Lot 4, 2.3.0)`). `adapters/measure/configs/mentions-legales.json` (config d'un projet réel commitée dans le plugin) supprimée au même Lot.
+
+### Oracle obligatoire, registre structuré (Lot 4, 2.3.0)
+
+La conformité n'est affirmée que par l'oracle **par propriété** ; tout écart toléré référence une entrée `active` de `deviations.json` portant sa `expected`. Changements :
+
+- **`measure.py --ledger-registry` requis** : sans lui, exit **2** (invocation) en nommant l'argument, jamais de mesure. Une entrée `active` ne sanctionne qu'avec `expected` non vide et (si `expires` posé) non dépassée au clock du run ; sinon `OPEN`. `active[]` lu par la mesure ; `historical[]` = audit seul.
+- **Renommage cassant, sans alias** : `--side maq|wp` → `mockup|implementation` ; clés config/rapport `maq`/`maquette`/`wp` → `mockup`/`implementation`, `*_in_wp` → `*_in_implementation`, `maq_count`/`wp_count` → `mockup_count`/`implementation_count`, `maq_viewport` → `mockup_viewport`. **Périme le 2.1.0 additif** (ligne du 2.1.0 ci-dessous : les alias sont retirés). Gate grep `\bwp\b|_in_wp|\bmaq\b` (-i) vert sur `measure.py`+`config-gen.py`.
+- **Vue Markdown générée du registre** : `tools/generate.py` gagne le rôle `deviation ledger` (source = `deviations.json`, pas `tokens.json` — via `source_for(role)`). On édite le JSON, jamais la vue ; deux générations = octets identiques ; `--check` détecte la dérive. Template requalifié en **sortie générée** : `references/deviation-ledger-template.md`.
+- **Refus d'affirmer la conformité** : référence externe présente mais oracle non câblé → `05-fidelity-gate` **refuse** et nomme l'étape (`config-gen.py` → config → `deviations.json` → `measure.py --ledger-registry`). Un diff pixel vert n'est jamais une preuve. Refus = état distinct du vert et du rouge.
+- **Config d'exemple générique** : `configs/mentions-legales.json` supprimée ; `configs/example.json` la remplace (deux `localhost`, sélecteurs BEM neutres, aucun nom de projet).
+
+### Maturité au figeage, conformité opposée au seuil (Lot 5, 2.4.0)
+
+**Tout contrat porte un statut de maturité calculé qui conditionne l'invocation de la conformité, et tout écart connu plafonne ce statut au lieu d'être noté en prose.**
+
+- **Échelle** : `tools/status.py` détient seul l'échelle `LADDER = extracted → normalized → validated → production-ready`. Première condition non tenue = fin de la montée ; un écart enregistré replafonne plus bas. `extracted` = artefacts présents · `normalized` = + charte · `validated` = + contrôles enregistrés · `production-ready` = + contraste vert & états complets. `python tools/status.py --contract <dir>` imprime le statut, un mot exact.
+- **Seuil = `validated`** : la conformité ne s'affirme qu'au-dessus. **Une seule source exécutable** (constante `THRESHOLD` dans `status.py`, importée par `run-gates.py`) + **une seule source humaine** (`references/maturity-status.md`). Les routeurs (`enforce`/`diffuse`/`harness`) renvoient à `maturity-status.md`, ne re-citent jamais le littéral.
+- **Exit 4 activé** (espace du plan maître, non réassignable) : `tools/run-gates.py` oppose le seuil **en dernier**, une fois toute violation déjà au rapport. Sous le seuil, la conformité ne peut être affirmée quel que soit le compte de violations → **exit 4 supersède le 1 d'une violation et le 0 d'un run propre**, et le rapport garde les violations. Imprime le statut, le chemin pour le relever, et renvoie à `maturity-status.md`.
+- **Pas de grandfathering** : un contrat migré 1.x entre à `normalized` — la conformité est suspendue jusqu'à ce qu'il soit relevé (le gate continue de bloquer les vraies violations pendant ce temps).
+- **Les écarts vivent dans l'artefact, pas en prose** : `release.json § gaps[]`, chaque entrée `{class, caps, detail}` plafonne le statut. Fini le « connu comme non vérifié » noté en commentaire.
+- **Split a11y (DEC-002 QUOI/COMMENT)** — deux contrôles **calculés par le plugin au figeage**, déterministes, jamais par le linter de markup :
+  - **contraste** : `adapters/a11y/contrast.py` calcule le ratio WCAG à partir des valeurs de tokens résolues **par thème**. `--json` déterministe : deux exécutions identiques octet pour octet, un pass/fail par paire de tokens et par thème (thèmes triés, fonds×surfaces triés, `sort_keys`).
+  - **états déclaratifs** (`disabled`/`error`/`focus`) : `status.py --states` constate leur **présence déclarative** dans `components.json § .states` — pas leur rendu.
+  - Les rôles/attributs ARIA restent du **markup → réalisé au pivot**.
+- **Figeage non bloquant** : `adjust/02-freeze` calcule contraste + états, enregistre `checks` et les `gaps` correspondants dans `release.json`, mais **ne bloque jamais** sur un a11y non-vert — il laisse `status.py` plafonner. Le refus d'affirmer la conformité est porté par le seuil au gate, pas par un arrêt au figeage.
+- **Fixtures de statut** : `skills/enforce/fixtures/status/` — `layer-3-absent` (charte absente → `extracted`), `no-contrast-run` (charte + contraste non couru → `normalized`, réutilise les artefacts sales pour reproduire les violations du Lot 3), `validated` (contrôles enregistrés → `validated`). L'`utility` reste `validated`, la racine `fixtures/` = `extracted`. Config gate `gates.below-threshold.config.json` (contrat = `no-contrast-run`, cibles sales) → exit 4 avec les mêmes violations que le Lot 3.
 
 ## Profil optionnel
 
@@ -73,7 +127,7 @@ Gate `enforce` = **obligatoire** avant toute livraison via `diffuse` (refus abso
 Réplication fidèle d'une maquette arbitraire vers le contrat, **sans nouveau verbe** (entonnoir toujours à 5). Composants :
 
 - **Agent** `agents/copycat.md` (`model: sonnet`) — opérateur par page : mesure → classe l'écart à sa couche → propose tokens/composants. 4 frontières (1.1.1) : (1) jamais d'arbitrage cross-page — **bulk = propose-only ; dérive unité = boucle fermée** `enforce`→`adjust au besoin` (séquentiel, pas de course) · (2) mesure dans le script déterministe · (3) **feuille** (ne spawn aucun agent, mais appelle les skills design) · (4) **pivot** : possède le QUOI, délègue le COMMENT stack-spécifique à `sc-php`/`sc-js:design-bridge` (WP : patterns, `render.php`, `theme.json`, lint DB ; source + réimport). `tools` omis (= tous).
-- **Oracle Python** `adapters/measure/` — `measure.py` (getComputedStyle, Mode A/B, **par breakpoint**) + `screenshot.py` + `pixeldiff.py`. Cross-OS, sans Node. OD-1 (spike) : Python validé (install propre, headless déterministe) ; fallback MCP documenté pour l'interactif, mais le gate CI reste Python.
+- **Oracle Python** `adapters/measure/` — `measure.py` (getComputedStyle, Mode A/B, **par breakpoint**) + `screenshot.py` + `pixeldiff.py`. Cross-OS, sans Node. OD-1 (spike) : Python validé (install propre, headless déterministe) ; fallback MCP documenté pour l'interactif, mais le gate CI reste Python. **2.1.0** : `config-gen.py` nomme deux rôles et non deux plateformes — `--reference-url` / `--implementation-url`, clés `reference_url` / `reference_page` / `implementation_url`. Renommage **additif** : anciens drapeaux acceptés en alias, anciennes clés lues en repli par `measure.py` et `screenshot.py` (un mineur ne casse pas une CLI). **⚠ Périmé au Lot 4 (2.3.0)** : ces alias `wp|maq` sont retirés, l'API n'accepte plus que `mockup|implementation` (voir la section Lot 4).
 - **`define/05-copycat-fanout`** — fan-out parallèle (1 agent/page), agrège + remonte les conflits (sans arbitrer) → table de correspondance au **checkpoint P2** avant `adjust`. Modèle : Sonnet défaut, override par pré-signal (Haiku/Opus).
 - **`enforce/05-fidelity-gate`** — **2ᵉ gate** : fidélité (référence externe = maquette résolue) en plus du lint vocabulaire (référence interne). Lit `ds-deviation-ledger`. Les deux verts.
 - **Templates** `references/` : correspondence-table, deviation-ledger, copycat-checklist (résumable, mi-intégration). **Responsive** : ask-or-derive ; tablette = cas derive canonique.
