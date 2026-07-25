@@ -1,5 +1,10 @@
 # Changelog — sc-php
 
+## v0.7.1 — 2026-07-25
+
+### Fixed
+- **Description du manifeste** (`plugin.json` + `marketplace.json`) — omettait les skills `log-analysis` et `bruno`. `log-analysis` (commit `37f792f`, 2026-05-27) avait été livrée sans jamais toucher `plugin.json` ni ce CHANGELOG : silencieusement non versionnée depuis sa création. `bruno` figure dans l'historique (v0.4.0) mais n'était jamais entré dans la phrase de description.
+
 ## v0.7.0 — 2026-07-25
 
 ### Reçu du pivot design (design 2.5.0 — verbe 0 `detail`)

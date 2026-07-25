@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "my-marketplace",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "description": "Local marketplace — personal overlay on the AIDD framework",
   "owner": {
     "name": "François-Xavier Guillois"
@@ -37,9 +37,9 @@
     },
     {
       "name": "sc-php",
-      "version": "0.7.0",
+      "version": "0.7.1",
       "source": "./plugins/sc-php",
-      "description": "PHP ecosystem skills: sniff, audit, improve, legacy, teach. WordPress/Laravel/Symfony perf pivots, HTMX hybrid, Eloquent + Doctrine data pivots. design-bridge: réceptacle pivot design (linter PHP/WP natif + block pattern WP). builder-coverage: gate WYSIWYG FSE — couverture (chaque composant de page a une pattern éditable) + organisation (patterns rangées par rôle de section, taxonomie généralisable), comme un builder Divi/Elementor.",
+      "description": "PHP ecosystem skills: sniff, audit, improve, legacy, teach, log-analysis (tail/parse-errors/search/summarize sur logs PHP/Apache/Nginx local, Docker ou SSH prod), bruno (tests API Bruno en CLI). WordPress/Laravel/Symfony perf pivots, HTMX hybrid, Eloquent + Doctrine data pivots. design-bridge: réceptacle pivot design (linter PHP/WP natif + block pattern WP) ; possède le workflow de plateforme FSE. builder-coverage: gate WYSIWYG FSE — couverture (chaque composant de page a une pattern éditable) + organisation (patterns rangées par rôle de section, taxonomie généralisable), comme un builder Divi/Elementor.",
       "recommended": false
     },
     {

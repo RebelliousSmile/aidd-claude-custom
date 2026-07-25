@@ -4,6 +4,12 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [3.3.1] - 2026-07-25
+
+### Fixed
+
+- **`sc-php` (0.7.1)** — description du manifeste (`plugin.json` + `marketplace.json`) omettait les skills `log-analysis` et `bruno`. `log-analysis` avait été livrée le 2026-05-27 (commit `37f792f`) sans jamais toucher `plugin.json` ni le CHANGELOG du plugin — non versionnée depuis sa création. `bruno` figurait dans l'historique du CHANGELOG mais jamais dans la phrase de description. Découvert après coup, en vérifiant une suspicion de l'utilisateur sur les data pivots Eloquent/Doctrine (ceux-ci se sont avérés réels et implémentés — le vrai trou était ailleurs dans la même description).
+
 ## [3.3.0] - 2026-07-25
 
 ### Added
