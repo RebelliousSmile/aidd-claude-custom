@@ -90,7 +90,7 @@ import { User } from './types'
 | Anti-pattern | Détection | Alternative |
 |---|---|---|
 | `as any` | `grep -rn "as any"` | Type correct ou `as unknown as T` avec commentaire |
-| `!` non-null assertion | `grep -rn "[^!=]![^=]"` | Guard explicite ou optional chaining |
+| `!` non-null assertion | `grep -rn "\w!\s*[.);,\]]"` (le `!` suit un **identifiant/`)`/`]`** et précède un accès/fin d'expression) — **signal, à confirmer**. Le motif naïf `[^!=]![^=]` capture le NOT logique `if (!x)`, `!isReady`, `!!val` : c'est l'opérateur que TypeScript recommande, pas la faute. Distinguer `foo!.bar` (assertion) de `!foo` (négation) exige de regarder ce qui **précède** le `!`, pas seulement ce qui suit. | Guard explicite ou optional chaining |
 | `@ts-ignore` sans commentaire | `grep -rn "@ts-ignore"` | `@ts-expect-error` avec explication |
 | `catch (e)` + `e.message` direct | revue manuelle | `if (e instanceof Error) e.message` |
 | `: any` explicite | `grep -rn ": any"` | Type précis ou `unknown` |

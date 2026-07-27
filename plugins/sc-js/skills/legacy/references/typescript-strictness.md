@@ -41,7 +41,7 @@ Enabling `"strict": true` activates all flags below. Migrate incrementally if th
 | Anti-pattern | Detection | Preferred alternative |
 |---|---|---|
 | `as any` without comment | grep `as any` | Proper type or `as unknown as T` with comment |
-| `!` non-null assertion | grep `!\w\|!\[` | Null guard or optional chaining |
+| `!` non-null assertion | grep `\w!\s*[.);,\]]` — le `!` **suit** un identifiant/`)`/`]`. ⚠ `!\w` capture l'inverse (le NOT logique `!x`, que TS recommande) : l'assertion est `foo!`, pas `!foo`. Confirmer en regardant ce qui précède le `!`. | Null guard or optional chaining |
 | `@ts-ignore` without comment | grep `@ts-ignore` | Fix the type or `@ts-expect-error` with comment |
 | Implicit `any` in catch | `catch (e)` with direct `e.message` | `if (e instanceof Error) e.message` |
 | `Function` type | grep `: Function` | Specific function signature |

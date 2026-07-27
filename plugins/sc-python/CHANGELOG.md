@@ -2,6 +2,17 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/sc-python`.
 
+## [0.5.3] — 2026-07-27
+
+### Fixed — discipline de sévérité (l'audit alimente des mutants)
+
+Même correctif transversal que sc-css/sc-rust/sc-php. `legacy/01-scan`, `improve` sont read-only mais `legacy/02-migrate` mute in-place. Correction **inline**, conditionnée à une propriété **mesurée**. Les quatre classes A/B/C/E sont présentes ici.
+
+- **(A) Verdict sur propriété supposée → mesurée.** La modernisation d'annotations (`Optional[X]`→`X | None` 3.10, `List[X]`→`list[X]` 3.9) était étiquetée « low risk, pure annotation change » **sans mesurer le plancher d'interpréteur**. Sur un projet `>=3.8`, l'annotation *évaluée* casse à l'import. Désormais conditionnée au plancher `requires-python` mesuré (ou `from __future__ import annotations`) ; plancher inconnu → ne plus supposer 3.9, marquer `warning` (`legacy/01-scan.md`, `improve/01-analyze.md`, `improve/02-plan.md`, `idioms.md`).
+- **(B) Sévérité alimentant la mutation.** `02-migrate` écrit in-place ; la garde « simple identifiers » du `%→f-string` laissait passer `logger.info("%s", x)`. Ajout : les rewrites d'annotations attendent la couverture du plancher (`Skipped (interpreter floor not covered)`), le lazy logging n'est jamais converti (`legacy/02-migrate.md`).
+- **(C) « Code mort » indécidable au scan statique.** Le pivot ActivityPub concluait « code mort critique » quand `grep` ne trouvait pas la view inbox dans un `urls.py` — aveugle au routage indirect Django/DRF (`include()`, `as_view()`, routers, dispatch dynamique). Remplacé par « câblage à confirmer manuellement — résoudre l'URL réelle », jamais un verdict (`sniff/references/capabilities/protocol/activitypub-django.md`).
+- **(E) Le moteur d'analyse mal-juge les constructions qu'il recommande.** Le regex `print\s+[^(]` flaguait `print ("x")` (appel Py3 valide) → resserré pour exclure l'espace-avant-parenthèse et la réassignation. La conversion f-string était imposée au `logging` %-lazy (interpolation forcée + perte du template structuré) → exclusion des appels `logger.*`/`logging.*` sur toute la chaîne (`legacy/01-scan.md`, `02-migrate.md`, `idioms.md`, `improve/01-analyze.md`).
+
 ## [0.5.2] — 2026-05-29
 
 ### Fixed

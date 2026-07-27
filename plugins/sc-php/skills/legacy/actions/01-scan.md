@@ -34,11 +34,11 @@ Grep the source files (`.php`) under `path`. Exclude `vendor/`.
 | `mysql_*()` | `mysql_connect\|mysql_query\|mysql_fetch` | PHP 7.0 | PDO or MySQLi |
 | `ereg_*()` | `ereg\b\|eregi\b\|ereg_replace` | PHP 7.0 | `preg_*()` |
 | `create_function()` | `create_function(` | PHP 8.0 | Anonymous function |
-| `each()` | `each(` | PHP 8.0 | `foreach` |
+| `each()` | `(?<![>:$\w])each\s*\(` — **jamais précédé de `->`/`::`/`$`** | PHP 8.0 | `foreach`. Le signal nu `each(` capture `$collection->each(...)` (Laravel/Doctrine, valide) : c'est un faux positif qui, appliqué en aval, réécrit du code correct. |
 | `__autoload()` | `function __autoload(` | PHP 8.0 | `spl_autoload_register()` |
 | Short open tags | `^<\?[^=p]` | Config-deprecated | `<?php` |
 | `$HTTP_*_VARS` | `\$HTTP_(POST\|GET\|SERVER)_VARS` | PHP 5.4 | `$_POST`, `$_GET`, etc. |
-| `split()` | `\bsplit(` | PHP 7.0 | `explode()` or `preg_split()` |
+| `split()` | `(?<![>:$\w])split\s*\(` — **jamais précédé de `->`/`::`/`$`** | PHP 7.0 | `explode()` or `preg_split()`. Le signal nu capture `Str::split(...)` / `->split(...)` (valide) — même angle mort que `each()`. |
 | Null args to string functions | Triggers Deprecated in 8.1 | PHP 8.1 | Explicit `''` |
 | `${var}` string interpolation | `"\${[^}]+}"` | PHP 8.2 | `"{$var}"` |
 
@@ -104,3 +104,11 @@ Framework gaps:
 ```
 
 Then proceed to `02-migrate`.
+
+## Test — non-régression (faux positifs corrigés)
+
+Sur un fichier de test couvrant chaque cas, rejouer `scan` et vérifier :
+
+- `$collection->each(fn($x) => …)` (Laravel/Doctrine) **n'est pas** flagué comme `each()` déprécié ; seul un `each(` global (non précédé de `->`/`::`/`$`) l'est.
+- `Str::split(...)` / `$s->split(...)` **n'est pas** flagué comme `split()` PHP 5.
+- Un item CRITICAL dérivé d'un signal nom-de-fonction est marqué « confirmer avant réécriture », pas prêt à auto-appliquer.

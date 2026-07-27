@@ -96,13 +96,18 @@ Les fichiers produits **dérivent du contrat** — ils n'inventent pas de règle
 }
 ```
 
-## Cascade layers déclarées
+## Stratégie de layer — conditionnée à la topologie de l'hôte
 
-Le fichier d'entrée CSS du projet doit déclarer l'ordre des layers :
-```css
-@layer design.tokens, design.components, project.overrides;
-```
-sc-css:design-bridge signale si ce fichier n'existe pas et propose sa création.
+L'enveloppe `@layer design.tokens` / `@layer design.components` **suppose un hôte layered**. Dans un document dont l'hôte émet ses styles hors layer (à constater par mesure de la feuille rendue, pas à présumer), toute la couche composants pivotée passe **sous** les styles hôtes : la cascade *normale* classe le non-layered en dernier — donc prioritaire — à spécificité quelconque. Le système réalisé perdrait alors silencieusement, propriété par propriété, sur chaque élément que l'hôte style aussi.
+
+- **Hôte layered** (mesuré) : émettre en `@layer`, et le fichier d'entrée déclare l'ordre — la layer de l'hôte devant celle du design :
+  ```css
+  @layer design.tokens, design.components, project.overrides;
+  ```
+- **Hôte unlayered** (mesuré) : émettre les règles composants **hors layer**. `project.overrides` ne sauve pas — une layer, même déclarée dernière, reste sous tout le non-layered de l'hôte.
+- Les **tokens** (`:root { --… }`) sont saufs dans les deux cas tant que les noms ne collisionnent pas avec ceux de l'hôte (espaces de noms disjoints) : le risque porte sur les **règles composants**, pas sur la résolution `var()`.
+
+sc-css:design-bridge constate la topologie, émet selon la stratégie retenue, signale l'absence du fichier d'entrée et propose sa création.
 
 ## Obligation de report
 

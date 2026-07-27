@@ -137,7 +137,7 @@ status = order_data.get('status')
 **Why:** Style — comprehensions are faster and more idiomatic.
 
 #### 9. Update Optional[X] → X|None (Python 3.10+) — S
-**Why:** Modernize type syntax. Low risk, pure annotation change.
+**Why:** Modernize type syntax. Low risk **conditionné** : « pure annotation change » seulement si le plancher `requires-python` mesuré est ≥ 3.10 (ou `from __future__ import annotations`). Plancher inférieur ou non mesuré → l'annotation évaluée casse à l'import : ne pas planifier, laisser en attente de confirmation de version.
 
 ---
 

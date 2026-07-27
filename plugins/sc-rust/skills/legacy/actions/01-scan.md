@@ -38,7 +38,7 @@ Grep `.rs` files under `path`. Exclude `target/`.
 | `mod.rs` module files | `src/.*/mod.rs` pattern | Directory module without `mod.rs` (2018 path hygiene) |
 | `try!()` macro | `\btry!\(` | `?` operator |
 | Anonymous lifetime `'_` not used | Explicit `'a` lifetimes that can be elided | Lifetime elision |
-| `extern "C"` in unexpected places | Unneeded ABI specifiers | Remove if Rust-to-Rust only |
+| `extern "C"` in unexpected places | ABI specifier — **candidate only** | An `extern "C"` (esp. with `#[no_mangle]` / `#[used]`) is often an **FFI export with no intra-crate caller** (cdylib, C consumer, PyO3). "Rust-to-Rust only" is **not decidable by grep**. Emit « non-référencé dans les sources scannées — vérifier l'absence de consommateur FFI/cdylib avant retrait », never "unneeded". |
 
 #### Edition 2021 patterns
 
@@ -65,7 +65,7 @@ Grep `.rs` files under `path`. Exclude `target/`.
 
 | Pattern | Signal | Issue |
 |---|---|---|
-| `unwrap()` outside tests | `\.unwrap\(\)` in non-test files | Should use `?` or explicit error handling |
+| `unwrap()` outside tests | `\.unwrap\(\)` in non-test files | **Signal, not verdict.** Only a defect where the enclosing fn returns `Result`/`Option` **and** the call is genuinely fallible. Exempt idiomatic-infallible (`write!` to `String`, regex from `const`, `Mutex::lock` poison-only). Emit `warning` for review, never an auto-rewrite — `02-migrate` must not touch it without confirmation. |
 | `clone()` on large types | `.clone()` on `Vec`, `HashMap`, `String` returned from functions | Consider `Rc`/`Arc` or returning references |
 | `Box<dyn Error>` in public API | `Box<dyn Error>` in pub fn signatures | Use concrete error type or `thiserror` |
 
@@ -98,3 +98,11 @@ Anti-patterns:
 ```
 
 Then proceed to `02-migrate`.
+
+## Test — non-régression (faux positifs corrigés)
+
+Conditions observables sur un fichier de test contenant chacun des cas ci-dessous ; rejouer `scan` et vérifier :
+
+- Un `extern "C"` annoté `#[no_mangle]` **n'est jamais** classé « à retirer » / « unneeded » — le manifeste dit « non-référencé dans les sources scannées — vérifier consommateur FFI/cdylib ».
+- Un `write!(buf, "…").unwrap()` où `buf: String` (infaillible) **ne sort pas** en anti-pattern actionnable ; au plus un `warning` de revue, jamais un item auto-réécrit par `02-migrate`.
+- Un `#[macro_use] extern crate log;` conserve la mention macro (pas de retrait sec de la ligne).

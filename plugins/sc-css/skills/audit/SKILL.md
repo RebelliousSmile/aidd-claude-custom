@@ -17,10 +17,10 @@ Audit CSS read-only — détecte, classe, priorise.
 
 | # | Dimension | Ce qu'on cherche |
 |---|-----------|-----------------|
-| 01 | `specificity` | Sélecteurs `!important`, combinateurs trop profonds (> 3), ID dans les règles de composants |
-| 02 | `dead-code` | Sélecteurs ne ciblant aucun élément HTML du projet (cross-reference DOM), `@keyframes` inutilisées |
-| 03 | `magic-numbers` | Valeurs littérales de couleur/spacing/typo hors `var(--)` et hors `tokens.json` |
-| 04 | `a11y` | Ratio de contraste < 4.5:1 (AA), `outline: none` sans alternative `:focus-visible`, absence de `prefers-reduced-motion` sur les animations |
+| 01 | `specificity` | `!important` selon la topologie de layer **mesurée** (porteur → `info`, jamais `error`), ID / profondeur (`warning`, sélecteurs possédés seulement), conflits de cascade — spécificité calculée en honorant `:where()` / `:is()` / `:has()` |
+| 02 | `dead-code` | Sélecteurs **non-référencés dans les sources scannées** (jamais « mort » : classes composées / stockées / runtime invisibles au scan), `@keyframes` non référencées |
+| 03 | `magic-numbers` | Littéraux hors `var(--)` rapprochés **par rôle** avec **tolérance de proximité** (`ΔE ≤ 2` couleurs · `±1px`/`±3 %` espacement) — `warning` si == ou dans le rayon d'un token (uniformité), `info` hors rayon (légitime) ; **jamais `error`** (proximité ≠ faute prouvée) |
+| 04 | `a11y` | Contraste WCAG **quand les couleurs sont résolues et appariées** (sinon `info: non calculable`), focus et `prefers-reduced-motion` résolus contre la cascade globale |
 | 05 | `modern-opportunities` | Constructions remplaçables par `has()`, `:is()`, `:where()`, container queries, nesting natif, subgrid |
 
 ## Routing
@@ -38,5 +38,7 @@ Chaque finding : sévérité (`error`/`warning`/`info`) · dimension · `file:li
 
 - Read-only : aucune modification de fichier.
 - Ne pas inventer des findings pour une dimension non applicable (ex. pas de `:focus-visible` à auditer si aucune interaction JS).
-- Croiser les sélecteurs morts avec le HTML réel du projet (pas seulement la liste CSS).
-- Si un contrat design est présent (`design/tokens.json`), utiliser ses valeurs comme référence pour détecter les magic numbers.
+- **Cet audit read-only alimente `improve` / `legacy`, qui mutent.** Réserver `error` au prouvable ; porter toute indécidabilité dans la **sévérité** (`info`), jamais dans une note de bas de finding que le pipeline ignore. Un `error` faux ici devient une casse réelle en aval.
+- **Distinguer « hors périmètre / hors contrat » (`info`, peut être légitime) de « contredit le contrat » (`error`).** Le premier n'est pas une violation.
+- Le code mort ne se prouve pas par scan statique : émettre « non-référencé dans les sources scannées » (glob listé), jamais « mort ».
+- Conditionner tout verdict à une propriété **mesurée** de la preuve (topologie de layer, surface de classes, résolution des couleurs), jamais à une propriété supposée de la plateforme.

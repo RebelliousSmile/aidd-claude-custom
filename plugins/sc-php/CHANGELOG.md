@@ -1,5 +1,15 @@
 # Changelog — sc-php
 
+## [0.8.1] — 2026-07-27
+
+### Fixed — discipline de sévérité (l'audit alimente des mutants)
+
+Même correctif transversal que sc-css/sc-rust, transposé au PHP. `legacy/01-scan` et `improve` sont read-only mais `legacy/02-migrate` mute (écriture in-place). Correction **inline**, conditionnée à une propriété **mesurée**, jamais à une stack supposée. (Classe C — code mort indécidable — absente ici : le plugin ne prétend nulle part prouver du code mort au scan.)
+
+- **(A) Verdict sur propriété supposée → mesurée.** Le détecteur DIP flaguait tout `new ClassName()` en présupposant un conteneur DI. Désormais : ne flaguer que l'instanciation d'un **service** (jamais un value object / DTO / exception / collection, où `new` est correct) **et** seulement si le projet **injecte déjà ailleurs** (mesuré). Sans conteneur DI, prescrire l'injection est un choix d'architecture → `info`, pas une violation (`sniff/references/capabilities/php/solid.md`, `improve/01-analyze.md`).
+- **(B) Sévérité alimentant la mutation.** `02-migrate` appliquait les transformations CRITICAL/WARN après simple affichage d'un diff — or **un signal grep n'est pas une preuve et un diff n'est pas une confirmation**. Un signal *nom de fonction nu* peut viser un homonyme utilisateur, un import de namespace ou une méthode. Ajout d'une confirmation explicite par occurrence (ou par lot de même pattern) avant écriture ; doute non résolu → `Skipped (needs manual review)`, jamais réécrit (`legacy/02-migrate.md`).
+- **(E) Le moteur d'analyse mal-juge les constructions qu'il recommande.** Les signaux `each(` et `split(` capturaient `$collection->each(...)` / `Str::split(...)` (Laravel/Doctrine, valides) → resserrés en `(?<![>:$\w])each\s*\(` / `split\s*\(`, jamais précédés de `->`/`::`/`$`. Et le détecteur OCP ne flague plus un `match ($enum)` exhaustif — sur un `enum` le compilateur impose l'exhaustivité, c'est la fermeture même (`legacy/01-scan.md`, `solid.md`, `improve/01-analyze.md`).
+
 ## v0.7.1 — 2026-07-25
 
 ### Fixed

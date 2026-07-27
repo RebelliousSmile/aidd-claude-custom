@@ -56,14 +56,14 @@ Skip this step if no Python manifest file is found.
 - Functions that build and return a full list only to be iterated once → `yield`
 
 **String formatting:**
-- `%` formatting or `.format()` where f-strings would be clearer
+- `%` formatting or `.format()` where f-strings would be clearer — **exclure les appels `logging`** (`logger.info("%s", x)` : lazy formatting voulu, ne pas signaler).
 
 #### Type annotation coverage
 
 - Public functions without return type annotations
 - Function parameters without type annotations
 - `Any` used where a narrower type is possible
-- `Optional[X]` instead of `X | None` (Python 3.10+)
+- `Optional[X]` instead of `X | None` — **seulement si le plancher `requires-python` mesuré est ≥ 3.10** (ou `from __future__ import annotations`). Plancher non couvert → ne pas proposer le rewrite (casse à l'import).
 - Missing `TypedDict` for dict-heavy APIs
 
 #### Async correctness
@@ -137,3 +137,10 @@ Total: 4 HIGH · 5 MEDIUM · 1 LOW
 ```
 
 Then proceed to `02-plan`.
+
+## Test — non-régression (faux positifs corrigés)
+
+Sur un fichier de test couvrant chaque cas, rejouer `analyze` et vérifier :
+
+- `logger.info("user %s did %s", uid, action)` → **aucun** finding « f-string » (lazy logging exclu).
+- `Optional[int]` dans un projet dont `requires-python` mesuré est `>=3.8` → **pas** de proposition `X | None` (casserait à l'import) ; proposé seulement si plancher ≥ 3.10 ou `from __future__ import annotations`.

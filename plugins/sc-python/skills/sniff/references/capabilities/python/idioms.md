@@ -16,13 +16,13 @@ Criteria for `/sc-python:audit`. Loaded at audit time, never installed to `.clau
 - Use `zip()` to iterate over multiple sequences in parallel.
 - Use `any()` / `all()` instead of manual loop flags.
 - Use `dict.get(key, default)` over `if key in dict: ... else: ...`.
-- Prefer f-strings over `%`-formatting or `.format()`.
+- Prefer f-strings over `%`-formatting or `.format()` — **sauf pour les appels `logging`** : `logger.info("%s", x)` est du lazy formatting voulu (interpolé seulement si le niveau est actif), à ne pas convertir.
 
 ## Type hints
 
 - All public functions must have parameter and return type annotations (PEP 484).
-- Use `X | None` (PEP 604, Python 3.10+) over `Optional[X]`.
-- Use built-in generics (`list[str]`, `dict[str, int]`) over `typing.List`, `typing.Dict` (Python 3.9+).
+- Use `X | None` (PEP 604, Python 3.10+) over `Optional[X]` — **seulement si le plancher `requires-python` mesuré est ≥ 3.10** (ou `from __future__ import annotations` en tête). Sinon l'annotation évaluée casse à l'import.
+- Use built-in generics (`list[str]`, `dict[str, int]`) over `typing.List`, `typing.Dict` — **seulement si le plancher est ≥ 3.9** (même réserve `__future__`).
 - Annotate instance variables in `__init__` or as class-level annotations.
 
 ## Error handling (EAFP)

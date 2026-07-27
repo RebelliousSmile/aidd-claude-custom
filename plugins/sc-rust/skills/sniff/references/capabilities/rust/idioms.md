@@ -22,10 +22,8 @@ Criteria for `/sc-rust:audit`. Loaded at audit time, never installed to `.claude
 
 ## Error handling
 
-- Use `?` for error propagation — never `.unwrap()` or `.expect()` in library code.
-- `.unwrap()` and `.expect()` are acceptable only in tests or `main()` with a comment explaining invariant.
-- Use `thiserror` for library errors, `anyhow` for application errors — do not mix them in the same crate.
-- Define domain-specific error types with `#[derive(thiserror::Error)]`; avoid stringly-typed errors.
+- Use `?` for error propagation. `.unwrap()` / `.expect()` are a defect **only** where `?` is possible (the function returns `Result`/`Option`) **and** the call is genuinely fallible — exempt the idiomatic-infallible cases (`write!` to a `String`, `Mutex::lock()` poison-only, regex on a `const` literal). Not every `.unwrap()` is a bug.
+- The runtime-agnostic rule is: **errors crossing an API boundary should be typed, not stringly-typed.** Name a specific error crate (`thiserror` for libraries, `anyhow`/`eyre`/`snafu`/`miette` for applications) **only if `Cargo.toml` declares it** — do not prescribe `thiserror`/`anyhow` on a project that chose another stack.
 
 ## Iterators
 
@@ -43,10 +41,12 @@ Criteria for `/sc-rust:audit`. Loaded at audit time, never installed to `.claude
 
 ## Async
 
-- Use `tokio::spawn` for CPU-bound work only with `spawn_blocking`; never block the async runtime.
-- Prefer `tokio::select!` for concurrent futures over sequential `await` chains.
-- Use `Arc<Mutex<T>>` (or `Arc<RwLock<T>>`) for shared mutable state across tasks — never `Rc<RefCell<T>>`.
-- Annotate async functions that perform I/O with `#[tracing::instrument]` for observability.
+These rules apply **only when `Cargo.toml` declares an async runtime**, and name crates measured from it — never by default. The runtime-agnostic defects (left of the arrow) hold regardless of stack; the crate names (right) are illustrative of a tokio project.
+
+- Never block the async runtime — offload CPU-bound work to the runtime's blocking pool (`tokio::spawn_blocking`, `smol::unblock`, …).
+- Prefer structured concurrency over sequential `await` chains where futures are independent (`tokio::select!`, `futures::select!`, …).
+- Shared mutable state across tasks uses a `Send + Sync` container (`Arc<Mutex<T>>` / `Arc<RwLock<T>>`), never `Rc<RefCell<T>>` — this one is runtime-agnostic.
+- Observability annotation (`#[tracing::instrument]`, …) applies **only if the project uses that instrumentation crate** — do not require `tracing` on a project that does not depend on it.
 
 ## Clippy compliance
 

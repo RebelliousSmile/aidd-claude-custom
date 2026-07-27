@@ -31,7 +31,7 @@ For each file:
 ### Step 3 — Post-migration checks
 
 After all transformations:
-- Run `grep -r "require(" src/` to verify no CommonJS remains (if ESM axis applied)
+- Run `grep -r "require(" src/` to verify no CommonJS remains (if ESM axis applied) — **en excluant les `.cjs`/`.cts`**, qui restent légitimement CommonJS ; un `require()` y subsistant n'est pas un résidu à corriger.
 - Run `grep -r "this\.\$store" src/` to verify no Vuex references remain (if Pinia axis applied)
 - Run `grep -r "export default {" src/` to count remaining Options API components
 

@@ -53,6 +53,7 @@ Skip this step if no `composer.json` is found.
 **Open/Closed (OCP):**
 - `switch ($type)` or `if ($type === 'X') ... elseif` chains that would require editing to add a new type → missing polymorphism
 - Look for: `switch` on a type/status string that isn't backed by an enum or strategy pattern
+- Ne pas flaguer un `match ($enum)` exhaustif : sur un `enum` le compilateur impose l'exhaustivité — c'est déjà fermé à l'extension non contrôlée.
 
 **Liskov Substitution (LSP):**
 - Subclass overrides that throw exceptions the parent never throws
@@ -63,9 +64,9 @@ Skip this step if no `composer.json` is found.
 - Classes that implement an interface but leave several methods throwing `NotImplementedException`
 
 **Dependency Inversion (DIP):**
-- `new ClassName()` inside a class constructor or method (hidden dependency)
-- `static::` calls to concrete classes for service access
-- Look for: `new Mailer()`, `new Repository()`, `new Logger()` instead of injected dependencies
+- `new ClassName()` d'un **service** (mailer, repository, client HTTP, logger) dans un constructeur/méthode → dépendance cachée.
+- **Ne flaguer que si** le type est un service (jamais un value object / DTO / exception / collection, où `new` est correct) **et** le projet injecte déjà ailleurs. Sans conteneur DI mesuré, prescrire l'injection est un choix d'architecture → `info`, pas une violation.
+- `static::` calls to concrete classes for service access.
 
 #### Missing patterns
 
@@ -144,3 +145,11 @@ Total: 4 HIGH · 7 MEDIUM · 1 LOW
 ```
 
 Then proceed to `02-plan`.
+
+## Test — non-régression (faux positifs corrigés)
+
+Sur un fichier de test couvrant chaque cas, rejouer `analyze` et vérifier :
+
+- `new Money(100, 'EUR')` (value object) ou `new \RuntimeException(...)` → **aucun** finding DIP ; seul un `new Mailer()`/`new UserRepository()` dans une base qui injecte déjà ailleurs est signalé.
+- Sur une base sans conteneur DI mesuré, un `new Service()` sort en `info`, pas en violation.
+- `return match ($enum) { Case::A => …, Case::B => … };` sur un `enum` → **pas** de finding OCP.

@@ -33,7 +33,7 @@ Determine which axes apply based on detected versions. Use the loaded references
 | Axis | Trigger |
 |---|---|
 | ES5→Modern JS | `var`, callbacks, `prototype` patterns detected |
-| CommonJS→ESM | `require()` in files when `"type": "module"` present or target is ESM |
+| CommonJS→ESM | `require()` dans un fichier **dont la résolution effective est ESM** — extension `.mjs`, ou `.js` sous un `package.json` en `"type": "module"`. **Exclure `.cjs`/`.cts`** (CommonJS explicite, valide même en dépôt ESM) : le module se mesure par fichier, la présence de `"type": "module"` à la racine ne suffit pas. |
 | Vue 2→3 | `vue` version < 3 OR Options API + `vuex` detected |
 | Vuex→Pinia | `vuex` in dependencies |
 | Svelte 4→5 Runes | `svelte` version ≥ 5 detected AND `$:` or `export let` or `on:` directives present in `.svelte` files |
@@ -89,3 +89,10 @@ Breaking changes requiring confirmation:
 ## Test
 
 Invoke on a Vue 2 or mixed-JS project; verify the manifest lists migration axes with file counts and flags breaking changes before proceeding.
+
+### Non-régression (faux positifs corrigés)
+
+Sur un dépôt à dominante ESM (`"type": "module"` à la racine) contenant un fichier `config.cjs` avec `require('./x')` :
+
+- L'axe **CommonJS→ESM** ne compte **pas** le `require()` du `.cjs`/`.cts` — ces fichiers sont CommonJS explicite, valides même en dépôt ESM. Seuls les `require()` dans un fichier à résolution ESM effective (`.mjs`, ou `.js` sous `"type": "module"`) sont retenus.
+- Un `if (!x)` (opérateur logique NOT) n'est **jamais** classé comme non-null assertion TypeScript — le signal ne matche que `foo!` suivi de `.`/`)`/`;`/`,`/`]`, pas `!foo`.

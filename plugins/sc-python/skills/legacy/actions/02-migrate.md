@@ -52,12 +52,17 @@ def get_map() -> dict[str, int]: ...
 
 Only convert when all format variables are simple identifiers (no complex expressions).
 
+**Ne jamais convertir un appel `logging`.** `logger.info("%s", x)` est du *lazy % formatting* : l'argument n'est interpolé que si le niveau est actif. Le transformer en `logger.info(f"{x}")` force l'évaluation à chaque appel et détruit le message-template structuré. Ces occurrences sortent en `Skipped (lazy logging — intentional)`, jamais réécrites.
+
 ```python
 # Before
 msg = "Hello %s, you have %d messages" % (name, count)
 
 # After
 msg = f"Hello {name}, you have {count} messages"
+
+# NE PAS TOUCHER — lazy logging voulu :
+logger.info("user %s did %s", user_id, action)
 ```
 
 #### `.format()` → f-string
@@ -102,6 +107,7 @@ def calculate_price(quantity: int, unit_price: float, discount: float) -> float:
 ### Write rules
 
 - Write transformed files to the same path (in-place).
+- **La modernisation d'annotations dépend du plancher `requires-python` mesuré (`01-scan` Step 2).** Ne réécrire `Optional[X]`→`X | None` / `List[X]`→`list[X]` en annotation *évaluée* que si le plancher couvre la version cible (colonne `Since`). Plancher `unknown` ou inférieur → laisser en `Skipped (interpreter floor not covered)`. Un `from __future__ import annotations` en tête de fichier lève la contrainte pour les annotations différées : le vérifier avant de statuer.
 - Show a unified diff for each file before writing; proceed unless `dry-run`.
 - Never modify `.venv/`, `venv/`, `__pycache__/`, migration files.
 - Clean up unused `typing` imports after annotation updates.
@@ -122,3 +128,8 @@ def calculate_price(quantity: int, unit_price: float, discount: float) -> float:
   Skipped (dry-run or user declined):
     - src/utils/helpers.py — type hints (complex signatures, needs manual review)
 ```
+
+## Test — non-régression
+
+- `logger.info("%s", x)` reste intact — sortie `Skipped (lazy logging — intentional)`, jamais converti en f-string.
+- Sur un projet `requires-python = ">=3.8"` sans `from __future__ import annotations`, aucune annotation `Optional[X]`/`List[X]` n'est réécrite en place — sortie `Skipped (interpreter floor not covered)`.

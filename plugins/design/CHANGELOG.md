@@ -1,5 +1,11 @@
 # Changelog — design
 
+## [2.6.1] — 2026-07-27
+
+### Fixed — README décrivait des numéros de version au lieu de l'existant
+
+- Titres de section (`Statut de maturité et seuil de conformité`, `Artefacts dérivés`, `copycat — réplication de maquette mesurée`) et la phrase du gate de fidélité portaient un numéro de version entre parenthèses (`(2.4.0)`, `(2.1.0)`, `(1.1.0)`, « Depuis 1.1.0 : … »). Retirés — l'historique des versions est le rôle du CHANGELOG, pas du README.
+
 ## [2.6.0] — 2026-07-25
 
 Mineur — **le harness de maquette peut, en opt-in, parler les mêmes tokens que ceux contre lesquels l'implémentation est lintée.** Un nouveau flag optionnel `--contract <dir>` fait inline à la maquette générée la feuille de tokens **déjà produite** du contrat (l'entrée `policies.json § adapters[]` de `consumer:"stylesheet"`), avant le chrome, pour que la référence et l'implémentation partagent une source de vérité unique. Sans le flag, le scaffold est **inchangé** et sort toujours en 0.

@@ -40,8 +40,8 @@ For each category, search the codebase and record findings with file + line refe
 - Callbacks where async/await is applicable — flag `then().catch()` chains that can be flattened
 - Missing `await` on async calls (common in event handlers)
 - `async` functions that never `await` — pointless async wrapper
-- Unhandled promise rejections — `async` function calls without try/catch or `.catch()`
-- `Promise.all` where `Promise.allSettled` is safer, or vice versa
+- Promesses potentiellement non gérées — un appel `async` sans `try/catch`/`.catch()` visible. **🟡, jamais 🔴** : « non géré » n'est pas décidable au scan statique — la rejection peut être captée par un handler global (`process.on('unhandledRejection')`, `window.onunhandledrejection`), par un `await` en amont, ou l'appel peut être *fire-and-forget* intentionnel. Et le fix (injecter `await`/`.catch`) **change le flux de contrôle** : awaiter là où on ne le faisait pas altère l'ordre/timing. Signaler pour décision humaine, pas comme bug prouvé à corriger d'office.
+- `Promise.all` vs `Promise.allSettled` : **ne pas trancher au grep**. Lequel est « plus sûr » dépend de la sémantique voulue (échec-rapide vs collecte de tous les résultats), qui n'est pas dans le texte de l'appel. `🟡` question, jamais une réécriture automatique dans un sens ou l'autre.
 
 #### TypeScript type coverage
 
@@ -64,9 +64,9 @@ For each category, search the codebase and record findings with file + line refe
 
 #### Module and imports
 
-- CommonJS `require()` in an ESM project
+- CommonJS `require()` — **le système de module se mesure par fichier, pas par projet**. Un `.cjs`/`.cts`, ou un fichier dont le `package.json` le plus proche n'a pas `"type": "module"`, est légitimement CommonJS même dans un dépôt à dominante ESM. Ne flaguer que si la résolution effective du fichier (extension + `type` du `package.json` le plus proche) est ESM. Sinon `info`, pas une violation.
 - Circular imports — detect via grep for mutual references
-- Wildcard imports (`import * as`) for tree-shakeable libraries
+- Wildcard imports (`import * as`) — le fait qu'ils « cassent le tree-shaking » est un **comportement de bundler**, pas une propriété du source. Les bundlers modernes (Vite/Rollup/esbuild) gèrent les imports de namespace. Ne l'affirmer que si le bundler mesuré (dans les deps) est connu pour ne pas le faire ; sinon `🟢`/`info`, jamais un verdict de perf.
 
 #### General JS
 
@@ -94,9 +94,9 @@ Framework: Nuxt 3 + TypeScript
 
 Findings (N total — N 🔴, N 🟡, N 🟢):
 
-🔴 Unhandled promise rejection — src/composables/useData.ts:42
+🟡 Promesse possiblement non gérée — src/composables/useData.ts:42
    Current:  fetchData()
-   Improved: await fetchData().catch(err => handleError(err))
+   Note:     vérifier handler global / fire-and-forget voulu avant d'injecter await/.catch (change le flux)
 
 🟡 Options API component — src/components/UserCard.vue:1
    Current:  export default { data() {...}, methods: {...} }
@@ -112,3 +112,12 @@ Findings (N total — N 🔴, N 🟡, N 🟢):
 ## Test
 
 Invoke on a project with at least one `.vue` or `.ts` file; verify findings include file paths, severity indicators, and before/after snippets.
+
+### Non-régression (faux positifs corrigés)
+
+Sur un fichier de test couvrant chaque cas, rejouer `analyze` et vérifier :
+
+- Un appel async non awaité (`fetchData()`) sort en **🟡** avec note « vérifier handler global / fire-and-forget » — **jamais 🔴** ni routé en Priorité 1 auto-fix.
+- `require('./x')` dans un fichier `.cjs` (ou `.js` sous un `package.json` sans `"type": "module"`) → **aucun** finding CommonJS→ESM.
+- `import * as utils from './utils'` sans bundler mesuré → au plus `🟢`/`info`, pas un verdict de tree-shaking cassé.
+- `Promise.all([...])` → pas de réécriture automatique vers `allSettled` (ni l'inverse).

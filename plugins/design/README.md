@@ -24,7 +24,7 @@ carte     poser    challenger     figer    verrou    produire
 - **define** — pose, écoute, construit la matière : tokens de travail, inventaire composants candidat, charte brouillon. Depuis une référence (screenshot, Figma, URL) ou un brief. Peut injecter le profil mobile-first/a11y optionnel.
 - **destructure** — challenge la direction avant de la figer : critique des angles (a11y, cohérence, mobilité…), pistes alternatives. Pendant design de `aidd-refine:challenge`.
 - **adjust** — arbitre les maquettes divergentes (motif dominant gagne ; gate humain sur les cas non tranchables), **fige le contrat**, **génère les artefacts dérivés** (`tools/generate.py`) et **migre un contrat 1.x** vers le format 2.0.
-- **enforce** — dérive un linter portable (`lint-core.mjs`) du contrat figé, câble 4 gates (import `tokens.css`, règles de génération, success_condition des plans, pre-commit). Pivot vers `sc-php:design-bridge` ou `sc-js:design-bridge` pour une réalisation native idiomatique. **Depuis 1.1.0 : un 2ᵉ gate de *fidélité*** (`05-fidelity-gate`) mesure le rendu vs la maquette résolue (voir copycat).
+- **enforce** — dérive un linter portable (`lint-core.mjs`) du contrat figé, câble 4 gates (import `tokens.css`, règles de génération, success_condition des plans, pre-commit). Pivot vers `sc-php:design-bridge` ou `sc-js:design-bridge` pour une réalisation native idiomatique. Un 2ᵉ gate de *fidélité* (`05-fidelity-gate`) mesure le rendu vs la maquette résolue (voir copycat).
 - **diffuse** — produit des éléments répétables (spec neutre + baseline HTML/CSS ou pivot sc-*). **Refus absolu de livrer si lint exit 1** ; **refus de rendre si `generate.py --check` exit ≠ 0** (artefact dérivé retouché à la main, ou source modifiée sans régénération).
 
 ## Contrat (figé à `adjust`)
@@ -45,7 +45,7 @@ Cinq artefacts, racinés par `design/release.json` — trois requis, deux option
 
 Un contrat sans `release.json` est au format 1.x : le linter ne le parse pas, il sort en **3** et nomme la commande de migration (`tools/migrate-contract.py`).
 
-## Statut de maturité et seuil de conformité (2.4.0)
+## Statut de maturité et seuil de conformité
 
 `release.json § status` porte un statut **calculé** par `tools/status.py` — jamais écrit à la main. C'est une échelle : le premier échelon dont la condition n'est pas remplie arrête la montée, puis un gap enregistré peut plafonner plus bas.
 
@@ -58,7 +58,7 @@ Un contrat sans `release.json` est au format 1.x : le linter ne le parse pas, il
 
 Les écarts connus vivent dans `release.json § gaps[]` (`class` / `caps` / `detail`) et **plafonnent** le statut au lieu d'être notés en prose : charte absente → `extracted` · contraste jamais calculé → `normalized` · une paire de contraste ou un état qui échoue → `validated`. L'a11y calculable est scindée (dec-002) : le **contraste par thème** (`adapters/a11y/contrast.py`, déterministe, au figeage) et la **présence déclarative des états** (`status.py --states`, sans markup) pèsent sur le statut ; les **rôles ARIA** restent du markup réalisé par pivot. Seuil et table complète : [`references/maturity-status.md`](references/maturity-status.md).
 
-## Artefacts dérivés (2.1.0)
+## Artefacts dérivés
 
 Un artefact dérivé n'est jamais écrit à la main. `tools/generate.py` en est le seul producteur : il lit les sources du contrat et émet un fichier par entrée de `policies.json § adapters[]` déclarant un `consumer` — un **rôle** (feuille de style, source pré-processée, configuration de build, fichier de tokens de plateforme), jamais un nom de plateforme. Une entrée sans `consumer` reste déclarative, non émise.
 
@@ -92,7 +92,7 @@ Aucun `sc-<langage>` installé → le cœur portable tourne seul, et les règles
 
 Le runner oppose ensuite le **seuil de maturité** : sous `validated`, il sort en **4** (violations toujours listées, conformité non affirmée, chemin de remontée nommé). Le seuil a une seule source exécutable — la constante `THRESHOLD` de `status.py`, importée par `run-gates.py` — et une seule source humaine, `references/maturity-status.md`.
 
-## copycat — réplication de maquette mesurée (1.1.0)
+## copycat — réplication de maquette mesurée
 
 `copycat` industrialise la copie conforme d'une maquette arbitraire vers le contrat, **sans nouveau verbe** (l'entonnoir reste à 5). C'est :
 

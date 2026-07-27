@@ -31,15 +31,17 @@ For each group, produce:
 
 Priority 1 — 🔴 Fix likely bugs (critical)
 ─────────────────────────────────────────
-Task: Add error handling to async composable calls [S]
-Pattern: async call without try/catch or .catch()
-Before: fetchData()
-After:  await fetchData().catch(err => handleError(err))
-Files: src/composables/useData.ts, src/composables/useAuth.ts
-Next: /aidd-dev:02-implement "Add error handling per improvement plan"
+(réservé aux défauts prouvés au scan : `==` sur null, `var` capturé en boucle,
+ `await` manquant sur une valeur ensuite déréférencée — pas les indécidables.)
 
-Priority 2 — 🟡 Maintainability
+Priority 2 — 🟡 Maintainability / à décider
 ─────────────────────────────────────────
+Task: Revoir les promesses possiblement non gérées [S]
+Pattern: appel async sans try/catch/.catch() visible
+Note: NE PAS injecter await/.catch d'office — vérifier d'abord handler global
+      ou fire-and-forget voulu ; l'await ajouté change l'ordre d'exécution.
+Files: src/composables/useData.ts, src/composables/useAuth.ts
+
 Task: Migrate 3 Options API components to Composition API [L]
 Files: src/components/UserCard.vue, src/components/Header.vue, ...
 Next: /aidd-dev:02-implement "Migrate Options API → Composition API"

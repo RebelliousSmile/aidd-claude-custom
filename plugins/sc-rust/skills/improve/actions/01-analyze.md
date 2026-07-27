@@ -36,10 +36,10 @@ Skip this step entirely if no `Cargo.toml` is found.
 
 #### Error handling
 
-- `unwrap()` / `expect()` outside of `#[cfg(test)]` or `#[test]` functions → should propagate with `?`
+- `unwrap()` / `expect()` outside of `#[cfg(test)]` or `#[test]` functions → **only** flag when the enclosing function returns `Result`/`Option` (so `?` is even possible) **and** the receiver is genuinely fallible. Exempt the idiomatic-infallible cases — `write!` into a `String`, a `Regex` built from a `const` literal, a `Duration` from a constant, a `Mutex::lock()` whose only failure is poisoning — where `.unwrap()` is the correct expression, not a defect. `warning`, never `HIGH`, unless a panic path is proven.
 - `Box<dyn Error>` in public API signatures → should use a typed error (thiserror) or `anyhow::Error`
 - Error types that derive `Debug` but not `Display` → `thiserror` `#[error("...")]` missing
-- Overly broad `match err { _ => ... }` that hides error variants → handle each variant explicitly
+- `match err { _ => ... }` that hides error variants → suggest enumerating variants **only if the enum is not `#[non_exhaustive]`**. For a `#[non_exhaustive]` error (`std::io::Error`, `sqlx::Error`, `rusqlite::Error`), a `_` arm is **required by the compiler** — recommending its removal produces code that does not build. Verify the attribute on the enum's definition before flagging.
 
 #### Ownership and cloning
 
@@ -56,10 +56,10 @@ Skip this step entirely if no `Cargo.toml` is found.
 
 #### Concurrency and async
 
-- `Arc<Mutex<T>>` where `T` is only written once at startup → `Arc<RwLock<T>>` or just `Arc<T>` with initialization
-- Locking `Mutex` across an `.await` point → deadlock risk; use `tokio::sync::Mutex` instead of `std::sync::Mutex`
-- `tokio::spawn` with a closure that captures `Rc<T>` → `Rc` is not `Send`; use `Arc`
-- Blocking operations (`std::fs::read_to_string`, `std::thread::sleep`) inside `async fn` → use `tokio::fs` / `tokio::time::sleep`
+- `Arc<Mutex<T>>` whose `T` **might be** written only once at startup → the write frequency is **not decidable from a static scan** (it is a runtime property, absent from the source). Emit an `info` question — « vérifier si `T` est réécrit après l'initialisation ; si non, `Arc<T>` suffit » — **never** a finding that drives lock removal. Removing a `Mutex` on a wrong guess produces a **data race the compiler will not catch** (unlike the async fixes below, which are grep-provable and compiler-checked).
+- Holding a lock across an `.await` point → deadlock risk. The runtime-agnostic defect is « a `std`/blocking lock held across a suspension point »; name a specific async lock (`tokio::sync::Mutex`, `async-std`, …) **only if `Cargo.toml` declares that runtime**. Do not assume tokio.
+- `tokio::spawn` with a closure that captures `Rc<T>` → `Rc` is not `Send`; use `Arc`. (Applies when the project's spawn primitive requires `Send` — read it from the runtime in `Cargo.toml`.)
+- Blocking operations (`std::fs::read_to_string`, `std::thread::sleep`) inside `async fn` → the defect is « blocking I/O held across `.await` », runtime-agnostic. Name the async replacement (`tokio::fs`, `smol::fs`, …) **from the runtime measured in `Cargo.toml`**, not by default.
 
 #### Design patterns
 
@@ -92,7 +92,7 @@ For each finding:
 Scanned: 22 files (handlers: 4, services: 5, models: 6, errors: 1)
 
 Error handling:
-  HIGH   unwrap() in non-test code — 8 occurrences in 5 files
+  WARN   unwrap() in fallible fns (Result-returning) — 3 of 8 flagged; 5 exempt (write!/regex-const/lock-poison)
   MEDIUM Box<dyn Error> in public handler signatures — src/handlers/orders.rs:12, :34
   LOW    Error type missing Display impl — src/errors/mod.rs:8
 
@@ -117,3 +117,12 @@ Total: 3 HIGH · 6 MEDIUM · 2 LOW
 ```
 
 Then proceed to `02-plan`.
+
+## Test — non-régression (faux positifs corrigés)
+
+Sur un fichier de test couvrant chaque cas, rejouer `analyze` et vérifier :
+
+- `Regex::new(LITERAL_CONST).unwrap()` dans une fonction qui **ne** retourne pas `Result`/`Option` → **aucun** finding erreur (exempté idiomatique-infaillible), jamais `HIGH`.
+- `let g = shared.lock().unwrap();` sur un `Arc<Mutex<T>>` → au plus un `info` question sur la fréquence d'écriture, **jamais** un finding qui propose de retirer le `Mutex`.
+- `match err { SomeIoError => …, _ => … }` où l'enum source est `#[non_exhaustive]` (ex. `std::io::Error`) → **pas** de suggestion d'énumérer/retirer le `_`.
+- Sur un `Cargo.toml` sans runtime async déclaré → aucun finding ne nomme `tokio`/`thiserror`/`anyhow` comme remplacement prescrit.

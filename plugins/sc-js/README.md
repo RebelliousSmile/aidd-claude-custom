@@ -81,9 +81,9 @@ Ce que ce pivot **ne fait pas** : décider s'il faut écrire un test. C'est `con
 | Perf / data pivot | `.claude/rules/07-quality/` | `web-optimize` / `data-optimize` (explicite) | Au lancement du skill |
 | Pivot `testing` | Plugin uniquement | `overcode:control` (découverte par glob) | À chaque action de `control` sur un projet JS |
 
-## Migration depuis 0.3.0
+## Nettoyage des fichiers de règles orphelins
 
-Les projets sc-js 0.3.0 ont des fichiers orphelins dans `.claude/rules/capabilities/`. Pour nettoyer :
+Un changement de structure des pivots peut laisser des fichiers orphelins dans `.claude/rules/capabilities/`. Pour nettoyer :
 
 ```
 /sc-js:sniff clean --dry-run   → prévisualisation des suppressions

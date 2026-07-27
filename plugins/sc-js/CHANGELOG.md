@@ -1,5 +1,19 @@
 # Changelog — sc-js
 
+## [0.13.1] — 2026-07-27
+
+### Fixed — README décrivait une migration de version au lieu de l'existant
+
+- **`README.md § Migration depuis 0.3.0`** renommée en « Nettoyage des fichiers de règles orphelins » — la commande `sniff clean` reste documentée, mais sans l'ancrer à un numéro de version passé (rôle du CHANGELOG, pas du README).
+
+### Fixed — discipline de sévérité (l'audit alimente des mutants)
+
+Même correctif transversal que sc-css/sc-rust/sc-php/sc-python. `improve/01-analyze` et `legacy/01-scan` sont read-only mais alimentent `02-plan`→`aidd-dev:implement` et `legacy/02-migrate` (mutants). Correction **inline**, conditionnée à une propriété **mesurée**. (Classe C absente : `no-unused-vars` reste un `warn`, jamais un verdict de code mort prouvé.)
+
+- **(A) Verdict sur propriété supposée → mesurée.** Le **système de module se mesure par fichier**, pas par dépôt : un `.cjs`/`.cts` reste CommonJS même sous un `package.json` en `"type": "module"` — `require()` n'y est plus flagué. Le tree-shaking cassé par `import * as` est un **comportement de bundler**, pas une propriété du source : ne plus l'affirmer sans bundler mesuré (`improve/01-analyze.md`, `legacy/01-scan.md`, `legacy/02-migrate.md`).
+- **(B) Sévérité alimentant la mutation — la pire ici.** « Unhandled promise rejection » était émis 🔴 et routé en Priorité 1 vers l'implémenteur, qui injecte `await`/`.catch`. Or « non géré » n'est **pas décidable au scan** (handler global, `await` amont, fire-and-forget voulu) et l'`await` ajouté **change le flux de contrôle**. Rétrogradé en 🟡 « à décider » ; `Promise.all` vs `allSettled` de même (sémantique voulue, pas grep-décidable) (`improve/01-analyze.md`, `improve/02-plan.md`).
+- **(E) Le moteur d'analyse mal-juge les constructions qu'il recommande.** Les deux regex de détection de la non-null assertion `!` capturaient le **NOT logique** que TypeScript recommande : `[^!=]![^=]` attrape `if (!x)`, et le jumeau `!\w` matche `!foo` (exactement l'inverse de l'assertion `foo!`). Resserrés pour exiger un identifiant/`)`/`]` **avant** le `!`, avec mention explicite que c'est un signal à confirmer (`sniff/references/capabilities/typescript.md`, `legacy/references/typescript-strictness.md`).
+
 ## [0.13.0] — 2026-07-25
 
 ### Reçu du pivot design (design 2.5.0 — verbe 0 `detail`)

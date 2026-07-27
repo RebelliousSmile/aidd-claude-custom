@@ -129,7 +129,8 @@ enum Status: string {
 ### Write rules
 
 - Write transformed files to the same path (in-place).
-- Show a unified diff for each file before writing; proceed unless `dry-run`.
+- **Un signal grep n'est pas une preuve, et un diff affiché n'est pas une confirmation.** Toute transformation dérivée d'un signal *nom de fonction nu* (`each`, `split`, `create_function`, `mysql_*`…) peut viser une fonction homonyme définie par l'utilisateur, importée d'un namespace, ou une méthode — ce que le grep ne distingue pas. Avant d'écrire un tel item **CRITICAL/WARN**, exiger une confirmation explicite par occurrence (ou par lot pour un même pattern), pas seulement l'affichage du diff. Résoudre d'abord : l'appel est-il bien la fonction globale supprimée, ou un homonyme ? En cas de doute → laisser en `Skipped (needs manual review)`, jamais réécrire.
+- Show a unified diff for each file before writing.
 - Never modify `vendor/` or generated migration files.
 - If a transformation requires a new class/enum file, create it alongside the existing file.
 
@@ -166,3 +167,7 @@ When `dry-run` flag is set, no files are written. Output shape:
 
 No files written. Remove --dry-run to apply.
 ```
+
+## Test — non-régression
+
+- Un item CRITICAL/WARN dérivé d'un signal *nom de fonction nu* (`each`, `split`, `create_function`) **déclenche une confirmation explicite** avant écriture, pas seulement l'affichage d'un diff. Un `each(` ambigu non résolu ressort en `Skipped (needs manual review)`, jamais réécrit d'office.

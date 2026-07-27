@@ -21,7 +21,7 @@ Detect version-specific and deprecated patterns in the Python codebase. Emit a s
 2. Read `pyproject.toml` → `[tool.poetry] python` or `[project] requires-python`
 3. Read `setup.py` → `python_requires`
 4. Read `tox.ini` → `[tox] envlist`
-5. If still unknown: check Dockerfile `FROM python:X.X`, else assume 3.9 and note the assumption
+5. If still unknown: check Dockerfile `FROM python:X.X`. **Si aucune source ne donne le plancher, ne pas supposer 3.9** : marquer la version `unknown` et rétrograder toute modernisation dépendante de la version en `warning` (« plancher d'interpréteur non mesuré — la cible du rewrite peut ne pas être disponible à l'exécution »). Une version supposée qui sur-estime le plancher produit du code qui casse au runtime, pas à l'analyse.
 
 ### Step 3 — Determine direction and target
 
@@ -37,7 +37,7 @@ Grep the source files (`.py`) under `path`. Exclude `.venv/`, `venv/`, `__pycach
 
 | Pattern | Signal | Replacement |
 |---|---|---|
-| `print` statement | `^\s*print\s+[^(]` | `print()` function |
+| `print` statement | `^\s*print\s+[^(=]` — **exclure `print (…)`** (espace avant parenthèse = appel Py3 valide) et `print =` (réassignation) | `print()` function. Le signal nu `print\s+[^(]` flague `print ("x")`, qui est déjà un appel correct. |
 | `xrange()` | `\bxrange\(` | `range()` |
 | `dict.iteritems()` | `\.iteritems\(\)` | `dict.items()` |
 | `dict.iterkeys()` | `\.iterkeys\(\)` | `dict.keys()` |
@@ -51,6 +51,8 @@ Grep the source files (`.py`) under `path`. Exclude `.venv/`, `venv/`, `__pycach
 | Long integers `123L` | `\d+L\b` | plain `int` |
 
 #### Type annotation modernization (upgrade, Python 3.9+/3.10+)
+
+**Condition de plancher, pas de présomption.** Chaque rewrite ci-dessous n'est applicable que si le plancher `requires-python` **mesuré** (Step 2) est ≥ la colonne `Since`. Sur un projet qui déclare `>=3.8`, réécrire `Optional[X]` en `X | None` (3.10) ou `List[X]` en `list[X]` en annotation *évaluée* (hors `from __future__ import annotations`) **casse à l'import**. Ce n'est donc pas un « pure annotation change, low risk » inconditionnel : c'est `low risk` **seulement** si le plancher couvre la cible. Plancher inconnu → `warning`, jamais auto-appliqué.
 
 | Pattern | Signal | Replacement | Since |
 |---|---|---|---|
@@ -67,8 +69,8 @@ Grep the source files (`.py`) under `path`. Exclude `.venv/`, `venv/`, `__pycach
 
 | Pattern | Signal | Replacement |
 |---|---|---|
-| `%` formatting | `%\s*(\(|[sdif])` | f-string |
-| `.format()` | `\.format\(` | f-string (if variables are simple) |
+| `%` formatting | `%\s*(\(|[sdif])` | f-string — **sauf `logging`**. `logger.info("%s", x)` est du *lazy % formatting* voulu : l'interpolation n'a lieu que si le niveau est actif. Le convertir en f-string force l'évaluation à chaque appel (coût + perte du champ structuré). Exclure les arguments de `logger.*`/`logging.*` → ne pas flaguer. |
+| `.format()` | `\.format\(` | f-string (if variables are simple) — même exclusion `logging`. |
 
 #### Downgrade targets
 
@@ -115,3 +117,11 @@ Missing type hints:
 ```
 
 Then proceed to `02-migrate`.
+
+## Test — non-régression (faux positifs corrigés)
+
+Sur un fichier de test couvrant chaque cas, rejouer `scan` et vérifier :
+
+- `print ("x")` (espace avant parenthèse) et `print = something` **ne sont pas** flagués comme `print` statement Python 2 — seul `print "x"` l'est.
+- `logger.info("%s", x)` **n'est pas** listé comme candidat f-string.
+- Sans plancher `requires-python` détectable, la version est marquée `unknown` et les modernisations d'annotations sortent en `warning`, **pas** supposées 3.9 ni auto-appliquées.

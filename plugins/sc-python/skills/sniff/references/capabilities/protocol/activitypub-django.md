@@ -26,7 +26,7 @@ Stack-specific checklist for `/ap-optimize` when a Django ActivityPub implementa
   # La view routée contient-elle la vérification de signature ?
   grep -rn "verify_signature\|check_signature" activitypub/views.py activitypub/inbox.py
   ```
-  Si `views.py` est routé mais que `verify_signature` n'y est que dans `inbox.py` → code mort critique.
+  Si `views.py` semble routé mais que `verify_signature` n'est que dans `inbox.py` → **signal à confirmer, pas verdict de code mort**. Un `grep` sur `*/urls.py` est aveugle au routage indirect de Django/DRF : `include()`, `path()` pointant une variable, `as_view()`, un `DefaultRouter`/`SimpleRouter` DRF, ou un dispatch dynamique peuvent câbler `inbox.py` sans que son nom apparaisse dans un `urls.py` scanné. Émettre « câblage inbox à confirmer manuellement — vérifier `include()`/routers/`as_view()` avant de conclure », jamais « code mort ». Le confirmer en résolvant l'URL réelle (`python manage.py show_urls` si `django-extensions`, ou tracer le `resolve()` de l'endpoint inbox), pas au grep.
 - Vérifier la couverture de test sur les chemins critiques — `coverage.omit` ou `# pragma: no cover` sur `inbox.py`, `signatures.py` ou `tasks.py` → faux sentiment de sécurité.
 - Baseline avant toute recommandation :
   ```bash

@@ -1,5 +1,20 @@
 # Changelog — sc-css
 
+## [0.3.2] — 2026-07-27
+
+### Fixed — discipline de sévérité de l'audit (6 trous)
+
+Chaque dimension présupposait une propriété du monde puis sur-affirmait la sévérité quand cette propriété était fausse. Correction **inline dans les actions** (pas de section de principes ; le verdict est conditionné à une propriété *mesurée* de la preuve, jamais à la plateforme). Rationale des six correctifs :
+
+- **`!important` = `error` → conditionné à la topologie de layer mesurée** (`audit/actions/01-audit.md § 01`, `improve/SKILL.md § cascade-layers`). Hors d'un hôte layered, `!important` est un override porteur : dans la cascade, `important-unlayered`/`important-layered` battent le `normal-unlayered`, lui-même au-dessus de toute layer. Le marquer `error` poussait `improve` à le retirer et à casser l'override. Symétriquement, enrôler du CSS en `@layer` sous un hôte unlayered le fait descendre *sous* les styles hôtes — capability contre-indiquée tant que l'hôte n'émet pas en layer.
+- **Moteur de spécificité honorant `:where()` / `:is()` / `:has()`** (`§ 01`). Un comptage à plat fabrique de faux conflits sur le code moderne que la dimension 05 recommande précisément.
+- **ID / profondeur : `error` → `warning`, sélecteurs possédés seulement** (`§ 01`). Un id injecté par l'hôte/un tiers n'est ni renommable ni sûr à aplatir.
+- **Code mort : jamais « mort », `warning` → `info: non-référencé dans les sources scannées`** (`§ 02`). Un scan statique ne voit pas les classes composées à l'exécution, le contenu stocké ni les noms runtime ; le glob scanné est déclaré dans le finding.
+- **Magic numbers : rapprochement par rôle sémantique avec tolérance de proximité → `warning`, jamais `error`** (`§ 03`). Un rayon autour de chaque token (`ΔE ≤ 2` pour les couleurs en distance perceptuelle, `±1px`/`±3 %` pour espacement/typo) attrape les valeurs presque-égales : le but est l'**uniformité** — des littéraux éparpillés (`15px`/`16px`/`17px`) que l'égalité stricte laisserait invisibles en `info`. Verdicts : `warning: remplacer par var` si identique (rendu inchangé, auto-applicable) · `warning: proche — uniformité` si dans le rayon (rendu changerait → validation humaine) · liste si plusieurs tokens dans le rayon · `info` hors rayon (one-off légitime). Décision de politique : proximité ≠ faute *prouvée*, donc `warning` (« regarde »), jamais `error` (« c'est faux ») — ce qui protège `improve`/`legacy` d'un faux positif mutable, le garde-fou de rendu d'`improve` interdisant par ailleurs tout remplacement silencieux qui changerait le rendu.
+- **Contraste WCAG : calculé seulement sur couleurs résolues, opaques, appariées, mono-thème** (`§ 04`). Sinon `info: non calculable` — posture alignée sur le plugin design, qui déclare le contraste comme gap non vérifié. Focus et `prefers-reduced-motion` résolus contre la cascade globale, pas le même sélecteur.
+
+Transversal : l'audit read-only alimente `improve`/`legacy` (mutants), donc toute indécidabilité est portée dans la **sévérité** (`info`), jamais dans une note ignorée par le pipeline.
+
 ## [0.3.1] — 2026-07-25
 
 ### Fixed
