@@ -1,26 +1,29 @@
 # `control` — le modèle
 
-> **État.** Ce document a été écrit **en avance** de la skill, puis `skills/control/` a été aligné sur lui — `SKILL.md`, les deux références et les six actions. Les deux disent désormais la même chose ; en cas de divergence constatée, c'est la skill qui fait foi et cette page qui est en retard.
+> **Autorité.** Cette page porte le modèle ; `skills/control/` le réalise. En cas de divergence, c'est cette page qui fait foi et la skill qui est en retard.
 
 `control` gouverne une suite de tests : ce qui mérite d'exister, ce qui ne le mérite plus, ce qui manque et ce que le projet dit de lui-même. Elle **ne rédige aucun test** — elle décide, puis délègue à `aidd-dev:06-test`.
 
 Elle porte `disable-model-invocation: true` : elle ne se déclenche jamais seule. C'est délibéré — une skill qui propose de supprimer des tests ne doit pas s'inviter.
 
-## Les trois autorités
+## Les quatre autorités
 
-Tout le modèle tient dans une séparation : **trois autorités distinctes, qui ne se recouvrent jamais.**
+Tout le modèle tient dans une séparation : **quatre autorités distinctes, qui ne se recouvrent jamais.**
 
 | Autorité | Décide | Ne décide jamais |
 |---|---|---|
 | **Table des tiers** | le tier d'un test : `contract` · `e2e` · `skip` | rien d'autre |
 | **Phase** | ce qui est analysé, comment c'est pondéré, dans quel ordre c'est restitué | aucun tier |
 | **Domaines** | quelles parties du code sont sous contrôle en priorité | aucun tier, aucune exclusion |
+| **`control`** | ce qu'il a mesuré — et qu'il écrit sous sa propre autorité | la stratégie : phase déclarée, vocabulaire de tiers, liste des domaines, contrainte de nombre — proposée, jamais appliquée |
 
-C'est l'invariant central, et il est écrit à l'identique dans neuf endroits de la skill :
+C'est l'invariant central, et il est répété à l'identique partout où la skill déclare un mécanisme de pondération :
 
 > **La phase priorise ; elle ne classe jamais un tier.** Un test est refusé sur un critère de tier, jamais « parce qu'on est en production ».
 
-Le même énoncé borne les deux autres mécanismes de pondération — la densité, et les *Risk signals* du pivot. Trois modulateurs, une seule autorité de classement. Quand on lit une ligne de la skill qui semble donner un pouvoir de classement à autre chose que la table des tiers, c'est un défaut, pas une exception.
+Le même énoncé borne les trois autres mécanismes de pondération — les domaines, la densité, et les *Risk signals* du pivot. **Quatre modulateurs, une seule autorité de classement.** Quand on lit une ligne de la skill qui semble donner un pouvoir de classement à autre chose que la table des tiers, c'est un défaut, pas une exception.
+
+Les modulateurs et les autorités ne se comptent pas ensemble, et les deux listes ne se recoupent que sur deux entrées : la densité et les *Risk signals* pondèrent sans rien décider — pas de ligne dans le tableau ; `control` décide sans rien pondérer — ce n'est pas un modulateur. Seules la phase et les domaines figurent dans les deux.
 
 ### Qui remplit la table des tiers
 

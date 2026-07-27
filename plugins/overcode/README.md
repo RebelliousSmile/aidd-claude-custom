@@ -13,7 +13,7 @@ Aucune skill ne code en dur la connaissance d'une stack : les audits détectent 
 | [`docs/concepts.md`](docs/concepts.md) | Le modèle mental — le socle, les pivots, les frontières entre skills voisines, la densité de `control` |
 | [`docs/workflow.md`](docs/workflow.md) | Quelle skill pour quelle situation — table de routage et détail par skill |
 | [`docs/aliases.md`](docs/aliases.md) | Les dix chaînes d'alias, ce qu'elles enchaînent et leurs garanties |
-| [`docs/control.md`](docs/control.md) | Le modèle de `control` — les trois autorités, les phases, les domaines, le chaînage |
+| [`docs/control.md`](docs/control.md) | Le modèle de `control` — les quatre autorités, les phases, les domaines, le chaînage |
 
 Le processus de chaque skill vit dans son `SKILL.md` et ses `actions/`.
 

@@ -1,4 +1,4 @@
-# Action 09 — gitit
+# Action 08 — gitit
 
 Fires the pre-crafted prompt that turns a directory into a fully synced, versioned
 git repository in one shot: **init local → ensure GitHub remote (gh) → commit →

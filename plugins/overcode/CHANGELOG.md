@@ -2,6 +2,21 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/overcode plugins/aidd-overlay` (le plugin s'appelait `aidd-overlay` avant la 3.0.0).
 
+## [3.9.1] — 2026-07-27
+
+### Fixed — `alias`
+
+- **La numérotation des actions est réalignée sur la table de `SKILL.md`** — six fichiers sur dix résolvaient sur un mauvais numéro. La suppression de `07-aiddlegacy.md` (commit `604dede`, 3.1.1) avait laissé un **trou en `07`** que les fichiers suivants n'ont jamais comblé : `weeklyemail`, `gitit`, `mirror` et `codex-vision` portaient `08`–`11` en nom **et** en titre, contre `07`–`10` dans la table. À quoi s'ajoutaient deux titres faux sans lien avec le trou : `04-previously.md` annonçait « Action 06 » et `05-smarten.md` « Action 07 » — donc une **collision**, deux fichiers revendiquant « Action 06 », et un numéro `07` revendiqué par un fichier alors même que la position était vide. Quatre renommages et six titres corrigés ; la table faisait foi, comme déjà tranché en 3.9.0 pour `bump-plugin`.
+- Le renommage ne casse aucun contrat : `evals/scenarios.json` (`expect_action`), `docs/aliases.md` et le README désignent les actions **par nom**, jamais par numéro, et aucun corps d'action n'en cite un autre par son numéro. Ce qui était cassé n'était donc pas l'exécution mais la **résolution humaine** — et celle du modèle quand il lit un titre plutôt qu'un nom de fichier.
+- Le défaut est structurel : le numéro d'une action vit à **trois endroits** — nom de fichier, titre `H1`, table de `SKILL.md` — sans qu'aucune autorité ne soit déclarée entre eux, et aucun outil ne les compare. Vérification étendue à l'ensemble de la marketplace : `alias` était le seul plugin en écart (les actions non numérotées de `decompose`, `journey`, `status` et `bruno` relèvent d'une autre convention, pas d'un trou).
+
+### Documentation — `overcode`
+
+- **`docs/control.md` — l'autorité de la page est inversée.** Elle se déclarait « écrite en avance puis alignée sur la skill », avec la **skill faisant foi** en cas de divergence : c'était l'état de fabrication d'une version, pas une règle. La page porte désormais le **modèle**, `skills/control/` le **réalise**, et c'est la page qui fait foi. Conséquence assumée : la page peut décrire ce que la skill ne réalise pas encore, et c'est alors la skill qui est en retard — voir le point suivant.
+- **Une quatrième autorité est énoncée : `control` elle-même** — elle décide de ce qu'elle a **mesuré** et l'écrit sous sa propre autorité ; elle ne décide jamais de la **stratégie** (phase déclarée, vocabulaire de tiers, liste des domaines, contrainte de nombre), qu'elle propose sans jamais l'appliquer. La borne existait déjà, réalisée dans `06-align` par la scission `MEASURED FACTS` / `PROPOSED STRATEGY` ; elle n'était énoncée nulle part comme une autorité du modèle. **`skills/control/` ne la porte pas encore** — la divergence est ouverte et connue.
+- **Modulateurs et autorités cessent d'être comptés ensemble** — la page comptait « trois modulateurs » face à « trois autorités » en laissant croire aux mêmes trois. Les deux listes ne se recoupent que sur **deux** entrées : la densité et les *Risk signals* pondèrent sans rien décider (aucune ligne d'autorité) ; `control` décide sans rien pondérer (aucun statut de modulateur). Seules la phase et les domaines figurent dans les deux — d'où quatre modulateurs et quatre autorités, sans que les nombres égaux désignent les mêmes objets.
+- **`docs/concepts.md` et `README.md`** — les deux renvois vers `control.md` annonçaient « les trois autorités ».
+
 ## [3.9.0] — 2026-07-27
 
 ### Changed — `control`

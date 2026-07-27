@@ -1,4 +1,4 @@
-# Action 11 — codex-vision
+# Action 10 — codex-vision
 
 Audite de façon critique du code généré ou modifié par un autre LLM. L'objectif est de détecter les défauts réels, les simplifications trompeuses et les régressions, tout en préservant l'intégralité du contrat fonctionnel.
 

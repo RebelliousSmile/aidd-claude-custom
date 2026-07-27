@@ -4,13 +4,13 @@
       "id": "overcode",
       "name": "overcode",
       "description": "Extends the AIDD framework with project-agnostic workflows: memory maintenance (harvest, reconcile-normative), obsolescence detection (taste), prospective analysis (foresee), behavioural-test harness for prompts (behave), test-suite governance by density and declared phase (control, user-invoked only), performance audits (data-optimize, web-optimize, ap-optimize), SEO/GEO audits (seo-optimize), project health reporting (status), plain-language explanations (baby), documentation (readme, changelog), and planning utilities (decompose, journey). Stack knowledge is never hardcoded: audits load pivots dropped by the sc-* plugins under .claude/rules/07-quality/. Alias chains: rechallenge, endtask, bump-plugin, previously, smarten, skillconf, weeklyemail, gitit, mirror, codex-vision.",
-      "version": "3.9.0"
+      "version": "3.9.1"
     },
     {
       "id": "design",
       "name": "design",
       "description": "Design system funnel — 7 skills. Verb 0 detail (read-only, no artifact) explains the map of the funnel and routes a stated intent to one of six stack-agnostic case classes, extended by the platform workflow of the matching sc-* pivot when installed. The 5-verb pipeline define · destructure · adjust (freeze the 4-artifact contract rooted by release.json, migrate 1.x) · enforce (portable linter derived from the contract + sc-* pivot + 4 vocabulary gates: tokens.css import, generation rules, plan success_condition, pre-commit) · diffuse (elements under gate + sc-* pivot), plus harness (standalone mockup scaffold, outside the funnel). A 5th gate of a different nature measures rendering fidelity against the resolved mockup. Every contract carries a computed maturity status (extracted · normalized · validated · production-ready) that gates conformity: run-gates.py exits 4 below the threshold and every known gap caps the status instead of being recorded as prose; contrast is computed per theme at freeze and declarative interactive states are checked without markup. Adds copycat (per-page mockup→contract reconciliation agent + Python fidelity oracle: machine CLOSED/OPEN verdict, structural completeness scan, coverage guard, deviation-ledger with id + registry validation, ledger-unused detection, active-frame isolation, check_text per-target, collections LCS-diff, collection-level ack, visual-diff companion). Adds config-gen.py (contract → oracle config) and migrate-contract.py (1.x → 2.0). Platform-level workflows live in the sc-* pivots under a skeleton frozen by the pivot contract. BREAKING 2.0.0: the monolithic contract is split into components.json, policies.json, oracle.json and release.json; the linter reads the new format only and exits 3 on a 1.x contract.",
-      "version": "2.6.0"
+      "version": "2.6.1"
     },
     {
       "id": "game-writer",
@@ -28,19 +28,19 @@
       "id": "sc-php",
       "name": "sc-php",
       "description": "PHP ecosystem skills: sniff, audit, improve, legacy, teach, log-analysis (tail/parse-errors/search/summarize sur logs PHP/Apache/Nginx local, Docker ou SSH prod), bruno (tests API Bruno en CLI, itère jusqu'au vert). design-bridge: réceptacle du pivot design (enforce → linter PHP/WP natif + pre-commit ; diffuse → block pattern WP + theme.json) ; possède le workflow de plateforme FSE (design:detail). builder-coverage: gate WYSIWYG FSE — couverture (chaque composant de page a une pattern éditable) + organisation (patterns rangées par rôle de section, sans fourre-tout). setup: scaffold-from-zero WordPress FSE/Laravel/Symfony + Docker Compose, garde-fou COMPOSE_PROJECT_NAME, pipeline de déploiement SSH optionnel (rsync + export DB conditionnel).",
-      "version": "0.8.0"
+      "version": "0.8.1"
     },
     {
       "id": "sc-js",
       "name": "sc-js",
       "description": "JS knowledge provider: detects runtime (web/desktop), framework (Nuxt/Vue/SvelteKit/Alpine/Vite/Astro), ORMs and capabilities, then emits a pivot manifeste. /sc-js:audit delegates code review to aidd-dev:reviewer. improve, legacy (Vue 2→3, ESM, TS), teach (composables, reactivity, async). Perf pivots (SvelteKit), store pivots (Svelte stores), Biome pivot, data pivots for web-optimize and data-optimize. design-bridge: réceptacle du pivot design (enforce → règle ESLint/Biome + pre-commit ; diffuse → composant Vue 3 SFC ou React) ; possède le workflow de plateforme SPA (design:detail). wp-blocks: round-trip de validité des blocs Gutenberg (Playwright, éditeur) pour markup FSE généré hors éditeur.",
-      "version": "0.13.0"
+      "version": "0.13.1"
     },
     {
       "id": "sc-css",
       "name": "sc-css",
       "description": "CSS ecosystem skills: sniff (architecture + stack), audit (spécificité, code mort, magic numbers, a11y), improve (custom properties, cascade layers, modernisation), legacy (float→flex/grid, px→rem, préfixes→standard), teach. design-bridge: réceptacle du pivot design — tokens.json → custom properties CSS, components.json → BEM stylesheets ; possède le workflow de plateforme statique (design:detail).",
-      "version": "0.3.1"
+      "version": "0.3.2"
     },
     {
       "id": "sc-tiers",
@@ -52,13 +52,13 @@
       "id": "sc-python",
       "name": "sc-python",
       "description": "Python-specific skills and workflows: two-tier sniff (pivot model), audit (aidd-dev:reviewer), improve, legacy, log-analysis, teach (Django/FastAPI).",
-      "version": "0.5.2"
+      "version": "0.5.3"
     },
     {
       "id": "sc-rust",
       "name": "sc-rust",
       "description": "Rust-specific skills and workflows: two-tier sniff (pivot model), audit (aidd-dev:reviewer), improve, legacy, log-analysis, teach (Axum/Actix + SQLx/Diesel).",
-      "version": "0.4.3"
+      "version": "0.4.4"
     },
     {
       "id": "obs",

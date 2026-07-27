@@ -1,29 +1,39 @@
-# Marketplace — état v3.0.0
+# Marketplace — état courant
 
-| Plugin | Version | Rôle |
-|---|---|---|
-| `aidd-overlay` | 2.1.5 | Extensions AIDD : dig, harvest, status, alias… |
-| `design` | 1.0.0 | Entonnoir 5 verbes (define→enforce→diffuse) + linter sc-* |
-| `writing` | 1.0.0 | Production éditoriale à partir d'un brief (doc pro + craft narratif) |
-| `game-writer` | 1.0.0 | Contenu narratif jeu vidéo (bank, dialogic-draft, dialogic-review) |
-| `sc-godot` | 0.1.0 | Godot/GDScript — coquille (skills à porter) |
-| `sc-js` | 0.7.0 | Écosystème JS (Nuxt/Vue/Svelte/Vite/Astro) |
-| `sc-php` | 0.5.0 | Écosystème PHP (WP/Laravel/Symfony) |
-| `sc-python` | 0.5.2 | Écosystème Python (Django/FastAPI/Flask) |
-| `sc-rust` | 0.4.3 | Écosystème Rust (Axum/Actix + SQLx/Diesel) |
-| `sc-tiers` | 0.2.0 | SaaS tiers (Firebase/Supabase/DynamoDB/Hasura) |
-| `obsidian` | 0.13.0 | Notes Obsidian, JDR solo, assemblage des intrants pour writing |
+Source de vérité : `.claude-plugin/marketplace.json` et `index.json`. Ce fichier en est la lecture, pas une archive datée.
 
-## Plugins supprimés
-
-| Plugin | Remplacé par |
+| Plugin | Rôle |
 |---|---|
-| `doc-writer` | `writing` (fusion) |
-| `rpg-writer` | `writing` (craft narratif) + `obsidian` (skills JDR + assemblage intrants) |
+| `overcode` | Extensions AIDD projet-agnostiques : alias, behave, control, harvest, status, taste, foresee, baby, readme, changelog, decompose, journey, reconcile-normative, seo-optimize, data/web/ap-optimize |
+| `design` | Entonnoir design system 5 verbes (define→destructure→adjust→enforce→diffuse) + detail et harness hors entonnoir |
+| `game-writer` | Contenu narratif jeu vidéo (bank, dialogic-draft, dialogic-review) |
+| `sc-godot` | Godot/GDScript — coquille (skills à porter) |
+| `sc-js` | Écosystème JS (Nuxt/Vue/Svelte/Vite/Astro) + design-bridge, wp-blocks |
+| `sc-css` | Écosystème CSS + design-bridge |
+| `sc-php` | Écosystème PHP (WP/Laravel/Symfony) + log-analysis, bruno, setup, design-bridge, builder-coverage |
+| `sc-python` | Écosystème Python (Django/FastAPI/Flask) |
+| `sc-rust` | Écosystème Rust (Axum/Actix + SQLx/Diesel) |
+| `sc-tiers` | SaaS tiers (Firebase/Firestore, Klaviyo, GTM, Clarity, PSI) |
+| `obs` | Notes Obsidian, arbre Documents/, filler, research, extract-pdf |
+
+## Plugins supprimés ou renommés
+
+| Ancien | Devenu |
+|---|---|
+| `aidd-overlay` | `overcode` (renommé en 3.0.0) |
+| `obsidian` | `obs` (renommé) |
 | `gamedesign` | `game-writer` (renommé) |
+| `doc-writer` | `writing` (fusion), puis `writing` retiré du marketplace |
+| `rpg-writer` | `writing` (craft narratif) + `obs` (skills JDR + assemblage intrants) |
 | `tabula-rasa` | — (supprimé, système de reset abandonné) |
+
+## Skills supprimées
+
+| Skill | Plugin | Remplacée par |
+|---|---|---|
+| `dig` | `overcode` | output style natif Learning (blocs ★ Insight) — le rappel actif noté /20 n'a pas d'équivalent |
 
 ## Séparation des responsabilités (BREAKING v3)
 
-- **`obsidian`** assemble les intrants : `brief` (construit `_brief/`), `forge` (concept), `research` (données), `lore-extract`, `rules-keeper`, `extract-pdf`.
-- **`writing`** produit à partir d'un brief : ne remonte jamais vers `R` ni `bank.yml`.
+- **`obs`** assemble les intrants : `brief` (construit `_brief/`), `forge` (concept), `research` (données), `lore-extract`, `rules-keeper`, `extract-pdf`.
+- La production éditoriale à partir d'un brief ne remonte jamais vers `R` ni `bank.yml`.

@@ -67,7 +67,7 @@ La phase est déclarée ou demandée, **jamais déduite** :
 
 Le fait que la phase ne soit **jamais déduite** est un choix : un projet en `sustaining` ressemble beaucoup à un projet abandonné, et se tromper coûte soit des tests supprimés à tort, soit une suite qui gonfle sans fin.
 
-Le modèle complet — les trois autorités, les domaines sémantiques, le chaînage des actions — est dans [`control.md`](control.md).
+Le modèle complet — les quatre autorités, les domaines sémantiques, le chaînage des actions — est dans [`control.md`](control.md).
 
 `control` porte `disable-model-invocation: true` — il ne se déclenche jamais tout seul, uniquement sur `/overcode:control`. C'est cohérent avec son pouvoir : une skill qui peut recommander de supprimer des tests ne doit pas s'inviter dans une conversation.
 

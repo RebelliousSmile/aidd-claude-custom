@@ -4,6 +4,24 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [3.3.3] - 2026-07-27
+
+### Fixed
+
+- **`overcode` (3.9.1)** — numérotation des actions d'`alias` réalignée sur la table de `SKILL.md` : six fichiers sur dix résolvaient sur un mauvais numéro, dont deux revendiquant tous deux « Action 06 ». Origine : un trou en `07` laissé par la suppression de `07-aiddlegacy.md` en 3.1.1, jamais comblé. Aucun contrat cassé — les actions sont désignées par nom partout. Documentation de `control` : l'autorité entre `docs/control.md` et `skills/control/` est inversée (la page porte le modèle, la skill le réalise), et une quatrième autorité est énoncée — que la skill ne réalise pas encore.
+- **Dérive silencieuse d'`index.json` sur six plugins** — `design`, `sc-css`, `sc-js`, `sc-php`, `sc-python` et `sc-rust` y portaient encore la version précédant les bumps de 3.3.2, alors que `plugin.json` et `marketplace.json` étaient à jour. Aucune version n'est bumpée ici : c'est le troisième manifeste qui rattrape. La cause est structurelle — `index.json` est le seul des trois qu'aucun consommateur ne lit à l'exécution (Claude Code se sert de `marketplace.json`), donc rien ne se casse quand il ment. `alias:bump-plugin` propage bien sur les trois depuis `overcode` 3.9.0, mais un bump fait à la main y échappe.
+- **`~/.claude/rules/plugins-marketplace.md`** (hors dépôt, chargé à chaque session) — décrivait la marketplace sous son ancienne racine `aidd-overlay/`, nom abandonné en 3.0.0, et listait neuf plugins dont trois inexistants (`gamedesign`, `writing`, `obsidian`) et trois manquants (`design`, `sc-css`, `sc-godot`). Il annonçait notamment la skill `dig`, retirée en 3.3.0 — d'où un diagnostic de skill « manquante » qui ne portait sur rien. Reconstruit depuis `marketplace.json`, sans versions (elles dérivent). Règle ajoutée : la marketplace étant déclarée `source: directory` sur l'arbre de travail, une installation capture **ce qui est sur le disque**, commité ou non — un numéro de version identifie une intention, jamais un contenu.
+- **`aidd_docs/memory/marketplace-v3.md`** — titré « état v3.0.0 » mais décrivant un état antérieur à la v3, avec onze versions fausses. Réécrit en « état courant », sans versions, et doté de deux registres de ce qui n'existe plus : plugins supprimés ou renommés, et skills supprimées.
+
+## [3.3.2] - 2026-07-27
+
+Entrée écrite rétroactivement : le commit `81c66dd` a bumpé le marketplace et six plugins sans la rédiger.
+
+### Fixed
+
+- **Discipline de sévérité des audits, sur cinq plugins `sc-*`** — `sc-css` (0.3.2), `sc-js` (0.13.1), `sc-php` (0.8.1), `sc-python` (0.5.3), `sc-rust` (0.4.4). Même défaut transposé à chaque stack : une dimension d'audit présupposait une propriété du monde (un conteneur DI, un hôte en `@layer`, un plancher d'interpréteur, un runtime async, un module ESM) puis sur-affirmait la sévérité quand cette propriété était fausse. Le verdict est désormais conditionné à une propriété **mesurée** de la preuve, jamais à la plateforme supposée. L'enjeu est le chaînage : `audit` et `improve/01-analyze` sont read-only mais alimentent des actions **mutantes** (`legacy/02-migrate`, `aidd-dev:implement`), donc un faux verdict devient une réécriture. Toute indécidabilité est portée dans la **sévérité** (`info`), jamais dans une note que le pipeline ignore — et « code mort » n'est plus jamais affirmé au scan statique, seulement « non référencé dans les sources scannées ». Détail par plugin dans leurs CHANGELOG respectifs.
+- **`design` (2.6.1)** — titres de section et phrases du README portaient des numéros de version (`(2.4.0)`, `(2.1.0)`, « Depuis 1.1.0 : … »). Retirés : l'historique est le rôle du CHANGELOG. Même correction dans `sc-js`, dont une section s'intitulait « Migration depuis 0.3.0 ».
+
 ## [3.3.1] - 2026-07-25
 
 ### Fixed

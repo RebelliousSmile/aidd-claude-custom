@@ -1,4 +1,4 @@
-# Action 08 — weeklyemail
+# Action 07 — weeklyemail
 
 Collecte les commits de la semaine sur les dépôts accessibles d'une plateforme (`github` ou `gitlab`), synthétise l'activité par thème fonctionnel et génère un e-mail client prêt à envoyer.
 
