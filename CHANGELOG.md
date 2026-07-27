@@ -15,7 +15,11 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnemen
 
 ## [3.3.2] - 2026-07-27
 
-Entrée écrite rétroactivement : le commit `81c66dd` a bumpé le marketplace et six plugins sans la rédiger.
+Entrée écrite rétroactivement : la version a été atteinte par deux apports — le commit `81c66dd` (correctifs `sc-*`) puis le merge `cc604e2` (overcode 3.9.0) — dont aucun ne l'a rédigée.
+
+### Added
+
+- **`overcode` (3.9.0)** — revue DDD de la skill `control` : le modèle a été écrit d'abord, puis la skill alignée dessus. Trois autorités séparées et énoncées comme telles, les **domaines** comme nouvelle dimension (le projet déclare lesquels existent, le pivot `sc-*` déclare comment les repérer — autorité découpée par nature de connaissance, donc sans arbitrage nécessaire), deux nouvelles phases (`default` et `undetermined`), et le graphe de chaînage des six actions promu en contrat. Quatre pages `docs/` créées (`concepts`, `workflow`, `aliases`, `control`). `alias:bump-plugin` propage désormais la version sur les **trois** manifestes au lieu de deux — la divergence que ça corrige ne se voyait qu'à l'installation.
 
 ### Fixed
 
