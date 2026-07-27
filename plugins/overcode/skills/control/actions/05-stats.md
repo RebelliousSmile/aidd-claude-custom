@@ -2,25 +2,33 @@
 
 Read-only snapshot of a project's test situation in one screen: how many tests exist, of which kind, and **which test strategy is actually in force** - the project's own, or this skill's generic default.
 
-Writes nothing, proposes nothing, deletes nothing. It is the action a user runs before deciding whether they need `audit`, `strengthen` or `configure`.
+Writes nothing, proposes nothing, deletes nothing. It is the **entry point** of the skill: the action a user runs before deciding whether they need `audit`, `strengthen`, `configure` or `align` (`SKILL.md`, *Action chaining*).
 
 ## Inputs
 
 - `project_path` (required) - absolute path to the target project root
-- `scope` (optional, default: whole project) - a subdirectory or glob to limit the counts
+- `scope` (optional, default: whole project) - a subdirectory or glob to limit the counts. **Here `scope` targets the source code and the test files it maps to**: what it bounds is the perimeter measured. (In `02-audit` the same parameter name bounds the *test suite* alone.)
+- `domain` (optional) - a functional domain declared by the project (`auth`, `payment`). It **orders the reading; it never bounds the counts** - a snapshot whose figures silently excluded part of the project would be the one thing this action must never produce. Mutually exclusive with `scope` - given both, stop and ask which was meant (`SKILL.md`, *Parameters*).
 - `phase` (optional) - overrides the resolved project phase for this run only
 
 ## Outputs
 
 ```
 PHASE
-  value       : scaffolding | hardening | production | sustaining | undetermined
-  provenance  : argument | declared <path> | answered <this run only> | undetermined
+  value       : scaffolding | hardening | production | sustaining | default | undetermined
+  provenance  : argument | declared <path> | answered <this run only> | unanswered
   question    : <the question put to the user, and the observations offered with it>
-                (present whenever provenance is `answered` or `undetermined`; absent otherwise)
+                (present whenever provenance is `answered` or `unanswered`; absent otherwise)
   divergence  : <argument vs declared, when both exist and differ> | none
-  buckets     : expected <order for this phase> / observed <order measured>
+  axes        : expected <order for this phase> / observed <order measured>
+              | none expected under `default` - neutrality was declared, so no order is
+                predicted; the observed one is reported alone
+              | none expected under `undetermined` - the phase is unknown, so nothing
+                predicts an order; the observed one is reported alone
                 (classification is approximate: tier + role of the source file exercised + churn)
+  domains     : <declared domains, and for each: resolved to <n> files | term matched nothing>
+                (absent when the project declares none - the generic `critical journeys`
+                 fallback applies and is named as such)
 
 STRATEGY
   authority   : project doc <path> | generic default (references/decision-framework.md)
@@ -53,8 +61,16 @@ FLAGS
 ## Process
 
 1. Resolve `project_path` and `scope`.
-1-bis. **Phase provenance** - resolve the project phase per `@../references/phase-framework.md`, which **never deduces it**, and report the four possible provenances distinctly: **argument** (given explicitly for this run), **declared** (cite the document path), **answered** (the user was asked before anything was ranked, and answered - good for this run only, recorded nowhere), **undetermined** (the question was asked and left unanswered). When an argument and a declaration both exist and differ, report the divergence - the argument wins for this run, the declaration stays in the file. An answer given in conversation is never written down by this action, and never reported as if the project had declared it: `06-align` is what turns it into a declaration.
-1-ter. **Bucket order** - compare the expected ordering of the three buckets for the resolved phase against the observed one. Report **orders, never shares**: no percentage is produced here, and the classification of an existing test into a bucket is an approximation, declared as such next to the comparison.
+1-bis. **Phase provenance** - resolve the project phase per `@../references/phase-framework.md`, which **never deduces it**, and report the four possible provenances distinctly: **argument** (given explicitly for this run), **declared** (cite the document path), **answered** (the user was asked before anything was ranked, and answered - good for this run only, recorded nowhere), **unanswered** (the question was asked and left unanswered).
+
+   **`value` and `provenance` are two different lines and never collapse into one.** The value says *which phase*, the provenance says *where that came from*, and only one pairing is forced: provenance `unanswered` always carries value `undetermined`, and vice versa. Every other combination is free - `default` can arrive by argument, by declaration or by an answer, exactly like `production`. The provenance axis is deliberately worded as the `answered` / `unanswered` pair, so that the axis names itself rather than borrowing the name of a phase value it happens to imply once.
+
+   When an argument and a declaration both exist and differ, report the divergence - the argument wins for this run, the declaration stays in the file. An answer given in conversation is never written down by this action, and never reported as if the project had declared it: `06-align` is what turns it into a declaration.
+1-ter. **Reading-axis order** - compare the expected ordering of the axes for the resolved phase (`foundations` and the project's declared domains, or the generic `critical journeys` fallback, per `phase-framework.md`) against the observed one. Report **orders, never shares**: no percentage is produced here, and the classification of an existing test onto an axis is an approximation, declared as such next to the comparison.
+
+   **Under `default` and `undetermined` there is no expected order, and the line says so in words.** Neither phase predicts one - `default` because neutrality was chosen, `undetermined` because nothing is known - so the observed order is reported alone. An empty expected side of a comparison reads as a measurement that failed, which is the opposite of what is true here.
+
+1-quater. **Domain resolution** - when the project declares domains, resolve each to code per `phase-framework.md` and report, per domain, how many files it matched. **A term that matched nothing is reported as such**, never omitted: an unresolved domain and a domain with nothing to report look identical in a snapshot, and only one of the two is good news.
 2. **Strategy provenance** - the point of this action. Look for the project's documented strategy at `<project_path>/aidd_docs/memory/testing.md` (AIDD memory convention, generated by `aidd-context`'s project-memory skill - refer to the document, not to a pinned action name, since those change across `aidd-context` majors) or an equivalent project-level document naming its own tiers. Report which one is in force, by path, and never merge the two silently: if the project has no document, say the generic default is in force, and say so as a finding, not as a neutral state - it means `budget` is structurally `null` and no tier vocabulary is owned by the project.
 3. **Strategy readability** - a `testing.md` existing is not the same as a `testing.md` this skill can act on. The canonical AIDD template does not speak this skill's tier vocabulary, and its shape varies by `aidd-context` major (older ones list test types and a "desired coverage percentage"; newer ones use Strategy / Tools / Conventions / Run with unfilled placeholders). Classify the document as:
    - **actionable** - it names tiers, or states what must be tested versus not, in terms this skill can map to `contract` / `e2e` / `skip`;
@@ -75,8 +91,9 @@ FLAGS
    - coverage gate declared but invoked by nothing -> `03-configure`;
    - e2e count comparable to or above contract count -> inverted pyramid, the most expensive tier is carrying the suite (see `02-audit`);
    - source-to-test ratio with large untested areas -> `04-strengthen`;
-   - observed bucket order matching an earlier phase's expected order better than the resolved phase's -> **centre of gravity left on the previous phase**: the suite still protects what the product used to be. Deduced from comparing orders, never from a stored history - `control` keeps no state between runs;
-   - phase `undetermined`, or resolved by asking rather than by a declaration -> the project's document does not say what phase it is in, and every run will keep asking until it does -> `06-align`.
+   - observed axis order matching an earlier phase's expected order better than the resolved phase's -> **centre of gravity left on the previous phase**: the suite still protects what the product used to be. Deduced from comparing orders, never from a stored history - `control` keeps no state between runs. Not raisable under `default` or `undetermined`, which predict no order to compare against;
+   - a declared domain resolving to no file -> either the domain is named differently in the code than in the document, or it does not exist yet. Report the term and both readings; decide neither -> `06-align`;
+   - provenance `unanswered` (so value `undetermined`), or **any** value whose provenance is `answered` -> the project's document does not say what phase it is in, and every run will keep asking until it does -> `06-align`. **What silences this flag is the provenance, not the value.** A `default` whose provenance is `declared` raises nothing - the question has been settled, and re-routing it would ask the project to decide what it has already decided. A `default` whose provenance is `answered` raises the flag exactly like any other answered value: it was said out loud and written nowhere, so the next run will ask again. Reading this flag off the value alone is the mistake the two-axis split exists to prevent.
 8. Print the snapshot. Stop. Suggesting an action is allowed; running one is not - the user chooses.
 
 ## Constraints

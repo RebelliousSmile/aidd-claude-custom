@@ -5,7 +5,8 @@ Find low-value tests in an existing suite and propose their removal - never dele
 ## Inputs
 
 - `project_path` (required) - absolute path to the target project root
-- `scope` (optional, default: whole test suite) - a subdirectory or glob to limit the audit
+- `scope` (optional, default: whole test suite) - a subdirectory or glob to limit the audit. **Here `scope` targets the test suite**: what it bounds is the set of test files read. (In `04-strengthen`, `05-stats` and `06-align` the same parameter name bounds *source* files instead - each action states its own target, none leaves it implicit.)
+- `domain` (optional) - a functional domain declared by the project (`auth`, `payment`), resolved to code by the terms the project supplies and by the pivot's *Domain resolution* field. It **prioritises the audit; it never restricts it**: a test matching no domain is still audited, ranks lower, and is reported with the term that failed to match it. Mutually exclusive with `scope` - given both, stop and ask which was meant (`SKILL.md`, *Parameters*).
 - `phase` (optional) - overrides the resolved project phase for this run only
 
 ## Outputs
@@ -18,6 +19,8 @@ Find low-value tests in an existing suite and propose their removal - never dele
 
 No file is deleted as part of producing this table.
 
+When a `domain` was given, the table is followed by the **resolution report**: which terms matched what, and which terms matched nothing. A term that resolved to no file is stated as such - it usually means the domain is named differently in this codebase than in the document that declared it, and an unreported miss reads as a domain that is genuinely clean.
+
 ## Process
 
 1. Resolve `project_path` and `scope`. Enumerate test files using the active language plugin's `testing` pivot glob if loaded (`@../references/pivot-contract.md`), else a generic `**/*.{test,spec}.*` glob.
@@ -26,7 +29,7 @@ No file is deleted as part of producing this table.
    - **Trivial** - test body under 5 lines AND asserting only a framework/library guarantee or an unbranched assignment, excluding imports and setup/teardown. A short test that asserts a real input -> output transformation (the ideal shape of a `contract` test per `decision-framework.md`) is not trivial merely for being short - line count alone is never sufficient to flag it.
    - **Getter/setter-only** - asserts only that a property was set or read, with no branching or business logic involved.
 3. Build the candidates table with a one-line reason per row, referencing the duplicate's location when applicable.
-3-bis. Resolve the project **phase** per `@../references/phase-framework.md` - **never by deduction**: argument, declaration in the project's own documentation, or a question asked before the table is built. State it with its provenance, and use it to **order** the table: a candidate sitting in a bucket the current phase lowers rises in the list, one in a bucket it raises falls. The phase **qualifies nothing**: a row is in this table because one of the three heuristics flagged it, never because of the phase. A test the phase deprioritises but no heuristic flags does not appear here at all - it stays.
+3-bis. Resolve the project **phase** per `@../references/phase-framework.md` - **never by deduction**: argument, declaration in the project's own documentation, or a question asked before the table is built. State it with its provenance, and use it to **order** the table along the two reading axes - `foundations` and the project's declared domains (or the generic `critical journeys` fallback): a candidate the current phase deprioritises rises in the list, one it raises falls. Under `default` and `undetermined` the weighting is neutral and the table comes out in heuristic order alone - say so rather than presenting an unweighted order as if it were a phase's. The phase **qualifies nothing**: a row is in this table because one of the three heuristics flagged it, never because of the phase. A test the phase deprioritises but no heuristic flags does not appear here at all - it stays - the phase prioritises, it never qualifies, and a row is proposed for removal on a heuristic criterion, never "because we are in production".
 3-ter. **Density outliers point this action at a file; they never fill a row of its table.** When `05-stats` or `01-write` reported a file past 3× the project's median density under the *low-value* reading (`@../references/test-density.md`), audit that file first - the ratio says many cases sit on little logic, which is where duplicates and trivia concentrate. But a row still needs one of the three heuristics to hold. A high density is a reason to **look**, and on its own it is not a reason found: the calibration turned up a file whose cases each exercised a distinct regex alternative the denominator could not see, and every one of them was worth keeping. Report a file examined on that signal and cleared as examined and cleared - a silently dropped outlier reads as an outlier nobody looked at.
 4. Present the table to the user. Delete only the rows the user explicitly confirms (individually, or via an explicit batch selection they name) - anything not explicitly confirmed stays untouched.
 5. Never invoke a delete on a row without that row's explicit confirmation, mirroring `overcode:harvest`'s per-item confirmation gate. **The per-item confirmation regime of this action is unchanged by the phase**: whatever the phase, however it re-orders the table, no row is removed without its own confirmation.

@@ -4,9 +4,11 @@ A test suite does not prove the same thing at every moment of a product's life. 
 
 **The phase prioritises; it never classifies a tier.** Same boundary as the pivot's *Risk signals*. A test is refused on a tier criterion, never "because we are in production". Tier authority stays with the loaded tier table (the project's own documented strategy, else `decision-framework.md`).
 
-## The four phases
+What the phase does govern is the **analysis strategy**: which criteria weigh heavily right now, how the coverage report is read, and in which order the result is restituted. It weights and it gives meaning; it never sets a numeric threshold. A per-phase coverage threshold would turn the percentage into a target and break the rule that coverage is a symptom, never a goal.
 
-One axis: growing exposure, then sedimentation. Each boundary is a question with a binary answer, so a phase can be declared without debate.
+## The phases
+
+Four of them sit on one axis: growing exposure, then sedimentation. Each boundary is a question with a binary answer, so a phase can be declared without debate. Two more sit off that axis — `default` and `undetermined` — and both proceed on the neutral weighting.
 
 ### `scaffolding` — does the domain model still move?
 
@@ -36,9 +38,30 @@ One axis: growing exposure, then sedimentation. Each boundary is a question with
 - What the suite must prove: that nothing regresses on what is already in use, and that the **external contracts** the product depends on still behave as assumed — because they keep moving after the product has stopped.
 - What it assumes it does not cover: new-feature coverage that nothing produces any more. This is the phase where the suite's cost is most visible and its internal yield lowest.
 
+### `default` — is neutrality what the project wants?
+
+**Yes.** The project wants to use the actions without any ranking bias and without any removal batch, and it wants that on the record rather than re-litigated at every run.
+
+- What the suite must prove: whatever the tier table says, nothing more. No criterion is raised, none is lowered.
+- What it assumes it does not cover: nothing in particular. `default` expresses no expectation about the suite, which is precisely its point.
+
+`default` is **declared**, exactly like the four positional phases. Its effects are entirely subtractive: neutral criteria weighting, **no expected axis order**, **no removal batch**, and **exclusion from the phase-switch machinery of `06-align`** — a project moving to or from `default` is not switching phase in the sense that qualifies tests as obsolete, because `default` raises and lowers nothing that a test could have been justified by.
+
 ### `undetermined`
 
 Not a fallback dressed up as a value: a first-class answer. It means the question was put to the user and left unanswered - never that a deduction came up short, because none is attempted. `control` says so, states what it asked, and proceeds on the neutral weighting.
+
+**`undetermined` and `default` are not the same value wearing two names.** They share the neutral weighting and nothing else:
+
+| | `default` | `undetermined` |
+|---|---|---|
+| Origin | a declared choice | a question left unanswered |
+| The question is asked again | never | at every run |
+| `05-stats` routes to `06-align` for it | no, **once declared** | yes |
+| Removal batch | none, by definition | whatever the real phase says, once known |
+| Phase switch applies | no | yes, as soon as a phase is declared |
+
+The distinction is worth the extra value because the two states call for opposite handling: one is settled, the other is an open question that every run must keep surfacing.
 
 ## Resolution order
 
@@ -49,6 +72,21 @@ Not a fallback dressed up as a value: a first-class answer. It means the questio
 3. **Ask the user, and wait.** No action proceeds on an undeclared phase by guessing one. The question is asked before any ranking, any table, any proposal - because the answer changes their order.
 
 `undetermined` remains a legitimate value, and it means exactly one thing: the question was asked and not answered. It is never the result of a failed deduction, because no deduction is attempted.
+
+### Value and provenance are two axes, not one
+
+Every action reports **two** things about the phase, and they are never merged into a single line:
+
+| Axis | Answers | Possible values |
+|---|---|---|
+| **value** | *which phase is in force* | `scaffolding` · `hardening` · `production` · `sustaining` · `default` · `undetermined` |
+| **provenance** | *where that value came from* | `argument` · `declared <path>` · `answered` · `unanswered` |
+
+The provenance axis is worded as the `answered` / `unanswered` pair on purpose. Naming its last value `undetermined` would have been the obvious shortcut and the wrong one: `undetermined` is a phase, and reusing it as a provenance made the same word mean *which phase* on one line and *where it came from* on the other. The confusion stayed invisible while the two coincided; `default` is what made it legible, since a `default` arriving by argument, by declaration or by an answer are three different situations that a merged line cannot tell apart.
+
+**One pairing is forced, and only one**: provenance `unanswered` always carries value `undetermined`, and value `undetermined` always carries provenance `unanswered` - they are the two faces of the same non-event. Every other combination is free.
+
+`default` travels through the same three sources as any other phase - it is a declarable value, not a mode. Declaring it is what makes it different from `undetermined`: once written down, the question stops being asked, and `05-stats` stops routing to `06-align` over it.
 
 When the argument and the declaration diverge, the argument wins **for this run** and the divergence is reported - a one-off override does not silently rewrite what the project has written down. The phase is an attribute of the project, overridable on an explicitly requested `scope`; there is no automatic per-zone split, because no reliable source of truth exists for one.
 
@@ -86,6 +124,8 @@ The phase re-weights the risk criteria `04-strengthen` already ranks by. It adds
 | Absence of any other net | normal | raised | raised | normal |
 | **External contract dependency** | lowered | normal | raised | **dominant** |
 
+`default` and `undetermined` have no column: both use the **neutral** weighting, which is the criterion order as `04-strengthen` states it, with nothing raised and nothing lowered. Adding a column of six `normal` cells would only invite the reader to look for a difference that does not exist.
+
 "Development" is deliberately absent from the phase list. What it describes — test the recent code, prove non-regression — is the **churn** criterion, which already exists. A phase modulates its weight; it does not need to become one.
 
 ## External contract dependency
@@ -113,24 +153,56 @@ Without a cap, ten integrations produce twenty tests in a skill whose entire pur
 
 `control` carries the criterion; it does not carry the inventory. Which SDKs, tags and outgoing clients exist in a given stack is stack knowledge, and belongs to the `testing` pivot's **Risk signals** field, whose role that already is (see `pivot-contract.md`). Without a pivot, `control` falls back to reading the project's own manifest for dependencies pointing at domains the project does not control, and says the inventory is generic.
 
-## The three buckets
+## The two reading axes
 
-`control` reads a suite as three buckets, and compares their **order**, never their share.
+`control` reads a suite along two axes, and compares their **order**, never their share.
 
-- **Foundations** — model invariants, validation, shared transformations.
-- **Recent code** — what the last commits added or changed.
-- **Critical journeys** — client-facing acts, irreversible operations, external boundaries.
+- **Foundations** — model invariants, validation, shared transformations. The structural axis.
+- **The project's declared domains** — the functional axis, defined below. When the project has declared none, **critical journeys** stands in as a generic fallback: client-facing acts, irreversible operations, external boundaries.
+
+A third bucket, *recent code*, used to sit here. It is gone: what it described — test what the last commits touched — is the **churn** criterion, which already exists in the risk ranking. The same thing does not need two names and two weightings, and the phase list already refuses "development" as a phase for exactly this reason.
 
 Expected priority order by phase:
 
 | Phase | Expected order |
 |---|---|
-| `scaffolding` | foundations → recent code → critical journeys |
-| `hardening` | foundations → critical journeys → recent code |
-| `production` | critical journeys → recent code → foundations |
-| `sustaining` | critical journeys → foundations → recent code |
+| `scaffolding` | foundations → domains |
+| `hardening` | foundations → domains |
+| `production` | domains → foundations |
+| `sustaining` | domains → foundations |
+| `default` | **none expected** |
+| `undetermined` | **none expected** |
 
-**No percentage is ever produced.** The phase brings an expected ordering, not a ceiling and not a share; `05-stats` compares ranks. Classifying an existing test into a bucket is an approximation (tier + role of the source file it exercises + churn on that file), and the approximation is **declared** in the output alongside the comparison, so nobody reads it as a measurement.
+Under `default` and `undetermined` there is nothing to compare against, and `05-stats` **says so** rather than emitting an empty comparison — an absent expectation printed as a blank row reads like a perfect match, which is the opposite of the truth.
+
+**No percentage is ever produced.** The phase brings an expected ordering, not a ceiling and not a share; `05-stats` compares ranks.
+
+Placing an existing test on the **foundations** axis remains an approximation (tier + role of the source file it exercises), and the approximation is **declared** in the output alongside the comparison, so nobody reads it as a measurement. Placing it in a **declared domain** is not an approximation: a file either matches the domain's resolution or it does not, and what matches nothing is reported rather than silently dropped.
+
+## Domains
+
+A domain is a functional part of the product — `auth`, `payment`, `checkout` — resolved in the code by terms: `Login`, `Register`, `SessionGuard`.
+
+Domains depend on the project's core features, and **none of them is universal**: a library, a CLI tool, a game have neither authentication nor payment. This skill therefore proposes no default domain, and the generic level of the precedence cascade is **empty** for them. A project that declares nothing keeps the `critical journeys` fallback and loses nothing it had.
+
+### Who declares what
+
+| Knowledge | Holder | Why |
+|---|---|---|
+| **which** domains exist | the project, in its own test strategy document | nobody else can know |
+| **how** to spot them in this stack | the language plugin's `testing` pivot | it is stack convention, and it goes stale fast |
+
+Split this way the two cannot contradict each other, so no arbitration rule is needed. The pivot **completes** a domain the project named without resolving; it never overrides a resolution the project wrote explicitly about its own code — the project is talking about the code that exists, the pivot about a convention in general.
+
+This is the same authority split already applied to external boundaries: `control` owns the generic criterion, the pivot owns the inventory.
+
+### A domain prioritises; it never restricts
+
+Same boundary as the phase, for the same reason, and it is the load-bearing rule of the whole mechanism.
+
+What no domain matches **stays in the analysis** — it simply ranks lower — and **it is reported**, together with the term that failed to recognise it. Searching `Login` and `Register` finds `LoginForm.tsx` and misses `SessionController`: a silent false negative would declare a central part of the code out of scope with nobody able to see it. A false positive costs one line of noise; a silent false negative costs the gap the skill exists to prevent.
+
+That trace pays for itself twice — at runtime it hides nothing, and it is what lets `06-align` detect that the declared list has drifted from the code.
 
 ## Net balance by phase
 
@@ -139,5 +211,6 @@ Expected priority order by phase:
 - `scaffolding`, `hardening` — additions normally outweigh removals: the suite is being built.
 - `production` — the balance shifts rather than grows: what the earlier phases justified gives way to what the client journeys demand.
 - `sustaining` — a negative balance is expected, never required.
+- `default`, `undetermined` — **no expected lean, and no removal batch at all.** Nothing is deprioritised, so nothing can be qualified as obsolete by the phase.
 
 **`sustaining` carries the one exception to its own negative balance:** external boundaries remain the only legitimate motive for addition in this phase, and are excluded from any removal batch. It is the phase where nothing internal moves any more while external contracts keep moving — removing their only net at that exact moment would be the worst possible timing.

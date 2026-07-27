@@ -7,7 +7,8 @@ Mirror image of `05-stats` in direction rather than in kind: `stats` reads the s
 ## Inputs
 
 - `project_path` (required) - absolute path to the target project root
-- `scope` (optional, default: whole project) - a subdirectory or glob to limit the measurements
+- `scope` (optional, default: whole project) - a subdirectory or glob to limit the measurements. **Here `scope` targets the source code and the measurements taken on it**, the same perimeter `05-stats` measures. (In `02-audit` the same parameter name bounds the *test suite* alone.)
+- `domain` (optional) - a functional domain declared by the project (`auth`, `payment`). It **orders what the audit reports first; it never bounds what the audit covers** - an alignment run on part of the project and presented as an alignment would put a half-true document in the file. Mutually exclusive with `scope` - given both, stop and ask which was meant (`SKILL.md`, *Parameters*).
 - `phase` (optional) - overrides the resolved project phase for this run only
 
 ## Outputs
@@ -22,6 +23,8 @@ GAP AUDIT
   | missing fact  | e2e runner        | -                       | Playwright, wired in package.json |
   | stale fact    | coverage gate     | "80% global planned"    | thresholds at 47/45/33/45, enforced in CI |
   | missing decision | tier vocabulary | -                     | no line decides what deserves a test |
+  | unresolved domain | `auth`           | declared as a domain   | no file matches the term - named `identity` in the code? |
+  | undeclared area   | src/notifications/ | -                    | 14 files under no declared domain and under no fallback |
 
 MEASURED FACTS          (authority: control - proposed as written)
   <the block, in full, exactly as it would be inserted>
@@ -53,24 +56,33 @@ Nothing is written as part of producing this output.
 
 1. Resolve `project_path` and `scope`. Resolve the project **phase** per `@../references/phase-framework.md` - by renvoi, not by re-deriving it.
 
-2. **Run the gap audit on `05-stats`'s production, never on a recomputation.** `05-stats` already establishes the authority in force, the document's readability, the tooling actually wired, the volume by tier and the observed order of the three buckets. This action consumes those results; it redefines none of them. Two sources of truth for the same measurement will diverge, and the one that diverges silently is the one nobody runs.
+2. **Run the gap audit on `05-stats`'s production, never on a recomputation.** `05-stats` already establishes the authority in force, the document's readability, the tooling actually wired, the volume by tier, the observed order of the reading axes and the resolution of the declared domains. This action consumes those results; it redefines none of them. Two sources of truth for the same measurement will diverge, and the one that diverges silently is the one nobody runs.
 
-3. Classify every gap into exactly one of three natures. The distinction is what keeps the two blocks apart later, because the first two are facts and the third is not:
+3. Classify every gap into exactly one of five natures. The distinction is what keeps the two blocks apart later: the first two are facts, the third is a question the project alone can answer. The last two are **both at once**, and are split accordingly - the measurement (a term matched nothing, an area is under no domain) goes into `MEASURED FACTS`, the response to it goes into `PROPOSED STRATEGY`. Splitting them is what stops the skill from writing a decision under its own authority:
    - **Missing fact** - true of the project, absent from the document (an E2E tool in use and never named, an external boundary nobody wrote down).
    - **Stale fact** - stated in the document, no longer true of the project (a runner that was replaced, a threshold that moved, a plan that was carried out or abandoned).
-   - **Missing decision** - no line of the document settles something this skill is nonetheless forced to settle at every run: the phase, the tier vocabulary, what the project deliberately refuses to test, the number constraint it holds itself to. This is not a defect in the document; it is the question the document has not been asked yet.
+   - **Missing decision** - no line of the document settles something this skill is nonetheless forced to settle at every run: the phase, the tier vocabulary, what the project deliberately refuses to test, the number constraint it holds itself to, the domains it recognises. This is not a defect in the document; it is the question the document has not been asked yet.
+   - **Unresolved domain** - the document declares a domain that resolves to no file. Two readings, and this action decides neither: the domain is spelled differently in the code than in the document, or it does not exist yet. Report the term, both readings, and let the user say which. It is classified apart from a stale fact on purpose - a stale fact is known to be false, this one is only known to be unmatched.
+   - **Undeclared area** - a part of the code that no declared domain matches and that the generic fallback does not reach either. It is **not** a defect by itself: a project legitimately declares only the domains it wants prioritised, and the rest is analysed at neutral weight. It becomes a finding when the area is substantial, and it is reported as a question - is this an area the project chose not to name, or one it forgot? Never as an area to be covered.
 
 4. **Document absent.** When no `testing.md` (or project-level equivalent) exists, produce the audit anyway - everything is a missing fact - then offer, as an explicit choice, to create the document or to abstain. **Never create it by default.** A project that has never written a test strategy may have decided exactly that, and a file appearing unrequested in `aidd_docs/memory/` is a decision taken on the project's behalf. When the user abstains, the audit stands as the output and the run ends there.
 
 5. **Build the `MEASURED FACTS` block.** It carries only what this skill is itself the source of:
    - the test runner actually wired, and the established E2E tool;
    - whether a coverage gate is configured **and invoked**, or configured and inert;
-   - volume by tier, and the observed order of the three buckets, with the approximation declared as `05-stats` declares it;
+   - volume by tier, and the observed order of the reading axes, with the approximation declared as `05-stats` declares it - and, under `default` or `undetermined`, with no expected order to compare it against, said in words rather than left blank;
+   - the **resolution of each declared domain**: how many files it matched, and which terms matched nothing;
    - the **inventory of external boundaries** - third-party integrations found in the manifest and in the source, and for each one whether any test references it or not.
 
    That inventory is the most perishable fact in the block, and it is what makes a second run of this action worthwhile on a project whose own code has not moved: a third-party SDK major can shift, or an integration can be added by a dependency bump alone, and no internal signal fires. Nothing enters this block that the skill cannot measure - a fact it merely believes is a strategy in disguise.
 
-6. **Build the `PROPOSED STRATEGY` block.** It carries what the project has to decide and the skill only drafts: the declared phase, the tier vocabulary, what the project refuses to test, and the number constraint.
+6. **Build the `PROPOSED STRATEGY` block.** It carries what the project has to decide and the skill only drafts: the declared phase, the tier vocabulary, what the project refuses to test, the number constraint, and **the list of domains**.
+
+   The domain list belongs here and nowhere else, because it is the one thing in the whole model no measurement can produce: which functional parts a product has is a statement about the product, not about its repository. The skill may *propose* candidates from what it observed - recurring directory names, identifier families - and it proposes them as candidates, explicitly, never as an inventory it discovered. The project keeps the last word on each, including the word "no". **Declaring no domain is a valid answer**, and it is recorded as such: the generic `critical journeys` fallback then applies, and the question stops being re-asked.
+
+   Include here the response to every *unresolved domain* and *undeclared area* found at step 3 - rename the term, add the domain, or record that the area is deliberately unnamed. Recording the deliberate choice matters as much as the other two: it is what stops the next run from re-raising it.
+
+   `default` is proposed here on the same footing as any other phase value. When a project keeps being asked its phase run after run and does not want to answer, the answer available to it is not silence - it is `default`, written down, which declares neutrality as a choice rather than leaving it as an omission. Say that plainly whenever the provenance is `unanswered`; the point of the value is lost if nobody is told it exists. And it is the provenance that triggers this, not the value - a `default` that arrived by an answer rather than by a declaration needs exactly the same offer, since nothing was written down either.
 
    On that last one, propose a **density rather than an absolute cap** (`@../references/test-density.md`), and propose it as the project's own measured median - a number the project can recognise, not one this skill invented. A cap is a number a project outgrows without noticing, and the day it does, the only options it leaves are raising it or ignoring it. A density stays meaningful as the codebase grows because it grows with it. The project may still choose a cap - it is the project's decision, and a declared cap wins - but it should choose it against the alternative, so state both.
 
@@ -83,6 +95,8 @@ Nothing is written as part of producing this output.
 9. **Fidelity rule - the delegate is not a scribe.** The project-memory skill analyses, categorises and reformulates what it retains before writing; nothing in its contract promises it inscribes a supplied text **verbatim**. The "validated line by line" guarantee would therefore break in silence. So: hand the approved text over as **literal content to be inscribed verbatim**, not as material to analyse; then **re-read the written file** and compare it, line for line, to the approved text. Any divergence - a reformulation, a section moved, a line absorbed into another - is **reported to the user, and never corrected on the spot**. It is another plugin's document; silently rewriting it would recreate the very problem delegation avoids.
 
 10. **Phase switch - detect it, never assume it.** A switch exists when the resolved phase **differs from the one declared in the document**, or when the user explicitly overrides it. Comparison, not supposition: a project whose document declares nothing is not switching, it is declaring for the first time, and that is step 6's business.
+
+    **`default` and `undetermined` take part in no switch, on either side.** The switch machinery works by comparing what one phase raises against what the next one lowers; neither of these two raises or lowers anything, so entering one produces no phase-obsolete test and leaving one produces no ranking that was not already neutral. A project moving to `default` records a decision and changes nothing in its suite - report it as a declaration, with a net balance of zero and no removal batch at all. A project moving *from* `default` to a real phase gets the entering phase's incoming ranking through `04-strengthen`, and **an empty outgoing set**: nothing was written under a bias that could now be obsolete.
 
     When there is one, report the movement **as one thing**, because a suite's centre of gravity moving is a single event and not two unrelated lists.
 
@@ -101,7 +115,7 @@ Nothing is written as part of producing this output.
 
     **Refusal is en bloc, unconditional, and triggers no fallback** - in particular no per-item confirmation, which would walk around the refusal one test at a time.
 
-    Excluded from any batch, whatever the switch: tests covering an external boundary, tests some consequence criterion holds by other means, tests that are the sole net on their subject, and every test **neither of the two motives qualifies**. Belonging to the bucket the phase lowers is not, by itself, a reason to delete anything. When nothing qualifies, say so - an empty batch is a legitimate result and is reported as one, never dressed up as a hollow one.
+    Excluded from any batch, whatever the switch: tests covering an external boundary, tests some consequence criterion holds by other means, tests that are the sole net on their subject, and every test **neither of the two motives qualifies**. Sitting on a reading axis the phase lowers is not, by itself, a reason to delete anything - and neither is sitting outside every declared domain, which weights a ranking and qualifies no removal. When nothing qualifies, say so - an empty batch is a legitimate result and is reported as one, never dressed up as a hollow one.
 
 12. **Never overwrite in silence.** Adding is the default behaviour. An existing section is replaced only after its difference has been shown and that specific replacement explicitly validated - a hand-written paragraph is the most valuable content in the file, precisely because no tool produced it.
 
@@ -116,6 +130,6 @@ Nothing is written as part of producing this output.
 
 ## Test
 
-Run against a real project that already has a `testing.md`. Verify the gap audit distinguishes the three natures, that refusing the strategy block still lets the facts be written, that the route taken is announced, and that the text in the file matches the text approved on screen - or that the divergence was reported. Run it a second time with the project unchanged and verify no fact-level gap remains. Run it a third time against a project with no document at all, refuse the creation, and verify no file appears.
+Run against a real project that already has a `testing.md`. Verify the gap audit distinguishes the five natures - and, for the two mixed ones, that the measurement landed in the facts block while the response landed in the strategy block - that refusing the strategy block still lets the facts be written, that the route taken is announced, and that the text in the file matches the text approved on screen - or that the divergence was reported. Run it a second time with the project unchanged and verify no fact-level gap remains. Run it a third time against a project with no document at all, refuse the creation, and verify no file appears.
 
 **Never** a fixture document - a real project's real `testing.md` is the test.

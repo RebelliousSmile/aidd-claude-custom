@@ -6,6 +6,10 @@ Detect test-tooling misconfiguration and propose fixes, without ever proposing t
 
 - `project_path` (required) - absolute path to the target project root
 
+**This action sits outside the phase model, and takes no other parameter - deliberately.** No `phase`, no `scope`, no `domain`. What it checks is whether the tooling is actually wired: a coverage gate declared but invoked by nothing, a threshold a config silently disables. Those defects are true or false regardless of who uses the product and of which part of the product they sit in - a phase would weight nothing here, a domain would order nothing, and a scope would only hide a broken gate by pointing away from it. It is the one action of this skill for which the answer does not depend on the project's situation, and adding those parameters would suggest it does.
+
+It is reachable and terminal in the chaining graph: `05-stats` routes into it, and it routes out to nothing (`SKILL.md`, *Action chaining*).
+
 ## Outputs
 
 ```
