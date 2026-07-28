@@ -26,9 +26,12 @@ Pistes : rationaliser une dimension précise, pas "harmoniser le tout".
 
 Critique de direction, pas audit complet (l'audit de code est `sc-css:audit`, la gate d'implémentation est `enforce`) :
 
-**Contrastes :**
-- Paires texte/fond limites (sous AA 4.5:1 pour le corps, sous AA 3:1 pour les grands titres) dans la direction proposée.
-- Tokens sémantiques dont la valeur calculée échoue WCAG — souvent un `neutral.300` utilisé comme texte sur `neutral.100`.
+**Contrastes — chiffrés, jamais appréciés.** Cette lentille ne donne pas un avis : elle rapporte la sortie de `${CLAUDE_PLUGIN_ROOT}/adapters/a11y/contrast.py` (`01-challenge.md § étape 2-bis`). Un ratio mesuré tient une décision, une inquiétude formulée n'en tient aucune — et c'est la différence entre une palette corrigée avant le figeage et un défaut coulé dans le contrat.
+
+- Paires sous AA 4.5:1 (corps) ou 3:1 (grands titres) : les nommer avec leur ratio et leur thème, pas « limites ».
+- **Couverture** : combien de feuilles couleur le contrat déclare, combien ont été appariées. Le second chiffre sans le premier ne veut rien dire — une palette de soixante couleurs dont deux sont testées n'a pas un bon contraste, elle a deux mesures.
+- **Zéro paire appariée** — aucun composant ne déclare `.foregrounds` et aucun nom ne matche un rôle. Ce n'est pas un contraste à améliorer, c'est un vocabulaire hors de portée du contrôle : `adjust` refusera de figer. La piste attendue est la table des appariements à déclarer, composant par composant.
+- Le piège classique reste un `neutral.300` posé comme texte sur `neutral.100` — mais il n'est visible que si quelque chose déclare que ce `neutral.300` porte du texte.
 
 **Couleur et état :**
 - Couleur comme seul vecteur d'état (erreur rouge, succès vert) sans icône ou forme alternative.
@@ -43,7 +46,9 @@ Critique de direction, pas audit complet (l'audit de code est `sc-css:audit`, la
 - Ordre de tabulation impliqué par la structure des composants — un modal sans focus-trap évident, un menu sans `Escape`.
 - Rôles ARIA implicitement nécessaires pour la direction (carousels, accordéons, onglets) — la direction les impose sans les nommer.
 
-Pistes : la correction qui débloque le plus de paires d'un coup (souvent un token sémantique, pas un patch local). Distinguer ce qui est un choix de direction (ex. palette restreinte) de ce qui est un risque d'implémentation (ex. gestion du focus).
+Pistes : la correction qui débloque le plus de paires d'un coup — l'adaptateur donne le compte exact, donc la priorisation se lit au lieu de s'estimer. Distinguer ce qui est un choix de direction (ex. palette restreinte) de ce qui est un risque d'implémentation (ex. gestion du focus).
+
+**Ce que le calcul ne voit pas, et qu'il faut donc signaler à la main.** L'adaptateur lit des valeurs de tokens, pas un rendu : toute recomposition à la peinture lui échappe — `opacity`, `color-mix`, un voile translucide, un dégradé. `color: ink` avec `opacity: .55` emploie un token légal, une classe légale, et échoue AA à l'écran sans qu'aucune porte statique ne puisse le voir. Une direction qui repose sur l'opacité pour hiérarchiser le texte porte donc un risque **non mesurable ici** : le nommer explicitement, et le renvoyer à la porte de rendu (G6). Une palette qui n'a besoin d'aucune opacité pour établir sa hiérarchie est, à ce seul titre, plus sûre.
 
 ## 4. Tendances & fraîcheur
 

@@ -1,4 +1,4 @@
-# 01 - Mikado
+# Mikado
 
 Apply the Mikado method to a goal: iteratively surface prerequisites via DFS Q&A, display Mermaid subtrees, and generate YAML files after user validation.
 

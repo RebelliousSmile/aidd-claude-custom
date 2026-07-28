@@ -1,4 +1,4 @@
-# 02-wire-gates
+# Wire-gates
 
 ## Rôle
 

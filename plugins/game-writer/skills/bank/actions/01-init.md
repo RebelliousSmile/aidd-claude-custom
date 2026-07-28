@@ -1,4 +1,4 @@
-# 01 - init
+# Init
 
 Scan the project codebase and write or update `bank.yml` with all canonical resources.
 

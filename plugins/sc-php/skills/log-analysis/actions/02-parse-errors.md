@@ -1,4 +1,4 @@
-# 02 - Parse errors
+# Parse errors
 
 Extract and group PHP, Apache, and Nginx errors by severity and recurring message pattern.
 

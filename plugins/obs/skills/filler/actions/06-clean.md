@@ -1,4 +1,4 @@
-# 06 — Clean
+# Clean
 
 ## Inputs
 - `path` (required) — répertoire cible

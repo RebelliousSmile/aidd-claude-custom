@@ -1,4 +1,4 @@
-# Action 02 — migrate
+# Migrate
 
 Apply upgrade transformations file by file based on the manifest from `01-scan`.
 

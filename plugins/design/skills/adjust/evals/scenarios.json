@@ -8,6 +8,8 @@
   { "prompt": "on veut ajouter une variante dark au hero sans tout re-jouer", "expect_action": "arbitrate+freeze" },
   { "prompt": "fige le contrat même si une paire de contraste échoue, enregistre le gap au lieu de bloquer", "expect_action": "arbitrate+freeze" },
   { "prompt": "calcule le contraste par thème et la présence des états au figeage, puis relève le statut de maturité", "expect_action": "arbitrate+freeze" },
+  { "prompt": "le contrôle de contraste ne trouve aucune paire à comparer, déclare les avant-plans des composants et re-fige", "expect_action": "arbitrate+freeze" },
+  { "prompt": "on assume de figer sans aucun appariement déclaré, enregistre la dérogation et le gap qui plafonne", "expect_action": "arbitrate+freeze" },
   { "prompt": "migre le contrat vers le nouveau format", "expect_action": "migrate" },
   { "prompt": "le linter sort en 3 et dit que le contrat est en 1.x", "expect_action": "migrate" },
   { "prompt": "passe le contrat en 2.0 avec release.json", "expect_action": "migrate" },

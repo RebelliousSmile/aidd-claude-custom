@@ -1,4 +1,4 @@
-# Action 01 — analyze
+# Analyze
 
 Read the Rust codebase and identify idiomatic Rust gaps, ownership pattern issues, and design opportunities.
 

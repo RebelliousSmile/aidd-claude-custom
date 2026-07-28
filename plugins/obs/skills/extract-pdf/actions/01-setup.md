@@ -1,4 +1,4 @@
-# 01 - Setup
+# Setup
 
 Session 1 of the PDF extraction pipeline: validate the environment, split the PDF into chunks via `split-pdf.py`, write `progress.md`.
 

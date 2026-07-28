@@ -1,4 +1,4 @@
-# Action 01 — analyze
+# Analyze
 
 Read the Python codebase and identify Pythonic idiom gaps, design pattern opportunities, and maintainability issues.
 

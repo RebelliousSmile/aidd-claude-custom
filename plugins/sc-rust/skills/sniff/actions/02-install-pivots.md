@@ -1,4 +1,4 @@
-# Action 02 — install-pivots
+# Install-pivots
 
 Install perf and data pivots to `.claude/rules/07-quality/` for consumption by `web-optimize` and `data-optimize`. Does not install capability pivots — those are loaded on demand by `/sc-rust:audit`.
 

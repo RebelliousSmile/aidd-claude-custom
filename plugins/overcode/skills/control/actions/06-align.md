@@ -1,4 +1,4 @@
-# 06 - Align
+# Align
 
 Audit the gap between what a project's test strategy document *says* and what the project *does*, then propose the document's update in two strictly separated blocks: the facts this skill measured, and the strategy the project has to decide.
 
@@ -7,7 +7,7 @@ Mirror image of `05-stats` in direction rather than in kind: `stats` reads the s
 ## Inputs
 
 - `project_path` (required) - absolute path to the target project root
-- `scope` (optional, default: whole project) - a subdirectory or glob to limit the measurements. **Here `scope` targets the source code and the measurements taken on it**, the same perimeter `05-stats` measures. (In `02-audit` the same parameter name bounds the *test suite* alone.)
+- `scope` (optional, default: whole project) - a subdirectory or glob to limit the measurements. **`scope` designates one universe, here as everywhere in this skill: the source code and the tests that match it**, resolved **symmetrically** in either direction - the same perimeter `05-stats` measures. No action has a universe of its own.
 - `domain` (optional) - a functional domain declared by the project (`auth`, `payment`). It **orders what the audit reports first; it never bounds what the audit covers** - an alignment run on part of the project and presented as an alignment would put a half-true document in the file. Mutually exclusive with `scope` - given both, stop and ask which was meant (`SKILL.md`, *Parameters*).
 - `phase` (optional) - overrides the resolved project phase for this run only
 
@@ -94,9 +94,12 @@ Nothing is written as part of producing this output.
 
 9. **Fidelity rule - the delegate is not a scribe.** The project-memory skill analyses, categorises and reformulates what it retains before writing; nothing in its contract promises it inscribes a supplied text **verbatim**. The "validated line by line" guarantee would therefore break in silence. So: hand the approved text over as **literal content to be inscribed verbatim**, not as material to analyse; then **re-read the written file** and compare it, line for line, to the approved text. Any divergence - a reformulation, a section moved, a line absorbed into another - is **reported to the user, and never corrected on the spot**. It is another plugin's document; silently rewriting it would recreate the very problem delegation avoids.
 
-10. **Phase switch - detect it, never assume it.** A switch exists when the resolved phase **differs from the one declared in the document**, or when the user explicitly overrides it. Comparison, not supposition: a project whose document declares nothing is not switching, it is declaring for the first time, and that is step 6's business.
+10. **Phase switch - detect it, never assume it.** A switch exists when the resolved phase **differs from the one declared in the document**, or when the user explicitly overrides it. Comparison, not supposition: a project whose document declares nothing is not switching, it is declaring for the first time, and that is step 6's business - **with one exception, which the third bullet below states in full: a prior `undetermined` switches like any other phase.** A document that declares nothing and a project that has been running on `undetermined` are the same repository seen twice; what separates them is that the question has already been put and left unanswered, and an answer given now is a switch, not a first declaration.
 
-    **`default` and `undetermined` take part in no switch, on either side.** The switch machinery works by comparing what one phase raises against what the next one lowers; neither of these two raises or lowers anything, so entering one produces no phase-obsolete test and leaving one produces no ranking that was not already neutral. A project moving to `default` records a decision and changes nothing in its suite - report it as a declaration, with a net balance of zero and no removal batch at all. A project moving *from* `default` to a real phase gets the entering phase's incoming ranking through `04-strengthen`, and **an empty outgoing set**: nothing was written under a bias that could now be obsolete.
+    **`default` and `undetermined` are not the same case here, and treating them alike is the error to avoid.** Both weight the ranking neutrally, but only one of them has decided anything.
+
+    - **`default` stays out of the switch machinery - by consent, not by mechanics.** A project declaring `default` has just taken a decision; following it with a batch of tests to qualify obsolete would contradict that choice at the instant it is made. So: moving **to** `default` is reported as a declaration - net balance zero, no removal batch at all. Moving **from** `default` to a real phase gets the entering phase's incoming ranking through `04-strengthen` and **an empty outgoing set**: nothing was written under a bias that could now be obsolete.
+    - **`undetermined` has decided nothing at all, and switches like any other phase as soon as one is declared.** It is not a neutrality the project chose, it is a question left unanswered - and the answer, when it comes, is a first real phase taking effect. The outgoing batch is then established **against the phase actually declared, once it is known**, on the two motives below, exactly as between two real phases. Reporting a zero balance here because "the previous value was neutral" is the mistake: it would let a suite written under no declared bias escape the only pass that would ever re-examine it.
 
     When there is one, report the movement **as one thing**, because a suite's centre of gravity moving is a single event and not two unrelated lists.
 
@@ -123,13 +126,12 @@ Nothing is written as part of producing this output.
 
 ## Constraints
 
-- A document not yet aligned keeps being classified *template-shaped* by `05-stats`. That is not a detection failure - it is the state this action exists to change, and it must stay visible until it does.
+- A document not yet aligned keeps being classified as settling no tier by `05-stats` - `empty-template` or `filled-but-undeciding`. That is not a detection failure: it is the state this action exists to change, and it must stay visible until it does. **Carry the shape through, do not collapse it to "template-shaped"** - step 2 consumes `05-stats`'s classification rather than recomputing it, so whichever of the two it named is the only one this action can report.
 - **Outside a phase switch, this action proposes no test, ranks no gap and deletes nothing.** When a plain alignment reveals the suite itself needs work, name `02-audit` or `04-strengthen` and stop. A switch is the one occasion where it does more than describe - and even then it originates nothing: the outgoing motives come from `02-audit`, the incoming ranking from `04-strengthen`, and every addition goes back through `01-write`. It reports the movement; it does not invent either of its halves.
 - The phase is written into the document as a **declaration by the project**, in the strategy block - never as a fact in the measured block. This skill never deduces it and therefore never has one of its own to write: what reaches the file is the user's answer, presented back for validation as the decision it is. A phase written down as a measured fact would be read by every later run as authority, and nobody would ever be asked again.
 - This is the action that ends the questioning. A phase resolved by asking is worth one run; once it is declared in the document, every action reads it from there. When the user declines to declare it, say plainly that the question will be put again at the next run - that is the cost of not writing it down, and it is theirs to accept.
 
 ## Test
 
-Run against a real project that already has a `testing.md`. Verify the gap audit distinguishes the five natures - and, for the two mixed ones, that the measurement landed in the facts block while the response landed in the strategy block - that refusing the strategy block still lets the facts be written, that the route taken is announced, and that the text in the file matches the text approved on screen - or that the divergence was reported. Run it a second time with the project unchanged and verify no fact-level gap remains. Run it a third time against a project with no document at all, refuse the creation, and verify no file appears.
-
-**Never** a fixture document - a real project's real `testing.md` is the test.
+Covered by `../evals/align-write-scenarios.md` (S4, S6, S7, S8, S9, S10, S11, S17).
+Run: `overcode:behave 02-run <suite> <fixture>`.

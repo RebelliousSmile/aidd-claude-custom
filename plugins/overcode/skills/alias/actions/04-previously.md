@@ -1,4 +1,4 @@
-# Action 04 — previously
+# Previously
 
 Project snapshot (tests, git activity, working tree, lint) prefixed with a status summary. If a status report from the last 7 days exists, use it; otherwise run `/overcode:status` first.
 

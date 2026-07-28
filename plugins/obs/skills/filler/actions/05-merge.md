@@ -1,4 +1,4 @@
-# 04 — Merge
+# Merge
 
 ## Inputs
 - `path` (required) — répertoire source

@@ -1,4 +1,4 @@
-# 03 - Search
+# Search
 
 Search for a specific string, exception type, regex, or HTTP status code across Python log files.
 

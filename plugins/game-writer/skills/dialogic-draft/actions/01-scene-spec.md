@@ -1,4 +1,4 @@
-# 05 - scene-spec
+# Scene-spec
 
 Derive a structured scene spec for a recurring or multi-PNJ scene from the project overview.
 

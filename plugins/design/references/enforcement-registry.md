@@ -34,11 +34,11 @@ L'a11y est scindée par ce qui est **calculable et quand** (dec-002, côté WHAT
 
 | Volet | Preuve lue | Réalisateur | Quand |
 |---|---|---|---|
-| Contraste texte/fond | valeurs de tokens résolues par thème | `adapters/a11y/contrast.py` (plugin) | au figeage, déterministe |
+| Contraste texte/fond | `components.json § .foregrounds × .backgrounds`, valeurs de tokens résolues par thème | `adapters/a11y/contrast.py` (plugin) | au figeage, déterministe |
 | Présence déclarative des états `disabled`/`error`/`focus` | `components.json § .states` | `tools/status.py` (plugin) | au figeage, sans markup |
 | Rôles et attributs ARIA | `components.json § .a11y.role`/`.requires` opposés au markup rendu | pivot `sc-<langage>:design-bridge` (type `markup`) | à l'enforcement |
 
-Le contraste et les états pèsent sur le statut de maturité (`maturity-status.md`) : ils sont **réalisés**, non déclarés non réalisés. Les rôles et attributs exigent le markup rendu qu'aucun figeage ne possède ; sans pivot installé, ils sont **non réalisés à l'exécution** (§ Marqueur non réalisé), jamais affirmés par le plugin.
+Le contraste et les états pèsent sur le statut de maturité (`maturity-status.md`) : ils sont **réalisés**, non déclarés non réalisés. Le contraste porte en outre sa propre couverture : un contrat où aucune paire ne peut être construite rend exit 3 et refuse le figeage plutôt que d'enregistrer un `allPass` vrai par vacuité (`adjust/references/manifest-schema.md § Invariant 7`). Un volet ne peut pas se déclarer vert faute d'avoir eu quelque chose à lire. Les rôles et attributs exigent le markup rendu qu'aucun figeage ne possède ; sans pivot installé, ils sont **non réalisés à l'exécution** (§ Marqueur non réalisé), jamais affirmés par le plugin.
 
 ## Règle de typage
 

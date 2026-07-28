@@ -1,4 +1,4 @@
-# 05 - Log Meeting
+# Log Meeting
 
 Add a meeting report to the appropriate project file.
 

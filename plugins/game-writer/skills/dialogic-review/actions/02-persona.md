@@ -1,4 +1,4 @@
-# 02 - persona
+# Persona
 
 Full matricial review of a `.dtl` — branches × persona × craft checklist. Produces a fragment ready to paste into `review-report.md`.
 

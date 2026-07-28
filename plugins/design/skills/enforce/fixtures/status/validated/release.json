@@ -29,7 +29,7 @@
     "from": "direct freeze"
   },
   "checks": {
-    "contrast": { "ran": true, "allPass": false },
+    "contrast": { "ran": true, "allPass": false, "pairs": 2, "declared": 6 },
     "states": { "ran": true, "allPass": true }
   },
   "gaps": [

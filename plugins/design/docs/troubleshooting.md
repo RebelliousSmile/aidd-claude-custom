@@ -39,13 +39,16 @@ Ce n'est pas un bug. Le contrat n'a pas atteint le seuil `validated`, donc le ru
 python design/lint/status.py --contract design/
 ```
 
-Trois causes, par ordre de fréquence :
+Quatre causes, par ordre de fréquence :
 
 | Statut bloqué à | Cause | Correction |
 |---|---|---|
 | `extracted` | `design-system.md` absent | écrire la charte, la déclarer dans `release.json` |
 | `normalized` | aucune vérification enregistrée dans `checks` | jouer les vérifications, les enregistrer |
 | `normalized` | contraste jamais calculé | `adapters/a11y/contrast.py` au figeage |
+| `normalized` | contraste calculé sur **zéro paire**, figé sous dérogation (gap `contrast-unpaired`) | déclarer les `.foregrounds` des composants qui portent du texte, puis re-figer |
+
+La dernière mérite d'être lue deux fois : `checks.contrast.allPass` peut y valoir `true` sans qu'aucune couleur n'ait été comparée. C'est pourquoi `status.py` lit `allPass` **avec** `pairs`, et pourquoi un contrat dans cet état ne se fige plus qu'en enregistrant explicitement la dérogation.
 
 Un **gap** enregistré dans `release.json § gaps[]` plafonne le statut délibérément. Si le statut ne monte pas alors que les conditions semblent remplies, c'est un gap actif — il est là pour être vu, pas pour être contourné.
 
@@ -117,7 +120,7 @@ Hors périmètre du gate vocabulaire **par construction** — donc jamais couver
 - les feuilles de style, les configurations de plateforme, les scripts de build ;
 - les liaisons de classe dynamiques (`:class`, `{expr}`, classes assemblées à l'exécution) ;
 - le contenu stocké hors fichiers source, sauf extraction explicite par `03-lint-instances` ;
-- le contraste, les rôles ARIA, le fond réellement appliqué ;
+- les rôles ARIA, le fond réellement appliqué, le contraste **du rendu** (le contraste des paires déclarées, lui, est mesuré bien plus tôt — au figeage, par `adapters/a11y/contrast.py`) ;
 - toute cohérence entre deux fichiers.
 
 Énoncé complet de ce que chaque gate établit : [`../references/gate-natures.md`](../references/gate-natures.md).

@@ -1,4 +1,4 @@
-# 01 - Research
+# Research
 
 Perform structured cross-referenced web research on a topic and compare findings with the chosen scope's existing documentation.
 

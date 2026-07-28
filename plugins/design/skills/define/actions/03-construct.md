@@ -1,4 +1,4 @@
-# 03 - construct
+# Construct
 
 Chemin brief. Pas de visuel : on dérive un système cohérent et **distinctif** depuis l'intention écrite. Fusionne l'ancien `from-brief` (clarify + derive).
 
@@ -23,21 +23,23 @@ Distinctif par défaut : éviter le look générique par défaut du framework. L
 ### B. Dériver (le profil → un token set cohérent et distinctif)
 
 0. **Core trio d'abord (vite)** — avant l'échelle complète, trancher et présenter en une passe : **ancre de palette** (primary marque + température neutre), **type** (famille/pairing), **jeu d'icônes** (une librairie + style, ex. Lucide outline). Obtenir un oui/ajuste sur le trio, puis étendre. Jamais d'emoji comme iconographie.
-1. **Système de couleurs** : un primary qui exprime la personnalité (pas le bleu par défaut du framework sauf demande du brief) ; ramp neutre à la bonne température (chaud/froid) ; secondary/accent seulement si la personnalité l'exige ; rôles sémantiques + états ; vérifier chaque paire texte/fond en WCAG AA (ou la barre énoncée).
+1. **Système de couleurs** : un primary qui exprime la personnalité (pas le bleu par défaut du framework sauf demande du brief) ; ramp neutre à la bonne température (chaud/froid) ; secondary/accent seulement si la personnalité l'exige ; rôles sémantiques + états.
+
+   **Décider les appariements en même temps que les couleurs.** Sur ce chemin, rien n'est observable : si l'on ne dit pas quelle couleur porte du texte sur quelle autre, personne ne le dira plus tard. Établir la liste des paires avant-plan/fond prévues — y compris quand l'avant-plan est une couleur de marque, ce qui est le cas normal dès qu'un primary sert de couleur de titre. Vérifier chacune en WCAG AA (ou la barre énoncée du profil), et corriger la palette ici plutôt qu'après le figeage. Cette liste alimente `components.json § .foregrounds` et conditionne le figeage (`${CLAUDE_PLUGIN_ROOT}/skills/adjust/references/manifest-schema.md § Invariant 7`).
 2. **Typographie** : famille (ou pairing) cohérente avec la personnalité ; échelle modulaire avec `clamp()` pour une croissance fluide titre/corps ; graisses et line-heights ; plancher de corps confortable pour l'audience.
 3. **Espacement** : unité de base (4 ou 8 px) et échelle cohérente en `rem`.
 4. **Radius / ombre / bordures / motion / icônes** : accordés à la personnalité (net+plat pour technique, arrondi+doux pour amical, motion restreinte pour premium). Tokens durée + easing. `icon.size.*` aligné à l'échelle de type, `icon.stroke.*` pour le set outline choisi.
 5. **Breakpoints** : défauts du schéma sauf si la plateforme implique autrement ; max-widths de conteneur par breakpoint.
 6. **Stratégie responsive** : nommer le **mobile core** (chemin de tâche must-have), les ajouts **enriched-only** (≥ tablette/desktop), et les patterns **mobile-only** avec leurs équivalents desktop.
-7. **Inventaire de composants candidats** : lister les composants que les flux du brief impliquent, avec leurs variantes prévues. Cet inventaire est **candidat et malléable** — il n'est pas un manifeste.
+7. **Inventaire de composants candidats** : lister les composants que les flux du brief impliquent, avec leurs variantes prévues et, pour chacun, **les fonds et les avant-plans qu'il emploiera**. Cet inventaire est **candidat et malléable** — il n'est pas un manifeste ; l'appariement qu'il porte est en revanche la seule trace d'usage que l'entonnoir transmettra.
 
 ## Outputs
 
-Un profil d'attributs + un token set proposé complet (forme schéma) + stratégie responsive + liste de composants candidats, présentés pour revue rapide, toute hypothèse signalée. Cette matière alimente `04-write-material`.
+Un profil d'attributs + un token set proposé complet (forme schéma) + stratégie responsive + liste de composants candidats **avec leurs paires avant-plan/fond prévues**, présentés pour revue rapide, toute hypothèse signalée. Cette matière alimente `04-write-material`.
 
 ## Test
 
-Le core trio (palette · type · jeu d'icônes) a été présenté pour approbation avant l'échelle complète ; au plus 3–4 questions en une passe ; chaque driver non répondu a un défaut consigné ; la palette est délibérément liée à la personnalité (pas le look stock) ; un seul jeu d'icônes sans emoji ; les paires de contraste passent la barre ; la stratégie responsive nomme mobile-core / enriched / mobile-only ; l'inventaire est explicitement *candidat*.
+Le core trio (palette · type · jeu d'icônes) a été présenté pour approbation avant l'échelle complète ; au plus 3–4 questions en une passe ; chaque driver non répondu a un défaut consigné ; la palette est délibérément liée à la personnalité (pas le look stock) ; un seul jeu d'icônes sans emoji ; les paires avant-plan/fond sont **nommées** — pas seulement les couleurs — et chacune passe la barre ; la stratégie responsive nomme mobile-core / enriched / mobile-only ; l'inventaire est explicitement *candidat*.
 
 ## En aval
 

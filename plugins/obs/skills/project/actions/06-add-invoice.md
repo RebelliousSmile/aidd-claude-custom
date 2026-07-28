@@ -1,4 +1,4 @@
-# 06 - Add Invoice
+# Add Invoice
 
 Add an invoice or quote entry to `commercial.md`.
 

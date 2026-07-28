@@ -6,7 +6,7 @@ Marketplace personnelle de plugins Claude Code. Ce guide décrit comment ajouter
 
 ```
 .claude-plugin/marketplace.json   # registre du marketplace (source de vérité installable)
-index.json                        # index résumé des plugins (id, nom, description, version)
+index.json                        # registre des plugins (id, nom) — ni version ni description
 plugins/<nom>/
   .claude-plugin/plugin.json      # manifeste du plugin
   README.md                       # doc du plugin
@@ -46,6 +46,8 @@ Corps attendu :
 
 Chaque `actions/NN-<nom>.md` suit : `Inputs` → `Process` → `Outputs` → `Test`. Le `Test` doit être vérifiable (une condition observable, pas « ça marche »).
 
+**Le numéro vit dans le nom du fichier et dans la table, jamais dans le titre** : `# Bump plugin`, pas `# Action 03 — bump-plugin`. Un numéro écrit à trois endroits se corrige à un seul le jour d'un renommage — c'est ainsi qu'`alias` a fini avec six actions sur dix mal numérotées et deux « Action 06 ». Le numéro **identifie**, il n'ordonne pas : un doublon est une erreur, un trou est toléré (l'interdire rendrait bloquante la cascade de renommages qui suit chaque suppression d'action).
+
 **Convention `evals/scenarios.json`** : liste de `{ "prompt", "expect_action" }`. `expect_action` vaut **soit l'id exact d'une action** de la table (préféré — la couverture est alors traçable), **soit `null`** (le prompt ne doit pas déclencher ce skill). Les **labels sémantiques** non-id (ex. `build+wire` pour un flux composite) sont tolérés mais non traçables automatiquement — à éviter pour les nouveaux skills. Idéalement, exposer le mapping *trigger → action* en prose (`"phrase" → \`action\``) plutôt qu'en seul frontmatter `triggers:`.
 
 Pour partager une procédure entre skills (DRY), la placer dans `plugins/<nom>/references/` et la référencer via `${CLAUDE_PLUGIN_ROOT}/references/<fichier>.md` — **référencer, ne pas redupliquer** (cf. `aidd_docs/internal/decisions/001-pivot-authoring-conventions.md`).
@@ -64,15 +66,16 @@ Un skill `setup`/`sniff` peut installer des règles dans le projet cible. Chaque
 2. Ajouter les skills sous `skills/`.
 3. **Enregistrer le plugin à deux endroits** :
    - `.claude-plugin/marketplace.json` (bloc `plugins[]` : `name`, `version`, `source`, `description`, `recommended`).
-   - `index.json` (bloc `plugins[]` : `id`, `name`, `description`, `version`).
+   - `index.json` (bloc `plugins[]` : `id`, `name` — **rien d'autre**, voir *Versionnement*).
 4. Documenter dans le `README.md` racine (tableau des plugins + section dédiée + tableau « par type de projet » si pertinent) et créer `plugins/<nom>/README.md`.
 5. Créer `plugins/<nom>/CHANGELOG.md`.
 
-Garder `marketplace.json`, `index.json` et les README **cohérents** entre eux à chaque changement de version ou de description.
+Garder `marketplace.json` et les README **cohérents** avec `plugin.json` à chaque changement de version ou de description.
 
 ## Versionnement
 
-- SemVer par plugin (`plugin.json` + `marketplace.json` + `index.json`).
+- SemVer par plugin, dans **deux** fichiers : `plugin.json` (fait foi) + `marketplace.json` (ce que Claude Code lit à l'installation).
+- `index.json` ne porte **ni version ni description**. Il les a portées, et elles ont dérivé sur six plugins sans qu'aucun lecteur ne s'en aperçoive — parce qu'aucun lecteur ne s'en sert. Une copie que personne ne lit ne se maintient pas : elle se supprime. Les y remettre ferait revenir la dérive.
 - **Mineur** : ajout rétro-compatible (skill, action, règle).
 - **Majeur** : suppression/renommage cassant un usage existant.
 - Consigner chaque bump dans le `CHANGELOG.md` du plugin ; les changements de composition du marketplace (ajout/retrait de plugin) vont dans le `CHANGELOG.md` racine.

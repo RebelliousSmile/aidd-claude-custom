@@ -1,4 +1,4 @@
-# Action 03 — help
+# Help
 
 Provide integration context for a specific third-party service. Designed to be called by another skill (planner, implementer) that needs the rules and patterns before generating integration code.
 

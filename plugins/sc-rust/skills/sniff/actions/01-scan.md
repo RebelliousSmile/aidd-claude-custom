@@ -1,4 +1,4 @@
-# Action 01 — scan
+# Scan
 
 Detect project capabilities, map them to plugin pivots, and emit a structured pivot manifeste for `02-install-pivots` and `/sc-rust:audit`.
 

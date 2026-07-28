@@ -1,4 +1,4 @@
-# 03 — Index
+# Index
 
 Crée un fichier d'index au niveau `<Subcategory>` qui organise les fichiers du répertoire par liens Obsidian (`[[wikilinks]]`). Le fichier d'index est un fichier de navigation, pas un fichier de contenu dupliqué.
 

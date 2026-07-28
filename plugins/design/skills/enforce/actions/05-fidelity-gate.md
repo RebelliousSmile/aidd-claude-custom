@@ -1,4 +1,4 @@
-# 05-fidelity-gate
+# Fidelity-gate
 
 Applicable **dès qu'une référence visuelle externe existe**, quelle que soit la stack : l'oracle
 mesure un rendu contre une maquette résolue, propriété par propriété, et cette comparaison ne
@@ -134,16 +134,21 @@ s'applique pas par nature** à ce chemin. C'est distinct du refus ci-dessus : l�
 n'existe ; ici, une référence existe mais l'oracle n'est pas encore câblé.
 
 - **Profil de gate pour ce cas** : vocabulaire seul (`lint-core.mjs`) + bonnes
-  pratiques visuelles (contraste WCAG, réduction mobile, cohérence des échelles — jugées en
+  pratiques visuelles (réduction mobile, cohérence des échelles — jugées en
   revue humaine, pas par un oracle automatisable). Pas de second gate mesuré.
+  Le contraste, lui, ne relève **pas** de cette revue humaine : il a été mesuré en amont, au
+  figeage, sur les paires déclarées (`${CLAUDE_PLUGIN_ROOT}/adapters/a11y/contrast.py`), et son
+  résultat vit dans `release.json § checks.contrast`. Ce chemin n'a pas de référence externe ;
+  il a quand même un contrôle de contraste, et il n'y a donc rien à rejuger à l'œil ici.
 - Ceci n'est **pas** un oubli du contrat : c'est la même règle que la note d'applicabilité
   ci-dessus, vue de l'autre côté — *la fidélité exige une référence ; un projet brief-only n'en
   a aucune*. Dès qu'une référence apparaît ultérieurement (ex. une maquette est produite après
   coup pour valider le résultat du brief), ce gate redevient applicable normalement.
 - **Option de suivi non construite ici** (A9, option 2) : un gate de substitution/auto-cohérence
-  (checklist de bonnes pratiques formalisée : paires de contraste, réductions responsive,
-  couverture d'états) pourrait servir de proxy de fidélité *soft* pour ce chemin — non implémenté
-  dans cette part, noté comme piste possible seulement.
+  (checklist de bonnes pratiques formalisée : réductions responsive, couverture d'états)
+  pourrait servir de proxy de fidélité *soft* pour ce chemin — non implémenté
+  dans cette part, noté comme piste possible seulement. Les paires de contraste en sont
+  sorties : elles ne sont plus une checklist à formaliser, elles sont calculées au figeage.
 - Renvoi croisé : `${CLAUDE_PLUGIN_ROOT}/skills/define/actions/03-construct.md` porte la note
   réciproque en aval.
 

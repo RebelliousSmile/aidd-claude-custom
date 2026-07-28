@@ -1,4 +1,4 @@
-# 02 - Parse errors
+# Parse errors
 
 Extract and group Rust panics, ERROR-level tracing/log events, and HTTP 5xx responses.
 

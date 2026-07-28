@@ -1,4 +1,4 @@
-# 01 - Create
+# Create
 
 Create a new project folder with the appropriate template files.
 

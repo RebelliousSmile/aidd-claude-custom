@@ -1,4 +1,4 @@
-# Action 01 — scan
+# Scan
 
 Detect project capabilities, map them to JS knowledge pivots, and emit a pivot manifeste for use by `02-install-pivots` and `/sc-js:audit`.
 

@@ -1,4 +1,4 @@
-# 08 — Synthesize
+# Synthesize
 
 Transformation d'un ensemble d'emails (ou de communications) en un document d'information. Les sources sont dissoutes : la forme email disparaît, seule l'information subsiste. Le résultat est un fichier de contenu organisé par thème, non par date ou expéditeur.
 

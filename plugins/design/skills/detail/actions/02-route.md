@@ -1,4 +1,4 @@
-# 02-route
+# Route
 
 Classe une intention en classe de cas et émet la séquence exécutable. Répond à *quoi lancer*, pas à *ce que c'est* (`01-explain`). Émet et s'arrête — n'invoque aucun verbe.
 

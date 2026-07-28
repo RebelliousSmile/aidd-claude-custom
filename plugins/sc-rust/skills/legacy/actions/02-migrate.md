@@ -1,4 +1,4 @@
-# Action 02 — migrate
+# Migrate
 
 Apply edition and crate API transformations identified by `01-scan`, file by file.
 

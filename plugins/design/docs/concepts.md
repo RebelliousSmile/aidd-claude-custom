@@ -91,11 +91,13 @@ Au-dessus des deux gates, un troisième mécanisme : **la conformité ne s'affir
 | `extracted` | les artefacts existent | la génération, aucune conformité |
 | `normalized` | + charte présente | *(un contrat migré depuis 1.x entre ici)* |
 | `validated` | + vérifications enregistrées (`checks`) | **l'invocation de la conformité** — le seuil |
-| `production-ready` | + contraste vert par paire et états déclaratifs complets | certifie l'a11y calculable |
+| `production-ready` | + contraste vert sur un nombre de paires **non nul** et états déclaratifs complets | certifie l'a11y calculable |
 
 `tools/run-gates.py` relève le statut après le lint et **sort en 4** en deçà du seuil : les violations restent listées, mais la conformité n'est pas affirmée, et le rapport nomme le chemin de remontée.
 
-Les écarts connus vivent dans `release.json § gaps[]` et **plafonnent** le statut au lieu d'être notés en prose. Charte absente → plafond `extracted`. Contraste jamais calculé → plafond `normalized`. Une paire de contraste ou un état qui échoue → plafond `validated`.
+Les écarts connus vivent dans `release.json § gaps[]` et **plafonnent** le statut au lieu d'être notés en prose. Charte absente → plafond `extracted`. Contraste jamais calculé → plafond `normalized`. Contraste calculé sans aucune paire à comparer → plafond `normalized`. Une paire de contraste ou un état qui échoue → plafond `validated`.
+
+Ces deux derniers plafonds ne disent pas la même chose, et la distinction est le cœur du contrôle de contraste. Une paire qui échoue est une **mesure** : le contrat a été regardé et il ne tient pas. Zéro paire est une **impossibilité de mesurer** : aucun composant ne déclare quelle couleur porte du texte sur quel fond, et un contrôle qui n'a rien eu à regarder ne peut pas passer. Il sort donc en 3 et le figeage est refusé, sauf dérogation explicitement enregistrée. La sortie se lève en déclarant les appariements (`components.json § .foregrounds`), jamais en renommant des tokens pour plaire à une heuristique.
 
 L'intérêt de cette mécanique : un contrat fraîchement migré n'hérite d'aucun droit acquis, et un gap connu ne peut pas être oublié dans un paragraphe que personne ne relit. Table complète : [`../references/maturity-status.md`](../references/maturity-status.md).
 

@@ -1,4 +1,4 @@
-# Action 01 — analyze
+# Analyze
 
 Read the PHP codebase and identify design pattern gaps, anti-patterns, and maintainability issues.
 

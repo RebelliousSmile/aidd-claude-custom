@@ -1,4 +1,4 @@
-# 03 - Reorganize
+# Reorganize
 
 Redistribute existing project content to the standard structure.
 

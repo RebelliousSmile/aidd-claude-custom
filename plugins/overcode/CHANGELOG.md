@@ -2,6 +2,65 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/overcode plugins/aidd-overlay` (le plugin s'appelait `aidd-overlay` avant la 3.0.0).
 
+## [3.11.0] — 2026-07-28
+
+### Changed — `control`
+
+Suite de la revue DDD ouverte en 3.9.0 : `docs/control.md` porte le modèle, `skills/control/` le réalise. Les divergences corrigées ici étaient ouvertes et connues — trois contradictions où la page et la skill disaient l'inverse l'une de l'autre, six règles que la skill énonçait plus faiblement que la page.
+
+**Trois contradictions tranchées.**
+
+- **Le lot nommé par l'utilisateur est admis, pour les retraits.** La skill le permettait dans `02-audit`, la page l'interdisait ; c'est la **skill** qui l'emporte, et la page l'admet désormais. Un utilisateur qui nomme lui-même un ensemble de retraits l'a lu — le refuser ligne à ligne n'ajoute aucune information. La contradiction interne de `02-audit` est levée (l'admission à l'étape 4, sa négation à l'étape 5), et la règle de confirmation de `SKILL.md` énonce **deux relaxations asymétriques** au lieu d'une exception unique.
+- **`undetermined` bascule dès qu'une phase est déclarée.** La skill l'exemptait de toute bascule ; c'est la **page** qui l'emporte. `default` et `undetermined` pondèrent tous deux neutrement, mais seul le premier a décidé quelque chose : `default` reste hors machinerie **par consentement**, `undetermined` bascule comme n'importe quelle phase, son lot sortant établi contre la phase réellement déclarée, une fois connue. `references/phase-framework.md` se contredisait sur ce point à cent cinquante lignes d'écart.
+- **Aucun lot pour les ajouts.** La page l'interdit, `04-strengthen` le tolérait ; c'est la **page** qui l'emporte. L'asymétrie avec le point précédent n'est pas de la prudence : **chaque ajout déplace l'arithmétique de la contrainte de nombre pour le suivant**, donc un lot approuvé d'un bloc n'a pas pu être évalué contre une contrainte que le lot lui-même fait bouger. Un retrait n'a pas cette propriété — il ne fait que desserrer.
+
+**Six règles rétablies à la force de la page.**
+
+- La liste des modulateurs est **close**, et c'est une règle de lecture : une ligne de la skill qui donnerait un pouvoir de classement à autre chose que la table des tiers est un **défaut, pas une exception**.
+- Modulateurs et autorités **ne se comptent plus ensemble** — quatre de chaque, se recoupant sur la phase et les domaines seulement.
+- La borne des *Tier thresholds* est écrite **là où le champ est défini** (`references/pivot-contract.md`) : un pivot ne raffine un tier que si la frontière concernée reste locale ou émulée. Une borne énoncée dans le bon modèle mais au mauvais endroit est invisible à qui ne charge que le champ.
+- La phase pilote **quatre** choses, la quatrième étant la qualification d'un lot de tests devenus périmés — et seulement lors d'une bascule.
+- **Aucune action ne produit de pourcentage** : des ordres, jamais des parts. Deux choses ne sont pas des productions et restent — un chiffre déclaré par le projet, cité verbatim, et un chiffre cité du rapport d'un outil comme sortie de cet outil.
+- La table des tiers décide le tier **et rien d'autre**.
+
+**Trois bornes du modèle réalisées.**
+
+- **Un seul univers pour `scope`** — quatre actions déclaraient quatre univers différents sous le même nom de paramètre. C'est le code source **et** les tests qui lui correspondent, résolus symétriquement : un chemin dans l'arbre de tests reste exprimable et ramène la source associée.
+- **Borner en le disant** — la phase peut restreindre l'univers analysé, jamais en silence : chaque fichier écarté est listé avec le motif de phase qui l'a écarté (`05-stats`, bloc `PHASE`).
+- **Ce qui entre dans une lecture n'est pas ce qu'une donnée veut dire** — la phase borne la première, jamais la seconde. Un module absent du rapport de couverture se lit « non couvert » dans toutes les phases ; seul son rang change.
+
+**Dix déficits fermés par la campagne `behave`.** Les divergences ci-dessus étaient connues avant d'être corrigées. Celles-ci ont été **trouvées** en jouant les sept suites contre la cible, d'abord à `HEAD` puis après chaque correctif. Aucune n'était visible à la lecture.
+
+- **Le résidu de domaine est rapporté, et il l'est quelle que soit la provenance du terme.** Un fichier source qu'aucun domaine ne reconnaît reste dans l'analyse, rang le plus bas, **avec le terme qui a échoué sur lui** — chercher `Login` trouve `LoginForm` et manque `SessionController`, et la zone manquée ne se signale pas comme exclue : elle se signale comme une zone sans écart, soit l'exact inverse de la vérité. Un domaine est **en vigueur** dès que le projet le déclare *ou* qu'il arrive en argument : la provenance change ce que le run a le droit d'écrire, jamais la façon dont le terme se résout. La trace alimente la détection de dérive de `06-align`.
+- **La couverture se lit `couverts`/`total`, jamais en pourcentage seul.** Un fichier sans point de branchement affiche 100 % de couverture de branches en n'étant pas testé du tout — le rapport vaut `0/0`, arrondi vers le haut par l'outil. Lu ainsi, le fichier le plus dangereux du snapshot est celui qui paraît le plus sûr.
+- **L'univers vient du glob source, jamais du rapport de couverture.** Les rapports omettent couramment les fichiers qu'aucun test n'importe : un univers lu sur le rapport est un univers dont les manques ont déjà été retirés. Les deux comptes sont rapportés côte à côte dès qu'ils diffèrent.
+- **Un rapport de couverture peut exister sans donnée de branche** — la configuration la plus répandue en pratique, la couverture tournant en mode ligne. Il y a un rapport et pas de dénominateur : le cas « aucun rapport » ne s'applique pas et le rapporter serait faux. Les points de branchement ne se recalculent pas ; la densité se déclare *non mesurable*, et `03-configure` est nommé — un drapeau du lanceur, ce qui n'est pas la même conversation que câbler la couverture depuis zéro.
+- **Une frontière externe est hors de portée du test, y compris au guichet.** Ce dont la vérité dépend d'un tiers — que l'inbox distante accepte encore le format, que le fournisseur soit debout — se réfère au **monitoring** et ne se délègue pas : un tel test passe pour des raisons que le projet ne maîtrise pas et échoue pour des raisons qu'il ne peut pas réparer. La règle existait dans `04-strengthen`, qui classe ; elle manquait dans `01-write`, par où **tout nouveau test entre**. Un plafond qui n'existe que dans l'action de classement est un plafond avec une porte à côté.
+- **Un document de stratégie a trois formes, pas deux**, et toute action qui invoque le repli dit laquelle elle a rencontrée : *absent*, *présent mais vide*, et *présent, rempli, ne tranchant aucun tier*. La troisième est le piège — elle énumère des types de test, des outils, des conventions, se lit comme une stratégie et n'en gouverne aucune. La rapporter comme « en forme de template » envoie le projet remplir des champs qu'il a déjà remplis.
+- **`03-configure` ne prend aucun paramètre, et le dit quand on lui en donne un.** Ni refus ni prise en compte : le contrôle n'en dépend pas, donc rien ne justifie de s'arrêter — mais un paramètre silencieusement ignoré laisse croire que le rapport a été restreint, et un `scope` se lit comme la promesse que le reste du projet a été laissé tranquille.
+- **`06-align` ne se contredit plus sur `undetermined`.** L'étape 10 énonçait qu'un document ne déclarant rien ne bascule jamais, quand la troisième puce de la même action fait basculer `undetermined` comme toute autre phase. L'exception est désormais nommée à l'endroit où la règle générale est posée.
+- **Les cas dégénérés de la densité sont listés dans l'ordre où il faut les vérifier**, et le texte dit que cet ordre n'est pas celui de leur fréquence. « Aucun rapport de couverture » est de loin le plus courant et se vérifie en second : un projet sans aucun test n'a pas de rapport non plus, et mener par le rapport suggérerait que câbler la couverture est ce qui le sépare d'une densité. Ce n'est pas le cas.
+- **La ligne `density` a des variantes non mesurables**, et la ligne `readability` porte les trois formes. Une sortie dont le gabarit n'a pas de case pour un état atteignable force le run à inventer une formulation, ou à taire l'état.
+
+### Changed — `control` › evals
+
+- **Les sept suites portent un `Results log`** — un run `initial` lu sur la cible **à `HEAD`**, puis un à quatre runs `post-fix`, chaque verdict avec son Δ contre le run précédent. Le run initial n'est pas reconstitué de mémoire : la cible est versionnée, donc son état d'avant les correctifs est lisible comme n'importe quel autre.
+- **Les six blocs `## Test` deviennent des renvois vers les suites.** Ils portaient des assertions qu'aucun scénario ne prouvait : une règle qui reste là est une règle non testée qui se croit testée.
+- **Six scénarios ajoutés**, un par assertion orpheline : le bloc de sortie porte le motif qui a décidé le tier, et un `budget_check` (`authority` S10) ; un même comportement garde son tier des deux côtés de la médiane (S11) ; l'outil e2e établi n'est jamais candidat au remplacement (S12) ; `tier = skip` ne délègue à rien (`chaining` S13) ; un gate déclaré se rapporte **invoqué ou inerte**, jamais « configuré » tout court (`measurement` S16) ; l'idempotence de `06-align`, marquée N/A par le harness et non par le fixture (`align-write` S17).
+- **La clause « aucun double » migre des blocs `## Test` vers le préambule des sept suites**, où elle vaut pour tous les scénarios et non pour la seule action qui la portait.
+- La table de calibration de `references/test-density.md` énonce des rapports (`5/24`) plutôt que des parts (`21 %`) — la règle « aucun pourcentage » ne vise que les sorties, mais un exemple chiffré en pourcentage dans une référence se lit comme une sortie.
+
+## [3.10.0] — 2026-07-27
+
+### Changed — `alias`
+
+- **`bump-plugin` ne propage plus que sur deux manifestes** — `plugin.json`, qui fait foi, et `marketplace.json`, que Claude Code lit à l'installation. `index.json` ne portant plus ni version ni description (voir le `CHANGELOG.md` racine, 3.4.0), il n'y a plus rien à y propager : l'action ne l'ouvre que pour enregistrer un plugin nouveau. Sa **balise de racine** — étape 0b, recherche d'un `index.json` portant un tableau `plugins` — est inchangée.
+- **L'étape de vérification délègue au dépôt plutôt que de la réimplémenter.** Elle affirmait relire les trois manifestes et que ce contrôle tournait en CI ; le second point était faux et le premier duplique désormais `tools/eval/consistency.mjs`. Elle préfère le gate de la marketplace s'il en existe un, et retombe sur la relecture des deux manifestes sinon — l'action étant distribuée avec le plugin, elle s'exécute sur des dépôts qui n'ont pas ce fichier.
+
+### Changed — tous les skills
+
+- **Les titres `H1` des actions ne portent plus leur numéro.** Changement transverse à la marketplace, décrit dans le `CHANGELOG.md` racine (3.4.0). Aucun contrat n'en dépend : les actions sont désignées par nom dans les tables, les evals et la documentation.
+
 ## [3.9.1] — 2026-07-27
 
 ### Fixed — `alias`

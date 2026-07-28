@@ -1,4 +1,4 @@
-# 01-validate-roundtrip (sc-js:wp-blocks)
+# Validate-roundtrip (sc-js:wp-blocks)
 
 ## Rôle
 

@@ -1,4 +1,4 @@
-# 01 - Tail
+# Tail
 
 Display the last N lines from one or more Rust application log sources in a given environment.
 

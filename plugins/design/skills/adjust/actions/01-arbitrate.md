@@ -1,4 +1,4 @@
-# 01-arbitrate
+# Arbitrate
 
 ## Rôle
 

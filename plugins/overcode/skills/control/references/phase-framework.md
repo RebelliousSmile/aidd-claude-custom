@@ -4,7 +4,21 @@ A test suite does not prove the same thing at every moment of a product's life. 
 
 **The phase prioritises; it never classifies a tier.** Same boundary as the pivot's *Risk signals*. A test is refused on a tier criterion, never "because we are in production". Tier authority stays with the loaded tier table (the project's own documented strategy, else `decision-framework.md`).
 
-What the phase does govern is the **analysis strategy**: which criteria weigh heavily right now, how the coverage report is read, and in which order the result is restituted. It weights and it gives meaning; it never sets a numeric threshold. A per-phase coverage threshold would turn the percentage into a target and break the rule that coverage is a symptom, never a goal.
+What the phase does govern is the **analysis strategy**, and it is **four things, not three**: which criteria weigh heavily right now, **which files enter the reading of the coverage report**, in which order the result is restituted, and — **at a phase switch only** — the qualification of a batch of tests as now obsolete (`## Net balance by phase`, and `06-align` step 10).
+
+It never sets a numeric threshold either. A per-phase coverage threshold would turn the percentage into a target and break the rule that coverage is a symptom, never a goal.
+
+### Bounding by saying so
+
+**The phase may reduce the analysed universe. It may never do so in silence: every file it sets aside is listed, with the phase motive that set it aside.**
+
+This is the only form of restriction the model admits, and the reason is the one that already bounds the domains — a false positive costs one line of noise, a silent false negative costs the gap this skill exists to prevent. A **declared** restriction is not a false negative: it is a decision that can be re-read and contested. An undeclared one is indistinguishable from an area that came out clean.
+
+### What the phase does not decide
+
+**It bounds what enters a reading; it never changes what a datum means once read.** A file absent from the coverage report means *not covered* in every phase alike. What the phase legitimately changes is how high that file ranks — in `scaffolding` a mass of never-imported files is the expected state and ranks low, in `sustaining` the same mass is the finding. Same fact read twice, never two facts.
+
+Entering the universe and meaning something are two different questions, and only the first is the phase's.
 
 ## The phases
 
@@ -139,7 +153,7 @@ Writing this down is what keeps the criterion from manufacturing false assurance
 - **Provable in process, at `contract` tier, without calling the vendor:**
   - the payload the code builds is the one it believes it is sending — fields, types, units, the identifier actually used;
   - the **degraded path** behaves correctly when the vendor returns an error, an unexpected schema, or nothing at all.
-- **Not provable by the test suite:** that the vendor still accepts that payload. This requires a real, slow, quota-bound call, which has no place in a suite that gates every validation loop. `04-strengthen` **declares it out of reach of testing** and refers it to monitoring, instead of proposing a test that would give false assurance.
+- **Not provable by the test suite:** that the vendor still accepts that payload. This requires a real, slow, quota-bound call, which has no place in a suite that gates every validation loop. The skill **declares it out of reach of testing** and refers it to monitoring, instead of proposing a test that would give false assurance — `04-strengthen` when ranking, `01-write` at the gate every new test enters through.
 
 ### Cost cap, per boundary
 
@@ -211,6 +225,8 @@ That trace pays for itself twice — at runtime it hides nothing, and it is what
 - `scaffolding`, `hardening` — additions normally outweigh removals: the suite is being built.
 - `production` — the balance shifts rather than grows: what the earlier phases justified gives way to what the client journeys demand.
 - `sustaining` — a negative balance is expected, never required.
-- `default`, `undetermined` — **no expected lean, and no removal batch at all.** Nothing is deprioritised, so nothing can be qualified as obsolete by the phase.
+- `default`, `undetermined` — **no expected lean.** Neither weighting deprioritises anything, so neither qualifies a test as obsolete *while it is in force*. What happens on the way out is where the two part company:
+  - `default` — **no removal batch at all**, and the phase switch does not apply to it. Not because the machinery cannot run, but because a project that has just declared `default` has taken a decision: qualifying tests obsolete on the spot would contradict it (`### default et undetermined`).
+  - `undetermined` — **the removal batch depends on the real phase, once it is known.** Nothing has been decided, so nothing is being contradicted: the moment a phase is declared, the switch applies as it would between any two phases, and the batch is established against the phase declared. Reporting an empty batch here because the previous value was neutral would exempt from re-examination the one suite nobody ever weighted.
 
 **`sustaining` carries the one exception to its own negative balance:** external boundaries remain the only legitimate motive for addition in this phase, and are excluded from any removal batch. It is the phase where nothing internal moves any more while external contracts keep moving — removing their only net at that exact moment would be the worst possible timing.

@@ -1,4 +1,4 @@
-# 01 - Tail
+# Tail
 
 Display the last N lines from one or more Python application log sources in a given environment.
 

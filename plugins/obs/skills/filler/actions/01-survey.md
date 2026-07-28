@@ -1,4 +1,4 @@
-# 01 — Survey
+# Survey
 
 ## Inputs
 - `path` (required) — répertoire cible

@@ -1,4 +1,4 @@
-# Action 02 — practice
+# Practice
 
 Generate a targeted Python coding exercise modelled on the current project's patterns, then evaluate the user's solution.
 

@@ -1,4 +1,4 @@
-# Action 01 — explain
+# Explain
 
 Explain a JS/TS/Vue/Nuxt concept using real examples from the current project codebase.
 

@@ -1,4 +1,4 @@
-# 01 - Generate
+# Generate
 
 Gather commits since the last tag, group them by Keep a Changelog category, prepend a new version section to CHANGELOG.md, commit the file, and create an annotated tag.
 

@@ -1,4 +1,4 @@
-# 01 - Tail
+# Tail
 
 Display the last N lines from one or more log sources in a given environment.
 

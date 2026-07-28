@@ -1,4 +1,4 @@
-# Action 04 — scaffold-symfony
+# Scaffold-symfony
 
 Scaffold un projet Symfony + Docker Compose depuis zéro.
 

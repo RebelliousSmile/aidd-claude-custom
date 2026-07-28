@@ -1,4 +1,4 @@
-# 05 - Report
+# Report
 
 Produce the final processing report and add it to the cumulative log.
 

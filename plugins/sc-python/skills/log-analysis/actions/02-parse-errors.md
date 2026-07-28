@@ -1,4 +1,4 @@
-# 02 - Parse errors
+# Parse errors
 
 Extract and group Python exceptions, Django/FastAPI errors, and HTTP 5xx responses.
 

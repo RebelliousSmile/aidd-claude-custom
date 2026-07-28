@@ -364,6 +364,8 @@ Le champ `.backgrounds` d'un composant dans `components.json` référence des **
 
 Le chemin `color.semantic.background` doit exister dans `tokens.json` sous `color.semantic.background.$value`. Ce lien est vérifié **au figeage** par `adjust/02-freeze.md § Étape 2 Règle 3` ; un chemin mort y bloque le figeage. `lint-core.mjs` ne le revérifie pas : `.backgrounds` est inerte pour les cinq règles du linter.
 
+Le champ symétrique est `.foregrounds` — les chemins de tokens qui **portent du texte** sur ces fonds, pris où ils vivent (`color.brand.*`, `color.domain.*`, `color.semantic.*`). Même vérification de chemin au figeage, même inertie pour le linter, mais une conséquence de plus : c'est la seule déclaration d'usage du contrat, et elle commande le contrôle de contraste.
+
 ### Tokens sémantiques = le pont
 
 Les tokens sémantiques (`color.semantic.*`) sont le pont entre `tokens.json` et `components.json`. Ils doivent être résolus (alias vers un token de ramp) dans `tokens.json` pour que la vérification de `.backgrounds` au figeage porte sur un chemin réel :
@@ -377,18 +379,21 @@ Les tokens sémantiques (`color.semantic.*`) sont le pont entre `tokens.json` et
 }
 ```
 
-### Tokens de fond autorisés pour les composants sombres
+### Tokens de fond et d'avant-plan des composants sombres
 
-Pour les variantes sombres (ex. `hero--dark`) dont `.backgrounds` liste un token foncé (ex. `color.neutral.900`), le contraste texte/fond attendu se calcule contre `color.semantic.text` (ou sa valeur résolue).
+Pour une variante sombre (ex. `hero--dark`) dont `.backgrounds` liste un token foncé (ex. `color.neutral.900`), l'avant-plan n'est **pas deviné** : il est déclaré dans `.foregrounds`. C'est cette déclaration — et elle seule — qui dit qu'une couleur porte du texte ; un nom ne le dit pas, `color.brand.primary` porte du texte exactement comme `color.semantic.text` dès lors qu'un composant l'affirme.
 
-> **Gap déclaré.** Aucun outil du plugin ne mesure ce contraste : ni `lint-core.mjs`, ni `adjust`, ni l'oracle de fidélité. La conformité WCAG d'un contrat figé est **non établie** ; elle relève d'une vérification externe.
+Le contraste de chaque paire `.foregrounds` × `.backgrounds` est **mesuré au figeage**, thème par thème, par `adapters/a11y/contrast.py`, et enregistré dans `release.json § checks.contrast` (`../skills/adjust/references/manifest-schema.md § Invariant 5`). Une paire sous AA est un `gap` qui plafonne la maturité ; un contrat où **aucune** paire n'est constructible ne se fige pas du tout (Invariant 7).
+
+> **Gap déclaré — ce que la mesure ne peut pas voir.** L'adaptateur lit des valeurs de tokens, pas un rendu. Toute recomposition à la peinture lui échappe : `opacity`, `color-mix`, un voile translucide, un dégradé. `color: ink` avec `opacity: .55` emploie un token légal et une classe légale, et peut échouer AA à l'écran sans qu'aucune porte statique ne le voie. Ce résidu est assigné à la porte de rendu G6, pas à `adjust` (`enforcement-registry.md`).
 
 ### Ce que `adjust` fait lors du figeage
 
 1. Audite les groupes requis de `tokens.json` (tous les groupes de la table ci-dessus doivent exister).
 2. Déduplique les tokens redondants (valeurs identiques sur des chemins différents → alias l'un vers l'autre).
-3. Pour chaque composant de `components.json`, vérifie que tous les chemins de `.backgrounds` existent dans `tokens.json`.
-4. Déclare la version de chaque artefact dans `release.json` ; les versions sont indépendantes et un écart est une donnée, pas une violation.
+3. Pour chaque composant de `components.json`, vérifie que tous les chemins de `.backgrounds` et `.foregrounds` existent dans `tokens.json`.
+4. Mesure le contraste de chaque paire `.foregrounds` × `.backgrounds`, par thème, et l'enregistre dans `checks.contrast` avec le nombre de paires comparées. Aucune paire constructible → le figeage est refusé.
+5. Déclare la version de chaque artefact dans `release.json` ; les versions sont indépendantes et un écart est une donnée, pas une violation.
 
 ## Invariants
 
@@ -396,4 +401,5 @@ Pour les variantes sombres (ex. `hero--dark`) dont `.backgrounds` liste un token
 - Generated files always carry the "do not edit" banner.
 - A value that differs between adapters and `tokens.json` is a bug — `audit` flags it.
 - Toute référence `{token.path}` dans `tokens.json` doit pointer vers un chemin existant dans le même fichier. Les alias circulaires sont interdits.
-- Les chemins de `.backgrounds` dans `components.json` pointent obligatoirement vers `color.*` tokens (les tokens de type `color` uniquement).
+- Les chemins de `.backgrounds` et `.foregrounds` dans `components.json` pointent obligatoirement vers `color.*` tokens (les tokens de type `color` uniquement).
+- Un composant qui affiche du texte déclare ses `.foregrounds`. L'omettre ne rend pas sa couleur de texte conforme : elle la rend **intestable**, et une couleur que personne n'a regardée n'est pas une couleur sûre.

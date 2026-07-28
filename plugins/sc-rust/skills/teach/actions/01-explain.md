@@ -1,4 +1,4 @@
-# Action 01 — explain
+# Explain
 
 Explain a Rust concept or pattern using real examples found in the current project codebase.
 

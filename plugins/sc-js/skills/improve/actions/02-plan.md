@@ -1,4 +1,4 @@
-# Action 02 — plan
+# Plan
 
 Produce a prioritized improvement plan from the findings emitted by `01-analyze`.
 

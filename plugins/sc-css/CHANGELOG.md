@@ -1,5 +1,11 @@
 # Changelog — sc-css
 
+## [0.3.3] — 2026-07-28
+
+### Changed
+
+- **Les titres `H1` des actions ne portent plus leur numéro** — `# Explain`, plus `# Action 01 — explain`. Le numéro vivait à trois endroits, il n'en occupe plus que deux : le nom de fichier et la table de `SKILL.md`, que le gate de cohérence du marketplace compare désormais. Changement transversal aux onze plugins, détaillé dans le journal du marketplace (3.4.0).
+
 ## [0.3.2] — 2026-07-27
 
 ### Fixed — discipline de sévérité de l'audit (6 trous)

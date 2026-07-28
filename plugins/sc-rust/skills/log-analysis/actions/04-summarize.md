@@ -1,4 +1,4 @@
-# 04 - Summarize
+# Summarize
 
 Produce a period digest across all Rust log sources: error counts by level, top recurring errors, panics, HTTP status distribution.
 

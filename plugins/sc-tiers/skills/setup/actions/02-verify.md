@@ -1,4 +1,4 @@
-# Action 02 — verify
+# Verify
 
 Audit the current project's code against the sc-tiers rules and report violations, warnings, and compliant patterns.
 

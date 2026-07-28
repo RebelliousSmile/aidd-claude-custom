@@ -1,4 +1,4 @@
-# 08 - Distill
+# Distill
 
 Turn a project's dated communication into structured information: **reduce** with `obs:filler`, **classify** what survives into the structural files, and **prune the past**.
 

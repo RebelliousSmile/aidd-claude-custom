@@ -44,7 +44,7 @@ Le linter portable est un **scanner de chaînes, un fichier de markup à la fois
 | Références `var(--…)` dans le markup scanné | Feuilles de style, fichiers de configuration de plateforme, styles générés |
 | Hex brut dans `style="…"` et `<style>` inline | Contenu stocké hors des fichiers source, sauf extraction explicite (`03-lint-instances`) |
 | Namespaces de couleur des classes utilitaires shadées | Adapters, configurations, scripts de build |
-| — | Contraste, rôles ARIA, fond réellement appliqué, cohérence inter-fichiers |
+| — | Rôles ARIA, fond réellement appliqué, contraste **du rendu**, cohérence inter-fichiers |
 
 Le vocabulaire de classes est **ouvert par défaut** : une classe dont le bloc n'est pas déclaré est ignorée. Il ne se referme que sous `--strict`, en `warning`, sur les seules classes de forme BEM. Les cinq règles, leurs sources et leurs sévérités : `${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md § Dérivation des règles de lint`.
 
@@ -119,7 +119,7 @@ Voir `${CLAUDE_PLUGIN_ROOT}/skills/enforce/references/gate-wiring.md` pour le c�
 
 `lint-core.mjs` lit **un fichier de markup à la fois, en texte**. Cinq règles, toutes dérivées du contrat à l'exécution, aucune valeur codée en dur, aucun état entre deux runs. Le vocabulaire est **ouvert par défaut** : une classe dont le bloc n'est pas déclaré passe comme utilitaire ; `--strict` la signale en `warning`, jamais en `error`.
 
-Hors de portée par construction, donc jamais couvert par un run vert : feuilles de style, liaisons de classe dynamiques, contenu stocké hors des fichiers source, fichiers de configuration de plateforme, contrastes, rôles ARIA, toute cohérence entre deux fichiers.
+Hors de portée par construction, donc jamais couvert par un run vert : feuilles de style, liaisons de classe dynamiques, contenu stocké hors des fichiers source, fichiers de configuration de plateforme, rôles ARIA, toute cohérence entre deux fichiers, et le contraste **tel qu'il est peint** (`opacity`, `color-mix`, voiles, dégradés — assignés à G6). Le contraste des paires déclarées, lui, n'est pas un trou de ce gate : il est mesuré bien plus tôt, au figeage, et enregistré dans `release.json § checks.contrast` (`${CLAUDE_PLUGIN_ROOT}/references/gate-natures.md`).
 
 Ce qui sort de cette portée n'est pas perdu : c'est déclaré en `usage.rules[]` avec un `enforcement` qui nomme son réalisateur, ou marqué non réalisé. Espace fermé des types et obligation de rapport : `${CLAUDE_PLUGIN_ROOT}/references/enforcement-registry.md`. L'agrégation des deux côtés est `tools/run-gates.py`.
 

@@ -1,4 +1,4 @@
-# Action 02 — practice
+# Practice
 
 Generate a targeted exercise on a JS/TS/Vue/Nuxt concept, modelled on current project patterns.
 

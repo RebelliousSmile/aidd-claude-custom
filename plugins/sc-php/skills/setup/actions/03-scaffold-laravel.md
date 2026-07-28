@@ -1,4 +1,4 @@
-# Action 03 — scaffold-laravel
+# Scaffold-laravel
 
 Scaffold un projet Laravel + Docker Compose depuis zéro.
 

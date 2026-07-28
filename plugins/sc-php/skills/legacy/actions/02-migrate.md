@@ -1,4 +1,4 @@
-# Action 02 — migrate
+# Migrate
 
 Apply upgrade or downgrade transformations identified by `01-scan`, file by file.
 

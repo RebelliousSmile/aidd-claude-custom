@@ -1,4 +1,4 @@
-# 06 - Destinations
+# Destinations
 
 Export the current tree as a `destinations.txt` routing map — the curated list consumed by the `email-to-markdown` router. `tree` derives the **durable** part of the arborescence (`(Perso|Pro)/category/subcategory`, i.e. the parent of the dated `AAAA/MM` levels) from the cache and emits one line per destination, grouped and ready for the user to add matching rules.
 

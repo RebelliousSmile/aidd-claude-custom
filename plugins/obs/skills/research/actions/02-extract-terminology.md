@@ -1,4 +1,4 @@
-# 02 - Extract Terminology
+# Extract Terminology
 
 Distill terminology, proper nouns, and world-building elements from a domain's source documents into `<scope-root>/reference/terminologie.md`.
 

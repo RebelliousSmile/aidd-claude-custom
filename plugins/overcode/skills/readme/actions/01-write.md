@@ -1,4 +1,4 @@
-# 01 - Write
+# Write
 
 Crée un README de zéro. S'applique quand aucun `README.md` n'existe, ou quand l'utilisateur demande explicitement une réécriture complète. Collecte les inputs bloquants, rédige, s'auto-vérifie, puis rend le résultat.
 

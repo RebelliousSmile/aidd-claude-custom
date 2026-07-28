@@ -4,6 +4,24 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [3.4.0] - 2026-07-27
+
+Trois défauts partageaient une forme : une information recopiée à N endroits, sans autorité déclarée entre les copies et sans rien qui les compare. Le correctif suit le même ordre partout — d'abord un vérificateur, ensuite les suppressions qu'il rend sûres.
+
+### Added
+
+- **`tools/eval/consistency.mjs`**, câblé en tête de `pnpm test` et de la CI. Il compare `plugin.json` ↔ `marketplace.json` (version et description), vérifie que toute entrée de manifeste a un dossier, que toute ligne de table de `SKILL.md` résout vers un fichier d'action et réciproquement, qu'aucun préfixe numérique n'est porté par deux fichiers, et qu'aucun titre `H1` ne porte son numéro. Il vit sur un point de passage obligé, et non dans `alias:bump-plugin` : cette action vérifiait déjà les manifestes, mais depuis l'intérieur du chemin discipliné — un bump fait à la main l'évitait entièrement, ce qui est exactement la façon dont la dérive de 3.3.3 s'est produite.
+- **Politique de numérotation**, écrite en assertion plutôt qu'en prose : un numéro **identifie**, il n'ordonne pas. Le doublon est une erreur — deux fichiers portant `06` rendent toute référence ambiguë. Le trou est toléré : l'interdire rendrait bloquante la cascade de renommages qui suit chaque suppression d'action, or c'est cette cascade non faite qui a produit le trou d'`alias` en 3.1.1. Le strict n'aurait pas empêché la dette, il l'aurait déplacée dans la CI.
+
+### Changed
+
+- **`index.json` ne porte plus ni `version` ni `description`** — seulement `{id, name}`. Ces champs ont dérivé sur six plugins (voir 3.3.3) parce qu'aucun consommateur ne les lit : Claude Code lit `marketplace.json`. Une copie que personne ne lit ne se maintient pas, elle se supprime. Le fichier garde ses deux rôles réels : balise de racine pour l'étape 0b de `bump-plugin`, et registre humain des plugins. `CONTRIBUTING.md`, `aidd_docs/memory/marketplace-v3.md` et la documentation d'`alias` sont alignés.
+- **Les titres `H1` des actions ne portent plus leur numéro** — `# Bump-plugin`, plus `# Action 03 — bump-plugin`. 166 fichiers sur 178, dans les onze plugins. Contrairement à ce qui avait été annoncé au moment du diagnostic, ce n'était **pas** la généralisation d'une convention majoritaire mais sa rupture : la mesure initiale ne détectait qu'une des deux formes numérotées (`# Action NN — nom`, 69 fichiers) et ignorait l'autre (`# NN - nom`, 97), concluant à tort que 103 titres étaient déjà propres alors qu'ils n'étaient que 12. Le choix tient malgré la correction, pour la raison qui fondait le chantier et qu'unifier les deux formes n'aurait pas servie : le numéro vivait à trois endroits, il n'en occupe plus que deux — le nom de fichier et la table, que le gate compare désormais. Les libellés enrichis sont préservés (`# Parse errors`, `# Realize-lint (sc-css)`) : seul le préfixe est retiré.
+
+### Fixed
+
+- **`alias:bump-plugin` affirmait que sa vérification tournait en CI.** C'est faux : `tools/`, `package.json` et `.github/` sont gitignorés — l'outillage est local par choix, et le workflow lui-même n'est pas poussé. L'étape est devenue conditionnelle (« si la marketplace fournit un gate, préférer son verdict ; sinon relire les deux manifestes »), ce qui la rend en outre correcte pour les dépôts où le fichier n'existe pas, l'action étant distribuée avec le plugin.
+
 ## [3.3.3] - 2026-07-27
 
 ### Fixed

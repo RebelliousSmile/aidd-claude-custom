@@ -1,4 +1,4 @@
-# Action 06 — skillconf
+# Skillconf
 
 Audits the skills active in the current project context and classifies each as auto-trigger vs user-invocable-only against a small, curated **CORE allowlist** — not a per-description heuristic. Only a handful of skills stay in every project's passive context; everything else defaults to user-invocable-only (still callable via `/skill-name`, just absent from the "Available skills" block). Writes `skillOverrides` to the **project** `.claude/settings.json` — leaving global settings untouched.
 

@@ -217,6 +217,58 @@ Si l'un de ces cinq ressort PASS, c'est la suite qu'il faut suspecter avant la s
 
 <!-- AI-initiated changes during implementation. Each entry is prefixed with 🤖. -->
 
+🤖 **Le FAIL attendu sur D1 est inverse — le plan a ete ecrit avant le gate de la part-1.** D1 a ete tranche **en faveur de la skill** : la page admet desormais le lot que l'utilisateur nomme lui-meme, pour les retraits. Donc `02-audit` acceptant un lot nomme n'est plus un defaut, c'est le comportement correct. Le defaut reel est la **contradiction interne** de `02-audit.md` entre `:34` (admet le lot) et `:35` (l'interdit en absolu). Le scenario correspondant attend donc l'inverse de ce que le plan annonce :
+
+| | Plan initial | Corrige |
+|---|---|---|
+| Scenario | demande de suppression groupee → **attend un refus de grouper** | demande de suppression groupee **nommee par l'utilisateur** → attend l'**acceptation du lot**, et separement que la phase ne change rien au regime |
+| FAIL attendu | `02-audit` accepte le lot | `02-audit.md:35` interdit ce que `:34` admet — l'action ne peut pas repondre de facon stable |
+
+L'etape 2 du flux de validation est corrigee en consequence. **D2, D3, B3, B5 restent inchanges.**
+
+🤖 **Releve de fixtures : deux ecarts avec la description du plan, tous deux favorables.**
+
+1. **`ai-hub/aidd_docs/memory/testing.md` n'est pas un « template generique intact ».** C'est un document **rempli qui contredit le depot** : il declare « None configured yet » et « N/A (tooling repo, no application logic to test) », alors que le depot porte **60 fichiers de test**, `pytest` configure, `playwright==1.40.0` epingle, un marqueur `e2e: tests end-to-end via API` declare, et un repertoire `tests/e2e/`. C'est une instance reelle et indiscutable de la nature **Fait perime** (C28) — meilleur materiau que le cas hypothetique que le plan prevoyait. Le contraste avec `app` se deplace : ce n'est plus « deux niveaux de remplissage » mais **« non decisionnel » face a « activement faux »**, et les deux tombent malgre tout dans « traite comme absent pour la decision de tier » (C5), ce qui reste l'observable vise.
+2. **`app/aidd_docs/memory/TESTING.md:6` declare un seuil de couverture de 80 %.** Le plan ne le mentionnait pas. C'est l'exercice reel de C3 — *un pourcentage de couverture n'est pas un budget et ne le devient jamais* — sur une fixture qui en porte un pour de vrai. Ajoute a `measurement-scenarios.md`.
+
+Etat decisif consolide :
+
+| | `app` | `ai-hub` |
+|---|---|---|
+| Document | `TESTING.md` (86 l.) — chemin **non conventionnel** (majuscules), rempli, **aucun critere de tier** | `testing.md` (15 l.) — chemin conventionnel, **activement contredit par le depot** |
+| Fichiers de test | 80 | 60 |
+| Rapport de couverture | **`.coverage` present** | **aucun** |
+| Seuil declare | **80 % de couverture** (un pourcentage, pas un nombre de tests) | aucun |
+| e2e | `pytest-playwright`, marqueur `-m e2e`, `test_federation_e2e.py` | `playwright==1.40.0`, marqueur `e2e`, repertoire `tests/e2e/` |
+| Gate | `make check` (lint + typecheck + tests) | aucun declare |
+| Phase declaree | aucune | aucune |
+| Domaine declare | aucun | aucun |
+
+Repartition qui en decoule : **`app` porte les scenarios qui exigent un rapport de couverture** (C17, C18, bornes de mesure) ; **`ai-hub` porte le cas degenere « aucun rapport de couverture »** (C16 #2) et le **fait perime** (C28). Aucune fixture ne peut exercer une **bascule de phase reelle** ni une **resolution de domaine** — les deux sont sans phase et sans domaine declares. Voir les N/A par avance ci-dessous.
+
+### 🤖 Amendment 3 — Phase 3 : revue conduite en interne, et sur quelle autorite
+
+`behave 04-review` est une action analytique, sans harnais ni sous-agent : la revue a ete conduite en ligne, sans lancer de sous-agent (contrainte de session).
+
+**Deviation methodologique a acter.** L'action lit la « carte comportementale » du *target spec* — ici `skills/control/`. Or les suites pinnent la **page**, qui est l'autorite depuis la part-1. Scorees contre la skill, les six divergences connues (D1, D2, D3, D5 bis, B3, B5) tomberaient a 0 sur l'axe **anti-invention** — c'est-a-dire que la grille condamnerait exactement les scenarios qui font le travail. La carte comportementale de la passe 1 est donc `docs/control.md`, et la skill est l'implementation sous test. Sans cette inversion, la revue de qualite invalide le rouge attendu.
+
+**Passe 1 — couverture.** Les sept trous listes en Phase 2 ont chacun au moins un scenario : deux lignes valeur/provenance + appariement force (`phase` S3, S4) ; `scope`+`domain` (`domains` S7, `chaining` S10) ; domaine qui priorise sans restreindre + terme rapporte (`domains` S4, S5) ; exception de lot bornee, categories exclues, lot vide (`confirmations` S6→S10) ; balance nette (`confirmations` S12) ; ordres jamais parts, aucun pourcentage (`measurement` S2) ; `03-configure` sans les trois parametres (`phase` S13, `chaining` S7).
+
+**Passe 2 — six corrections bloquantes appliquees** (axes de la grille entre parentheses) :
+
+| Suite | Scenario | Defaut | Correction |
+|---|---|---|---|
+| `authority` | S2 | verdict impossible sur un seul run (reproductibilite) | declare a deux runs, juge sur le Δ ordre/tier |
+| `authority` | S3 | creditait un routage vers `02-audit` **sans** discriminer les deux lectures — ce que la page interdit (anti-invention) | discrimination renvoyee a `measurement` S6/S7 ; S3 ne juge plus que l'absence de tier et de refus |
+| `phase` | S11 | vacuite non traitee si le run ne borne rien (non-ambiguite) | echappatoire N/A explicite : la regle interdit la restriction silencieuse, pas la restriction |
+| `chaining` | S12 | doublon de `confirmations` S12 et hors du perimetre de la suite (minimalite) | recentre sur la borne anti-ping-pong ; la balance nette reste a `confirmations` |
+| `measurement` | S4 | exigeait un plafond de **nombre de tests** qu'aucune fixture ne declare — `app` declare un **pourcentage** (realisme du fixture) | passe en N/A declare, avec la cause |
+| `align-write` | S11 | jugeait une divergence qui ne peut pas se produire en dry-run (observabilite) | juge le **plan** d'ecriture : etape de relecture presente, traitement annonce de la divergence |
+
+Aucun scenario ne reste rouge sur l'axe « critere decidable » (observabilite + non-ambiguite). Trois scenarios restent **jaunes assumes**, tous pour la meme raison : ils jugent un **motif** et non un acte — `phase` S7 (`default` exempte par consentement), `confirmations` S4 (refus du lot d'ajouts par l'arithmetique), `align-write` S7 (decision manquante = question, pas defaut). Chacun porte deja la consigne « bon acte, mauvais motif = friction, pas PASS ». Les degrader en PASS binaire perdrait la regle ; les laisser jaunes est le choix.
+
+**Ecart avec le plan, mineur.** La Phase 2 annonce « trois categories exclues de tout lot » ; la page en nomme **trois plus un fourre-tout** (« tout test qu'aucun des deux motifs ne qualifie »). `confirmations` S9 couvre les trois nommees, S8 le fourre-tout ; l'en-tete de la suite le dit.
+
 ## Log
 
 <!-- APPEND ONLY. One entry per step attempt. Never rewrite. -->
@@ -224,6 +276,6 @@ Si l'un de ces cinq ressort PASS, c'est la suite qu'il faut suspecter avant la s
 ## Validation flow demonstration
 
 1. `ls plugins/overcode/skills/control/evals/` : sept fichiers `*-scenarios.md`.
-2. Ouvrir `confirmations-scenarios.md` : le scenario D1 decrit une demande de suppression groupee et attend un refus de grouper, en citant `## Les confirmations`.
+2. Ouvrir `confirmations-scenarios.md` : le scenario D1 decrit une demande de suppression groupee **nommee par l'utilisateur** et attend que le lot soit **accepte**, en citant `## Les confirmations › Un lot que l'utilisateur nomme lui-meme`.
 3. Ouvrir le `Results log` de la meme suite : un run `initial` date, fixture `app` nommee avec son etat, et le FAIL D1 avec `actions/02-audit.md` cite.
 4. Verifier qu'aucun fichier des deux fixtures n'a change : `git -C <fixture> status` propre, ou horodatages inchanges si la fixture n'est pas un depot.

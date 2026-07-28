@@ -76,7 +76,7 @@ LEDGER_CONTRACT_VALUE = re.compile(r"^\s*([A-Za-z][\w-]*)\s*=\s*(.+)$")
 
 # The 1.x keys the redistribution table names. Anything else is carried verbatim and reported.
 KNOWN_TOP = {"$schema", "$version", "mode", "$utilityPrefixes", "components", "usage", "oracle"}
-KNOWN_COMPONENT = {"base", "elements", "modifiers", "backgrounds", "a11y", "oracle"}
+KNOWN_COMPONENT = {"base", "elements", "modifiers", "backgrounds", "foregrounds", "a11y", "oracle"}
 
 # 1.x enforcement values, retyped against references/enforcement-registry.md. "pivot-only"
 # named no evidence, so it names no realizer: it lands on the marker, never on a guess.

@@ -1,4 +1,4 @@
-# 02 - Analyze
+# Analyze
 
 Classify each email according to the two decision passes and produce the list of decisions.
 

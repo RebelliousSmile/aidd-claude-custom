@@ -158,6 +158,7 @@ Anatomie seule. `mode`, `$utilityPrefixes` et `usage` sont partis en `policies.j
       "elements":  { "<element-label>": "<BEM-element>" },
       "modifiers": { "<variant-label>": "<BEM-modifier>" },
       "backgrounds": ["<token.path>"],
+      "foregrounds": ["<token.path>"],
       "a11y": { "role": "<ARIA-role>", "requires": ["<attribute>"] }
     }
   }
@@ -267,7 +268,7 @@ Schéma complet — champs, séparation actif/historique, cas de verdict `OPEN`,
 | 4 — namespaces de couleur | `utility-first` | `policies.json § usage.colorUtilityPrefixes` × clés top-level de `tokens.json § color.*` | `error` |
 | 5 — `--report-unused` | `bem` | entrées de `components.json` absentes du fichier scanné | rapport seul, jamais bloquant |
 
-Champs **inertes pour le lint** : `.backgrounds` et `.a11y` de `components.json`, `policies.json § adapters[]`, `usage.rules[]` de type autre que `markup`, et `oracle.json` entier. Inerte pour le lint n'est pas inerte pour le gate : `tools/run-gates.py` route chaque règle vers son réalisateur et rapporte celles qui n'en ont pas (`references/enforcement-registry.md`).
+Champs **inertes pour le lint** : `.backgrounds`, `.foregrounds` et `.a11y` de `components.json`, `policies.json § adapters[]`, `usage.rules[]` de type autre que `markup`, et `oracle.json` entier. Inerte pour le lint n'est pas inerte pour le gate : `tools/run-gates.py` route chaque règle vers son réalisateur et rapporte celles qui n'en ont pas (`references/enforcement-registry.md`).
 
 ### Où porte le vocabulaire, selon `mode`
 
@@ -295,7 +296,7 @@ Exhaustive. Rien n'est inventé, rien n'est perdu. `tools/migrate-contract.py` a
 | `components.json § mode` (ou `--mode`) | `policies.json § mode` |
 | `components.json § $utilityPrefixes` | `policies.json § $utilityPrefixes` |
 | `components.json § usage.*` | `policies.json § usage.*` |
-| `components.json § components.<n>.{base, elements, modifiers, backgrounds, a11y}` | `components.json § components.<n>.*` |
+| `components.json § components.<n>.{base, elements, modifiers, backgrounds, foregrounds, a11y}` | `components.json § components.<n>.*` |
 | `components.json § components.<n>.oracle.{elements, collections}` | `oracle.json § components.<n>.*` |
 | `components.json § oracle` (portée contrat) | `oracle.json § contract` — sans lecteur, signalé en anomalie |
 | `components.json § <clé top-level non listée ci-dessus>` | `policies.json § <clé>`, verbatim — signalé en anomalie |

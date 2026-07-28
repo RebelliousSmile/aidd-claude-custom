@@ -1,4 +1,4 @@
-# 06 - Reply
+# Reply
 
 Compose an **assisted reply draft** (Markdown) to an email or thread already stored
 in the vault, in the skill's email format, placed in the `_drafts/` working area.

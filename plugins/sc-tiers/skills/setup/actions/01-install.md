@@ -1,4 +1,4 @@
-# Action 01 — install
+# Install
 
 Write third-party SaaS consumption rule files to the current project's `.claude/rules/`.
 

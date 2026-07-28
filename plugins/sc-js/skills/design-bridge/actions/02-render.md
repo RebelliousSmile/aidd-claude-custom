@@ -1,4 +1,4 @@
-# 02-render (sc-js)
+# Render (sc-js)
 
 ## Rôle
 

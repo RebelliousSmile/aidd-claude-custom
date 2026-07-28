@@ -1,6 +1,6 @@
 # Marketplace — état courant
 
-Source de vérité : `.claude-plugin/marketplace.json` et `index.json`. Ce fichier en est la lecture, pas une archive datée.
+Source de vérité : `plugins/<nom>/.claude-plugin/plugin.json`, recopié dans `.claude-plugin/marketplace.json`. Ce fichier en est la lecture, pas une archive datée.
 
 | Plugin | Rôle |
 |---|---|

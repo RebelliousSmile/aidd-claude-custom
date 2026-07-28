@@ -1,4 +1,4 @@
-# Action 01 — scan
+# Scan
 
 ## Rôle
 

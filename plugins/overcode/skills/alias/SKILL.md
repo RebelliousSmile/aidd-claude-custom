@@ -14,7 +14,7 @@ Expands a short command into a well-crafted, pre-authored prompt that chains aid
 | --- | ------------- | ------------------------------------------------------------------------------ | ---------------------------- |
 | 01  | `rechallenge` | Plan the current task, then challenge until 0 deal-breakers and 0 suggestions  | current task in context      |
 | 02  | `endtask`     | Commit → archive plan → learn (auto) → merge/push → changelog → push tags → close issue | current branch + optional issue number |
-| 03  | `bump-plugin` | Bump version + description across plugin.json, index.json and marketplace.json → verify → commit → push | plugin name + version or bump type |
+| 03  | `bump-plugin` | Bump version + description across plugin.json and marketplace.json → verify → commit → push | plugin name + version or bump type |
 | 04  | `previously`  | Project snapshot with status context — status summary + tests/git/lint snapshot | optional depth (commit count or duration like 7d) |
 | 05  | `smarten`     | Rewrite a prompt file in place — remove fluff, compress steps, bullet points    | file path |
 | 06  | `skillconf`   | Classify enabled skills as auto-trigger vs user-invocable-only → update skillOverrides | settings.json accessible |

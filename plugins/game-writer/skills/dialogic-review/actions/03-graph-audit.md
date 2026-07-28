@@ -1,4 +1,4 @@
-# 03 - graph-audit
+# Graph-audit
 
 Validate the narrative graph structure: transitions, orphan nodes, broken loops, dead ends.
 

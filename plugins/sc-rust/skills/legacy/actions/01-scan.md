@@ -1,4 +1,4 @@
-# Action 01 — scan
+# Scan
 
 Detect edition-specific patterns and deprecated APIs in the Rust codebase. Emit a structured manifest for `02-migrate`.
 

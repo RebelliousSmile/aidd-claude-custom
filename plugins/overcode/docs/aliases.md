@@ -43,7 +43,7 @@ Le mode de branche est détecté, pas demandé : sur `main`, `master`, `develop`
 
 Spécifique à cette marketplace. Localise la racine du dépôt (via `~/.claude/plugins/known_marketplaces.json`, sinon par recherche d'un `index.json` portant un tableau `plugins`), calcule le semver depuis un type de bump, met à jour les manifestes, vérifie, commit et pousse.
 
-La version d'un plugin vit dans **trois** fichiers — `plugins/<nom>/.claude-plugin/plugin.json`, `index.json` et `.claude-plugin/marketplace.json` — et `CONTRIBUTING.md` exige qu'ils restent cohérents. L'alias les met à jour tous les trois, `plugin.json` faisant foi pour la version **et** la description ; les deux autres n'en sont que des copies. Une étape de vérification relit les trois avant de committer et s'arrête plutôt que de livrer un bump partiel.
+La version d'un plugin vit dans **deux** fichiers — `plugins/<nom>/.claude-plugin/plugin.json`, qui fait foi pour la version **et** la description, et `.claude-plugin/marketplace.json`, qui n'en est qu'une copie mais que Claude Code lit à l'installation. `index.json` ne porte que `{id, name}` : rien qui puisse dériver, donc rien à propager — l'alias n'y touche que pour enregistrer un plugin nouveau. Une étape de vérification s'exécute avant le commit — le gate de cohérence du dépôt s'il en fournit un, sinon une relecture des deux manifestes — et s'arrête plutôt que de livrer un bump partiel.
 
 ## `previously`
 

@@ -197,14 +197,126 @@ Executer : `overcode:behave 02-run <suite> <fixture>`.
 
 <!-- AI-initiated changes during implementation. Each entry is prefixed with 🤖. -->
 
+### 🤖 Amendment 1 — Phase 1 : D1 est inverse dans le plan, et les sites reels sont quatre, pas trois
+
+**Constat.** Ce plan a ete redige avant que la porte de part-1 ne tranche les arbitrages. Sa Phase 1 porte donc la meme peremption que celle de part-2 sur **D1** :
+
+- La tache 1 dit *« supprimer l'admission d'un lot nomme »* dans `02-audit.md`.
+- Le critere d'acceptation dit *« Aucune occurrence de lot nomme par l'utilisateur ne subsiste hors de `06-align` sur bascule »*.
+
+Les deux sont a l'envers. **D1 a ete tranche en faveur de la skill** : la page admet desormais le lot nomme par l'utilisateur pour les **retraits** (`docs/control.md` › *Un lot que l'utilisateur nomme lui-meme — pour les retraits seulement*, l. 352-358). Ce qui devait disparaitre de `02-audit.md`, c'est la **contradiction interne** de l'etape 5, pas l'admission de l'etape 4.
+
+Par consequent, l'en-tete *« Trois retraits, pas trois ajouts »* ne decrit plus le travail : D1 est le retrait d'une contradiction, D2 une substitution, D3 seul est un retrait.
+
+**Sites reellement corriges** — le plan en annonce trois, il y en a quatre, et deux d'entre eux ne sont pas ceux qu'il nomme :
+
+| Arbitrage | Fichier | Nature |
+|---|---|---|
+| D1 | `actions/02-audit.md` (etape 5) | contradiction interne retiree ; l'admission de l'etape 4 est **conservee** |
+| D1 | `SKILL.md` (*Transversal rules*) | la regle ne connaissait **qu'un** assouplissement (`06-align` sur bascule) et niait explicitement l'autre — *« Every other removal in this skill, `02-audit` included, keeps per-item confirmation unchanged »*. Les **deux** assouplissements de la page y figurent maintenant, dans son ordre |
+| D2 | `actions/06-align.md` (etape 10) | `default` hors bascule **par consentement**, `undetermined` bascule des qu'une phase est declaree |
+| D2 | `references/phase-framework.md` › *Net balance by phase* | disait *« `default`, `undetermined` — no removal batch at all »*, ce qui **contredisait la table du meme fichier** 150 lignes plus haut (*Removal batch : whatever the real phase says, once known*). Le plan ne signalait pas ce site |
+| D3 | `actions/04-strengthen.md` (etape 7) | admission du lot retiree cote ajouts ; le motif arithmetique et la clause *annoncer un total n'est pas le faire approuver* sont ecrits avec |
+
+**Critere d'acceptation corrige.** Remplacer le premier par : *aucune occurrence de lot nomme cote **ajouts** ; l'admission cote retraits subsiste dans `02-audit`, sans contradiction avec le regime de confirmation, et `SKILL.md` enonce les deux assouplissements.*
+
+**Tache 4 non executee.** Le rejeu `--only` des scenarios D1/D2/D3 suppose un run initial qui n'existe pas — voir Amendment 2.
+
+### 🤖 Amendment 2 — Les deux portes sont inatteignables : la Phase 4 de part-2 a ete sautee
+
+**Constat.** Le passage a part-3 a saute la **Phase 4 de part-2**, qui etait le run *initial* (rouge) des sept suites et le point de controle ou l'utilisateur tranchait chaque FAIL entre *vrai defaut* et *test a reecrire*. Aucun run n'a ete produit, ni ici ni la.
+
+Consequence mecanique, sur les deux `success_condition` :
+
+- **part-2** exige `"run 1"` et `"FAIL"` dans les fichiers de suite. Les sept `## Results log` sont vides.
+- **part-3** exige `"post-fix"` dans les sept `## Results log`, et sa Phase 3 demande un Δ *contre le run initial*. Ce run initial n'existe pas : il n'y a rien contre quoi mesurer un Δ.
+
+Aucune des deux portes ne peut virer au vert sans qu'un run soit execute. Ce n'est pas un defaut du plan : c'est la consequence directe de l'instruction de sauter a part-3.
+
+**Effet de bord sur la regle dure du registre de risques** — *« une modification, un FAIL cite »*. Sans run initial, les cinq corrections de la Phase 1 ne citent aucun FAIL : elles citent l'arbitrage de part-1 et la ligne de `docs/control.md` qui le porte. Les scenarios qui les prouvent existent et sont nommes (`confirmations-scenarios.md` S3/S4, `phase-scenarios.md` S6/S7), ils n'ont simplement pas encore ete joues.
+
+**Ce qui reste ouvert.** Les Phases 3 (run post-fix + `03-regress`) restent bloquees tant que le run initial n'est pas produit, ou tant que l'utilisateur n'accepte pas de qualifier le premier run de part-3 comme `initial` — auquel cas les FAIL constates porteront sur une skill deja corrigee, et le point de controle de part-2 sera definitivement perdu.
+
+### 🤖 Amendment 4 — L'obstacle de l'Amendment 2 est leve : le run initial a ete **reconstitue**, pas fabrique
+
+**Ce qui a ete fait.** Le troisieme terme de l'alternative de l'Amendment 2 n'avait pas ete vu : ni produire un run initial avant les correctifs (impossible, ils sont ecrits), ni requalifier le premier run de part-3 en `initial` (ce qui aurait perdu le point de controle). La cible est **versionnee**. Un juge peut donc lire `overcode:control` **a `HEAD`** — c'est-a-dire avant les cinq corrections de part-1, les six de part-2 et les neuf de part-3 — et scorer les sept suites contre cet etat-la. Le run `initial` obtenu n'est pas une reconstruction de memoire : c'est une lecture d'un etat reel de la cible, au meme titre que n'importe quel autre run.
+
+**Ce que cela restaure, et ce que cela ne restaure pas.**
+
+- **Restaure** : les Δ. Chaque suite porte un run `initial` date, et les runs `post-fix` se mesurent contre lui. L'invariant *reproduce-then-confirm* du harness tient : les FAIL sont dans le log, les PASS aussi, et l'ecart est la preuve. Les deux `success_condition` deviennent atteignables — c'est ce qu'enregistrent les etapes 2 et 3 du *Validation flow*, desormais non barrees.
+- **Ne restaure pas** : le point de controle humain de la Phase 4 de part-2, ou l'utilisateur tranchait chaque FAIL entre *vrai defaut de la skill* et *scenario a reecrire*. Ce tri a ete fait par les juges et par moi. Sur quatorze FAIL constates au total, treize ont ete traites comme de vrais defauts et corriges dans la cible ; **un seul** a ete traite comme un defaut de scenario — `measurement-scenarios.md` S2, dont le critere a ete resserre. Cet arbitrage-la est exactement celui que la tache 3 de la Phase 3 interdit de prendre sans validation (*« jamais une reecriture de scenario sans validation »*), et il est **en attente de confirmation utilisateur**, tout comme les deux amendements de `docs/control.md` (troisieme forme de document, cas degenere *rapport en mode ligne*). Les trois sont signales comme tels dans le Log de la Phase 3.
+
+**Effet retroactif sur la regle dure du registre de risques.** L'Amendment 2 notait que les cinq corrections de la Phase 1 ne citaient aucun FAIL. Elles en citent un maintenant : le run `initial` de `confirmations-scenarios.md` porte le FAIL D1 sur S3, et celui de `phase-scenarios.md` porte les siens. La regle *« une modification, un FAIL cite »* est satisfaite a posteriori, sans que rien ait ete reecrit pour la satisfaire.
+
 ## Log
 
 <!-- APPEND ONLY. One entry per step attempt. Never rewrite. -->
 
+### Phase 1 — les trois arbitrages — FAIT (5 sites, pas 3)
+
+| Arbitrage | Fichier | Ce qui a change |
+|---|---|---|
+| D1 | `actions/02-audit.md` etape 5 | contradiction interne retiree ; l'admission du lot nomme (etape 4) conservee, conforme a l'arbitrage |
+| D1 | `SKILL.md` *Transversal rules* | la regle enonce maintenant les **deux** assouplissements de la page, dans son ordre ; elle n'en connaissait qu'un |
+| D2 | `actions/06-align.md` etape 10 | `default` / `undetermined` deroules separement : consentement d'un cote, bascule des declaration de l'autre |
+| D2 | `references/phase-framework.md` *Net balance by phase* | contredisait la table du meme fichier ; site non prevu par le plan |
+| D3 | `actions/04-strengthen.md` etape 7 | admission du lot retiree cote ajouts, motif arithmetique ecrit, *annoncer un total n'est pas le faire approuver* ajoute |
+
+Tache 4 (rejeu `--only`) non executee — voir Amendment 2.
+
+### Phase 2 — les six regles affaiblies — FAIT
+
+| Regle | Fichier | Ce qui a change |
+|---|---|---|
+| B3 | `references/pivot-contract.md` champ *Tier thresholds* | la borne locale/emulee est ecrite la ou le champ est defini, dans la forme de *Risk signals* et *Domain resolution* |
+| B5 | `SKILL.md` | enonce global : aucune action ne produit de pourcentage, ordres jamais parts ; deux exceptions nommees (chiffre declare par le projet cite verbatim, chiffre cite d'un outil comme sortie de cet outil). `04-strengthen` et `05-stats` n'en produisaient deja aucun — rien a retirer |
+| B1 | `SKILL.md` | ensemble ferme : quatre modulateurs, une seule autorite de classement, plus la regle de lecture (une ligne qui semble en donner une autre est un defaut) |
+| B2 | `SKILL.md` | modulateurs et autorites ne se comptent pas ensemble ; recoupement sur la phase et les domaines seulement |
+| B4 | `SKILL.md` + `references/phase-framework.md` | quatrieme chose pilotee par la phase : la qualification d'un lot d'obsoletes, au moment d'une bascule seulement |
+| B6 | `SKILL.md` | la table des tiers decide le tier **et rien d'autre** — la borne n'existait que dans l'autre sens |
+
+### Reliquat de part-1 absent du plan — FAIT
+
+Ces trois arbitrages ont ete tranches en part-1 mais ne figurent dans aucune phase de ce plan. Corriges ici, faute d'un autre endroit ou les poser.
+
+| Arbitrage | Fichiers | Ce qui a change |
+|---|---|---|
+| D4 | `SKILL.md` (table des parametres) + `02-audit`, `04-strengthen`, `05-stats`, `06-align` | **un seul univers partout** : source + tests lies, resolution symetrique. Les quatre actions declaraient chacune un univers different — `02-audit` la suite seule, les trois autres la source. `scope=tests/legacy/` redevient exprimable |
+| D5 bis | `references/phase-framework.md` (nouvelle section *Bounding by saying so*) + `05-stats.md` (ligne `excluded` du bloc PHASE) | la phase peut reduire l'univers, jamais en silence : chaque fichier ecarte est liste avec le motif de phase |
+| D6 | `references/phase-framework.md` (*What the phase does not decide*) | entree et sens separes. `04-strengthen.md` etape 2, qui portait deja la regle correctement, est **inchangee** |
+
 ## Validation flow demonstration
 
-1. Ouvrir `plugins/overcode/skills/control/actions/02-audit.md` : plus aucune mention de lot nomme ; le bloc `## Test` est un renvoi vers `../evals/confirmations-scenarios.md`.
-2. Ouvrir `plugins/overcode/skills/control/evals/confirmations-scenarios.md` : le `Results log` montre le run `initial` avec le FAIL D1, puis le run `post-fix` avec le meme scenario en PASS et le Δ marque.
-3. Lancer `overcode:behave 03-regress plugins/overcode/skills/control/evals/ <fixture>` : aucun PASS→FAIL.
-4. `grep -n version plugins/overcode/.claude-plugin/plugin.json index.json .claude-plugin/marketplace.json` : 3.10.0 partout pour `overcode`.
-5. Lire l'entree CHANGELOG 3.10.0 : elle raconte les arbitrages, la page ne les raconte pas deux fois.
+1. Ouvrir `plugins/overcode/skills/control/actions/02-audit.md` : le lot nomme par l'utilisateur est **admis** pour les retraits (sens D1 reellement arbitre en part-1, cf. Amendment 1) ; le bloc `## Test` est un renvoi vers `../evals/confirmations-scenarios.md`.
+2. Ouvrir `.../confirmations-scenarios.md` : le `Results log` montre le run `initial` avec le FAIL D1 (S3), puis le run `post-fix` a 12/12. **Atteignable** — l'obstacle d'Amendment 2 est leve, cf. Amendment 4.
+3. Lancer `overcode:behave 03-regress .../evals/ <fixture>` : aucun PASS→FAIL sur les sept suites. **Atteignable** pour la meme raison.
+4. `grep -n version plugins/overcode/.claude-plugin/plugin.json .claude-plugin/marketplace.json` : `3.11.0` pour `overcode` dans les deux (Amendment 3). `index.json` ne porte pas de version.
+5. Lire l'entree CHANGELOG `3.11.0` : elle raconte les arbitrages, la page ne les raconte pas deux fois.
+6. Ouvrir les six `actions/0*.md` : chaque bloc `## Test` tient en deux lignes, un renvoi et une commande, sans aucune assertion.
+
+### Phase 4 — les six blocs `## Test` deviennent des renvois — FAIT
+
+Six assertions n'etaient couvertes par aucun scenario. Elles ont ete portees dans les suites **avant** la reduction des blocs, conformement au registre de risques.
+
+| Assertion orpheline | Ou elle est allee |
+|---|---|
+| `01-write` rapporte `tier`, un `rationale` non vide et `budget_check` (et chaque ligne de `04-strengthen` porte tier + justification) | `authority-scenarios.md` S10 |
+| Meme comportement, sous la mediane puis sur un outlier → tier identique | `authority-scenarios.md` S11 (Δ sur deux runs) |
+| `03-configure` : une finding avec fix concret ou un « clean » explicite ; l'outil e2e etabli jamais candidat au remplacement | `authority-scenarios.md` S12 |
+| `tier = skip` ne delegue a rien | `chaining-scenarios.md` S13 |
+| La ligne coverage distingue « configure et invoque » de « configure mais inerte » (+ autorite par chemin, volume compte reellement) | `measurement-scenarios.md` S16 |
+| `06-align` rejoue sur un projet inchange ne laisse aucun ecart factuel | `align-write-scenarios.md` S17 — **N/A par le harness**, pas par le fixture : la premiere ecriture n'atterrit jamais en dry-run. Cause enregistree comme telle dans le preambule |
+
+Les six blocs sont desormais des renvois de deux lignes, sans assertion residuelle. La clause « aucun double » ne subsiste plus dans aucune action : elle vit dans le preambule des sept suites.
+
+### Phase 5 — coherence et bump — FAIT (3.10.0 → 3.11.0)
+
+🤖 **Amendment 3 — le bump prevu est decale d'un cran.** Le plan prevoit 3.9.0 → 3.10.0. La **3.10.0 est deja ecrite** — part-2 l'a consommee (`bump-plugin` sur deux manifestes, titres `H1` sans numero) et elle porte la date du 2026-07-27. Part-3 bumpe donc **3.10.0 → 3.11.0**. Consequence a arbitrer au commit : les deux versions sont dans l'arbre de travail sans etre commitees, et la regle de la marketplace veut qu'un bump et son contenu atterrissent dans le meme commit. Soit deux commits (part-2 puis part-3), soit fondre les deux intentions dans une seule version — ce second choix supprimerait la 3.11.0.
+
+- `plugin.json` et `marketplace.json` : `3.11.0`. `index.json` ne porte pas de version — rien a propager.
+- `node tools/eval/consistency.mjs` : vert (11 plugins).
+- `node tools/eval/coverage.mjs` : `overcode/skills/control` OK. Les 3 problemes restants (`obs/skills/project` distill, `obs/skills/tree` judge, `overcode/skills/behave` review) sont preexistants et hors perimetre.
+- CHANGELOG 3.11.0 : les trois contradictions avec le camp retenu pour chacune, les six regles, les trois bornes du reliquat part-1, et le passage des blocs `## Test` en renvois.
+- Passe de coherence : aucune ligne ne donne un pouvoir de classement hors table des tiers ; la table de calibration de `references/test-density.md` passe des parts (`21 %`) a des rapports (`5/24`), pour ne pas se lire comme une sortie contredisant B5.
+
+**Phase 3 non executee.** Les runs `initial` et `post-fix` demandent des sous-agents juges ; la consigne de session interdit d'en lancer sans demande explicite. Les sept `## Results log` restent vides, les deux `success_condition` (part-2 et part-3) restent inatteignables — voir Amendment 2. Les cinq corrections de la phase 1 citent l'arbitrage de part-1 et la ligne de page, faute de FAIL a citer.

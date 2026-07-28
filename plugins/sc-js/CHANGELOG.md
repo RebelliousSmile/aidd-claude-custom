@@ -1,5 +1,11 @@
 # Changelog — sc-js
 
+## [0.13.2] — 2026-07-28
+
+### Changed
+
+- **Les titres `H1` des actions ne portent plus leur numéro** — `# Explain`, plus `# Action 01 — explain`. Le numéro vivait à trois endroits, il n'en occupe plus que deux : le nom de fichier et la table de `SKILL.md`, que le gate de cohérence du marketplace compare désormais. Changement transversal aux onze plugins, détaillé dans le journal du marketplace (3.4.0).
+
 ## [0.13.1] — 2026-07-27
 
 ### Fixed — README décrivait une migration de version au lieu de l'existant

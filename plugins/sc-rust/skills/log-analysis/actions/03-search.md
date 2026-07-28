@@ -1,4 +1,4 @@
-# 03 - Search
+# Search
 
 Search for a specific string, span name, target module, or HTTP status code across Rust log output.
 

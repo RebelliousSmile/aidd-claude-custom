@@ -1,4 +1,4 @@
-# 07 - write-scene
+# Write-scene
 
 Generate a linter-passing Dialogic `.dtl` timeline from a scene-spec and the pnj-behavior files of all candidate PNJs.
 

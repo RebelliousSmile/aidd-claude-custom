@@ -1,4 +1,4 @@
-# Action 03 — organize
+# Organize
 
 Ranger la bibliothèque de patterns par **rôle de section**, appliquer un nommage
 cohérent, et vérifier l'équilibre. Complète `01-scan` (complétude) par la

@@ -1,5 +1,15 @@
 # Changelog — sc-php
 
+## [0.9.0] — 2026-07-28
+
+### Added — `builder-coverage` : le scan inverse
+
+- **`actions/scripts/orphan-selectors.mjs`** (verdict `ORPHANS: N`, exit 1 si non nul). `01-scan` part du contenu en base et voit les classes utilisées sans pattern ; ce script part du CSS et liste les classes **déclarées sans aucun consommateur** dans le markup — templates, parts, patterns, rendus SSR, JS. Le cas visé est une famille CSS portée depuis une maquette dont le markup n'a jamais été écrit : le CSS est complet, personne ne le voit, et rien ne le signalait. Limite assumée et affichée plutôt que masquée par une heuristique — une classe assemblée à l'exécution (`"prefix-" . $i`) n'est pas détectée comme consommée, le script signale le fragment pour arbitrage manuel.
+
+### Changed
+
+- **Les titres `H1` des actions ne portent plus leur numéro** — `# Explain`, plus `# Action 01 — explain`. Le numéro vivait à trois endroits, il n'en occupe plus que deux : le nom de fichier et la table de `SKILL.md`, que le gate de cohérence du marketplace compare désormais. Changement transversal aux onze plugins, détaillé dans le journal du marketplace (3.4.0).
+
 ## [0.8.1] — 2026-07-27
 
 ### Fixed — discipline de sévérité (l'audit alimente des mutants)

@@ -1,4 +1,4 @@
-# 02 - Fill
+# Fill
 
 Fill project files by exploiting external sources before asking questions.
 

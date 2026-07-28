@@ -1,4 +1,4 @@
-# 07 — Condense
+# Condense
 
 Distillation destructive d'un fichier individuel : conserver intacts les éléments à valeur intrinsèque, résumer les idées en prose minimale, éliminer tout le langage de remplissage inutile à la relecture. Le fichier est modifié en place (le contenu original est remplacé).
 

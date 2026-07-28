@@ -1,4 +1,4 @@
-# 02 - Update
+# Update
 
 Révise un `README.md` existant — globalement ou sur une section ciblée. Ne collecte pas d'inputs bloquants : tout le contexte est lu depuis le fichier. S'auto-vérifie, puis rend le résultat.
 

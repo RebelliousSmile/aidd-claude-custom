@@ -1,4 +1,4 @@
-# 04 - Debug
+# Debug
 
 Diagnose the extraction pipeline anomalies: missing chunks, garbled text, classification errors, `progress.md` inconsistencies.
 

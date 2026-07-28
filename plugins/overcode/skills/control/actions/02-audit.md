@@ -1,11 +1,11 @@
-# 02 - Audit
+# Audit
 
 Find low-value tests in an existing suite and propose their removal - never delete without explicit per-item confirmation.
 
 ## Inputs
 
 - `project_path` (required) - absolute path to the target project root
-- `scope` (optional, default: whole test suite) - a subdirectory or glob to limit the audit. **Here `scope` targets the test suite**: what it bounds is the set of test files read. (In `04-strengthen`, `05-stats` and `06-align` the same parameter name bounds *source* files instead - each action states its own target, none leaves it implicit.)
+- `scope` (optional, default: whole project) - a subdirectory or glob to limit the audit. **`scope` designates one universe, here as everywhere in this skill: the source code and the tests that match it.** The resolution is **symmetric** - a path landing in the test tree resolves up to the corresponding source, a path landing in the source resolves down to its tests, and the universe is the pair either way. `scope=tests/legacy/` therefore stays expressible, and no action has a universe of its own. What this action *reads* is the test side of that pair; what bounds it is the pair.
 - `domain` (optional) - a functional domain declared by the project (`auth`, `payment`), resolved to code by the terms the project supplies and by the pivot's *Domain resolution* field. It **prioritises the audit; it never restricts it**: a test matching no domain is still audited, ranks lower, and is reported with the term that failed to match it. Mutually exclusive with `scope` - given both, stop and ask which was meant (`SKILL.md`, *Parameters*).
 - `phase` (optional) - overrides the resolved project phase for this run only
 
@@ -32,10 +32,9 @@ When a `domain` was given, the table is followed by the **resolution report**: w
 3-bis. Resolve the project **phase** per `@../references/phase-framework.md` - **never by deduction**: argument, declaration in the project's own documentation, or a question asked before the table is built. State it with its provenance, and use it to **order** the table along the two reading axes - `foundations` and the project's declared domains (or the generic `critical journeys` fallback): a candidate the current phase deprioritises rises in the list, one it raises falls. Under `default` and `undetermined` the weighting is neutral and the table comes out in heuristic order alone - say so rather than presenting an unweighted order as if it were a phase's. The phase **qualifies nothing**: a row is in this table because one of the three heuristics flagged it, never because of the phase. A test the phase deprioritises but no heuristic flags does not appear here at all - it stays - the phase prioritises, it never qualifies, and a row is proposed for removal on a heuristic criterion, never "because we are in production".
 3-ter. **Density outliers point this action at a file; they never fill a row of its table.** When `05-stats` or `01-write` reported a file past 3× the project's median density under the *low-value* reading (`@../references/test-density.md`), audit that file first - the ratio says many cases sit on little logic, which is where duplicates and trivia concentrate. But a row still needs one of the three heuristics to hold. A high density is a reason to **look**, and on its own it is not a reason found: the calibration turned up a file whose cases each exercised a distinct regex alternative the denominator could not see, and every one of them was worth keeping. Report a file examined on that signal and cleared as examined and cleared - a silently dropped outlier reads as an outlier nobody looked at.
 4. Present the table to the user. Delete only the rows the user explicitly confirms (individually, or via an explicit batch selection they name) - anything not explicitly confirmed stays untouched.
-5. Never invoke a delete on a row without that row's explicit confirmation, mirroring `overcode:harvest`'s per-item confirmation gate. **The per-item confirmation regime of this action is unchanged by the phase**: whatever the phase, however it re-orders the table, no row is removed without its own confirmation.
+5. Never invoke a delete on a row the user's confirmation does not cover, mirroring `overcode:harvest`'s per-item confirmation gate. **The confirmation regime of this action is unchanged by the phase**: whatever the phase, however it re-orders the table, no row is removed unless a confirmation covers it - its own, or the batch the user named themselves. That relaxation is a removal-side one and does not exist on the addition side (`SKILL.md`, *Confirmations*).
 
 ## Test
 
-Run against a real project's test directory. Verify the report lists at least one candidate across the three heuristics, or explicitly states none were found. Verify no file on disk changes as a result of running this action alone - only the report is produced, deletion is a separate confirmed step.
-
-**Never** a mocked test double for the target project's filesystem - the first real scan is the test.
+Covered by `../evals/authority-scenarios.md` (S1, S9), `../evals/confirmations-scenarios.md` (S1, S3) and `../evals/chaining-scenarios.md` (S6).
+Run: `overcode:behave 02-run <suite> <fixture>`.

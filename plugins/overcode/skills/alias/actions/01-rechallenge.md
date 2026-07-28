@@ -1,4 +1,4 @@
-# Action 01 — rechallenge
+# Rechallenge
 
 Fires the pre-crafted prompt for the **plan → challenge loop** workflow.
 

@@ -1,4 +1,4 @@
-# 04 - Execute
+# Execute
 
 Apply a validated batch: classify, delete, merge, summarize, intact or flag-phishing.
 

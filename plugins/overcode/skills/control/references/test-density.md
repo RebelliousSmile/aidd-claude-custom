@@ -22,11 +22,11 @@ A file whose density exceeds **three times** the project's median is reported as
 
 That factor is calibrated, not asserted. Measured on a real project (72 source files, 24 with matched tests, median density 0.714):
 
-| Factor | Files flagged | Share |
+| Factor | Files flagged | Of the tested files |
 |---|---|---|
-| 2× | 5 | 21% |
-| 3× | 2 | 8% |
-| 4× | 0 | 0% |
+| 2× | 5 | 5/24 |
+| 3× | 2 | 2/24 |
+| 4× | 0 | 0/24 |
 
 At 2× the signal names a fifth of the tested files, which is a list nobody reads twice. At 4× it names nothing. **3× is where the alert stays a minority small enough to be examined one by one** - which is the only form in which this signal is worth emitting. A signal the user learns to ignore is worse than no signal.
 
@@ -49,10 +49,11 @@ So: **an outlier is a file to look at, never a verdict rendered on it.** When th
 
 ## Degenerate cases
 
-They stack, and the order they are reported in matters. **Check "no tests at all" first**, even though "no coverage report" is the more common cause of a missing denominator: a project with zero tests also has no coverage report, and leading with the report would suggest wiring coverage is what stands between it and a density. It is not. Report the outermost fact, once.
+They stack, and the order they are reported in matters. **They are listed below in the order they must be checked, which is not the order of their frequency** - "no coverage report" is by far the more common cause of a missing denominator, and it is still checked second. A project with zero tests also has no coverage report, so leading with the report would suggest that wiring coverage is what stands between it and a density. It is not. Report the outermost applicable fact, once, and stop: the cases stack, and a run that lists all of them has said nothing about which one to act on.
 
-- **No coverage report.** The most common case by far, and the first to check: a project can run a real suite and still produce no branch data, because coverage was never wired. There is then **no denominator**, and the density is not computed - not approximated, not substituted with a line count. Report it as *not measurable, and why*, and name `03-configure` as what changes that. A ratio invented over a missing denominator is worse than the absent measurement it replaces.
 - **No tests at all in the project.** No distribution, therefore no median, therefore no density. Report it as such; the project's problem is not density.
+- **No coverage report.** The most common case by far: a project can run a real suite and still produce no branch data, because coverage was never wired. There is then **no denominator**, and the density is not computed - not approximated, not substituted with a line count. Report it as *not measurable, and why*, and name `03-configure` as what changes that. A ratio invented over a missing denominator is worse than the absent measurement it replaces.
+- **A coverage report exists, but carries no branch data.** In practice the most common configuration of all: coverage runs in line mode and branch tracking was never switched on - `branch = true` absent from the config, `--cov-branch` absent from the invocation. There is a report and there is still **no denominator**, so the previous case does not apply and reporting "no coverage report" would be false. **Do not recompute the branch points** - they come from the report or the density is not computed, and that rule does not bend because the report is nearly good enough. Report it as *report in line mode, density not measurable*, and name `03-configure`: the fix is one runner flag, which is a different conversation from wiring coverage from nothing.
 - **Population too small for a median.** Fewer than a handful of files carry a matched test case: report `insufficient population` and emit no outlier. A median over three points is a number, not a reference. This is the normal state of a `scaffolding` project and must not be dressed up as a measurement.
 - **A file with no branch point.** `max(1, ...)` keeps the division defined, and the result is read for what it is: the number of cases spent on a file with nothing to get wrong. It is a legitimate outlier - it is the shape `lib/constants.js` had.
 - **Files with zero matched test cases are excluded from the median.** They would drag it to zero and turn every tested file into an outlier. Their absence of tests is `04-strengthen`'s subject, not this one's.

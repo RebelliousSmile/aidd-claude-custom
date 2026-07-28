@@ -1,4 +1,4 @@
-# 02 - challenge
+# Challenge
 
 Audit `bank.yml` for path integrity and lore-vs-code consistency. Read-only — never writes files.
 

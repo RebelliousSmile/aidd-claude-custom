@@ -1,4 +1,4 @@
-# Action 05 — smarten
+# Smarten
 
 Rewrites a `.md` prompt file in place using ultra-minimal criteria: remove fluff, compress steps, prefer bullet points, keep only essential constraints.
 

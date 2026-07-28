@@ -1,4 +1,4 @@
-# Action 01 — detect-framework
+# Detect-framework
 
 Détermine le framework cible à scaffolder avant de dispatcher vers l'action correspondante. Cette action gère la sélection ; elle ne scaffold rien elle-même.
 

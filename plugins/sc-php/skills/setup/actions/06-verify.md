@@ -1,4 +1,4 @@
-# Action 06 — verify
+# Verify
 
 Sanity checks post-scaffold. À exécuter après `02/03/04-scaffold-*` et, si câblé, après `05-wire-deploy`.
 

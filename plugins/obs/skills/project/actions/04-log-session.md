@@ -1,4 +1,4 @@
-# 04 - Log Session
+# Log Session
 
 Update a project's notes after a work session.
 

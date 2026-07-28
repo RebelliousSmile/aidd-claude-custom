@@ -1,5 +1,52 @@
 # Changelog — design
 
+## [2.7.0] — 2026-07-28
+
+Mineur — **une couleur porte du texte parce qu'un composant le déclare, et le figeage refuse un contrat où cette déclaration manque partout.** Le contrôle de contraste existait déjà et s'exécutait au figeage ; il n'avait presque rien à regarder, parce que la seule façon d'être apparié était de porter un nom que l'heuristique reconnaissait. Un contrat pouvait donc sortir avec `checks.contrast.allPass = true` calculé sur **zéro paire** — un verdict vide présenté comme un verdict. Le lot ferme la chaîne de bout en bout : `define` relève ou décide les appariements pendant qu'ils sont encore gratuits, `destructure` les chiffre, `adjust` refuse de figer quand il n'y a rien à mesurer, et le périmètre réel de chaque gate est réénoncé partout où il était décrit comme un trou.
+
+### `components.json § .foregrounds` — la moitié symétrique de `.backgrounds`
+
+Aucun mécanisme nouveau : le champ existant `.backgrounds` gagne son pendant. Les deux portent des chemins de tokens libres sous `color.*` — pas une convention de nommage, une référence. Un composant purement structurel (grille, espaceur) laisse les deux vides, ce qui est une déclaration et non un oubli ; un composant qui affiche du texte et les laisse vides ne rend pas sa couleur conforme, il la rend **intestable**.
+
+### `contrast.py` — appariements déclarés d'abord, et un exit pour « rien à comparer »
+
+`evaluate()` émet les paires déclarées par les composants, puis les paires inférées par rôle **dédupliquées** contre elles : une paire déclarée n'est jamais réémise comme inférée. L'inférence par rôle sous `color.semantic` reste, comme repli faible. Nouvel espace de sortie : **0** calculé sur ≥1 paire · **2** contrat inexploitable · **3** lu, mais rien à comparer — *qui n'est pas un pass*. `--allow-unpaired` rabat 3 sur 0 et estampille `unpairedAllowed: true` dans le rapport. Chaque exécution imprime une ligne `coverage: <appariées>/<déclarées> feuilles couleur`, avec les branches non appariées. Sortie octet-pour-octet identique d'une exécution à l'autre, inchangé.
+
+### Invariant 7 — rien à comparer n'est pas un contrat conforme
+
+C'est le **seul** point a11y qui refuse le figeage, et la doctrine tient : une paire qui échoue AA reste un `gap` qui plafonne, jamais un blocage. Ce qui est refusé n'est pas un ratio insuffisant, c'est un vocabulaire hors de portée du contrôle. Renommer un token pour plaire à l'heuristique est explicitement interdit — la sortie est de déclarer l'appariement. Une dérogation reste possible et coûte **trois** écritures conjointes : `--allow-unpaired`, une entrée `deviations.json § active[]` motivée, et un gap `contrast-unpaired` plafonnant à `normalized`. Sans les trois, le refus tient. Une dérogation ne fait donc pas monter le contrat : elle l'autorise à exister à `normalized` en disant pourquoi.
+
+### `production-ready` exige un nombre de paires non nul
+
+`status.py` lit désormais `allPass` **avec** `pairs` : un `allPass` vrai sur zéro paire ne vaut plus vert. Le champ absent vaut 1 par défaut, pour ne pas démoter les `checks` écrits avant ce lot. Nouvelle classe de gap `contrast-unpaired` au registre de maturité.
+
+### Le contraste n'est pas « hors périmètre » — il est scindé
+
+Requalification, pas ajout de couverture : les paires **déclarées** sont mesurées en amont, au figeage, et le résultat vit dans `release.json § checks.contrast` ; ce qui se recompose **à la peinture** (`opacity`, `color-mix`, voiles, dégradés) n'est vu par aucun des deux gates et revient à G6. `references/token-schema.md` affirmait qu'aucun outil du plugin ne mesure un contraste et que la conformité WCAG d'un contrat figé est « non établie » — c'était faux, et déjà faux avant ce lot. Corrigé, ainsi que `gate-natures.md`, `enforce/SKILL.md`, `05-fidelity-gate.md`, `agents/copycat.md` et les deux docs.
+
+### Normalisation couleur de l'oracle de fidélité
+
+`measure.py` compare les propriétés de `COLOR_PROPS` à travers `_normalize_color()`, qui replie une couleur calculée en `rgba(r, g, b, a)` canonique avant le test d'égalité. Sans elle, l'oracle rapportait `rgba(255, 255, 255, 0.7)` et `color(srgb 1 1 1 / 0.7)` — la même couleur, sérialisée deux fois par Chromium selon que l'auteur a écrit `rgba()` ou `color-mix()` — comme un écart de style. **Forme canonique, pas tolérance** : deux couleurs réellement différentes diffèrent toujours, et une valeur qui ne parse pas retombe sur l'égalité de chaîne brute au lieu d'être comptée comme un match. Seul sRGB est replié. Couvert par `adapters/measure/tests/test_color_norm.py`.
+
+### Ajouté
+
+- `adapters/a11y/contrast.py` — `color_leaves()`, `coverage()`, `declared_pairs()`, `value_at()` ; `run()` prend `allow_unpaired` ; `main()` imprime `NOTHING COMPARED — …` et la ligne `coverage:`.
+- `skills/adjust/references/manifest-schema.md` — champ `.foregrounds` et **Invariant 7**.
+- `skills/destructure/references/critique-report-template.md` — sections `## Contrastes mesurés` (table de verdicts, ligne de couverture, consigne explicite sur le cas zéro paire) et `### Appariements à déclarer`.
+- `references/write-system-procedure.md` — l'inventaire de composants de la charte porte deux colonnes couleur, fonds et avant-plans : le seul endroit où l'usage transite d'un skill qui peut le voir vers un skill qui doit l'exiger.
+- `adapters/measure/tests/test_color_norm.py`.
+
+### Modifié
+
+- `skills/define/actions/02-extract.md` — relever les appariements observés, pas seulement les couleurs ; un `brand.deep` qui porte un titre est un appariement au même titre qu'un `semantic.text`.
+- `skills/define/actions/03-construct.md` — sur le chemin brief rien n'est observable : les appariements se décident en même temps que les couleurs, sinon personne ne les dira plus tard.
+- `skills/define/actions/04-write-material.md` — colonnes couleur requises pour tout composant affichant du texte.
+- `skills/destructure/actions/01-challenge.md` — étape 2-bis, exécution de `contrast.py` ; `references/critique-lenses.md` — la lentille 3 rend des ratios, plus une appréciation.
+- `skills/adjust/actions/02-freeze.md` — refus sur exit 3, deux sources d'appariement nommées (charte et rapport de critique, le second primant puisqu'il a été chiffré), dérogation à trois écritures.
+- `skills/diffuse/actions/01-define-element.md` — ne jamais choisir une couleur de texte hors de `.foregrounds` ; signaler le silence du contrat au lieu de le combler.
+- `tools/status.py`, `references/maturity-status.md`, `references/contract-schema.md`, `references/enforcement-registry.md`, `references/token-schema.md`, `tools/migrate-contract.py` (`foregrounds` au jeu `KNOWN_COMPONENT`), `skills/enforce/fixtures/status/validated/release.json`, `docs/concepts.md`, `docs/troubleshooting.md`.
+- Titres des fichiers d'action dénumérotés (`# 01-explain` → `# Explain`) sur les cinq skills concernés.
+
 ## [2.6.1] — 2026-07-27
 
 ### Fixed — README décrivait des numéros de version au lieu de l'existant

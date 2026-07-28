@@ -1,4 +1,4 @@
-# Action 02 — plan
+# Plan
 
 Produce a prioritized improvement plan with concrete before/after examples for each finding from `01-analyze`.
 

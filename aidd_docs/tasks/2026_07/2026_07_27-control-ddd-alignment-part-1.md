@@ -2,7 +2,7 @@
 name: plan
 description: Part 1/3 - completer docs/control.md et arbitrer les six contradictions
 objective: "docs/control.md porte l'integralite du modele de control - les 43 regles qui ne vivaient que dans la skill y sont ecrites, les 6 contradictions sont tranchees, et aucune page satellite ne contredit plus la page."
-success_condition: "bash -c '! grep -rqi \"trois autorit\" plugins/overcode/README.md plugins/overcode/docs/ && for a in \"contrat de cha.nage\" \"qualifie un retrait\" \"document du projet\" \"bornes de mesure\" \"cas limites du classement\" \"fronti.res externes\" \"06-align .crit\" \"^## La configuration\" \"^## Le pivot\"; do grep -qiE \"$a\" plugins/overcode/docs/control.md || exit 1; done'"
+success_condition: "bash -c '! grep -rqi \"trois autorit\" plugins/overcode/README.md plugins/overcode/docs/ && for a in \"contrat de cha\" \"qualifie un retrait\" \"document du projet\" \"bornes de mesure\" \"cas limites du classement\" \"res externes\" \"06-align.*crit\" \"^## La configuration\" \"^## Le pivot\"; do grep -qiE \"$a\" plugins/overcode/docs/control.md || exit 1; done'"
 iteration: 0
 created_at: "2026-07-27T15:22:58Z"
 ---
@@ -105,17 +105,22 @@ flowchart TD
 
 #### Tasks
 
-1. **D5** — ligne `Phase` du tableau des autorites : retirer « ce qui est analyse ». L'univers analyse vient du glob source du pivot, reduit par `scope` ; la phase pondere et ordonne.
-2. **D6** — section `La phase` : la phase pilote *la lecture du rapport de couverture* **en pondération** ; ecrire la reserve : ce qu'une **absence** de fichier signifie ne change dans aucune phase, sous peine de faire trancher une mesure a un modulateur.
-3. **D4** — section `Les parametres` : le `scope` designe trois univers, pas deux — suite de tests dans `02-audit`, code source dans `04-strengthen` et `06-align`, code source **et les tests qui lui correspondent** dans `05-stats`.
-4. **D1, D2, D3** — la page gagne ; ne rien changer sur la page, mais noter les trois corrections attendues cote skill dans la table de tracabilite pour la part-3.
+> 🤖 Reecrites apres le gate : le master recommandait un camp, l'utilisateur en a retenu un autre sur D4, D5 et D6. Voir `Amendments`.
+
+1. **D5** — ligne `Phase` du tableau des autorites : **conserver** « ce qui est analyse », borne par l'obligation de lister les fichiers ecartes. La phase reduit l'univers et declare ce qu'elle en retire.
+2. **D5 bis** — noter pour la part-3 que `phase-framework.md:199-203` perd son argument par analogie (« same boundary as the phase »), l'invariant des domaines devant porter son motif propre.
+3. **D6** — section `La phase` : remplacer « la lecture du rapport de couverture » par la distinction **quels fichiers entrent** dans la lecture (D5) / **ce qu'une donnee y signifie** (jamais la phase). Une absence du rapport vaut « non couvert » dans toutes les phases.
+4. **D4** — section `Les parametres` : le `scope` designe **un seul** univers partout — le code source **et les tests qui lui correspondent** —, resolu **symetriquement** pour que `scope=tests/legacy/` reste exprimable.
+5. **D1** — section `Les confirmations` : la page admet le lot nomme par l'utilisateur pour les retraits, et enonce l'asymetrie avec les ajouts (D3).
+6. **D2, D3** — la page gagne ; noter les corrections attendues cote skill dans la table de tracabilite pour la part-3.
 
 #### Acceptance criteria
 
-- [ ] La ligne `Phase` du tableau des autorites ne revendique plus l'univers analyse.
-- [ ] La section `La phase` porte la reserve sur la lecture d'une absence.
-- [ ] Le tableau/paragraphe des parametres distingue trois univers de `scope`, et `05-stats` y est nomme.
-- [ ] Aucune modification page sur D1, D2, D3 — elles sont reportees telles quelles en part-3.
+- [ ] La ligne `Phase` du tableau des autorites porte l'univers **et** l'obligation de declarer les ecartes.
+- [ ] La section `La phase` distingue ce qui entre dans la lecture de ce qu'une donnee signifie.
+- [ ] Le paragraphe des parametres enonce **un seul** univers de `scope` et sa resolution symetrique.
+- [ ] `Les confirmations` porte les deux regimes et le motif de leur asymetrie.
+- [ ] Aucune modification page sur D2, D3 — elles sont reportees telles quelles en part-3.
 
 ### Phase 3: Remonter les 43 regles de la categorie C
 
@@ -204,13 +209,42 @@ flowchart TD
 
 <!-- AI-initiated changes during implementation. Each entry is prefixed with 🤖. -->
 
+🤖 **2026-07-27 — Phase 2 reecrite : trois arbitrages tranches contre la recommandation du master.**
+
+| Divergence | Ce que la Phase 2 supposait | Ce qui a ete tranche |
+|---|---|---|
+| D4 | `scope` designe **trois** univers, `05-stats` a part | **un seul** univers partout — source + tests lies, resolution symetrique |
+| D5 | retirer « ce qui est analyse » a la ligne `Phase` | **conserver**, borne par l'obligation de lister les ecartes |
+| D6 | la phase pilote la lecture « en ponderation » | separer **ce qui entre** dans la lecture de **ce qu'une donnee signifie** |
+
+🤖 **D5 bis — une septieme divergence, absente de l'inventaire du master.** `phase-framework.md:201` pose que la phase ne restreint pas, et s'en sert comme du precedent qui fonde l'invariant des domaines. Un inventaire regle par regle ne pouvait pas la voir : ce n'est une regle ni d'un cote ni de l'autre, c'est un lien entre les deux. Tranchee « borner en le disant » — la reference interdit la restriction **silencieuse**, pas la restriction. Consequence portee en part-3 : `phase-framework.md:199-203` perd son analogie, `05-stats` gagne une table des fichiers ecartes par la phase.
+
+🤖 **C43 loge dans `workflow.md`**, dont le role declare est « quelle skill pour quelle situation ». `control.md` decrit un modele interne ; une frontiere entre deux skills n'y est pas chez elle.
+
+🤖 **Corrections cote skill reportees en part-3** — aucune ne touche la page :
+
+| # | Fichier | Correction |
+|---|---|---|
+| D1 | `02-audit.md:35` | cesser de contredire `:34` ; ce que l'etape protege est l'invariance du regime **face a la phase**, pas l'interdiction du lot |
+| D2 | `06-align.md:99` | `default` ne participe a aucune bascule ; `undetermined` bascule normalement des qu'une phase est declaree ; motif = **consentement**, pas mecanique |
+| D3 | `04-strengthen.md:71`, `:73` | retirer le lot d'ajouts ; supprimer la *Cumulative guard*, devenue sans objet |
+| D4 | `02-audit.md`, `04-strengthen.md` | resolution symetrique du glob, meme univers des deux cotes |
+| D5 bis | `phase-framework.md:199-203`, `05-stats.md` | motif propre pour l'invariant des domaines ; table des ecartes par la phase |
+| D6 | `phase-framework.md:7` | meme distinction que `control.md:52` ; `04-strengthen.md:47` reste **inchange** |
+
+🤖 **`success_condition` corrigee : trois patterns ne pouvaient pas passer.** Le plan annoncait ses regex « tolerantes aux accents » via `.`. C'est faux : en locale byte, `.` en ERE matche **un octet**, alors que `î`, `è` et `é` en occupent deux en UTF-8. Les trois patterns qui echouaient — `cha.nage`, `fronti.res`, `.crit` — sont exactement les trois qui enjambaient un accent. La page ne pouvant pas etre desaccentuee (contrainte francais permanente), ce sont les patterns qui sont corriges : ils n'enjambent plus d'accent (`contrat de cha`, `res externes`, `06-align.*crit`). Le troisieme absorbe au passage le backtick de `` ## Ce que `06-align` ecrit ``, la ou le pattern attendait une espace.
+
+🤖 **C20 etait enoncee deux fois.** Le passage une-a-une figurait en `## Les cas limites du classement` comme procedure seche **et** en `## Les confirmations` comme motif de l'asymetrie D3. Fusionne vers le motif : la contrainte de nombre reevaluee entre chaque ligne **est** le mecanisme qui interdit le lot d'ajouts, elle appartient donc a l'endroit qui l'explique. Le bullet des cas limites est retire.
+
+🤖 **`concepts.md:55` resynchronise.** Le satellite decrivait la phase avec l'ancien perimetre (ponderation + ordre seulement). Il porte desormais les trois arbitrages en une phrase : ce qui entre dans l'analyse (D5), a condition de lister les ecartes (D5 bis), jamais ce qu'une donnee signifie (D6). `README.md:16` et `concepts.md:70` disaient deja « quatre autorites » — corriges plus tot dans le cycle, le plan les listait a tort comme restant a faire.
+
 ## Log
 
 <!-- APPEND ONLY. One entry per step attempt. Never rewrite. -->
 
 ## Validation flow demonstration
 
-1. Ouvrir `plugins/overcode/docs/control.md` et lire la table des autorites : quatre lignes, la ligne `Phase` ne revendique plus l'univers analyse.
+1. Ouvrir `plugins/overcode/docs/control.md` et lire la table des autorites : quatre lignes, la ligne `Phase` conserve l'univers analyse mais le borne — « a condition de declarer ce qu'elle ecarte », et « aucune restriction silencieuse » en colonne de droite.
 2. Chercher sur la page les neuf nouveaux titres de section : tous presents.
 3. Prendre trois regles au hasard dans la table de tracabilite (par exemple C13, C31, C39) et les retrouver sur la page avec leur borne intacte.
 4. `grep -ri "trois autorit" plugins/overcode/` : aucun resultat.

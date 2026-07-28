@@ -1,4 +1,4 @@
-# 03 - Distribute
+# Distribute
 
 Final session: pour the classified content into the **raw reference sources** (`<target>/sources/<source>/`), with git stash/rollback.
 

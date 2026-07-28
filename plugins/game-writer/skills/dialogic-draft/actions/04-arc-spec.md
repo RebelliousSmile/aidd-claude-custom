@@ -1,4 +1,4 @@
-# 01 - arc-spec
+# Arc-spec
 
 Derive a structured arc spec from the project overview for a given ARC_ID.
 

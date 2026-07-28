@@ -1,4 +1,4 @@
-# Action 01 — audit
+# Audit
 
 Orchestrate a Rust code quality review: detect applicable pivots, load them from the plugin, and delegate analysis to `aidd-dev:reviewer`.
 

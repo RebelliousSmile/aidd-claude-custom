@@ -1,4 +1,4 @@
-# 03 - write-dtl
+# Write-dtl
 
 Generate a linter-passing Dialogic `.dtl` timeline from a node spec.
 

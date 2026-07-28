@@ -1,4 +1,4 @@
-# 04 - Sort
+# Sort
 
 Decide where loose items belong and place them — **by arbitration**. `tree` proposes a destination from the cache (where similar things already live); the human arbitrates ambiguous cases; nothing moves without confirmation.
 

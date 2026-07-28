@@ -1,4 +1,4 @@
-# 01 - Scan
+# Scan
 
 List all `.md` files in the scope, exclude already-processed files, detect special cases, and load (or create) `mail-config.yaml`.
 

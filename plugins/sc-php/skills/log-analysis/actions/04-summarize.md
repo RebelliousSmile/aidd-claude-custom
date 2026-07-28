@@ -1,4 +1,4 @@
-# 04 - Summarize
+# Summarize
 
 Produce a period digest across all log sources: error counts by severity, top recurring errors, HTTP status distribution.
 

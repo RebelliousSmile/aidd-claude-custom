@@ -1,4 +1,4 @@
-# Action 02 — endtask
+# Endtask
 
 Fires the pre-crafted prompt for the full **commit → archive plan → learn → merge/push → changelog → push tags → close issue** workflow.
 

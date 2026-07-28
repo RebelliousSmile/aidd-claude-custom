@@ -1,4 +1,4 @@
-# 03 - Search
+# Search
 
 Search for a specific string, regex, HTTP status code, or PHP action name across log files.
 

@@ -1,4 +1,4 @@
-# 05 - copycat-fanout
+# Copycat-fanout
 
 Chemin maquette **multi-pages mesurée**. Quand la référence est un système de pages
 arbitraire (SPA `setPage` ou jeu d'URLs), on ne devine pas à l'œil : on **fan-out l'agent

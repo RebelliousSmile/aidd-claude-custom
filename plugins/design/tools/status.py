@@ -116,6 +116,18 @@ def gap_cap(release: dict | None) -> int | None:
     return min(caps) if caps else None
 
 
+def contrast_pass(check: dict) -> bool:
+    """`allPass` alone is true by vacuity on zero pairs — it must be read with the count.
+
+    `pairs` absent means the check was recorded before the field existed: `allPass` is trusted
+    as it was written, since re-reading it as false would demote contracts whose pairs were
+    genuinely compared. Present and zero is the case this exists for, and it never passes.
+    """
+    if not check.get("allPass"):
+        return False
+    return check.get("pairs", 1) > 0
+
+
 def observe(contract_dir: Path) -> dict:
     """The facts the status is computed from: charter, recorded checks, recorded gaps."""
     release = read_release(contract_dir)
@@ -124,7 +136,7 @@ def observe(contract_dir: Path) -> dict:
     return {
         "charter_present": charter["present"],
         "checks_run": bool(release and release.get("checks")),
-        "contrast_pass": bool((checks.get("contrast") or {}).get("allPass")),
+        "contrast_pass": contrast_pass(checks.get("contrast") or {}),
         "states_pass": bool((checks.get("states") or {}).get("allPass")),
         "gap_cap": gap_cap(release),
     }

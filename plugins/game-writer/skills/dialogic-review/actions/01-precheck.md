@@ -1,4 +1,4 @@
-# 01 - precheck
+# Precheck
 
 Run a fast light review of a `.dtl` with one persona — triage filter before full review.
 

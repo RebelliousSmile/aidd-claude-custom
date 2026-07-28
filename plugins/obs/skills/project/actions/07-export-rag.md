@@ -1,4 +1,4 @@
-# 07 - Export RAG
+# Export RAG
 
 Generate a RAG context file from the Obsidian project notes.
 

@@ -1,4 +1,4 @@
-# 01 - Test
+# Test
 
 Run Bruno API tests via the bru CLI, report results, and iterate with fixes until all targeted tests pass.
 

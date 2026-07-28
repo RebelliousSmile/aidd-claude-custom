@@ -1,4 +1,4 @@
-# 04 - fix
+# Fix
 
 Rewrite a specific branch of a `.dtl` based on review feedback, then relint.
 

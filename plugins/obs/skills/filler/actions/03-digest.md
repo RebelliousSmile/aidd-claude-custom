@@ -1,4 +1,4 @@
-# 03 — Digest
+# Digest
 
 Consolidation destructive : extraire les données structurées de N fichiers homogènes en un seul fichier de contenu, puis supprimer les sources. Le fichier produit est un fichier de données réel (tableau, liste structurée), pas un résumé par-dessus les originaux.
 

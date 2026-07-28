@@ -1,4 +1,4 @@
-# 01 - Index
+# Index
 
 Scan the real arborescence and build/refresh the navigation cache `<anchor>/_tree/cache.json`. This is the foundation the other actions read.
 

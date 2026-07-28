@@ -1,4 +1,4 @@
-# Action 01 — explain
+# Explain
 
 ## Rôle
 

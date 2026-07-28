@@ -1,4 +1,4 @@
-# 02 - decompose
+# Decompose
 
 Break an arc spec into individual node specs, each with a complete Transitions table.
 

@@ -1,4 +1,4 @@
-# 05 - Judge
+# Judge
 
 Arbitrate the content of `R` node by node in an **interactive session**. For each node, Claude analyses, proposes a verdict with motivation, and waits for confirmation before acting. Nothing changes without explicit human approval.
 

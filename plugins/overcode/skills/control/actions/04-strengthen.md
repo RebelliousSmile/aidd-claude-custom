@@ -1,4 +1,4 @@
-# 04 - Strengthen
+# Strengthen
 
 Find the coverage gaps that actually matter in an existing suite, ranked by risk, and propose the smallest set of tests that closes the most exposure - never a bulk "raise coverage to N%" campaign.
 
@@ -7,7 +7,7 @@ Mirror image of `02-audit`: `audit` removes tests that carry no value, `strength
 ## Inputs
 
 - `project_path` (required) - absolute path to the target project root
-- `scope` (optional, default: whole project) - a subdirectory or glob to limit the analysis. **Here `scope` targets the source code**: what it bounds is the set of production files ranked, not the test files read. (In `02-audit` the same parameter name bounds the *test suite* instead.)
+- `scope` (optional, default: whole project) - a subdirectory or glob to limit the analysis. **`scope` designates one universe, here as everywhere in this skill: the source code and the tests that match it.** The resolution is **symmetric** - a path landing in the source resolves down to its tests, a path landing in the test tree resolves up to the corresponding source, and the universe is the pair either way. No action has a universe of its own. What this action *ranks* is the source side of that pair; what bounds it is the pair.
 - `domain` (optional) - a functional domain declared by the project (`auth`, `payment`), resolved to code by the terms the project supplies and by the pivot's *Domain resolution* field. It **weights the ranking; it never bounds the universe** - see step 2. Mutually exclusive with `scope` - given both, stop and ask which was meant (`SKILL.md`, *Parameters*).
 - `top_n` (optional, default: 5) - how many ranked gaps to report
 - `phase` (optional) - overrides the resolved project phase for this run only
@@ -32,7 +32,7 @@ No test file is written as part of producing this table.
 
    Resolve the project **phase** per `@../references/phase-framework.md` and state it in the report header with its provenance (`argument` / `declared <path>` / `answered` / `unanswered`) - two distinct lines, never merged: the value says which phase, the provenance says where it came from. The phase is **never deduced**: when neither the argument nor the project's documentation gives it, **ask before ranking anything** - the answer is what the order is built on, so a table produced first and re-sorted after is a table the user has already read in the wrong order. The phase re-weights the criteria in step 3; it changes no proposed tier, no exclusion, and neither of the two bounded edge cases below.
 
-   State which strategy is in force. When the project documents none, say so in the report and state the consequence plainly: no **cap** is declared. That is no longer the same as unbounded growth - the number constraint holds as the **density** (`@../references/test-density.md`), which needs nothing declared to apply since its reference is the project's own median. An undocumented project is reported as undocumented, never as implicitly following the default.
+   State which strategy is in force, **and which of the three document shapes was met** (`SKILL.md`, *Transversal rules*): absent, present but empty, or present and filled while settling no tier. The third is the one that misleads here - a document that names test types, tools and conventions looks like a strategy in force, and reporting it as such would credit the project with a tier decision it never took. Name the shape, then apply the fallback. When the project documents none, say so in the report and state the consequence plainly: no **cap** is declared. That is no longer the same as unbounded growth - the number constraint holds as the **density** (`@../references/test-density.md`), which needs nothing declared to apply since its reference is the project's own median. An undocumented project is reported as undocumented, never as implicitly following the default.
 
    Since this action's whole business is *adding*, the density is the one measurement that can argue against it, and it is read here in one specific way: a gap landing on a file already past 3× the median is not disqualified - it is reported with that fact attached. Many cases on little logic and a real gap remaining usually means the existing cases are aimed at the wrong thing, which makes it an `02-audit` referral first and an addition second. Say that; do not decide it. **Density ranks nothing and refuses nothing here either** - the risk criteria of step 3 own the order.
 
@@ -68,12 +68,13 @@ No test file is written as part of producing this table.
    **Edge case - saturation.** When the number of qualifying gaps vastly exceeds `top_n`, say so rather than presenting the top rows as if they were the whole story. Report the total, state that the ranking cannot be meaningful across a population that size, and propose narrowing `scope` to a subsystem the user can actually act on. **Never propose a `domain` as the remedy**: it reorders the same population and leaves it exactly as large, so it would answer a saturation with a table that merely looks shorter.
 5. For each of the `top_n` gaps, propose a tier by running it through the loaded tier table (same decision order as `01-write`), and prefer **strengthening an existing test's assertion** over adding a new file whenever the code path already has a test - report that as the proposed action instead of a new test.
 6. Present the ranked table. Nothing is written yet.
-7. For each row the user explicitly confirms (individually, or via a batch they name themselves), hand it to `01-write` with the gap as `behavior` - so the tier decision, the number-constraint check and the delegation to `aidd-dev:06-test` all go through the single existing gate. Never bypass `01-write`, and never write a test for a row the user did not confirm.
+7. For each row the user explicitly confirms, **one row at a time**, hand it to `01-write` with the gap as `behavior` - so the tier decision, the number-constraint check and the delegation to `aidd-dev:06-test` all go through the single existing gate. Never bypass `01-write`, and never write a test for a row the user did not confirm.
 
-   **Cumulative guard.** When more than one row is confirmed, state the total before the first handoff, and pass the rows through `01-write` **one at a time**. Each test added changes the number-constraint arithmetic for the next: a batch confirmed in one breath must not become a batch written without the constraint being re-evaluated between each.
+   **No named batch on the addition side.** A user may name a batch of *removals* and have it confirmed en bloc (`02-audit`); they may not do the same for additions. The asymmetry is not caution: **each test added moves the number-constraint arithmetic for the next**, so a batch approved in one breath cannot have been weighed against a constraint the batch itself shifts. A removal only loosens that constraint, and what was approved stays approved. When a user asks for one anyway, say that, and offer the one-at-a-time pass.
+
+   **Cumulative guard.** State the total before the first handoff - so the user knows what they are entering, announcing a total being no way of getting it approved - then pass the rows through `01-write` one at a time, re-evaluating the number constraint between each.
 
 ## Test
 
-Run against a real project that has both a test suite and at least one meaningfully uncovered code path. Verify the report is ranked by risk rather than by coverage percentage (a high-consequence gap with few missing lines must outrank a low-consequence gap with many), that each row carries a proposed tier and a one-line justification, and that the exclusions section is present. Verify no test file is created by this action alone - creation only happens through a confirmed handoff to `01-write`.
-
-**Never** a mocked coverage report - the first real coverage run, or the real static fallback on a real repository, is the test.
+Covered by `../evals/authority-scenarios.md` (S2, S10), `../evals/measurement-scenarios.md` (S3), `../evals/domains-scenarios.md` (S4), `../evals/phase-scenarios.md` (S11) and `../evals/chaining-scenarios.md` (S5).
+Run: `overcode:behave 02-run <suite> <fixture>`.

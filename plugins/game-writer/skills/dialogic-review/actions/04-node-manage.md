@@ -1,4 +1,4 @@
-# 04 - node-manage
+# Node-manage
 
 List, inspect, update, or retire nodes in the node spec registry.
 

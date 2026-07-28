@@ -13,6 +13,8 @@ Quatre barreaux. La première condition non tenue arrête la montée : l'échell
 | `validated` | + vérifications enregistrées (`checks` non nul) | l'**invocation de la conformité** par `enforce` et `diffuse` |
 | `production-ready` | + contraste vert sur chaque paire **et** états déclaratifs complets sur chaque composant, sans gap plafonnant | atteste en plus que les deux contrôles a11y calculables sont verts — ce que `validated` n'affirme pas |
 
+« Contraste vert sur chaque paire » se lit sur un **nombre de paires non nul** : sur zéro paire la condition serait vraie sans rien affirmer. Un contrat où aucune paire ne peut être construite ne se fige plus (`adjust/references/manifest-schema.md § Invariant 7`) ; s'il l'a été sous dérogation, le gap `contrast-unpaired` le maintient à `normalized`, et un contrat figé avant cette règle porte la même ambiguïté jusqu'à son prochain figeage.
+
 Les deux contrôles a11y calculables au figeage — contraste par thème depuis les valeurs de tokens résolues, présence déclarative des états `disabled`/`error`/`focus` — sont enregistrés dans `checks` et lus par `status.py`. Ce qui n'est pas calculable au figeage (rôles, attributs) reste **assigné à un pivot** et ne pèse pas sur le statut (`enforcement-registry.md`).
 
 ## Le seuil
@@ -38,6 +40,7 @@ Un gap connu ne vit plus comme question ouverte en prose : il est **enregistré*
 |---|---|---|
 | charte absente | `gaps[]` de classe `charter-absent` (et `charter.present: false`) | `extracted` |
 | contraste jamais calculé | `checks: null` | `normalized` |
+| contraste calculé sans aucune paire à comparer, sous dérogation enregistrée | `gaps[]` de classe `contrast-unpaired` | `normalized` |
 | une paire de contraste échoue | `gaps[]` de classe `contrast` | `validated` |
 | un état déclaratif manquant sur un composant | `gaps[]` de classe `states` | `validated` |
 

@@ -1,4 +1,4 @@
-# 02 — Sort
+# Sort
 
 ## Inputs
 - `path` (required) — répertoire cible

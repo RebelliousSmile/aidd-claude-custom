@@ -52,7 +52,7 @@ Plusieurs skills se ressemblent de loin. Les frontières sont explicites, parce 
 
 Il ne borne **pas** le nombre de tests par un plafond. Il raisonne en **densité** : le nombre de cas de test rapporté aux points de branchement, lu contre **la médiane du projet lui-même**. Un module trois fois plus dense que la médiane du projet est suspect ; le même module dans un autre projet ne le serait pas.
 
-La densité n'est pondérée par rien : elle se lit contre la médiane du projet, point. Ce que pondère la **phase**, c'est le classement par risque — quels critères pèsent lourd en ce moment, et dans quel ordre le résultat est restitué.
+La densité n'est pondérée par rien : elle se lit contre la médiane du projet, point. Ce que gouverne la **phase**, c'est **ce qui entre dans l'analyse** — à condition qu'elle liste ce qu'elle en écarte —, quels critères pèsent lourd en ce moment, et dans quel ordre le résultat est restitué. Jamais ce qu'une donnée signifie : une absence du rapport de couverture vaut « non couvert » dans toutes les phases.
 
 La phase est déclarée ou demandée, **jamais déduite** :
 

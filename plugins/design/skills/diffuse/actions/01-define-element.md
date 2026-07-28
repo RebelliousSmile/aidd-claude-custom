@@ -1,4 +1,4 @@
-# 01-define-element
+# Define-element
 
 ## Rôle
 
@@ -20,7 +20,8 @@ Ouvrir `design/components.json` et extraire l'entrée du composant demandé :
 - `.base` → classe BEM block
 - `.elements` → map label → classe BEM
 - `.modifiers` → map label → classe BEM
-- `.backgrounds` → liste de chemins de tokens autorisés
+- `.backgrounds` → liste de chemins de tokens autorisés comme fond
+- `.foregrounds` → liste de chemins de tokens qui portent du texte sur ces fonds
 - `.a11y` → rôle ARIA + attributs requis
 
 ### Étape 2 — Identifier les variantes à produire
@@ -44,9 +45,13 @@ Pour chaque élément BEM (`.elements`), définir le slot de contenu adapté au 
 
 Ne jamais utiliser d'emoji comme contenu de slot (règle du design system).
 
-### Étape 4 — Déterminer le fond
+### Étape 4 — Déterminer le fond et l'avant-plan
 
 Si `.backgrounds` est défini : utiliser le premier token de la liste comme fond par défaut (sauf si l'utilisateur précise autrement). Vérifier que le chemin existe dans `tokens.json`.
+
+Si `.foregrounds` est défini : utiliser le premier token de la liste comme couleur de texte par défaut. Ne **jamais** choisir une couleur de texte hors de cette liste : les paires `.foregrounds` × `.backgrounds` sont celles dont le contraste a été mesuré au figeage (`${CLAUDE_PLUGIN_ROOT}/adapters/a11y/contrast.py`), et poser une couleur hors liste produit un rendu dont personne n'a vérifié le ratio.
+
+Si `.foregrounds` est absent alors que le composant affiche du texte, le signaler dans la spec : le contrat ne dit pas quelle couleur porte le texte ici, et aucune valeur par défaut ne comble ce silence — le combler serait inventer un appariement que le figeage n'a pas mesuré.
 
 ### Étape 5 — Émettre la spec neutre
 
@@ -71,9 +76,9 @@ Format de la spec neutre (en Markdown, dans la conversation) :
 | <var> | <BEM-modifier> | <.base> <BEM-modifier> |
 ...
 
-### Contexte de fond
-Token : <token.path>
-Valeur CSS var : var(--<token-css-property>)
+### Contexte de fond et d'avant-plan
+Fond — token : <token.path> · var(--<token-css-property>)
+Texte — token : <token.path> · var(--<token-css-property>) (ou « non déclaré par le contrat »)
 
 ### a11y
 Role : <ARIA-role>
@@ -87,7 +92,8 @@ Attributs requis : <attr>=<value> (ou "aucun")
 
 Avant d'émettre la spec, vérifier mentalement :
 - [ ] Toutes les classes référencées existent dans le manifeste (`.base`, `.elements.*`, `.modifiers.*`)
-- [ ] Tous les chemins de tokens dans `backgrounds` existent dans `tokens.json`
+- [ ] Tous les chemins de tokens dans `backgrounds` et `foregrounds` existent dans `tokens.json`
+- [ ] La couleur de texte posée appartient à `.foregrounds` ; si le champ est absent, le silence du contrat est signalé, pas comblé
 - [ ] Aucun emoji dans les slots de contenu
 - [ ] La spec ne contient aucune classe non déclarée
 

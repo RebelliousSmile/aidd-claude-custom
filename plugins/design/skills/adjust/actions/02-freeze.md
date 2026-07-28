@@ -1,4 +1,4 @@
-# 02-freeze
+# Freeze
 
 ## Rôle
 
@@ -59,6 +59,7 @@ Construire les artefacts à partir des composants résolus dans le brief d'arbit
       "elements": { },
       "modifiers": { },
       "backgrounds": ["<token.path>"],
+      "foregrounds": ["<token.path>"],
       "a11y": { "role": "<ARIA-role>", "requires": [] },
       "states": { "disabled": <bool>, "error": <bool>, "focus": <bool> }
     }
@@ -98,7 +99,8 @@ Construire les artefacts à partir des composants résolus dans le brief d'arbit
 
 1. **Noms canoniques en kebab-case** : `btn`, `card`, `hero`, `nav`, `form-field`, etc.
 2. **BEM strict** : `base` = le block ; `elements.*` = `block__element` ; `modifiers.*` = `block--modifier`.
-3. **Backgrounds token-référencés** : chaque chemin dans `.backgrounds` doit exister dans le `tokens.json` canonisé. Si un chemin est absent → erreur bloquante, corriger `tokens.json` d'abord.
+3. **Fonds et avant-plans token-référencés** : chaque chemin dans `.backgrounds` et `.foregrounds` doit exister dans le `tokens.json` canonisé. Si un chemin est absent → erreur bloquante, corriger `tokens.json` d'abord.
+3-bis. **Chaque composant qui porte du texte déclare ses `.foregrounds`** — les chemins réellement posés sur ses fonds, pris où ils vivent : `color.brand.*` et `color.domain.*` sont aussi légitimes que `color.semantic.text`. C'est la seule déclaration d'**usage** du contrat, et elle commande tout le contrôle de contraste. Un composant purement structurel (`grid`, `spacer`) l'omet ; un composant qui affiche du texte et l'omet rend sa couleur de texte intestable. Deux sources fournissent ces appariements, et aucune ne se réinvente ici : `design-system.md § Inventaire des composants` porte les colonnes fonds/avant-plans renseignées par `define` (`${CLAUDE_PLUGIN_ROOT}/references/write-system-procedure.md`) — c'est la source normale, présente sur tout contrat ; et si un rapport `design/critique/` existe, il porte la table des appariements proposés après mesure (`destructure/01-challenge.md § étape 2-bis`), qui prime en cas de divergence puisqu'elle a été chiffrée. Si les deux sont muettes sur un composant qui affiche du texte, c'est une question à poser, pas un blanc à combler : deviner un appariement produirait une mesure sur une paire que personne n'emploie.
 4. **Concordance avec la charte** : chaque composant listé dans `design-system.md § Inventaire des composants` doit avoir une entrée, et vice-versa. Si discordance → résoudre (ajouter l'entrée manquante ou retirer le composant de la charte).
 
 ### Sous-étape — Auditer `policies.json`
@@ -137,11 +139,25 @@ Ajouter/étendre `usage` (nouveau namespace, nouvelle règle déclarée) suit la
 
 Deux volets a11y sont **calculés par le plugin au figeage** (`${CLAUDE_PLUGIN_ROOT}/references/enforcement-registry.md § Contrôles a11y`), déterministes, sans aucun markup. Le figeage ne bloque **jamais** sur un point a11y non vert : il l'enregistre comme `gap` et laisse `status.py` plafonner la maturité. Ce qui n'est pas atteint est constaté, pas caché — et jamais transformé en refus de figer.
 
+Une seule exception, et elle ne porte pas sur un résultat : **un contrôle qui n'a rien eu à regarder n'est pas un contrôle non vert, c'est un contrôle impossible**. Un contrat sur lequel aucune paire de contraste ne peut être construite ne produit pas un écart mesuré à plafonner, il produit un vocabulaire hors de portée du contrôle — un défaut de conception, corrigeable tant que la matière est malléable et coûtant un bump majeur une fois figée. Celui-là refuse le figeage (`manifest-schema.md § Invariant 7`).
+
 1. **Contraste par thème** — lancer
    ```
    python ${CLAUDE_PLUGIN_ROOT}/adapters/a11y/contrast.py --contract design/ --json
    ```
-   Écrire `release.json § checks.contrast = { "ran": true, "allPass": <toutes les paires passent> }`. Pour **chaque paire qui échoue**, ajouter un gap `{ "class": "contrast", "caps": "validated", "detail": "<fg> / <bg> @ <thème> = <ratio>" }`. Exit 2 ⇒ contrat structurellement invalide (tokens illisibles) : corriger, ne pas poursuivre.
+   Les paires viennent de `components.json § .foregrounds × .backgrounds`, par composant, et à défaut d'une heuristique de nom bornée à `color.semantic`. Traiter la sortie par code :
+
+   | Exit | Signification | Conduite |
+   |---|---|---|
+   | `0` | au moins une paire comparée | écrire `checks.contrast`, ouvrir un gap par paire échouée, poursuivre |
+   | `2` | contrat structurellement invalide (tokens illisibles, chemin pendant) | corriger, ne pas poursuivre |
+   | `3` | **aucune paire à comparer** | **refuser le figeage** — voir ci-dessous |
+
+   Sur exit 0, écrire `release.json § checks.contrast = { "ran": true, "allPass": <toutes les paires passent>, "pairs": <nombre de paires comparées>, "declared": <nombre issu de .foregrounds> }`. Pour **chaque paire qui échoue**, ajouter un gap `{ "class": "contrast", "caps": "validated", "detail": "<fg> / <bg> @ <thème> = <ratio>" }`. Ne jamais écrire `allPass: true` sans `pairs`: sur zéro paire il serait vrai par vacuité, et c'est précisément la confusion que l'exit 3 existe pour rendre impossible.
+
+   Sur exit 3, **ne rien écrire et ne pas figer**. Rapporter le bloc `coverage` du JSON tel quel — combien de feuilles couleur le contrat déclare, combien ont été appariées, et le décompte des non appariées par branche — puis nommer la sortie : **déclarer les paires dans `components.json § .foregrounds`**, composant par composant, en pointant les chemins réellement utilisés, `color.brand.*` et `color.domain.*` compris. Ne jamais proposer de renommer des tokens pour satisfaire l'heuristique de nom : ce serait déformer le vocabulaire du projet pour plaire à un mécanisme de secours.
+
+   Une dérogation reste possible, jamais implicite, et elle coûte **trois** écritures conjointes : `--allow-unpaired` sur la commande ; une entrée dans `deviations.json § active[]` portant le motif et l'étendue ; et un gap `{ "class": "contrast-unpaired", "caps": "normalized", "detail": "<n> feuilles couleur déclarées, 0 appariée — <motif>" }`. Sans les trois, le refus tient. Le `checks.contrast` alors écrit porte `"pairs": 0` : `allPass` y serait vrai sans rien affirmer, et `status.py` le lit avec le compte précisément pour cette raison (`${CLAUDE_PLUGIN_ROOT}/references/maturity-status.md`). Une dérogation ne fait donc pas monter le contrat — elle l'autorise à exister à `normalized` en disant pourquoi.
 
 2. **Présence déclarative des états** — lancer
    ```
@@ -261,10 +277,12 @@ Avant d'annoncer la complétion, vérifier mentalement :
 
 - [ ] `release.json` existe, `$format` vaut `2.0`, et déclare `tokens.json`, `components.json` et `policies.json`, plus `oracle.json` si le brief en a produit un ; chaque artefact déclaré est présent sur disque, aucun artefact non déclaré ne traîne à côté
 - [ ] `release.json § status` provient de `tools/status.py`, jamais écrit à la main
-- [ ] `release.json § checks` porte le résultat de `contrast.py` et de `status.py --states` (ou `null` si aucun contrôle n'a tourné) ; chaque paire de contraste échouée et chaque déclaration `.states` partielle a un `gap` correspondant, jamais une simple note en prose
+- [ ] `contrast.py` n'a pas rendu exit 3 — ou une dérogation est enregistrée dans `deviations.json § active[]` et `--allow-unpaired` a été passé explicitement. Un contrat sans paire comparable ne se fige pas en silence
+- [ ] `release.json § checks` porte le résultat de `contrast.py` et de `status.py --states` (ou `null` si aucun contrôle n'a tourné) ; `checks.contrast` porte `pairs` à côté d'`allPass`, jamais `allPass` seul ; chaque paire de contraste échouée et chaque déclaration `.states` partielle a un `gap` correspondant, jamais une simple note en prose
 - [ ] Aucun point a11y non vert n'a **bloqué** le figeage : les écarts sont enregistrés en `gaps[]` et plafonnent la maturité via `status.py`, conformément à `references/maturity-status.md`
 - [ ] Aucun `$version` ne subsiste dans `components.json`, `policies.json` ou `oracle.json`
-- [ ] Tous les chemins `.backgrounds` existent dans `tokens.json`
+- [ ] Tous les chemins `.backgrounds` et `.foregrounds` existent dans `tokens.json`
+- [ ] Chaque composant affichant du texte déclare ses `.foregrounds` ; aucun n'est laissé intestable par omission
 - [ ] Tous les composants de l'inventaire prose ont une entrée dans `components.json`
 - [ ] Aucun token en doublon (valeurs identiques sur chemins différents sans alias)
 - [ ] Tous les chemins de `themes.*` (si présent) existent dans l'arbre de base ; aucune entrée d'overlay ne porte `$type` ; aucune clé `themes.default`

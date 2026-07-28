@@ -1,4 +1,4 @@
-# 04 - Summarize
+# Summarize
 
 Produce a period digest across all Python log sources: error counts by level, top recurring exceptions, HTTP status distribution.
 

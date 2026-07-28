@@ -1,4 +1,4 @@
-# 03 - Fix
+# Fix
 
 Apply **safe** corrections for the anomalies and drift surfaced by `check`. Rename and move only — never delete, never overwrite. Always dry-run + confirm before touching disk.
 

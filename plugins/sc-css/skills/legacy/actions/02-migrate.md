@@ -1,4 +1,4 @@
-# Action 02 — migrate
+# Migrate
 
 ## Rôle
 

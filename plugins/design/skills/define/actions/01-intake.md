@@ -1,4 +1,4 @@
-# 01 - intake
+# Intake
 
 Détecter la nature de la source de design et router vers le bon chemin : extraction (maquettes) ou construction (brief).
 

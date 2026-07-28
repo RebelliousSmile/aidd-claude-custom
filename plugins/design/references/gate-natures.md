@@ -17,7 +17,9 @@ Le gate de vocabulaire est **aveugle au rendu calculé**. On peut être lint-ver
 
 Symétriquement, un rendu fidèle peut reposer sur un vocabulaire hors contrat, indétectable à la mesure.
 
-**Ce que ni l'un ni l'autre ne couvre** : contraste, rôles ARIA, fond réellement appliqué, et tout fichier hors des cibles déclarées. Ce sont des **gaps déclarés**, pas des vérifications silencieuses.
+**Ce que ni l'un ni l'autre ne couvre** : rôles ARIA, fond réellement appliqué, contraste **du rendu**, et tout fichier hors des cibles déclarées. Ce sont des **gaps déclarés**, pas des vérifications silencieuses.
+
+Le contraste mérite une précision, parce qu'il est le seul point a11y à être coupé en deux. Le contraste **des paires déclarées** est mesuré en amont, au figeage, par `adapters/a11y/contrast.py` sur les valeurs de tokens résolues par thème — il n'est donc pas un gap, il est enregistré dans `release.json § checks.contrast` et pèse sur la maturité (`maturity-status.md`). Ce qui reste hors de portée ici, c'est le contraste **tel qu'il est peint** : `opacity`, `color-mix`, un voile, un dégradé recomposent la couleur après le token, et aucun des deux gates ne les voit. Ce résidu-là est assigné à G6.
 
 Le gate de fidélité lit le registre d'écarts (`references/deviation-ledger-template.md`) pour distinguer un écart sanctionné d'une dérive.
 

@@ -1,4 +1,4 @@
-# 02 - Check
+# Check
 
 Verify the tree against the **invariants** and against each domain's **learned convention** (from the cache). Report-only — zero writes (beyond refreshing the cache if stale).
 

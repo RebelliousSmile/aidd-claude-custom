@@ -1,4 +1,4 @@
-# 02 - Curate
+# Curate
 
 Maintenance pass on an **existing** `CHANGELOG.md`: fill the holes (released versions that were never documented, work landed after the last documented version), then condense the closed major cycles into a single bounded summary each, so the file stops growing without end.
 

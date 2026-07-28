@@ -86,3 +86,65 @@ Ou utiliser une fonction `resolveFile()` centralisée qui applique la normalisat
 **Pour `enforce`** : les tokens WP (palette, typographie) viennent de `theme.json`, pas de CSS inline. Le lint doit vérifier la cohérence entre `design/tokens.json` (source design) et `theme.json` (source WP). Toute divergence est une violation.
 
 **Pour `diffuse`** : les block patterns et templates WP consomment les tokens via `theme.json` + les classes générées par Gutenberg (pas via `adapters/tokens.css` directement). L'adaptateur WP de `diffuse` doit en tenir compte.
+
+## Piège 8 : reset global sur sélecteur d'élément — il bat toutes les classes simples
+
+Symptôme : une couleur (ou `text-decoration`) déclarée sur une classe de composant n'est jamais rendue,
+alors que la règle est bien présente, bien écrite, et déclarée **après**. L'ordre ne corrige pas un écart
+de spécificité.
+
+Cas typique en thème FSE, parce que `theme.json` ne suffit pas :
+
+| Sélecteur | Spécificité | Effet |
+|---|---|---|
+| `a:where(:not(.wp-element-button))` (généré par `theme.json § styles.elements.link`) | **(0,0,1)** | perd contre toute classe |
+| `.mon-composant__btn` | **(0,1,0)** | l'auteur croit que c'est la règle gagnante |
+| `.wp-site-blocks a` (reset porté à la main pour compenser le point précédent) | **(0,1,1)** | **écrase silencieusement toutes les règles de classe simple sur les `<a>`** |
+
+Le piège se referme quand le reset est ajouté pour réparer *un* cas (un lien de carte dont la couleur ne
+prenait pas) : il répare ce cas et casse tous les autres, sans erreur, sans warning, souvent des semaines
+plus tard et dans un fichier différent.
+
+**Règles :**
+
+1. Ne jamais porter un reset de maquette sur un sélecteur descendant d'élément (`.wp-site-blocks a`,
+   `.site a`, `main p`). Porter le reset **au même poids que sa source** — via `theme.json §
+   styles.elements.link` — et régler les exceptions au niveau du composant.
+2. Si un reset descendant est malgré tout retenu, toute règle de composant qui doit le contredire doit
+   monter au même poids : `a.mon-composant__btn` (0,1,1), pas `.mon-composant__btn`.
+3. Contrôle exécutable, à câbler dans le lint du projet : lister les sélecteurs de la forme
+   `<classe-racine> <élément>` dans le CSS composants et, pour chacun, énumérer les classes simples du
+   manifeste qui déclarent une propriété homonyme sur ce même élément. Toute intersection est une erreur
+   de lint, pas une remarque de revue.
+
+## Piège 9 : un oracle de fidélité est **relatif** — il ne voit pas les défauts de la maquette
+
+`measure.py` compare le rendu WP au rendu de la maquette, propriété par propriété. Un défaut **identique
+des deux côtés est un match**, donc un verdict conforme. Une maquette qui porte déjà un contraste
+illisible, un focus invisible ou une cible tactile trop petite fait donc *passer* le port fidèle de ce
+défaut — c'est le comportement correct de l'outil, pas un bug.
+
+**Conséquence de méthode :** un oracle de fidélité ne peut jamais être le gate le plus haut. Il faut, au
+dessus, au moins un **gate absolu** que la maquette elle-même doit satisfaire :
+
+- contraste WCAG mesuré par `getComputedStyle` sur la **page rendue** (jamais sur les valeurs déclarées :
+  une paire déclarée excellente peut être écrasée par le piège 8 et rendre 1,06:1) ;
+- visibilité du focus clavier, taille de cible, ordre de tabulation.
+
+Quand le gate absolu échoue et que la maquette est la source du défaut, le défaut se corrige **des deux
+côtés** — sinon l'oracle relatif repassera en rouge à la mesure suivante.
+
+## Piège 10 : le périmètre de l'oracle n'est pas le périmètre du site
+
+Une campagne d'intégration cadre naturellement son oracle sur les pages du manifeste de maquette (les
+hubs). Les vues qui n'existent pas comme fichier de maquette — `single.html`, `single-<cpt>.html`,
+`archive*.html`, `404.html`, les pages de taxonomie — n'ont alors **aucune config**, donc aucune mesure,
+à aucun moment.
+
+Le risque n'est pas d'avoir cadré : c'est que « tous les gates verts » se lise ensuite « le site est
+intégré ». Deux règles :
+
+1. Le périmètre de rendu **énumère tous les templates du thème**. Un template sans config d'oracle est
+   un **manque déclaré** (avec sa raison), jamais un `extra` implicite.
+2. Tout bilan de gates publie sa **couverture** — ce qui est mesuré *et* ce qui ne l'est pas — avant son
+   verdict. Un verdict sans couverture n'est pas recevable comme preuve de complétude.

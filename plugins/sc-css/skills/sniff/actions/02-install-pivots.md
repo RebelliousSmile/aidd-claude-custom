@@ -1,4 +1,4 @@
-# Action 02 — install-pivots
+# Install-pivots
 
 ## Rôle
 

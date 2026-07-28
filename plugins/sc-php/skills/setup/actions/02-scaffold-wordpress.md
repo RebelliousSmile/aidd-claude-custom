@@ -1,4 +1,4 @@
-# Action 02 — scaffold-wordpress
+# Scaffold-wordpress
 
 Scaffold un projet WordPress FSE + Docker/wp-env depuis zéro.
 

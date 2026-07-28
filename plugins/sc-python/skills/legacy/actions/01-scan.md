@@ -1,4 +1,4 @@
-# Action 01 — scan
+# Scan
 
 Detect version-specific and deprecated patterns in the Python codebase. Emit a structured manifest for `02-migrate`.
 

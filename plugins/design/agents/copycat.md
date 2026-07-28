@@ -220,7 +220,10 @@ is always the consumer's path; it is never plugin-relative.
     every breakpoint. Both gates must be green, and each covers only its own reference:
     `lint-core.mjs` on the files it is actually passed (no class or token outside the contract —
     internal reference), and `measure.py` on the mapped elements (computed style per breakpoint —
-    external reference). Neither establishes contrast, a11y, or anything in a file neither reads.
+    external reference). Neither establishes **rendered** contrast, a11y, or anything in a file
+    neither reads — contrast on the pairs the contract declares was measured upstream, at freeze
+    (`release.json § checks.contrast`); what recomposes at paint time (opacity, `color-mix`,
+    overlays, gradients) belongs to neither gate. See `references/gate-natures.md`.
 
 **Closure invariants — a delta is "closed" ONLY when ALL hold (self-check before reporting):**
 

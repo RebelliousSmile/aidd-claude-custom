@@ -1,4 +1,4 @@
-# 06 - pnj-behavior
+# Pnj-behavior
 
 Formalize a PNJ behavioral profile: voice by relationship tier, canon locks, threshold events, and cross-PNJ coordination.
 

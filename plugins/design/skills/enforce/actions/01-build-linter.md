@@ -1,4 +1,4 @@
-# 01-build-linter
+# Build-linter
 
 ## Rôle
 

@@ -11,6 +11,26 @@ Squelette canonique du rapport persisté par `destructure/actions/01-challenge.m
 
 <sprawl (couleurs, tailles de police, espacements, breakpoints), densité de valeurs en dur vs tokens, doublons de composants, emoji-comme-icônes — uniquement en mode standalone sur un existant ; des comptes, pas des impressions>
 
+## Contrastes mesurés
+
+Sortie de `adapters/a11y/contrast.py` (`01-challenge.md § étape 2-bis`), reportée telle quelle. Des ratios, jamais un avis.
+
+| Thème | Origine | Avant-plan | Fond | Ratio | AA |
+|---|---|---|---|---|---|
+| <thème> | <composant> \| (rôle) | <token.path> | <token.path> | <n.nn> | ✅ \| ❌ |
+
+**Couverture** : <appariées>/<déclarées> feuilles couleur — non appariées par branche : <branche n, …>
+
+<Si zéro paire : le dire ici en toutes lettres. Ce n'est pas un contraste à améliorer, c'est un contrôle impossible, et `adjust/02-freeze` refusera de figer. La table ci-dessous devient alors la sortie principale du rapport.>
+
+### Appariements à déclarer
+
+Un composant par ligne : ce que `components.json § .foregrounds × .backgrounds` devra porter au figeage. Produit ici parce qu'ici il ne coûte encore rien.
+
+| Composant | Fonds | Avant-plans |
+|---|---|---|
+| <nom> | <token.path, …> | <token.path, …> |
+
 ## Critique par lentille
 
 ### Générique vs distinctif
@@ -23,7 +43,7 @@ Squelette canonique du rapport persisté par `destructure/actions/01-challenge.m
 
 ### Accessibilité
 
-<paires de contraste limites, cibles tactiles, focus, emoji porteurs de sens>
+<lecture des ratios de la section « Contrastes mesurés » — ne pas les répéter, en tirer les conséquences de direction ; cibles tactiles, focus, emoji porteurs de sens ; risques non mesurables (opacity, color-mix, voiles, dégradés) nommés et renvoyés à G6>
 
 ### Tendances & fraîcheur
 

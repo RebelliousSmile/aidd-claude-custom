@@ -1,4 +1,4 @@
-# Action 01 — analyze
+# Analyze
 
 Read the JS/TS codebase, identify anti-patterns and improvement opportunities per category, emit structured findings.
 

@@ -66,6 +66,9 @@ nommage cohérent). Une bibliothèque complète mais mal rangée reste inutilisa
 - `actions/scripts/builder-coverage.php` — le gate (inventaire + verdict `GAPS: N`).
   Préfixe de classe **auto-détecté** (surchargeable `BC_PREFIX`), post types
   configurables (`BC_POST_TYPES`).
+- `actions/scripts/orphan-selectors.mjs` — le **scan inverse** (verdict `ORPHANS: N`) :
+  classes déclarées en CSS sans consommateur dans le markup. Complémentaire du
+  précédent, pas redondant — voir `01-scan.md § Step 6`.
 - `actions/scripts/dump-section.php` — extrait le markup natif d'un composant
   (`BC_DUMP_POST`, `BC_DUMP_CLASS`) pour bâtir sa pattern fidèlement.
 - `actions/scripts/category-balance.php` — lint d'organisation : effectif par
@@ -98,7 +101,22 @@ nommage cohérent). Une bibliothèque complète mais mal rangée reste inutilisa
 - **SSR** : un bloc dynamique (`sc-*/…`) n'est PAS une pattern éditable — fournir en
   plus une variante native (ex. FAQ SSR → FAQ `wp:details`).
 
+## Le scan est data-driven — ce qu'il ne peut pas voir
+
+`01-scan` parcourt le **contenu réel**. Trois angles morts en découlent, chacun avec
+son contre-mesure (détail dans `01-scan.md`) :
+
+| Angle mort | Pourquoi | Contre-mesure |
+|---|---|---|
+| CSS porté sans son markup | aucune classe en base → rien à signaler | Step 6, `orphan-selectors.mjs` |
+| Branche SSR jamais activée | aucune donnée ne la rend → jamais capturée | Step 7, lecture croisée référence ↔ SSR |
+| Template hors périmètre mesuré | `single*`/`archive*`/`404` n'ont pas de page de maquette | énumération des templates, `design-bridge/references/workflow-fse.md` |
+
 ## Gate de sortie
 
-`GAPS: 0` sur `01-scan`, plus les linters DS du projet à 0 erreur
+`GAPS: 0` sur `01-scan` **et** `ORPHANS: 0` sur le scan inverse (ou chaque orpheline
+tranchée : markup à écrire, ou CSS supprimé), plus les linters DS du projet à 0 erreur
 (`patterns-lint`, `ds-lint`, `ds-lint:db`) et `do_blocks` sans fatal.
+
+Aucun gap ne sort de ce skill sous forme de ligne de rapport : tout gap non fermé
+devient un ticket (`01-scan.md § Step 5`, règle des deux occurrences).

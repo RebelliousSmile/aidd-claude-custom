@@ -1,4 +1,4 @@
-# Action 01 — scan
+# Scan
 
 Detect legacy JS/TS patterns, version gaps, and deprecated APIs. Emit a structured manifest for `02-migrate`.
 

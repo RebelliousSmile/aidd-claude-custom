@@ -1,4 +1,4 @@
-# Action 02 — plan
+# Plan
 
 ## Rôle
 

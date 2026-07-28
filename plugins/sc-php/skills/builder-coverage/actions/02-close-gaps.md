@@ -1,4 +1,4 @@
-# Action 02 — close-gaps
+# Close-gaps
 
 Amener `GAPS` à 0 en créant (ou étendant) une pattern éditable pour chaque
 composant non couvert remonté par `01-scan`.

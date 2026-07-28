@@ -1,4 +1,4 @@
-# Action 01 — scan
+# Scan
 
 > **OUTPUT FORMAT — enforced before any processing:**
 > The output of this action MUST use the exact plain-text format defined in the [Output](#output) section below.

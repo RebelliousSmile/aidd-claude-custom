@@ -1,4 +1,4 @@
-# Action 03 — clean
+# Clean
 
 Migration action for projects that installed capability rules via sc-js 0.3.0. Removes orphaned `.claude/rules/capabilities/*` files that are no longer installed or updated by sc-js 0.4.0.
 

@@ -1,4 +1,4 @@
-# 02 - Process Chunk
+# Process Chunk
 
 Sessions 2-N: extract the text of a PDF chunk, classify the content into `classified/*.md`.
 

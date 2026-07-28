@@ -1,4 +1,4 @@
-# 03 - Propose
+# Propose
 
 Group decisions into thematic batches, present them to the user, and wait for batch-by-batch validation.
 

@@ -1,4 +1,4 @@
-# 03-lint-instances
+# Lint-instances
 
 Track: fichiers source (lint direct) · Track: contenu stocké (extraire, linter, réécrire).
 Les deux sections `## Track: …` sont indépendantes : un projet dont tout le markup est versionné

@@ -1,4 +1,4 @@
-# Action 09 — mirror
+# Mirror
 
 Reçoit une image montrant deux navigateurs côte à côte (référence vs implémentation courante), identifie toutes les différences de texte et de style, puis les corrige en s'appuyant sur `design:copycat`.
 

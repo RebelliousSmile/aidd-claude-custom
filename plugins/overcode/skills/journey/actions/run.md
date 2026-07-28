@@ -1,4 +1,4 @@
-# 01 - Run
+# Run
 
 Parse a GitHub or GitLab issue, find the matching plan, generate a Playwright test file, run it, update the journey report row by row, post Summary and Conclusion to the issue.
 
