@@ -5,5 +5,11 @@
   { "prompt": "nettoie les fichiers vides dans /Notes/drafts", "expect_action": "clean" },
   { "prompt": "fais un digest de /Pro/Projets/smartlockers/2026/06", "expect_action": "digest" },
   { "prompt": "trie les fichiers de /Notes/inbox", "expect_action": "sort" },
-  { "prompt": "fais un digest des messages de Julie dans /Pro/Clients/acme/2026/06", "expect_action": "digest" }
+  { "prompt": "fais un digest des messages de Julie dans /Pro/Clients/acme/2026/06", "expect_action": "digest" },
+  { "prompt": "crée un MOC pour /Notes/veille avec les wikilinks groupés par thème", "expect_action": "index" },
+  { "prompt": "build an index of the files in /Pro/Clients/acme", "expect_action": "index" },
+  { "prompt": "ce compte-rendu fait 4000 mots pour trois idées, allège-le", "expect_action": "condense" },
+  { "prompt": "distille /Notes/drafts/reunion-2026-06.md en gardant le code", "expect_action": "condense" },
+  { "prompt": "transforme ces échanges avec la banque en une note d'information", "expect_action": "synthesize" },
+  { "prompt": "extract the information from the acme thread into one document", "expect_action": "synthesize" }
 ]

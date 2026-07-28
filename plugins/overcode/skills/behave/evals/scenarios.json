@@ -9,6 +9,8 @@
   { "prompt": "regress all suites in plugins/obs/skills/solo-mc/evals after the fix", "expect_action": "regress" },
   { "prompt": "/behave regress play-scenarios.md monsterhearts", "expect_action": "regress" },
   { "prompt": "re-run the behavioural suites to confirm no regression", "expect_action": "regress" },
+  { "prompt": "est-ce que authority-scenarios.md couvre vraiment la skill control", "expect_action": "review" },
+  { "prompt": "audit this suite — are these scenarios well written", "expect_action": "review" },
   { "prompt": "run the unit tests with vitest", "expect_action": null },
   { "prompt": "review this code against our style guide", "expect_action": null },
   { "prompt": "implement the login feature", "expect_action": null }

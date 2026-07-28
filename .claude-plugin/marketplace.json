@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "overcode",
-      "version": "3.11.0",
+      "version": "3.11.1",
       "source": "./plugins/overcode",
       "description": "Extends the AIDD framework with project-agnostic workflows: memory maintenance (harvest, reconcile-normative), obsolescence detection (taste), prospective analysis (foresee), behavioural-test harness for prompts (behave), test-suite governance by density and declared phase (control, user-invoked only), performance audits (data-optimize, web-optimize, ap-optimize), SEO/GEO audits (seo-optimize), project health reporting (status), plain-language explanations (baby), documentation (readme, changelog), and planning utilities (decompose, journey). Stack knowledge is never hardcoded: audits load pivots dropped by the sc-* plugins under .claude/rules/07-quality/. Alias chains: rechallenge, endtask, bump-plugin, previously, smarten, skillconf, weeklyemail, gitit, mirror, codex-vision.",
       "recommended": true
@@ -79,7 +79,7 @@
     },
     {
       "name": "obs",
-      "version": "0.37.1",
+      "version": "0.37.2",
       "source": "./plugins/obs",
       "description": "Personal Obsidian notes management — project lifecycle, sessions, meetings, invoices, RAG export; email triage; the Documents/ organiser tree (cache-based: index, check, fix, sort, judge, destinations); filler skill (survey, sort, digest, index, merge, clean, condense, synthesize); research (documentary research and terminology extraction); extract-pdf (raw source ingestion).",
       "recommended": false

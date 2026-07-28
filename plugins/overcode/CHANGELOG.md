@@ -2,6 +2,12 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/overcode plugins/aidd-overlay` (le plugin s'appelait `aidd-overlay` avant la 3.0.0).
 
+## [3.11.1] — 2026-07-28
+
+### Added — `behave`
+
+- **Scénarios de routage pour `review`** — la quatrième action de `behave` avait un déclencheur explicite dans son `## Default flow` et aucun scénario le ciblant. Deux scénarios ajoutés, comme pour les trois autres actions.
+
 ## [3.11.0] — 2026-07-28
 
 ### Changed — `control`

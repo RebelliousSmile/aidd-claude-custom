@@ -16,5 +16,7 @@
   { "prompt": "index Pro/Projets/mon-saas avec _code et 2026/06", "expect_action": "index" },
   { "prompt": "classe ce fichier NOTES-juin.md dans le bon projet Pro", "expect_action": "sort" },
   { "prompt": "exporte ce répertoire en destinations.txt pour email-to-markdown", "expect_action": "destinations" },
-  { "prompt": "génère la routing map email depuis l'arbo Perso", "expect_action": "destinations" }
+  { "prompt": "génère la routing map email depuis l'arbo Perso", "expect_action": "destinations" },
+  { "prompt": "arbitre le contenu de R fichier par fichier, je décide au fur et à mesure", "expect_action": "judge" },
+  { "prompt": "nettoie R dans Pro/Projets/overcode, je veux garder ou supprimer à la main", "expect_action": "judge" }
 ]

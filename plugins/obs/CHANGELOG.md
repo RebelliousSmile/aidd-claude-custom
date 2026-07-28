@@ -2,6 +2,12 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/obs`.
 
+## [0.37.2] — 2026-07-28
+
+### Added
+
+- **Scénarios de routage pour six actions qui n'en avaient aucun** — `filler` (`index`, `condense`, `synthesize`), `project` (`distill`), `tree` (`judge`). Ces actions ont toujours eu un déclencheur explicite dans leur `SKILL.md` ; c'est le gate de couverture du marketplace qui ne savait pas lire la forme employée — table de dispatch pour `filler`, puce sans guillemets pour `project` et `tree` — et les comptait donc comme non routables. Dix scénarios ajoutés, deux par action.
+
 ## [0.37.1] — 2026-07-28
 
 ### Changed
