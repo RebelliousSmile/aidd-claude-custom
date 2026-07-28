@@ -1,0 +1,179 @@
+#!/usr/bin/env node
+// Cohérence des informations dupliquées — manifestes et numérotation des actions.
+//
+// Ce garde existe parce que `alias:bump-plugin` vérifie déjà les manifestes, mais
+// depuis l'intérieur du chemin discipliné : un bump fait à la main l'évite entièrement.
+// Il doit donc vivre sur un point de passage obligé (`pnpm test`, CI), jamais dans l'outil.
+//
+//   node tools/eval/consistency.mjs   → exit 0 si aucune incohérence
+//
+// Ce qui est vérifié :
+//   M1  plugin.json ↔ marketplace.json — version et description identiques
+//   M2  toute entrée de marketplace.json a un dossier plugin
+//   M3  index.json — mêmes plugins, et aucun champ `version`/`description`
+//       (aucun lecteur ne s'en sert ; les rétablir ferait revenir la dérive)
+//   A1  toute ligne de table d'un SKILL.md résout vers un fichier d'action
+//   A2  tout fichier d'action figure dans la table de son SKILL.md
+//   A3  aucun préfixe numérique n'est porté par deux fichiers (les trous sont tolérés)
+//   A4  aucun titre H1 d'action ne porte son numéro (le nom de fichier le porte)
+
+import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+const findings = [];
+const fail = (code, msg) => findings.push({ code, msg });
+const readJson = (p) => JSON.parse(readFileSync(join(ROOT, p), 'utf8'));
+const dirs = (p) => existsSync(join(ROOT, p))
+  ? readdirSync(join(ROOT, p)).filter((n) => statSync(join(ROOT, p, n)).isDirectory())
+  : [];
+
+// ─── Manifestes ────────────────────────────────────────────────────────────────
+
+const marketplace = readJson('.claude-plugin/marketplace.json');
+const index = readJson('index.json');
+const byName = new Map(marketplace.plugins.map((p) => [p.name, p]));
+const plugins = dirs('plugins').filter((n) => existsSync(join(ROOT, 'plugins', n, '.claude-plugin/plugin.json')));
+
+for (const name of plugins) {
+  const manifest = readJson(`plugins/${name}/.claude-plugin/plugin.json`);
+  const entry = byName.get(name);
+  if (!entry) { fail('M1', `${name} — absent de marketplace.json`); continue; }
+  if (entry.version !== manifest.version)
+    fail('M1', `${name} — version : plugin.json ${manifest.version} ≠ marketplace.json ${entry.version}`);
+  if (entry.description !== manifest.description)
+    fail('M1', `${name} — description : plugin.json et marketplace.json divergent`);
+}
+
+for (const entry of marketplace.plugins)
+  if (!plugins.includes(entry.name)) fail('M2', `${entry.name} — déclaré dans marketplace.json, sans dossier plugin`);
+
+const indexed = new Set(index.plugins.map((p) => p.id));
+for (const name of plugins) if (!indexed.has(name)) fail('M3', `${name} — absent d'index.json`);
+for (const p of index.plugins) {
+  if (!plugins.includes(p.id)) fail('M3', `${p.id} — déclaré dans index.json, sans dossier plugin`);
+  for (const key of ['version', 'description'])
+    if (key in p) fail('M3', `${p.id} — index.json porte un champ \`${key}\` : aucun lecteur ne s'en sert, il dérive en silence`);
+}
+
+// ─── Actions ───────────────────────────────────────────────────────────────────
+
+// Une skill numérote son ordre dans la table de SKILL.md et, la plupart du temps,
+// dans le nom du fichier. Les deux conventions coexistent volontairement :
+//   `alias`  → table `| 01 | rechallenge |` + fichier `01-rechallenge.md`
+//   `status` → table `| 01 | memory |`      + fichier `memory.md`
+// La correspondance se lit donc toujours depuis la table, jamais entre fichiers.
+// Un SKILL.md contient souvent plusieurs tables numérotées de la même forme
+// (`sc-css/audit` en a une de *dimensions*), donc seule compte celle dont l'en-tête
+// déclare une colonne `Action`. Et la cellule nomme l'action tantôt nue (`scan`),
+// tantôt avec son préfixe (`01-scan`) : les deux se lisent, le nom nu fait foi.
+const TABLE_HEAD = /^\|\s*#\s*\|\s*Actions?\s*\|/i;
+const TABLE_ROW = /^\|\s*`?(\d{2})`?\s*\|\s*`([^`]+)`/;
+const ACTION_FILE = /^(?:(\d{2})-)?(.+)\.md$/;
+const bare = (name) => name.replace(/^\d{2}-/, '');
+
+function actionRows(skillMd) {
+  if (!existsSync(skillMd)) return [];
+  const rows = [];
+  let inside = false;
+  for (const line of readFileSync(skillMd, 'utf8').split('\n')) {
+    if (TABLE_HEAD.test(line)) { inside = true; continue; }
+    if (!inside) continue;
+    if (!line.startsWith('|')) { inside = false; continue; }
+    const m = line.match(TABLE_ROW);
+    if (m) rows.push({ num: Number(m[1]), name: bare(m[2]) });
+  }
+  return rows;
+}
+
+/**
+ * Politique de numérotation : un numéro **identifie**, il n'ordonne pas.
+ *
+ * Le doublon est une erreur — deux fichiers portant `06` rendent toute référence
+ * ambiguë. Le trou est toléré : l'interdire rendrait bloquante la cascade de
+ * renommages qui suit chaque suppression d'action, or c'est cette cascade non
+ * faite qui a produit le trou d'`alias` en 3.1.1. Le strict n'aurait pas empêché
+ * la dette, il l'aurait déplacée dans la CI.
+ *
+ * @param {number[]} numbers  préfixes trouvés sur disque, triés, ex. [1,2,3,5]
+ * @param {string}   skill    chemin lisible, ex. `overcode/skills/alias`
+ * @returns {{code: string, msg: string}[]}  vide si la suite est acceptable
+ */
+function numberingPolicy(numbers, skill) {
+  const seen = new Set(), duplicates = new Set();
+  for (const n of numbers) (seen.has(n) ? duplicates : seen).add(n);
+  return [...duplicates].sort((a, b) => a - b).map((n) => ({
+    code: 'A3',
+    msg: `${skill} — le numéro ${String(n).padStart(2, '0')} est porté par plusieurs fichiers : toute référence à cette action est ambiguë`,
+  }));
+}
+
+/**
+ * Le titre H1 d'une action ne doit pas porter son numéro — le nom de fichier
+ * et la table de SKILL.md le portent déjà, et un numéro écrit à trois endroits
+ * ne se corrige qu'à un seul le jour d'un renommage.
+ *
+ * Trois formes coexistent aujourd'hui, dont deux à rejeter :
+ *   `# Action 03 — bump-plugin`   (69 fichiers)  ✗
+ *   `# 01-arbitrate` / `# 01 - intake`  (97)     ✗
+ *   `# Scaffold` / `# Analyze-doc`      (12)     ✓
+ *
+ * Le rejet vise le *préfixe*, pas le chiffre : `Action` suivi d'un nombre est
+ * toujours refusé, et un nombre en tête ne l'est que s'il est suivi d'une
+ * ponctuation de séparation. Un titre qui commencerait par un nombre suivi d'un
+ * simple espace (`# 3 raisons de…`) reste donc accepté — il n'en existe aucun
+ * aujourd'hui, mais le rejeter demanderait de deviner l'intention, et un gate
+ * qui devine produit des faux positifs que personne ne sait corriger.
+ *
+ * @param {string} h1  première ligne du fichier, déjà trimmée, ex. `# 01 - intake`
+ * @returns {boolean}  true si le titre est acceptable en l'état
+ */
+const NUMBERED_TITLE = /^#\s+(?:actions?\s+\d+|\d{1,3}\s*[-–—.:)]\s*\S)/i;
+const titleIsClean = (h1) => !NUMBERED_TITLE.test(h1);
+
+for (const plugin of plugins) {
+  for (const skill of dirs(`plugins/${plugin}/skills`)) {
+    const base = `plugins/${plugin}/skills/${skill}`;
+    const label = `${plugin}/skills/${skill}`;
+    const actionsDir = join(ROOT, base, 'actions');
+    if (!existsSync(actionsDir)) continue;
+
+    const files = readdirSync(actionsDir).filter((n) => n.endsWith('.md'));
+    const byAction = new Map();
+    for (const f of files) {
+      const [, num, name] = f.match(ACTION_FILE);
+      byAction.set(name, { file: f, num: num ? Number(num) : null });
+    }
+
+    const rows = actionRows(join(ROOT, base, 'SKILL.md'));
+
+    const declared = new Set();
+    for (const { num, name } of rows) {
+      declared.add(name);
+      const action = byAction.get(name);
+      if (!action) { fail('A1', `${label} — table : \`${name}\` (${num}) ne résout vers aucun fichier`); continue; }
+      if (action.num !== null && action.num !== num)
+        fail('A1', `${label} — \`${name}\` : table ${String(num).padStart(2, '0')}, fichier ${action.file}`);
+    }
+    for (const [name, { file }] of byAction)
+      if (rows.length && !declared.has(name)) fail('A2', `${label} — ${file} absent de la table de SKILL.md`);
+
+    const numbers = [...byAction.values()].map((a) => a.num).filter((n) => n !== null).sort((a, b) => a - b);
+    for (const f of numberingPolicy(numbers, label)) fail(f.code, f.msg);
+
+    for (const { file } of byAction.values()) {
+      const h1 = readFileSync(join(actionsDir, file), 'utf8').split('\n')[0].trim();
+      if (!titleIsClean(h1))
+        fail('A4', `${label}/${file} — le titre porte son numéro : « ${h1} »`);
+    }
+  }
+}
+
+// ─── Verdict ───────────────────────────────────────────────────────────────────
+
+for (const { code, msg } of findings) console.log(`✗ [${code}] ${msg}`);
+console.log(findings.length
+  ? `\n✗ consistency — ${findings.length} incohérence(s)`
+  : `✓ consistency — ${plugins.length} plugins, manifestes et actions cohérents`);
+process.exit(findings.length ? 1 : 0);

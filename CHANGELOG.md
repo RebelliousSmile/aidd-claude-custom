@@ -4,6 +4,24 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [3.5.0] - 2026-07-28
+
+L'outillage de test entre dans le dépôt. La 3.4.0 acte que `tools/`, `package.json` et `.github/` sont gitignorés « par choix » ; ce choix s'est retourné le jour où le gate a été réparé.
+
+### Changed
+
+- **`tools/`, `package.json` et `.github/workflows/test.yml` sont versionnés.** `.gitignore` ne retient plus que `__pycache__/`. Un gate hors dépôt n'a d'autorité que sur le poste qui le porte : `coverage.mjs` a été corrigé en profondeur ce jour, et cette correction n'existait sur aucun autre clone — un `git clone` frais serait reparti de la version qui ne savait lire qu'une forme de routage sur six. Le raisonnement d'origine (« tests hors dépôt ») traitait l'outillage comme un accessoire personnel ; il est en réalité la seule chose qui vérifie que les onze plugins restent cohérents entre eux, ce qui est une propriété du dépôt, pas du poste.
+- **La CI s'exécute.** `.github/workflows/test.yml` existait, écrit et complet, sans jamais avoir tourné. Quatre étapes `node` sur chaque push et chaque PR : `consistency`, `harness`, `coverage`, `selftest`. La 3.4.0 avait rendu l'étape de vérification d'`alias:bump-plugin` conditionnelle (« si la marketplace fournit un gate, préférer son verdict ; sinon relire les deux manifestes ») au motif qu'il n'y avait pas de CI — cette formulation reste la bonne et n'est pas reprise : l'action est distribuée avec le plugin, donc vers des dépôts où le gate n'existe pas.
+
+### Added
+
+- **`tools/eval/` — 79 fichiers, 220 Ko de texte.** Quatre scripts sans dépendance (`consistency`, `harness`, `coverage`, `selftest`), leur `README`, les fixtures valides (5 projets) et invalides (2 cas de rejet) dont `selftest` se sert pour vérifier que `harness` n'est pas devenu permissif, et le matériel d'éval comportemental (`behavioral/`).
+
+### Fixed
+
+- **`tools/eval/coverage.mjs` — le détecteur d'actions routables ne modélisait qu'une forme de routage sur les six que le dépôt emploie.** Il ne reconnaissait qu'une phrase entre guillemets suivie d'une flèche, et lisait table de dispatch, puce de dispatch, colonne « Déclencheur », chaîne séquentielle et action unique déclarée comme « aucune action routable » — 30 skills classées non vérifiables, dont six qui cachaient un vrai trou de couverture. La règle qui débloque les deux dernières formes d'un coup : sur une ligne contenant une flèche, compter les identifiants qui résolvent vers une action déclarée — un seul est un dispatch, deux ou plus sont un pipeline dont seule la tête est routable. S'y ajoute la normalisation du préfixe (`01-scan` ≡ `scan`), la 3.4.0 ayant retiré le numéro des titres sans le retirer de toutes les cellules de table. Résultat : 30 non vérifiables → 7 (des skills sans table d'actions, où le détecteur ne peut légitimement rien établir), 3 problèmes → 0. Imposer une forme unique aurait signifié réécrire trente `SKILL.md` pour satisfaire un linter ; c'est l'outil qui a appris le dépôt.
+- **Le verdict des skills sans suite de routage est compté, pas sanctionné** (`○`). Corriger le détecteur rend ce cas atteignable pour onze skills qui n'ont jamais eu de `scenarios.json` ; les traiter toutes en échec est littéralement vrai et pratiquement inutile — les régressions réelles disparaîtraient dans le bruit. Le compteur existe pour que la dette reste visible : s'il cesse de décroître, c'est la politique qu'il faut durcir, pas le compteur qu'il faut masquer.
+
 ## [3.4.0] - 2026-07-27
 
 Trois défauts partageaient une forme : une information recopiée à N endroits, sans autorité déclarée entre les copies et sans rien qui les compare. Le correctif suit le même ordre partout — d'abord un vérificateur, ensuite les suppressions qu'il rend sûres.
