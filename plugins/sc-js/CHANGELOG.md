@@ -1,5 +1,16 @@
 # Changelog — sc-js
 
+## [0.14.0] — 2026-07-30
+
+### Changed — le pivot `testing` cesse de nommer son consommateur
+
+Livré dans le même commit que `overcode` 4.0.0 : le contrat de pivot est une interface publique (DEC-004 §5), et une interface ne peut pas diverger de sa seule implémentation le temps d'une version.
+
+- **`## Tier thresholds` devient `## Anchor boundary`** (`sniff/references/capabilities/tools/testing.md`). Le champ était mal nommé : il ne fixe aucun seuil et n'attribue aucun tier — il dit où passe, dans cette stack, la frontière entre une preuve **ancrée** (qui traverse la frontière publique réelle du produit) et une preuve **interne** (qui reste en processus). Le contenu est conservé tel quel. DEC-007 lui retire l'autorité de classement que DEC-004 §4 lui donnait, et la nouvelle borne est explicite : ce champ raffine la **position** de la frontière, jamais la preuve exigée.
+- **Onze mentions du consommateur retirées, et il n'en reste aucune** — huit occurrences de `strengthen`, une de `configure`, une d'`overcode:control` (le préambule du fichier), une de `phase-framework.md` (le renvoi d'arbitrage en fin de section *External contract dependency*). Le décompte annoncé d'abord ici était **huit**, sur les seules occurrences de nom d'action ; il ratait le préambule et le renvoi, c'est-à-dire les deux endroits où le fichier nommait son lecteur en toutes lettres plutôt qu'à travers une de ses actions. Le compte exact est vérifié contre le dernier commit, pas reconstitué de mémoire. C'est la règle transversale du modèle : *le pivot déclare ce qu'il fournit, jamais qui le consomme*. Un champ qui nomme son consommateur s'attribue un droit d'usage exclusif que le contrat ne lui donne pas, et empêche mécaniquement toute autre skill de lire un fait vrai de la stack. Les faits n'ont pas bougé d'un mot : `--coverage.reportOnFailure` reste non optionnel, `covered`/`total` reste ce qui se lit à la place de `pct` seul, un fichier du glob absent du rapport reste **non couvert et pas inexistant**. Seule la phrase qui désignait le lecteur a disparu.
+- **`README.md` § *Pivot de gouvernance `testing`* aligné sur le fichier qu'il décrit.** Il annonçait des « seuils de tier » — un champ qui n'existe plus sous ce nom — et présentait `overcode:control` comme le destinataire du pivot. Il décrit désormais ce que le pivot expose et par quel glob il est découvrable, et mentionne `control` pour ce qu'il est : le seul lecteur **à ce jour**, un fait d'écosystème que le README a le droit de constater et que le pivot, lui, n'a pas le droit de savoir. La distinction n'est pas cosmétique : c'est le fichier de données qui doit rester lisible par n'importe qui, pas la documentation d'architecture qui doit taire son terrain.
+- **Un signal de mauvais câblage n'est plus adressé à une action nommée.** La coexistence de `vitest` et `jest` en devDependencies était « à remonter côté action `configure` » ; elle est désormais « un signal de mauvais câblage d'outillage à remonter ». Ce qui est détecté est une propriété du projet, pas une commande à passer à quelqu'un.
+
 ## [0.13.2] — 2026-07-28
 
 ### Changed

@@ -2,11 +2,11 @@
 
 A test suite does not prove the same thing at every moment of a product's life. The same uncovered function is a foundation worth securing while the domain model still moves, and an acceptable gap once the model is frozen and nobody is using the product yet. This reference gives `control` the missing dimension: **when in the product's life** the arbitration is happening.
 
-**The phase prioritises; it never classifies a tier.** Same boundary as the pivot's *Risk signals*. A test is refused on a tier criterion, never "because we are in production". Tier authority stays with the loaded tier table (the project's own documented strategy, else `decision-framework.md`).
+**The phase classifies, second and never alone.** Domains resolve first and set a level; the phase reads that level into a `phase x domain-level` cell (`references/decision-matrix.md`), and the cell states a required proof and a ceiling. The tier (`contract` / `e2e` / `skip`) is that cell's output name, not a decision the phase takes on its own reasoning - a test is never refused "because we are in production" outside the cell that names the requirement. Density and the pivot's *Risk signals* keep the older boundary: they prioritise and report, never classify - the phase is the one exception, having become the classifying authority in series with domains.
 
 What the phase does govern is the **analysis strategy**, and it is **four things, not three**: which criteria weigh heavily right now, **which files enter the reading of the coverage report**, in which order the result is restituted, and — **at a phase switch only** — the qualification of a batch of tests as now obsolete (`## Net balance by phase`, and `06-align` step 10).
 
-It never sets a numeric threshold either. A per-phase coverage threshold would turn the percentage into a target and break the rule that coverage is a symptom, never a goal.
+It fixes a **ceiling now, never a threshold**. A per-phase coverage *percentage* threshold would still turn the number into a target and still break the rule that coverage is a symptom, never a goal - that prohibition is unconditional and holds whichever phase is in force. What the `phase x domain-level` cell fixes instead is a ceiling on required proof: a fixed count a case cannot be pushed past. A floor degenerates into a target the moment it is displayed - something to sit just above; a ceiling cannot, it can only be met or exceeded. The two are not interchangeable, and this reference names both so neither is mistaken for the other.
 
 ### Bounding by saying so
 
@@ -56,10 +56,19 @@ Four of them sit on one axis: growing exposure, then sedimentation. Each boundar
 
 **Yes.** The project wants to use the actions without any ranking bias and without any removal batch, and it wants that on the record rather than re-litigated at every run.
 
-- What the suite must prove: whatever the tier table says, nothing more. No criterion is raised, none is lowered.
+- What the suite must prove: whatever the resolved `phase x domain-level` cell requires, nothing more (`@decision-matrix.md`). No required proof is raised, none is lowered.
 - What it assumes it does not cover: nothing in particular. `default` expresses no expectation about the suite, which is precisely its point.
 
-`default` is **declared**, exactly like the four positional phases. Its effects are entirely subtractive: neutral criteria weighting, **no expected axis order**, **no removal batch**, and **exclusion from the phase-switch machinery of `06-align`** — a project moving to or from `default` is not switching phase in the sense that qualifies tests as obsolete, because `default` raises and lowers nothing that a test could have been justified by.
+`default` is **declared**, exactly like the four positional phases. Its effects are entirely subtractive: neutral criteria weighting, **no expected axis order**, and **no removal batch** — because `default` raises and lowers nothing that a test could have been justified by, so nothing it wrote can have become obsolete.
+
+**What it is exempt from is the removal side, not the switch itself, and the two directions differ** (`@../actions/06-align.md`, step 10, which states the rule in full and is the authority for it):
+
+| Movement | Outgoing batch | Incoming ranking |
+|---|---|---|
+| **to** `default` | none — a declaration, net balance zero | none |
+| **from** `default` to a real phase | **empty set** — nothing was written under a bias that could now be obsolete | **the entering phase's**, through `04-strengthen` |
+
+Saying that a project moving *from* `default` is not switching would withhold the entering phase's incoming ranking — the one thing declaring a real phase is for.
 
 ### `undetermined`
 
@@ -73,7 +82,7 @@ Not a fallback dressed up as a value: a first-class answer. It means the questio
 | The question is asked again | never | at every run |
 | `05-stats` routes to `06-align` for it | no, **once declared** | yes |
 | Removal batch | none, by definition | whatever the real phase says, once known |
-| Phase switch applies | no | yes, as soon as a phase is declared |
+| Phase switch applies | no removal batch, in either direction; the **incoming** ranking does apply on leaving it | yes, as soon as a phase is declared |
 
 The distinction is worth the extra value because the two states call for opposite handling: one is settled, the other is an open question that every run must keep surfacing.
 
@@ -127,7 +136,7 @@ Present what is relevant, then ask the question these observations do not settle
 
 ## Risk criteria weighting
 
-The phase re-weights the risk criteria `04-strengthen` already ranks by. It adds no ranking mechanism of its own, and changes no tier.
+The phase re-weights the risk criteria `04-strengthen` already ranks by. It adds no ranking mechanism of its own. What it does change is the **output name**, and only through the matrix cell it reads: the required proof of the resolved `phase x domain-level` cell (`@decision-matrix.md`) is what `proposed_tier` names. A re-weighting alone never moves a name; a cell does.
 
 | Criterion | `scaffolding` | `hardening` | `production` | `sustaining` |
 |---|---|---|---|---|
@@ -172,7 +181,7 @@ Without a cap, ten integrations produce twenty tests in a skill whose entire pur
 `control` reads a suite along two axes, and compares their **order**, never their share.
 
 - **Foundations** — model invariants, validation, shared transformations. The structural axis.
-- **The project's declared domains** — the functional axis, defined below. When the project has declared none, **critical journeys** stands in as a generic fallback: client-facing acts, irreversible operations, external boundaries.
+- **The project's declared domains** — the functional axis, defined below. When the project has declared none, its code reads in the **out-of-domain** column — a column the matrix already has, read exactly like the other three, never a fallback carrying a substitute inventory of its own.
 
 A third bucket, *recent code*, used to sit here. It is gone: what it described — test what the last commits touched — is the **churn** criterion, which already exists in the risk ranking. The same thing does not need two names and two weightings, and the phase list already refuses "development" as a phase for exactly this reason.
 
@@ -189,7 +198,7 @@ Expected priority order by phase:
 
 Under `default` and `undetermined` there is nothing to compare against, and `05-stats` **says so** rather than emitting an empty comparison — an absent expectation printed as a blank row reads like a perfect match, which is the opposite of the truth.
 
-**No percentage is ever produced.** The phase brings an expected ordering, not a ceiling and not a share; `05-stats` compares ranks.
+**No percentage is ever produced.** What this section brings is an expected **ordering**, never a share; `05-stats` compares ranks. The ceiling is a different thing and it exists elsewhere - the matrix cell states it as a count of established proofs (`@decision-matrix.md`), not as a proportion of anything. An ordering is not a ceiling, and neither is a percentage.
 
 Placing an existing test on the **foundations** axis remains an approximation (tier + role of the source file it exercises), and the approximation is **declared** in the output alongside the comparison, so nobody reads it as a measurement. Placing it in a **declared domain** is not an approximation: a file either matches the domain's resolution or it does not, and what matches nothing is reported rather than silently dropped.
 
@@ -197,14 +206,18 @@ Placing an existing test on the **foundations** axis remains an approximation (t
 
 A domain is a functional part of the product — `auth`, `payment`, `checkout` — resolved in the code by terms: `Login`, `Register`, `SessionGuard`.
 
-Domains depend on the project's core features, and **none of them is universal**: a library, a CLI tool, a game have neither authentication nor payment. This skill therefore proposes no default domain, and the generic level of the precedence cascade is **empty** for them. A project that declares nothing keeps the `critical journeys` fallback and loses nothing it had.
+Domains depend on the project's core features, and **none of them is universal**: a library, a CLI tool, a game have neither authentication nor payment. This skill therefore proposes no default domain, and the generic level of the precedence cascade is **empty** for them. A project that declares nothing runs in the **out-of-domain** column of the matrix - a column read exactly like the other three, never a fallback carrying a substitute inventory of its own.
+
+### Why no domain is a default
+
+A phase is a universal axis: every project, whatever it does, sits somewhere between a moving model and a settled one, so a generic value (`default`, `undetermined`) can stand in for any project that has not said which yet. A domain is not a universal axis: whether a project has an `auth` domain or a `payment` domain at all is a fact about what it *does*, not about where it stands in its life, and a library, a CLI tool or a game can have neither without that saying anything about their age or health. A default domain would not neutrally wait for an answer the way `default` does for the phase - it would assert a feature the project may not have, which is a false positive of the exact kind this skill spends its whole domain model avoiding. That is why `references/domain-catalogue.md` offers **candidates**, never a default: a candidate is confirmed or dismissed by the project - a default would already have decided.
 
 ### Who declares what
 
 | Knowledge | Holder | Why |
 |---|---|---|
 | **which** domains exist | the project, in its own test strategy document | nobody else can know |
-| **how** to spot them in this stack | the language plugin's `testing` pivot | it is stack convention, and it goes stale fast |
+| **how** to spot them in this stack | the language plugin's `testing` pivot, in its **Domain resolution** field | it is stack convention, and it goes stale fast |
 
 Split this way the two cannot contradict each other, so no arbitration rule is needed. The pivot **completes** a domain the project named without resolving; it never overrides a resolution the project wrote explicitly about its own code — the project is talking about the code that exists, the pivot about a convention in general.
 
@@ -226,7 +239,7 @@ That trace pays for itself twice — at runtime it hides nothing, and it is what
 - `production` — the balance shifts rather than grows: what the earlier phases justified gives way to what the client journeys demand.
 - `sustaining` — a negative balance is expected, never required.
 - `default`, `undetermined` — **no expected lean.** Neither weighting deprioritises anything, so neither qualifies a test as obsolete *while it is in force*. What happens on the way out is where the two part company:
-  - `default` — **no removal batch at all**, and the phase switch does not apply to it. Not because the machinery cannot run, but because a project that has just declared `default` has taken a decision: qualifying tests obsolete on the spot would contradict it (`### default et undetermined`).
+  - `default` — **no removal batch, in either direction.** Not because the machinery cannot run, but because a project that has just declared `default` has taken a decision: qualifying tests obsolete on the spot would contradict it. What is exempt is the **outgoing batch alone, never the switch itself**: moving out of `default` into a real phase runs that phase's incoming ranking in full, with an empty outgoing set — nothing was written under a bias that could now be obsolete. Saying the switch does not apply would exempt the incoming half too, and a project leaving `default` would receive no proposal at all (`06-align`, step 10, the `default` bullet, states both halves).
   - `undetermined` — **the removal batch depends on the real phase, once it is known.** Nothing has been decided, so nothing is being contradicted: the moment a phase is declared, the switch applies as it would between any two phases, and the batch is established against the phase declared. Reporting an empty batch here because the previous value was neutral would exempt from re-examination the one suite nobody ever weighted.
 
 **`sustaining` carries the one exception to its own negative balance:** external boundaries remain the only legitimate motive for addition in this phase, and are excluded from any removal batch. It is the phase where nothing internal moves any more while external contracts keep moving — removing their only net at that exact moment would be the worst possible timing.

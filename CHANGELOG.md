@@ -4,6 +4,41 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [3.6.0] - 2026-07-30
+
+`overcode` 3.12.1 → 4.0.0 · `sc-js` 0.13.2 → 0.14.0. Part 3 sur 3 de la refonte de `control` : la skill reçoit le modèle posé en 3.5.1. L'écart déclaré alors, et reconduit en 3.5.2, se referme.
+
+**La page d'autorité a elle aussi été amendée dans cette part** — trois règles que la skill portait seule y sont descendues, trouvées par la passe de cohérence jouée dans le sens skill → page. Le détail est dans le `CHANGELOG` d'`overcode`. Et comme les 3.5.1 et 3.5.2, les deux versions intermédiaires d'`overcode` n'ont jamais été publiées séparément : le dernier commit porte la marketplace 3.5.0, les trois parts ont été menées d'un seul tenant, et leurs entrées atterrissent ensemble. Ces numéros datent une étape, pas un état installable.
+
+### Changed
+
+- **Le renommage de champ de pivot atterrit des deux côtés dans le même commit.** `## Tier thresholds` → `## Anchor boundary` : `overcode` porte le contrat (`skills/control/references/pivot-contract.md`), `sc-js` porte l'unique implémentation (`skills/sniff/references/capabilities/tools/testing.md`). C'est ce qui rend `overcode` majeur, et c'est la seule raison pour laquelle un changement transverse a été annoncé deux versions à l'avance plutôt que fait sur place : un contrat et son implémentation ne peuvent pas diverger le temps d'une version, mais les consommateurs tiers, eux, avaient besoin du préavis. Le champ était mal nommé, pas inutile — son contenu est conservé, et sa borne d'autorité est écrite pour la première fois.
+- **La seconde règle transversale du modèle s'applique au voisin.** *Le pivot déclare ce qu'il fournit, jamais qui le consomme.* **Onze** mentions de `control` et de ses actions ont été retirées du pivot `testing` de `sc-js` — le compte publié d'abord était de huit, sur les seules occurrences de nom d'action, et il ratait les deux endroits où le fichier nommait son lecteur en toutes lettres. La règle est inter-plugins par nature : un champ qui nomme son consommateur empêche mécaniquement toute autre skill de lire un fait vrai de la stack, et c'est le contrat de DEC-004 qui en souffre, pas la skill nommée.
+- **Le gate du dépôt reste vert et ne dit rien de la refonte.** `node tools/eval/consistency.mjs` passe — 71 skills, 0 problème. Il n'a jamais lu les `evals/*-scenarios.md` : un run `behave` est un jugement d'agent, pas une étape de CI. L'état des 149 scénarios de `control` est donc consigné dans les registres des suites et dans le CHANGELOG d'`overcode`, pas ici.
+- **Le run de confirmation a eu lieu, et il livre 0 FAIL sur les huit suites — mais pas un état entièrement vert.** 126 PASS · 0 FAIL · 24 N/A sur 150 cellules, zéro PASS→FAIL. **Six lignes sont pourtant passées de PASS à N/A**, toutes les six rendues injoignables par deux correctifs justes de la skill : une suite peut perdre son unique moyen d'atteindre la règle qu'elle garde sans qu'aucune ligne rougisse. Elles sont conservées comme dettes de suite (DEC-006), jamais comptées PASS. Le détail, et les 22 correctifs de cible posés après le rejeu, sont dans le CHANGELOG d'`overcode`.
+
+## [3.5.2] - 2026-07-28
+
+`overcode` 3.12.0 → 3.12.1. Part 2 sur 3 de la refonte de `control` : les huit suites `behave` qui décrivent le modèle publié en 3.5.1. La skill reste sur le modèle précédent — l'écart déclaré en 3.5.1 tient encore, et se referme en part 3.
+
+### Changed
+
+- **Les suites d'évaluation sont livrées rouges, et c'est l'ordre imposé par DEC-006.** Page → suites → skill. Une suite écrite après la skill ne teste que ce que la skill fait déjà ; écrite avant, elle est le seul artefact qui dise ce que la part 3 doit faire passer. Les `| FAIL |` consignés ne signalent donc aucune régression du plugin publié : ils mesurent la distance entre la page normative de la 3.5.1 et une skill qui ne l'a pas encore reçue. C'est aussi la raison pour laquelle cette version reste un correctif et non une mineure — rien de ce que `control` fait aujourd'hui ne change.
+- **Le gate du dépôt reste vert.** `node tools/eval/consistency.mjs` passe : les suites `behave` ne sont lues par aucun outil du dépôt, et un run `behave` est un jugement d'agent, pas une étape de CI. Un `| FAIL |` dans un `evals/*.md` ne peut donc pas casser la CI — ce qui est la raison même pour laquelle chaque FAIL doit nommer l'instruction fautive par fichier et section : le registre est la seule chose qui le rende vérifiable par un tiers.
+
+## [3.5.1] - 2026-07-28
+
+`overcode` 3.11.1 → 3.12.0. Refonte du modèle de `control` : la phase devient l'autorité classante. Part 1 sur 3 — cette version ne publie que la **page normative**, et l'ADR qui la fonde.
+
+### Added
+
+- **`aidd_docs/internal/decisions/007-phase-as-classifying-authority.md`**, statut `Accepted`. Le registre de décisions est un artefact du dépôt et non d'un plugin : DEC-007 amende DEC-004, dont la portée est inter-plugins (le contrat de pivot, consommé par `overcode` et fourni par les `sc-*`). Il conserve du §4 le principe — *le pivot priorise, il ne classe pas*, promu règle transversale — et retire à la table des tiers l'autorité de classement qu'il lui donnait. `004-cross-plugin-pivot-consumption.md` reçoit un en-tête d'amendement et rien d'autre : un ADR accepté ne se réécrit pas, sinon le motif de l'amendement perd l'état auquel il s'oppose.
+
+### Changed
+
+- **Le champ de pivot `Tier thresholds` sera renommé `Anchor boundary`.** C'est un changement de l'interface publique décrite par DEC-004 §5, donc un changement transverse : `overcode` le consomme, `sc-js` le fournit. La page de `control` l'anticipe dès cette version pour que le modèle qu'elle publie soit lisible ; `references/pivot-contract.md` et le pivot `sc-js` porteront le nouveau titre dans la part 3, dans le même commit — un contrat et son unique implémentation ne peuvent pas diverger le temps d'une version. Le contenu du champ est conservé tel quel : il était mal nommé, pas inutile.
+- **`skills/control/` reste sur le modèle précédent dans cette version, par construction.** DEC-006 impose l'ordre page → suites `behave` rouges → skill, au motif que `behave` teste des sorties et jamais la cohérence entre deux documents normatifs : commencer par la skill rendrait une incohérence page/référence indétectable. L'écart est donc déclaré, et la page fait foi tant qu'il dure. Il se referme en `overcode` 4.0.0, majeur à cause du renommage ci-dessus.
+
 ## [3.5.0] - 2026-07-28
 
 L'outillage de test revient dans le dépôt. Il en avait été sorti le 13 juin 2026 (« les tests ne sont pas versionnés »), et la 3.4.0 reconduisait ce choix ; il s'est retourné le jour où le gate a été réparé.
