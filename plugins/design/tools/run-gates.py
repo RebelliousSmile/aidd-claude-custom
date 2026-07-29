@@ -61,6 +61,26 @@ REALIZER = {
 }
 
 
+class GateError(Exception):
+    """A run that cannot go on, carrying the exit code it must produce.
+
+    The runner has one caller-visible contract: an exit code. Raising rather than threading
+    `int | None` through every helper keeps each step readable and keeps the code that ends
+    the run next to the reason it ends — the message is printed at the raise site, so a new
+    failure path cannot forget to say why.
+    """
+
+    def __init__(self, code: int) -> None:
+        super().__init__(f"gate run aborted with exit {code}")
+        self.code = code
+
+
+def abort(message: str, code: int = 2) -> GateError:
+    """Print the diagnosis and build the error to raise. `raise abort(...)` reads as one step."""
+    print(message, file=sys.stderr)
+    return GateError(code)
+
+
 def fail(message: str) -> int:
     print(message, file=sys.stderr)
     return 2
@@ -87,134 +107,166 @@ def expand(base: Path, patterns) -> list[Path]:
     return found
 
 
-def run(config_path: Path) -> int:
+def read_config(config_path: Path) -> dict:
     config = read_json(config_path)
     if config is None:
-        return fail(f"Configuration not found: {config_path}")
+        raise abort(f"Configuration not found: {config_path}")
     if not isinstance(config, dict):
-        return fail(f"{config_path}: expected an object at the root.")
+        raise abort(f"{config_path}: expected an object at the root.")
+    return config
 
-    base = config_path.parent
-    contract_dir = (base / config.get("contract", ".")).resolve()
+
+def resolve_contract(config: dict, config_path: Path) -> Path:
+    """Locate the contract and refuse a 1.x one before any realizer is invoked."""
+    contract_dir = (config_path.parent / config.get("contract", ".")).resolve()
     if not contract_dir.is_dir():
-        return fail(f"{config_path}: contract directory not found: {contract_dir}")
+        raise abort(f"{config_path}: contract directory not found: {contract_dir}")
     if not (contract_dir / RELEASE).is_file():
-        print(f"CONTRACT {contract_dir}\n"
-              f"  {RELEASE} absent - contract in 1.x format.\n"
-              f"  Migrate it: python tools/migrate-contract.py --contract {contract_dir}",
-              file=sys.stderr)
-        return 3
+        raise abort(f"CONTRACT {contract_dir}\n"
+                    f"  {RELEASE} absent - contract in 1.x format.\n"
+                    f"  Migrate it: python tools/migrate-contract.py --contract {contract_dir}",
+                    code=3)
+    return contract_dir
 
+
+def type_rules(contract_dir: Path) -> list[tuple[str, str]]:
+    """Type every declared rule before invoking anything: an untyped rule makes the whole run
+    meaningless, and finding that out after half the targets were linted helps nobody."""
     policies = read_json(contract_dir / POLICIES)
     if policies is None:
-        return fail(f"{contract_dir / POLICIES}: not found, the contract declares it.")
+        raise abort(f"{contract_dir / POLICIES}: not found, the contract declares it.")
 
-    # Type every declared rule before invoking anything: an untyped rule makes the whole run
-    # meaningless, and finding that out after half the targets were linted helps nobody.
-    declared = (policies.get("usage") or {}).get("rules") or []
     typed: list[tuple[str, str]] = []
-    for index, rule in enumerate(declared):
+    for index, rule in enumerate((policies.get("usage") or {}).get("rules") or []):
         rule_id = rule.get("id") or f"usage.rules[{index}]"
         kind = rule.get("enforcement")
         if kind not in REALIZER:
-            return fail(f"{contract_dir / POLICIES}: rule \"{rule_id}\" declares "
+            raise abort(f"{contract_dir / POLICIES}: rule \"{rule_id}\" declares "
                         f"enforcement {kind or 'nothing'}, outside the registry.\n"
                         f"  Allowed: {', '.join(sorted(REALIZER))}\n"
                         f"  See references/enforcement-registry.md")
         typed.append((rule_id, kind))
+    return typed
 
-    targets = expand(base, config.get("targets") or [])
+
+def collect_targets(config: dict, config_path: Path) -> list[Path]:
+    targets = expand(config_path.parent, config.get("targets") or [])
     missing = [t for t in targets if not t.is_file()]
     if missing:
-        return fail(f"{config_path}: target(s) not found: "
+        raise abort(f"{config_path}: target(s) not found: "
                     + ", ".join(str(m) for m in missing))
+    return targets
 
+
+def lint_markup(config: dict, config_path: Path, contract_dir: Path,
+                targets: list[Path]) -> tuple[list[str], set[str]]:
+    """Run the portable linter over every target. Returns its violations and the markup rules
+    it reports having realized."""
     violations: list[str] = []
-    realized_markup: set[str] = set()
-    exit_code = 0
+    realized: set[str] = set()
+    if not targets:
+        return violations, realized
 
-    if targets:
-        linter = (base / config.get("linter", "")).resolve() if config.get("linter") else None
-        if linter is None or not linter.is_file():
-            return fail(f"{config_path}: `linter` must point at the portable linter; "
-                        f"got {config.get('linter') or 'nothing'}.")
-        if shutil.which("node") is None:
-            return fail("Node.js not found on PATH. The runner invokes the portable linter "
-                        "with it; without Node no markup rule can be realized.\n"
-                        "  Install Node.js 18+, or remove the markup targets from "
-                        f"{config_path}.")
-        for target in targets:
-            argv = ["node", str(linter), str(target), "--contract", str(contract_dir), "--json"]
-            if config.get("strict"):
-                argv.append("--strict")
-            proc = subprocess.run(argv, capture_output=True, text=True, encoding="utf-8")
-            if proc.returncode in (2, 3):
-                sys.stderr.write(proc.stderr)
-                return proc.returncode
-            report = json.loads(proc.stdout) if proc.stdout.strip() else {}
-            realized_markup.update(report.get("realized") or [])
-            for message in report.get("errors") or []:
-                violations.append(f"{target}: {message}")
+    base = config_path.parent
+    linter = (base / config.get("linter", "")).resolve() if config.get("linter") else None
+    if linter is None or not linter.is_file():
+        raise abort(f"{config_path}: `linter` must point at the portable linter; "
+                    f"got {config.get('linter') or 'nothing'}.")
+    if shutil.which("node") is None:
+        raise abort("Node.js not found on PATH. The runner invokes the portable linter "
+                    "with it; without Node no markup rule can be realized.\n"
+                    "  Install Node.js 18+, or remove the markup targets from "
+                    f"{config_path}.")
 
-    # A pivot is a skill and cannot be invoked from here, but the native linter it installs is
-    # a process like any other. Declared with a `command`, it is re-run before its report is
-    # read, so the report cannot be stale; declared as a bare path, the report is whatever the
-    # last run left there. Its absence is what makes the rules unrealized at run time.
-    reported: dict[str, str] = {}
-    declined: dict[str, str] = {}
-    report_paths: list[Path] = []
+    for target in targets:
+        argv = ["node", str(linter), str(target), "--contract", str(contract_dir), "--json"]
+        if config.get("strict"):
+            argv.append("--strict")
+        proc = subprocess.run(argv, capture_output=True, text=True, encoding="utf-8")
+        if proc.returncode in (2, 3):
+            # The linter already diagnosed it; its code is the run's code.
+            sys.stderr.write(proc.stderr)
+            raise GateError(proc.returncode)
+        report = json.loads(proc.stdout) if proc.stdout.strip() else {}
+        realized.update(report.get("realized") or [])
+        for message in report.get("errors") or []:
+            violations.append(f"{target}: {message}")
+    return violations, realized
+
+
+def resolve_pivot_reports(config: dict, config_path: Path) -> list[Path]:
+    """A pivot is a skill and cannot be invoked from here, but the native linter it installs is
+    a process like any other. Declared with a `command`, it is re-run before its report is
+    read, so the report cannot be stale; declared as a bare path, the report is whatever the
+    last run left there. Its absence is what makes the rules unrealized at run time."""
+    base = config_path.parent
+    paths: list[Path] = []
     for entry in config.get("pivotReports") or []:
         if isinstance(entry, str):
-            report_paths.extend(expand(base, [entry]))
+            paths.extend(expand(base, [entry]))
             continue
         if not isinstance(entry, dict) or not entry.get("path"):
-            return fail(f"{config_path}: each pivotReports entry is a path, or an object "
+            raise abort(f"{config_path}: each pivotReports entry is a path, or an object "
                         f"carrying `path` and optionally `command`; got {entry!r}.")
         command = entry.get("command")
         if command:
             if not isinstance(command, list) or not all(isinstance(a, str) for a in command):
-                return fail(f"{config_path}: `command` of {entry['path']} must be a list of "
+                raise abort(f"{config_path}: `command` of {entry['path']} must be a list of "
                             "strings - no shell, so no quoting rule to get wrong.")
             try:
                 # Its exit code says "violations found", which its report already carries in
                 # full. Reading the report is what decides; the code here would only duplicate.
                 subprocess.run(command, cwd=base, capture_output=True, text=True)
             except FileNotFoundError:
-                return fail(f"{config_path}: realizer not found: {command[0]}\n"
+                raise abort(f"{config_path}: realizer not found: {command[0]}\n"
                             f"  Declared to produce {entry['path']}. Install it, or drop the "
                             "`command` to read the report as it stands.")
-        report_paths.append(base / entry["path"])
+        paths.append(base / entry["path"])
+    return paths
 
+
+def read_pivot_reports(report_paths: list[Path],
+                       config_path: Path) -> tuple[dict[str, str], dict[str, str], list[str]]:
+    """Returns, per rule id: who realized it, who declined it, and the violations found."""
+    reported: dict[str, str] = {}
+    declined: dict[str, str] = {}
+    violations: list[str] = []
     for path in report_paths:
         payload = read_json(path)
         if payload is None:
-            return fail(f"{config_path}: pivot report not found: {path}")
+            raise abort(f"{config_path}: pivot report not found: {path}")
         realizer = payload.get("realizer") or str(path)
         for entry in payload.get("rules") or []:
             rule_id = entry.get("id")
             if not rule_id:
-                return fail(f"{path}: a report entry declares no rule id.")
-            status = entry.get("status")
-            if status == "unrealized":
+                raise abort(f"{path}: a report entry declares no rule id.")
+            if entry.get("status") == "unrealized":
                 # The pivot was assigned the rule and says it did not realize it. Louder than
                 # silence, and the only case that tells apart "not run" from "cannot cover".
                 declined[rule_id] = realizer
                 continue
             reported[rule_id] = realizer
-            if status == "fail":
+            if entry.get("status") == "fail":
                 for message in entry.get("violations") or [rule_id]:
                     violations.append(f"{realizer}: {message}")
+    return reported, declined, violations
 
-    print(f"CONTRACT {contract_dir}")
-    print(f"TARGETS  {len(targets)} file(s), markup rules realized: "
-          f"{', '.join(sorted(realized_markup)) or 'none'}")
 
+def render_rules(typed: list[tuple[str, str]], reported: dict[str, str],
+                 declined: dict[str, str]) -> list[str]:
+    """Print one line per declared rule; return the ids left unrealized."""
     unrealized: list[str] = []
     for rule_id, kind in typed:
         if kind == "markup":
             print(f"  REALIZED   {rule_id} ({kind}) by lint-core")
         elif rule_id in reported:
-            print(f"  REALIZED   {rule_id} ({kind}) by {reported[rule_id]}")
+            # A rule the contract declares with no realizer, that a pivot covered anyway, is
+            # realized: it was measured, and `read_pivot_reports` already counted whatever it
+            # found. Demoting it here would print "not verified" above its own violations. But
+            # the contract is stale on that point, and a line that hid it would assert a
+            # coverage the contract routes to nobody. Realized, and said out loud.
+            stale = " - the contract declares no realizer for it" if kind == "unrealized" else ""
+            print(f"  REALIZED   {rule_id} ({kind}) by {reported[rule_id]}{stale}")
         elif rule_id in declined:
             unrealized.append(rule_id)
             print(f"  UNREALIZED {rule_id} ({kind}) - {declined[rule_id]} reports it unrealized")
@@ -224,6 +276,17 @@ def run(config_path: Path) -> int:
         else:
             unrealized.append(rule_id)
             print(f"  UNREALIZED {rule_id} ({kind}) - no report from its realizer")
+    return unrealized
+
+
+def render_verdict(contract_dir: Path, targets: list[Path], realized_markup: set[str],
+                   typed: list[tuple[str, str]], reported: dict[str, str],
+                   declined: dict[str, str], violations: list[str]) -> int:
+    print(f"CONTRACT {contract_dir}")
+    print(f"TARGETS  {len(targets)} file(s), markup rules realized: "
+          f"{', '.join(sorted(realized_markup)) or 'none'}")
+
+    unrealized = render_rules(typed, reported, declined)
 
     for message in violations:
         print(f"  VIOLATION {message}")
@@ -232,6 +295,7 @@ def run(config_path: Path) -> int:
         print(f"UNREALIZED {len(unrealized)} rule(s) - reported, never counted as verified, "
               "and never a violation.")
 
+    exit_code = 0
     if violations:
         print(f"FAIL {len(violations)} violation(s).")
         exit_code = 1
@@ -251,6 +315,26 @@ def run(config_path: Path) -> int:
     if not violations:
         print("OK   no violation.")
     return exit_code
+
+
+def run(config_path: Path) -> int:
+    """Read, realize, report. Each step raises GateError with its own exit code; this function
+    holds the order of the steps and nothing else."""
+    try:
+        config = read_config(config_path)
+        contract_dir = resolve_contract(config, config_path)
+        typed = type_rules(contract_dir)
+        targets = collect_targets(config, config_path)
+
+        violations, realized_markup = lint_markup(config, config_path, contract_dir, targets)
+        report_paths = resolve_pivot_reports(config, config_path)
+        reported, declined, pivot_violations = read_pivot_reports(report_paths, config_path)
+        violations.extend(pivot_violations)
+
+        return render_verdict(contract_dir, targets, realized_markup, typed,
+                              reported, declined, violations)
+    except GateError as error:
+        return error.code
 
 
 def main(argv: list[str] | None = None) -> int:

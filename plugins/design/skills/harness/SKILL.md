@@ -13,23 +13,24 @@ triggers:
 requires:
   - "un chemin de sortie (--out)"
 references:
-  - adapters/harness/harness.py
-  - references/harness-contract.md
+  - ${CLAUDE_PLUGIN_ROOT}/adapters/harness/harness.py
+  - ${CLAUDE_PLUGIN_ROOT}/references/harness-contract.md
 ---
 
 # harness
 
 ## Rôle dans l'entonnoir
 
+`harness` est **hors entonnoir** : une précondition de mesure, pas une étape. Position canonique : `${CLAUDE_PLUGIN_ROOT}/skills/detail/references/funnel-map.md`.
+
 ```
-define → destructure → adjust (figé) → enforce → diffuse
-                                            ↓
-                                         harness  ← point d'entrée de la maquette de référence
-                                            ↓
-                                       copycat / measure
+[harness] ─── rend mesurable ───► la référence visuelle
+                                       │
+   define (fan-out copycat) ───────────┤ la consomme
+   enforce (gate de fidélité) ─────────┘
 ```
 
-`harness` est le point d'entrée de la maquette. Il génère le fichier HTML que `measure.py` et l'agent `copycat` vont piloter pour la comparaison de fidélité.
+Il s'exécute quand la référence n'est pas pilotable par l'oracle (un PDF, un JPEG, une capture). Il génère le fichier HTML autonome que `measure.py` et l'agent `copycat` savent piloter — d'abord pour le fan-out de `define`, ensuite pour le gate de fidélité de `enforce`. Sans référence à rendre mesurable, il ne s'exécute pas, et l'entonnoir tourne sans lui.
 
 ## Ce que harness produit
 

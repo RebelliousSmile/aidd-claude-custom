@@ -1,6 +1,6 @@
 # Token schema (W3C DTCG) + adapter generation
 
-`design/tokens.json` follows the [W3C Design Tokens Community Group](https://www.w3.org/community/design-tokens/) format: every token is an object with `$type` and `$value`; groups nest freely. This file defines the **required groups** and how the two adapters are generated from them.
+`design/tokens.json` follows the [W3C Design Tokens Community Group](https://www.w3.org/community/design-tokens/) format: every token is an object with `$type` and `$value`; groups nest freely. This file defines the **required groups** and the shape each adapter role expects. Which adapters get emitted at all is decided elsewhere — `write-system-procedure.md § Adapter emission rule` is the canonical statement, and `tools/generate.py` is the only producer.
 
 ## Required groups
 
@@ -209,7 +209,7 @@ The specification above is written per role, so a further artifact is added by d
 Every token path becomes a CSS custom property under `:root`, by the transform of § Path-to-variable transform. `{alias}` references resolve to `var(--…)`.
 
 ```css
-/* GENERATED from design/tokens.json — do not edit by hand. Regenerate via /design:define. */
+/* GENERATED from design/tokens.json - do not edit by hand. Regenerate via tools/generate.py. */
 :root {
   --color-brand-primary: #1f6feb;
   --color-neutral-50: #f7f8fa;
@@ -231,7 +231,7 @@ When `tokens.json` has a `themes` overlay (§ Modes / themes), the adapter emits
 - `default` needs no block of its own — it *is* `:root`.
 
 ```css
-/* GENERATED from design/tokens.json — do not edit by hand. Regenerate via /design:define. */
+/* GENERATED from design/tokens.json - do not edit by hand. Regenerate via tools/generate.py. */
 :root {
   --color-brand-primary: #1f6feb;
   --color-neutral-50: #f7f8fa;
@@ -265,7 +265,7 @@ Two artifacts, chosen by the consuming build's major version — the emission me
 `@theme` block mapping tokens to Tailwind's expected namespaces (`--color-*`, `--font-*`, `--text-*`, `--spacing-*`, `--radius-*`, `--shadow-*`, `--breakpoint-*`). Auto-consumed by Tailwind v4 once imported — no manual wiring step.
 
 ```css
-/* GENERATED from design/tokens.json — do not edit by hand. */
+/* GENERATED from design/tokens.json - do not edit by hand. Regenerate via tools/generate.py. */
 @theme {
   --color-brand-primary: #1f6feb;
   --text-body: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
@@ -281,7 +281,7 @@ Theme overlays (§ Modes / themes) follow the same `.dark`/`[data-theme="…"]`-
 Tailwind v3 has no `@theme` at-rule, so the contract defines a **named, canonical artifact** for it: `design/adapters/tailwind-tokens.cjs`. This is a **partial** — a CommonJS module exporting only a `theme.extend`-shaped object — never a complete `tailwind.config.cjs` (a full drop-in config would collide with the consuming project's own `content` globs and `plugins` array). It is never named `theme.css` (that name is reserved for the v4 artifact above), and it is **never auto-consumed by Tailwind** — every v3 project must wire it in explicitly, per the two cases below.
 
 ```js
-// GENERATED from design/tokens.json — do not edit by hand.
+// GENERATED from design/tokens.json - do not edit by hand. Regenerate via tools/generate.py.
 module.exports = {
   colors: {
     brand: { primary: '#1f6feb' },

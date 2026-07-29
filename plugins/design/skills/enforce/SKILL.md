@@ -46,7 +46,7 @@ Le linter portable est un **scanner de chaînes, un fichier de markup à la fois
 | Namespaces de couleur des classes utilitaires shadées | Adapters, configurations, scripts de build |
 | — | Rôles ARIA, fond réellement appliqué, contraste **du rendu**, cohérence inter-fichiers |
 
-Le vocabulaire de classes est **ouvert par défaut** : une classe dont le bloc n'est pas déclaré est ignorée. Il ne se referme que sous `--strict`, en `warning`, sur les seules classes de forme BEM. Les cinq règles, leurs sources et leurs sévérités : `${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md § Dérivation des règles de lint`.
+Le vocabulaire de classes est **ouvert par défaut** — énoncé canonique : `${CLAUDE_PLUGIN_ROOT}/skills/adjust/references/manifest-schema.md § Invariant 1`. Les cinq règles, leurs sources et leurs sévérités : `${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md § Dérivation des règles de lint`.
 
 Ce que le gate garantit est donc borné : **le markup passé au linter n'utilise pas de classe ou de token hors contrat — celui que la sortie `CONTRACT` nomme**. Le contrat se passe en `--contract <dossier>` ; deviné, il n'est retenu que s'il est le seul de son arbre, sinon l'outil sort en 2 plutôt que de choisir. Ni la couverture des fichiers, ni la conformité a11y, ni le rendu ne sont établis par ce vert. Le gate de fidélité (§ Deux natures de gate) couvre le rendu ; le reste est un gap déclaré.
 
@@ -115,11 +115,9 @@ Voir `${CLAUDE_PLUGIN_ROOT}/skills/enforce/references/gate-wiring.md` pour le c�
 
 `policies.json § mode` détermine sur quoi porte le vocabulaire — noms de classe en `bem`, usage de tokens en `utility-first`. Il est **toujours déclaré** : absent, `lint-core.mjs` sort en 2 au lieu de le déduire. Les deux modes sont de première classe dans la baseline ; aucun n'est un mode dégradé du pivot. Table complète des règles par mode : `${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md § Où porte le vocabulaire, selon mode`.
 
-## Portée de la baseline
+## Ce qui sort de la portée de la baseline
 
-`lint-core.mjs` lit **un fichier de markup à la fois, en texte**. Cinq règles, toutes dérivées du contrat à l'exécution, aucune valeur codée en dur, aucun état entre deux runs. Le vocabulaire est **ouvert par défaut** : une classe dont le bloc n'est pas déclaré passe comme utilitaire ; `--strict` la signale en `warning`, jamais en `error`.
-
-Hors de portée par construction, donc jamais couvert par un run vert : feuilles de style, liaisons de classe dynamiques, contenu stocké hors des fichiers source, fichiers de configuration de plateforme, rôles ARIA, toute cohérence entre deux fichiers, et le contraste **tel qu'il est peint** (`opacity`, `color-mix`, voiles, dégradés — assignés à G6). Le contraste des paires déclarées, lui, n'est pas un trou de ce gate : il est mesuré bien plus tôt, au figeage, et enregistré dans `release.json § checks.contrast` (`${CLAUDE_PLUGIN_ROOT}/references/gate-natures.md`).
+Le périmètre de `lint-core.mjs` est énoncé une fois, plus haut (§ Périmètre de `lint-core.mjs`). Une précision s'y ajoute sur le contraste : ce qui échappe au gate, c'est le contraste **tel qu'il est peint** (`opacity`, `color-mix`, voiles, dégradés — assignés à G6). Le contraste des paires *déclarées* n'en est pas un trou : il est mesuré bien plus tôt, au figeage, et enregistré dans `release.json § checks.contrast` (`${CLAUDE_PLUGIN_ROOT}/references/gate-natures.md`).
 
 Ce qui sort de cette portée n'est pas perdu : c'est déclaré en `usage.rules[]` avec un `enforcement` qui nomme son réalisateur, ou marqué non réalisé. Espace fermé des types et obligation de rapport : `${CLAUDE_PLUGIN_ROOT}/references/enforcement-registry.md`. L'agrégation des deux côtés est `tools/run-gates.py`.
 

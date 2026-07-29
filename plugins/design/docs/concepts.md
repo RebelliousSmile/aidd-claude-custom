@@ -52,6 +52,8 @@ Une classe dont le bloc n'est pas déclaré dans `components.json` est traitée 
 
 Ce choix évite le piège habituel du linter de design system : bloquer un projet réel dès la première classe applicative légitime. Le gate porte sur ce que le contrat déclare, pas sur ce qu'il ignore.
 
+Énoncé complet et opposable : [`../skills/adjust/references/manifest-schema.md`](../skills/adjust/references/manifest-schema.md) § Invariant 1.
+
 ## Artefacts dérivés : générés, jamais écrits
 
 `tools/generate.py` est le **seul producteur** des artefacts dérivés. Il lit les sources du contrat et émet un fichier par entrée de `policies.json § adapters[]` déclarant un `consumer` — un rôle (feuille de style, source pré-processée, configuration de build, fichier de tokens de plateforme), jamais un nom de plateforme.

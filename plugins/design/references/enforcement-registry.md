@@ -59,6 +59,10 @@ Obligation, dans les deux cas :
 - Le code de sortie est **inchangé** : une règle non réalisée n'est ni une violation ni une conformité. La déclarer est exactement ce qui empêche de la lire comme vérifiée.
 - Aucun drapeau ne masque la liste.
 
+### Collision : `unrealized` déclaré, rapporté quand même
+
+Un rapport de pivot peut porter une règle que le contrat type `unrealized`. Elle est alors **réalisée** : le pivot l'a mesurée, et ses violations sont déjà comptées — la classer non réalisée imprimerait « non vérifiée » au-dessus de ses propres violations. Le désaccord n'est pas passé sous silence pour autant : `run-gates.py` nomme sur la ligne que le contrat ne lui déclare aucun réalisateur. Le code de sortie est inchangé ; le geste de correction est de re-typer la règle, jamais d'ignorer le rapport.
+
 ## Valeurs retirées
 
 | Retirée | Remplacée par |
