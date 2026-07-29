@@ -52,7 +52,7 @@ Les deux modes de contrat (`policies.json § mode`) ne diffèrent que par `targe
   "$schema": "design/references/gate-config-schema",
   "contract": "..",
   "linter": "lint-core.mjs",
-  "targets": ["../wireframes/**/*.html"]
+  "targets": ["../src/**/*.html", "../templates/**/*.html"]
 }
 ```
 

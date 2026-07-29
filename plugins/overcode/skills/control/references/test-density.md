@@ -1,6 +1,8 @@
 # Test density
 
-The number constraint of this skill is **not** a count of tests. It is a ratio, read against the project's own habits.
+The **project-level** number constraint of this skill is **not** a count of tests. It is a ratio, read against the project's own habits.
+
+And it **prioritises; it never refuses.** What refuses is the `phase x domain-level` cell's ceiling (`references/decision-matrix.md`), or a test-count cap the project declared. The density is reported next to whichever of those is in force - never in its place, and never called a cap: a ceiling says *how many*, a density says *whether they are in the right place*. Nothing in this file grounds a refusal.
 
 ```
 density(f) = test cases exercising f / max(1, branch points of f)
@@ -10,7 +12,9 @@ density(f) = test cases exercising f / max(1, branch points of f)
 
 ## Why a ratio, and why against the project itself
 
-An absolute cap - "no more than N tests" - answers the wrong question. It cannot tell a suite that is too large from a codebase that is large, and it makes the same demand of a validation module full of branches and a barrel file that re-exports six symbols. Worse, it degrades into a target: something to sit just under, which is how a cap becomes a reason to stop testing the one file that needed it.
+An absolute **project-level** cap - "no more than N tests across the project" - answers the wrong question. It cannot tell a suite that is too large from a codebase that is large, and it makes the same demand of a validation module full of branches and a barrel file that re-exports six symbols. Worse, it degrades into a target: something to sit just under, which is how a cap becomes a reason to stop testing the one file that needed it.
+
+This objection does not reach the `phase x domain-level` **ceiling** (`references/decision-matrix.md`). That number is not project-wide: it is stated per cell, already relative to a population (the domain) and a moment (the phase) - the two things an absolute project-level cap cannot see. Nor is the ceiling itself expressed as a multiple of the median, the way this reference's own outlier alert is: a median describes a distribution that already has members, and a ceiling has to hold even for a cell with no test in it yet - multiplying an empty distribution produces no number to state. The ceiling is stated outright, by the phase reading the cell, for exactly that reason.
 
 A density says what a count cannot: **whether the effort spent on a file is proportionate to what there is to get wrong in it.**
 
@@ -62,7 +66,7 @@ Matching test cases to source files is approximate whenever it rests on naming c
 
 ## Authority bound
 
-**Density never refuses a test.** A refusal is a tier decision, and it comes from the tier table in force - the project's documented strategy, or `decision-framework.md` - never from a ratio. Density prioritises and it reports; it does not classify. The same boundary the phase has.
+**Density never refuses a test.** A refusal is a cell decision, read off the `phase x domain-level` matrix (`references/decision-matrix.md`) or the project's own documented strategy when it states one - never from a ratio. Density prioritises and it reports; it does not classify: it is bound by the transversal rule **the instrument that measures cannot decide** (`SKILL.md`, *Transversal rules*), the same rule that bounds the pivot's *Risk signals* and every other measuring field. The phase is the one exception to that rule, having become the classifying authority in series with domains; density is not, and states no exception of its own.
 
 Nor is it a target. No action of this skill proposes work whose only justification is moving a density toward the median - that is the coverage-percentage mistake wearing another number.
 

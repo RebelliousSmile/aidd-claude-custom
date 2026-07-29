@@ -22,16 +22,24 @@ It is reachable and terminal in the chaining graph: `05-stats` routes into it, a
 
 ## Process
 
-1. Resolve `project_path`. Detect the active language plugin and load its `testing` pivot if present (`@../references/pivot-contract.md`) - it lists known tooling gotchas and config-validation checks specific to that stack. If no pivot is available, run only the tool-agnostic checks below.
+1. Resolve `project_path`. Detect the active language plugin and load its `testing` pivot if present (`@../references/pivot-contract.md`) - it lists known tooling gotchas and config-validation checks specific to that stack, and it names two fields this action reads directly: **Coverage command** and **Canonical E2E tool**. If no pivot is available, run only the tool-agnostic checks below.
 2. Tool-agnostic checks:
    - Is a coverage gate configured, and does it actually run in CI or a pre-commit hook - not only declared in a config file that nothing invokes?
-   - Is an E2E runner already configured? If so, treat it as the project's canonical E2E tool for this and every future run of this skill - never propose swapping it for another tool, only propose fixes to its own configuration.
+   - When the pivot states a **Coverage command**, does it actually run **independently of the gate** - producing its per-file report even when the gate would exit non-zero? A command that only runs as part of the gate cannot be used to read coverage on a project that is failing it, which is exactly when reading it matters most.
+   - Is an E2E runner already configured? If the pivot names a **Canonical E2E tool**, treat that as the project's tool for this and every future run of this skill; absent a pivot, detect it directly. Either way, never propose swapping it for another tool, only propose fixes to its own configuration - the field is informational, never licence to propose a replacement.
+   - Is coverage running in **line mode with branch tracking never switched on** - `branch = true` absent from the config, `--cov-branch` absent from the invocation? This is the single most common configuration of all, and it is the one this skill is named as the fix for: `@../references/test-density.md` › *Degenerate cases* sends its third case here by name, and the whole density layer stays unmeasurable until this one flag moves. A report that exists and carries no branch data is **not** a missing report, and must not be reported as one.
    - Do any test-tooling config values fail structural validation against their own tool's accepted schema (a factual schema mismatch, not a style opinion)?
 3. Run every pivot-supplied gotcha check on top of the tool-agnostic ones.
 4. For each finding, propose a concrete fix (a config diff or a command) - never apply it automatically.
 5. Present the table. Apply a fix only after the user confirms that specific row.
+6. **A run that finds nothing says so in as many words, and says what it looked for.** `clean - <n> checks run, no misconfiguration found`, followed by the list of checks that were run and, separately, the checks that were **not** run because no pivot supplied them. An empty table is not a formulation: it reads identically to a run that crashed, to a run that found no config file, and to a run whose pivot was missing - three states with three different next moves. Naming the unrun checks matters more than naming the passed ones: a stack-specific gotcha nobody checked is exactly the defect this action exists to catch, and its absence is invisible unless stated.
 
 ## Test
 
-Covered by `../evals/authority-scenarios.md` (S12), `../evals/chaining-scenarios.md` (S7) and `../evals/phase-scenarios.md` (S13).
+**Referred by file, never by row number.** A row list goes stale on the next renumbering of a suite, and a stale list is worse than none - it points a reader at a scenario that now tests something else. Each suite below declares the actions it targets in its own opening paragraph; that declaration is the authority for this list, and it is the thing to re-read when a suite is added or re-scoped.
+
+Covered by `../evals/authority-scenarios.md`, `../evals/confirmations-scenarios.md`, `../evals/phase-scenarios.md` and `../evals/chaining-scenarios.md`.
+
+`authority-scenarios.md` owns the bound that an **established** runner is a project decision and never a wiring defect — S13 has exercised this action since that suite was written, and both this list and the suite's own header omitted it until 2026-07-29; `confirmations-scenarios.md` owns the confirmation of an applied config fix; `phase-scenarios.md` owns this action taking none of the three parameters; `chaining-scenarios.md` owns the graph position.
+
 Run: `overcode:behave 02-run <suite> <fixture>`.

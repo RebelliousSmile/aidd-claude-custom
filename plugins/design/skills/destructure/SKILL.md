@@ -12,6 +12,16 @@ description: >-
   Lecture seule sur le contrat gelé et le code source — produit un rapport structuré (critique + pistes
   actionnables + score), persisté par défaut sous `design/critique/`, n'applique RIEN au contrat.
   Absorbe l'ancien diagnose. Ne pose pas la matière — c'est define ; ne fige pas — c'est adjust.
+triggers:
+  - "challenge la direction visuelle"
+  - "critique ce design system"
+  - "décompose ce rendu en composants"
+  - "ce design fait générique, propose autre chose"
+requires:
+  - "une matière de design posée (sortie de define) ou un élément existant à critiquer"
+references:
+  - ${CLAUDE_PLUGIN_ROOT}/references/design-system-contract.md
+  - ${CLAUDE_PLUGIN_ROOT}/skills/adjust/references/manifest-schema.md
 ---
 
 # destructure

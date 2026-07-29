@@ -7,9 +7,21 @@ description: >-
   charte brouillon. Source unique d'entrée — soit l'EXTRACTION de maquettes existantes (capture/screenshot/
   URL/Figma/CSS), soit la CONSTRUCTION depuis un brief écrit (positionnement, user story, pas de visuel).
   Unifie les anciennes from-reference + from-brief. Produit design/tokens.json + design/design-system.md
-  (brouillon, NON figé) + adapters. N'écrit JAMAIS d'artefact du contrat (components.json, policies.json,
-  oracle.json) ni sa racine release.json : le figeage est le rôle
+  (brouillon, NON figé), et RECENSE les consommateurs d'adapters sans en émettre aucun — l'émission est le
+  fait de tools/generate.py au figeage. N'écrit JAMAIS d'artefact du contrat (components.json, policies.json,
+  oracle.json, deviations.json) ni sa racine release.json : le figeage est le rôle
   de adjust (verbe 3). Ne challenge pas la direction — c'est destructure ; ne vérifie pas une page — c'est enforce.
+triggers:
+  - "pose les tokens du projet"
+  - "extrais le design system de cette maquette"
+  - "construis la matière de design depuis ce brief"
+  - "crée la charte brouillon"
+requires:
+  - "une référence visuelle (capture, URL, CSS, Figma) ou un brief écrit"
+references:
+  - ${CLAUDE_PLUGIN_ROOT}/references/design-system-contract.md
+  - ${CLAUDE_PLUGIN_ROOT}/references/write-system-procedure.md
+  - ${CLAUDE_PLUGIN_ROOT}/references/token-schema.md
 ---
 
 # define

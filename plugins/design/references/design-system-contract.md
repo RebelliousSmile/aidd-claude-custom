@@ -2,9 +2,9 @@
 
 The single source of truth for **where** the design system lives in a project and **what files** compose it. Every `design` skill reads and writes against this contract so that `define`, `destructure`, `adjust`, `enforce`, and `diffuse` stay interoperable.
 
-## Les 4 artefacts et leur racine
+## Les 5 artefacts et leur racine
 
-Le contrat est un répertoire de quatre artefacts adressables, identifiés par une racine. Ils cristallisent à `adjust` ; avant ce point la matière est malléable.
+Le contrat est un répertoire de cinq artefacts adressables, identifiés par une racine. Ils cristallisent à `adjust` ; avant ce point la matière est malléable. `oracle.json` et `deviations.json` ne sont requis que s'il y a une référence visuelle à mesurer.
 
 | Fichier | Contenu | Autorité | Statut · consommateur |
 |---------|---------|----------|----------------------|
@@ -13,6 +13,7 @@ Le contrat est un répertoire de quatre artefacts adressables, identifiés par u
 | `design/components.json` | Anatomie des composants (noms canoniques, éléments, variantes, contextes de fond) | Source de nomenclature | **exécutable** — `lint-core.mjs` Règles 1/5, `config-gen.py` |
 | `design/policies.json` | Politiques transverses (mode, usage des tokens, préfixes utilitaires, table des adapters) | Source des politiques | **exécutable** — `lint-core.mjs` Règles 1/3/4, pivots `sc-*` |
 | `design/oracle.json` | Cibles de mesure par composant | Source des hints de mesure | **exécutable** — `config-gen.py` |
+| `design/deviations.json` | Registre des écarts de fidélité tolérés (id, `expected`, échéance, statut) | Source des dérogations | **exécutable** — `measure.py`, `generate.py` (vue Markdown) |
 
 `design/design-system.md` (charte prose) est une **entrée** du contrat, pas un artefact : aucun outil ne la lit, `release.json § charter` enregistre sa présence et sa version, et sa concordance avec `components.json` est vérifiée une fois, au figeage, par `adjust/02-freeze.md § Étape 2 Règle 4`.
 
@@ -21,6 +22,7 @@ Le contrat est un répertoire de quatre artefacts adressables, identifiés par u
 - La nomenclature des composants → `components.json` exclusivement.
 - Les politiques transverses → `policies.json` exclusivement.
 - Les hints de mesure → `oracle.json` exclusivement.
+- Les écarts tolérés → `deviations.json` exclusivement. `ds-deviation-ledger.md` en est la vue *générée* : on édite le JSON, jamais la vue.
 - Les versions, hashes, provenance et statut → `release.json` exclusivement.
 - La prose et le narratif → `design-system.md` exclusivement.
 
@@ -39,12 +41,11 @@ design/
   components.json           # anatomie des composants (écrit par adjust)
   policies.json             # mode, usage des tokens, préfixes utilitaires, table des adapters (écrit par adjust)
   oracle.json               # cibles de mesure par composant (écrit par adjust)
+  deviations.json           # registre des écarts de fidélité tolérés (écrit par adjust)
   design-system.md          # entrée — charte prose (statut brouillon → figé à adjust)
   adapters/
     tokens.css              # generated — CSS custom properties (:root)
     …                       # generated — un fichier par consommateur présent, aucun autre
-  wireframes/
-    <story-slug>.html       # living HTML preview, mobile-first, links ../adapters/tokens.css
   critique/
     <yyyy_mm_dd>-<cible>.md # non-contractuel — rapport destructure persisté par défaut (historique, jamais versionné)
 ```
@@ -53,13 +54,13 @@ design/
 
 - If a project already nests UI under a sub-package (monorepo), prefer that package root; record the chosen home at the top of `design-system.md`.
 - Never scatter tokens across multiple sources. `tokens.json` is canonical; `adapters/*` are produced by `tools/generate.py` alone and must never be hand-edited — a header banner says so, and `generate.py --check` fails on any edit, with no flag to suppress it. Which adapters get generated is conditioned on the consumers present in the project — canonical rule: `write-system-procedure.md § Adapter emission rule`.
-- Les quatre artefacts et `release.json` sont absents avant `adjust` — c'est normal. `define` et `destructure` travaillent sur la matière malléable ; `adjust` est le seul verbe autorisé à les écrire.
+- Les cinq artefacts et `release.json` sont absents avant `adjust` — c'est normal. `define` et `destructure` travaillent sur la matière malléable ; `adjust` est le seul verbe autorisé à les écrire.
 
 ## Anatomie des composants
 
 Voir `adjust/references/manifest-schema.md` pour la structure complète, les invariants et les exemples. Résumé :
 
-- Vocabulaire **ouvert par défaut** : une classe dont le bloc n'est pas déclaré est traitée comme utilitaire et ignorée. Une classe dont le bloc *est* déclaré doit correspondre à un `base`, `elements.*` ou `modifiers.*` — sinon `error`. Le vocabulaire ne se referme que sous `--strict`, en `warning`, sur les seules classes de forme BEM.
+- Vocabulaire **ouvert par défaut** — mécanique complète et seul énoncé opposable : `adjust/references/manifest-schema.md § Invariant 1`.
 - Concordance avec la charte : chaque composant de `design-system.md § Inventaire des composants` doit avoir une entrée, et vice-versa. Vérifiée au figeage (`adjust/02-freeze.md § Étape 2 Règle 4`), jamais ensuite.
 - Les versions vivent dans `release.json` ; un écart entre artefacts est une donnée, pas une violation.
 
@@ -68,7 +69,7 @@ Voir `adjust/references/manifest-schema.md` pour la structure complète, les inv
 1. **Provenance** — origin (reference URL/file, or brief summary), date, version, who/what generated it.
 2. **Foundations** — narrative summary of color, typography, **iconography** (the single chosen icon library + style, `icon.library`/`icon.style`), spacing, radius, elevation, motion. Points to `tokens.json` for exact values; does not duplicate every number. The **core trio** (palette anchor · type · icon set) is settled and approved first, fast, before the rest. Never emoji as UI iconography.
 3. **Responsive strategy** — the named breakpoints, the mobile-first stance, and the three-tier intent: what the **mobile core** must always deliver, what is **enriched** only at ≥ tablet/desktop, and which **mobile-only** UX patterns exist. (See the installed `.claude/rules/08-design/` rules for the binding conventions.)
-4. **Component inventory** — table: component · purpose · key options/variants · responsive divergence (one line) · spec file. Says that the vocabulary induced by the promoted manifest is **open by default**: an undeclared block is treated as a utility; only a declared component makes its own elements and modifiers enforceable.
+4. **Component inventory** — table: component · purpose · key options/variants · responsive divergence (one line) · spec file. Says that the vocabulary induced by the promoted manifest is **open by default**, and points to `adjust/references/manifest-schema.md § Invariant 1` for what that means.
 5. **Open questions** — anything assumed or unresolved, so a human can close it.
 
 ## Consumption rules

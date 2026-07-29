@@ -5,7 +5,7 @@
 | ID      | DEC-004 |
 | Date    | 2026-07-22 |
 | Feature | `overcode:control` ⇄ pivot `sc-js/tools/testing.md` |
-| Status  | Accepted |
+| Status  | Accepted — **amendé par DEC-007 sur le §4** (2026-07-28). Le corps ci-dessous est celui du 2026-07-22, inchangé |
 
 ## Context
 
