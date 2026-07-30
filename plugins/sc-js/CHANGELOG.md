@@ -1,5 +1,11 @@
 # Changelog — sc-js
 
+## [0.15.1] — 2026-07-30
+
+### Changed — le pivot `testing` déclare le prérequis d'outillage de sa couverture
+
+Mise en conformité avec la section `## Prerequisites` du contrat (`overcode` 4.2.0, DEC-009) : un prérequis constaté absent vaut champ absent pour ce run, et c'est au pivot de nommer le prérequis et la commande qui le constate. Bloc **Prérequis** ajouté avant les trois règles d'usage — `@vitest/coverage-v8` pour Vitest, et le marquage explicite de ce qui n'a pas été rejoué : le projet mesuré portait le paquet, son absence n'a pas été observée en exécution, et le prérequis Jest n'a pas été mesuré du tout. Rendre le non-vérifié visible plutôt que de le laisser passer pour vérifié.
+
 ## [0.15.0] — 2026-07-30
 
 ### Added — le pivot `testing` fournit `Domain resolution`, jusqu'ici sans aucun fournisseur

@@ -2,6 +2,12 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/sc-python`.
 
+## [0.6.1] — 2026-07-30
+
+### Changed — le pivot `testing` déclare le prérequis d'outillage de sa couverture
+
+Mise en conformité avec la section `## Prerequisites` du contrat (`overcode` 4.2.0, DEC-009). Bloc **Prérequis** ajouté sous *Coverage command* : `pytest-cov` (et `coverage.py` seul pour la voie `manage.py test`), avec les commandes de constat — `python -m pytest --version` liste les plugins chargés, `python -c "import pytest_cov"` tranche. Le projet mesuré portait les deux paquets ; leur absence n'a pas été rejouée, et le fichier le dit à cet endroit plutôt que de laisser supposer une vérification qui n'a pas eu lieu.
+
 ## [0.6.0] — 2026-07-30
 
 ### Added — pivot `testing`, mesuré sur un projet Django réel

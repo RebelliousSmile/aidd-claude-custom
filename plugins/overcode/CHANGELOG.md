@@ -2,6 +2,22 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/overcode plugins/aidd-overlay` (le plugin s'appelait `aidd-overlay` avant la 3.0.0).
 
+## [4.2.0] — 2026-07-30
+
+### Added — `control` : ce qu'un champ de pivot supposait sans le dire (DEC-009)
+
+Écrire le pivot `sc-rust` a mis à l'épreuve trois hypothèses du contrat sur une stack qui les contredit. Deux tenaient à des **suppositions tacites** — vraies sur les deux premiers implémenteurs, fausses ailleurs, et jamais écrites nulle part. Elles sont désormais explicites, dans le contrat et chez ses consommateurs. La troisième est **réfutée** : le contrat la traitait déjà, et l'amendement envisagé aurait ajouté du texte redondant (`aidd_docs/internal/decisions/009-what-a-pivot-field-assumes-silently.md`).
+
+- **Les populations *source* et *test* ne sont pas garanties disjointes.** `Test file glob` et `Source glob & exclusions` se lisaient comme une partition. En Rust, les tests vivent dans le fichier source qu'ils testent : mesuré sur un crate réel, 122 tests répartis sur 12 des 17 fichiers source, **zéro fichier de test**. Un glob à la JS y rendrait *0 test et 17 fichiers non couverts*. Le contrat demande maintenant au pivot de **déclarer la non-disjonction et de nommer l'unité réelle** — déclaration due seulement quand la disjonction ne tient pas, donc **zéro rétroactivité** sur `sc-js` et `sc-python`.
+- **Le repli du consommateur en tire la conséquence.** `04-strengthen:63` rabattait la population candidate, faute de **Coverage command**, sur les modules qu'aucun fichier de test ne référence. Là où source et test se recouvrent, chaque module se référence lui-même : la passe ne discrimine plus rien. Elle n'est plus exécutée dans ce cas, et le run le dit — *un classement grossier reste un classement, un classement dégénéré est une fabrication*.
+- **Un prérequis constaté absent vaut champ absent pour ce run.** `## Absence` traitait l'absence du *champ* ; rien ne traitait l'absence de l'**outil** qu'une commande présuppose. Nouvelle section `## Prerequisites` : le pivot nomme le prérequis et la commande qui le constate, le consommateur applique le repli de l'absence et **ne rapporte jamais l'échec comme un défaut du projet mesuré**. Un outil manquant et une mesure manquante appellent des correctifs opposés — installer un outil, ou écrire des tests. Vaut pour **tout** champ dont la réponse est une commande, pas seulement la couverture. `05-stats` gagne la variante `density` correspondante, qui nomme le prérequis et dit que `03-configure` n'a rien à câbler.
+- **Non spécifique à Rust, seulement flagrant en Rust** : la règle est rétroactive, donc `sc-js` (0.15.1) et `sc-python` (0.6.1) sont repris dans le même lot plutôt que laissés non conformes.
+- **`Anchor boundary` : l'hypothèse d'un contrat centré navigateur est réfutée, sans amendement.** `decision-matrix.md:66` énonce déjà `Anchored does not mean "in a browser."`, et la définition du champ oppose « frontière publique réelle » à « rester dans le processus ». L'infirmation est consignée à l'ADR plutôt que passée sous silence — un plan qui prévoit trois amendements et n'en justifie que deux doit le dire.
+
+### Changed — le contrat de pivot cesse (une deuxième fois) de compter ses implémenteurs
+
+`references/pivot-contract.md:3` avait déjà été corrigé en 4.1.0 pour ne plus dire « le seul pivot livré » ; sa rédaction de remplacement nommait `sc-js` et `sc-python` — et périmait le jour où `sc-rust` en a livré un. Remplacé par ce qui ne périme pas : *tout plugin de langage peut en fournir un ; lesquels le font se lit dans l'arbre, jamais dans ce document.* L'avertissement de la section qui interdit d'illustrer une règle par un état du monde le dit désormais lui-même : c'est ainsi que cette section a acquis **deux fois** une affirmation sur le nombre de pivots existants et la langue dans laquelle ils sont écrits.
+
 ## [4.1.0] — 2026-07-30
 
 ### Added — `control` : un projet a autant de plugins de langage applicables que de stacks

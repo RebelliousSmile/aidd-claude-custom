@@ -30,6 +30,8 @@ Commandes vérifiées sur un projet réel (Vitest 4.1.0 + `@vitest/coverage-v8`,
 - **Jest** : `npx jest --ci --coverage --coverageReporters=json-summary`
 - **Fichier produit** (les deux) : `coverage/coverage-summary.json` — une entrée par fichier, chacune portant `lines` / `branches` / `functions` / `statements` sous la forme `{total, covered, skipped, pct}`, plus une entrée agrégée `total`.
 
+**Prérequis** — Vitest n'embarque pas son provider de couverture : c'est un paquet séparé (`@vitest/coverage-v8`, ou `@vitest/coverage-istanbul` selon `coverage.provider`), qu'un projet peut ne pas porter. Constat avant lancement : `node -e "require.resolve('@vitest/coverage-v8')"`, ou sa présence en `devDependencies`. Son absence fait échouer la commande sans que le projet mesuré soit en cause — c'est un champ absent pour ce run, pas un défaut à rapporter. *Le projet mesuré portait le paquet ; le comportement en son absence n'a pas été rejoué.* Pour Jest, le prérequis n'a pas été mesuré.
+
 Trois règles d'usage, chacune adossée à un piège constaté :
 
 - **`--coverage.reportOnFailure` n'est pas optionnel.** Il vaut `false` par défaut : un seul test rouge et aucun rapport n'est écrit. Sans ce flag, un lecteur du rapport conclurait à l'absence d'outillage de coverage sur un projet qui en a un.

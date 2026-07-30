@@ -4,6 +4,28 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [3.10.0] - 2026-07-30
+
+`sc-php` 0.9.0 → 0.10.0. `sc-css` reste en **0.3.3**, délibérément. Suppression de `version.txt`.
+
+**Le quatrième pivot `testing` est le premier dont la stack n'a pas de point d'entrée unique.** Les trois précédents décrivaient chacun un projet, une commande, une population. PHP en décrit deux mondes sans intersection — un dépôt de boutique où neuf composants portent chacun leur `composer.json`, leur `vendor/` et leur suite, et une installation WordPress où le code du projet est 5,2 % des fichiers `.php` versionnés. Le pivot dit les deux, ce qui l'oblige à écrire que la mesure se fait N fois et que la racine du dépôt n'est pas l'unité. Détail dans le journal de `sc-php`.
+
+**Le cinquième pivot n'est pas écrit, et son absence est le résultat de la part, pas son échec.** La question posée à `sc-css` était : un pivot `testing` CSS a-t-il un contenu non creux ? Réponse par décompte, champ par champ — **un seul** des dix reçoit une réponse propre à la stack (*Source glob & exclusions*), et **aucun des cinq champs requis** n'en reçoit : CSS n'a pas de runner, pas de fichier de test, donc pas de décompte ni de piège d'outillage de test. Les deux champs qui semblaient répondre sont déjà fournis ailleurs par le même plugin, plus finement. Le livrer coûterait plus qu'il ne rapporte : par la règle d'union de DEC-008, son *Source glob* ferait entrer les fichiers CSS dans l'univers source d'un projet dont la population de tests contribuée est vide par construction, et le run rendrait un « 0 test » qui n'est pas un défaut du projet. Le contrat prévoit l'absence et impose de la déclarer ; c'est plus vrai qu'un fichier.
+
+**Une source de vérité de version qui a divergé de six mineures est supprimée, pas réalignée.** `version.txt` portait `3.1.0` face à un manifeste en 3.9.0, et aucun fichier du dépôt ne le lisait — vérifié. Le réaligner l'aurait fait rediverger au bump suivant, faute de quiconque pour le maintenir. `.claude-plugin/marketplace.json` reste la seule source de vérité ; `index.json` ne porte aucune version et n'en reçoit pas.
+
+## [3.9.0] - 2026-07-30
+
+`sc-rust` 0.4.5 → 0.5.0 · `overcode` 4.1.0 → 4.2.0 · `sc-js` 0.15.0 → 0.15.1 · `sc-python` 0.6.0 → 0.6.1.
+
+**Le troisième implémenteur du contrat de pivot `testing` est le premier à le contredire, et c'est à ça qu'il sert.** Les deux premiers — Vitest et pytest — partagent assez de forme pour qu'une clause fausse passe inaperçue. Rust n'en partage pas : ses tests vivent **dans** le fichier source qu'ils testent, sa toolchain ne produit aucune couverture, et son terrain de mesure porte 122 tests sans une seule ligne de `[dev-dependencies]`. Trois hypothèses du contrat y ont été mises à l'épreuve ; deux ont cédé, une a tenu. Détail dans le journal de `sc-rust`.
+
+**Ce qu'un champ de contrat supposait sans jamais l'écrire (DEC-009).** Le contrat présentait *Test file glob* et *Source glob & exclusions* comme une partition, et traitait l'absence d'un **champ** sans jamais traiter l'absence de l'**outil** qu'une commande présuppose. Les deux suppositions sont maintenant explicites : un pivot déclare la non-disjonction et nomme l'unité réelle quand elle n'est pas le fichier ; un prérequis constaté absent vaut champ absent pour ce run, le pivot fournissant la commande de constat et le consommateur ne rapportant jamais l'échec comme un défaut du projet mesuré. Un outil manquant et une mesure manquante appellent des correctifs opposés.
+
+**Une règle rétroactive se paie dans le même lot, pas plus tard.** La clause de prérequis vaut pour les pivots déjà livrés : `sc-js` et `sc-python` sont repris ici même, plutôt que laissés non conformes à un contrat qui vient de bouger. La clause de non-disjonction, elle, n'est due que lorsque la disjonction ne tient pas — aucune reprise nécessaire. La distinction est ce qui permet de dire qu'aucun pivot livré n'est devenu non conforme sans être repris.
+
+**Une hypothèse réfutée est consignée comme telle.** Le plan prévoyait trois amendements ; `Anchor boundary` n'en a pas eu besoin — le contrat énonce déjà qu'ancré ne veut pas dire « dans un navigateur ». L'infirmation est écrite à l'ADR plutôt que passée sous silence, parce qu'un plan qui annonce trois corrections et n'en livre que deux doit dire laquelle n'avait pas lieu d'être.
+
 ## [3.8.0] - 2026-07-30
 
 `sc-python` 0.5.4 → 0.6.0. Complète `overcode` 4.1.0 sans le rebumper : cette version n'a pas encore été publiée, donc le contrat corrigé et les trois runs d'éval atterrissent dans le même commit qu'elle — un numéro identifie une intention, et celle-ci n'a jamais été installable dans son état de 3.7.0.

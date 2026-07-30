@@ -44,6 +44,8 @@ Deux flags à ajouter dans les deux cas, pour ne rien écrire dans le dépôt me
 
 `pytest-cov` (enveloppe de coverage.py). Reporter machine-lisible à demander explicitement — les reporters par défaut écrivent un tableau de terminal, pas un fichier exploitable.
 
+**Prérequis** — `pytest` n'embarque pas la couverture : `pytest-cov` est un paquet séparé, installé dans l'environnement mesuré et pas ailleurs. Constat avant lancement : `<env>/Scripts/python.exe -m pytest --version` liste les plugins chargés (`pytest-cov` y figure), ou `<env>/Scripts/python.exe -c "import pytest_cov"`. Son absence fait sortir pytest en erreur d'argument sur `--cov` — le projet mesuré n'est pas en cause, le champ est absent pour ce run. *Le projet mesuré portait le paquet ; l'échec en son absence n'a pas été rejoué.* Le choix de l'environnement compte ici comme ailleurs (voir *Known tooling gotchas*, deux environnements virtuels coexistants).
+
 ```
 pytest --cov=<package> --cov-config=pyproject.toml --cov-branch \
        --cov-report=xml:<chemin> --cov-fail-under=0 -p no:cacheprovider

@@ -75,6 +75,9 @@ STRATEGY
   density     : median <ratio> over <n> files carrying a matched case (<n> unmatched, excluded)
               | insufficient population (<n> files carry a test - no median is defensible)
               | not measurable - no coverage report, so no denominator (-> 03-configure)
+              | not measurable - coverage tooling absent from this machine: <prerequisite>
+                (the project is not at fault and 03-configure has nothing to wire -
+                 install the prerequisite, then re-run)
               | not measurable - report present but in line mode, no branch data
                 (-> 03-configure: one runner flag, not coverage from scratch)
   outliers    : <n> past 3x the median | none

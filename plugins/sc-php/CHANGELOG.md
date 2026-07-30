@@ -1,5 +1,18 @@
 # Changelog — sc-php
 
+## [0.10.0] — 2026-07-30
+
+### Added — pivot `testing`, mesuré sur deux mondes PHP qui ne partagent presque rien
+
+- **`skills/sniff/references/capabilities/tools/testing.md`** (nouveau) — quatrième implémenteur du contrat `plugins/overcode/skills/control/references/pivot-contract.md`, écrit **en anglais** comme les dix autres fichiers `capabilities/` du plugin, titres de sections repris verbatim des noms de champs, aucune table de correspondance due. Trois terrains en lecture seule, parce qu'une seule mesure aurait décrit un seul des deux mondes de cette stack : une boutique PrestaShop à neuf modules (PHP 8.4.11, PHPUnit 10.5.63, deux suites exécutées de bout en bout — 46 et 29 tests), une installation WordPress complète versionnée, et un dépôt WordPress dont la racine **est** `wp-content`.
+- **L'unité de mesure n'est pas le dépôt, c'est le composant.** Mesuré : neuf modules sous `modules/`, chacun son dépôt git, son `composer.json`, son `vendor/` et son `phpunit.xml.dist` ; **aucune commande racine ne les exécute**. Une mesure lancée depuis la racine du projet rend *zéro test* sur un projet qui en porte 225. C'est la première fois qu'un pivot doit dire qu'un projet n'a pas de point d'entrée unique.
+- **La couverture échoue en silence avec un code de retour 0.** Sans driver installé, `phpunit --coverage-clover` avertit, affiche `OK, but there were issues!`, **sort 0** et **n'écrit aucun fichier** — mesuré. Un consommateur qui lit le code de retour conclut au succès puis ne trouve pas le rapport. C'est le cas d'application le plus net de la clause de prérequis entrée au contrat en 4.2.0 (DEC-009) : la commande de constat est `php -m` / `extension_loaded()`, et l'absence de Xdebug ou de PCOV est une propriété de la machine, jamais un défaut du projet mesuré.
+- **`phpdbg -qrr` ne fournit plus de couverture** — conseil très répandu, mesuré faux sur PHPUnit 10 : même avertissement, même code 0, aucun fichier.
+- **Un `vendor/bin/phpunit` présent peut être mort.** Mesuré sur deux modules : le binaire existe et sort en `Class "PHPUnit\TextUI\Application" not found`, l'autoloader ayant été régénéré sans les dépendances de développement pendant que `vendor/phpunit/` restait sur le disque. Le constat fiable est `installed.json`, pas l'existence du fichier.
+- **Un `composer.json` sans `require-dev` ne signale pas un composant sans tests** — même contre-signal que le `[dev-dependencies]` absent de `sc-rust`, mesuré ici sur un module dépouillé pour l'empaquetage qui porte 93 méthodes de test et un `phpunit.xml.dist`.
+- **L'univers source WordPress est le contre-exemple du glob naïf** : 1640 fichiers `**/*.php` dont **86 appartiennent au projet** (5,2 %), le reste étant le cœur et des extensions tierces. Et le layout ne se déduit pas de la stack — deux dépôts WordPress mesurés, univers opposés, discriminant : la présence de `wp-includes/` à la racine.
+- **L'E2E d'un projet PHP n'est ordinairement pas en PHP.** Mesuré sur les deux terrains web : Playwright piloté depuis `package.json`. Le champ le dit plutôt que de nommer un outil PHP qu'aucun terrain n'utilise.
+
 ## [0.9.0] — 2026-07-28
 
 ### Added — `builder-coverage` : le scan inverse

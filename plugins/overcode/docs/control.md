@@ -113,6 +113,8 @@ Le motif : un champ qui nomme son consommateur s'attribue un **droit d'usage exc
 
 - **Un champ introuvable est absent**, et son repli documenté s'applique. Jamais une erreur, jamais une invitation à le déduire d'une section voisine — déduire un champ, c'est se donner l'autorité qu'on n'a pas trouvée.
 - **L'absence de pivot n'est pas une erreur**, et elle se dit. Les actions retombent sur les conventions du projet et déclarent que la résolution est non assistée.
+- **Un prérequis constaté absent vaut champ absent pour ce run.** Un champ dont la réponse est une commande dépend de l'outillage installé sur la machine, que le pivot ne peut pas connaître ; le pivot nomme donc ce prérequis et la commande qui en constate la présence, et le consommateur applique le repli documenté du champ en le disant. Une commande qui échoue faute d'outil ne se rapporte jamais comme un défaut du projet mesuré — un outil manquant et une mesure manquante appellent des suites opposées.
+- **Les populations *source* et *test* ne sont pas garanties disjointes.** Certaines stacks logent le test dans le fichier source lui-même ; le fichier cesse alors d'être l'unité de séparation. Quand la disjonction ne tient pas, le pivot le déclare et nomme l'unité réelle ; le repli statique qui rattache les modules source aux fichiers de test perd son pouvoir discriminant sur cette stack, et le run le dit plutôt que de rendre un classement que rien ne discrimine.
 
 Le partage est le même partout où le pivot intervient : `control` possède le critère générique, le pivot possède l'inventaire propre à la stack.
 

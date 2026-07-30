@@ -2,6 +2,26 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/sc-rust`.
 
+## [0.5.0] — 2026-07-30
+
+### Added — pivot `testing`, mesuré sur un crate binaire Win32, et trois hypothèses du contrat mises à l'épreuve
+
+`skills/sniff/references/capabilities/tools/testing.md` — dix champs du contrat de pivot `testing`, titres repris verbatim, aucune table de correspondance due. Terrain : `winfxstart`, crate binaire natif (`tao` 0.26, `windows` 0.52), 17 fichiers source, **122 tests**, `cargo 1.93.0` / `rustc 1.93.0`, en lecture seule — `CARGO_TARGET_DIR` détourné hors du dépôt, arbre resté strictement propre.
+
+**Ce pivot est le premier écrit contre une stack qui contredit le contrat**, et c'est ce qui en fait autre chose qu'une couverture de plus. Deux des trois hypothèses en cause ont mené à un amendement (`overcode` 4.2.0, DEC-009) ; la troisième est **réfutée** et consignée comme telle.
+
+- **Les populations *source* et *test* se recouvrent totalement.** Mesuré : 122 fonctions `#[test]` réparties sur **12 des 17** fichiers source, **zéro fichier de test dédié**, aucun répertoire `tests/`, aucun doctest. Un glob de fichiers de test au sens JS ou Python rendrait ici *0 test et 17 fichiers de production non testés*. Le pivot déclare la non-disjonction et nomme l'unité réelle — le module annoté `#[cfg(test)]`, pas le fichier.
+- **L'attribut `#[cfg(test)]` ne compte pas les suites.** 14 occurrences pour 12 modules de tests : les deux autres annotent des helpers compilés seulement en test — une fonction, et un module `TempDir` maison. Compter les attributs surcompte.
+- **La toolchain ne produit aucune couverture.** `cargo test` n'embarque pas de reporter ; `cargo-llvm-cov`, `cargo-tarpaulin` et `cargo-nextest` sont **absents des trois** sur le terrain (`cargo llvm-cov --version` → `error: no such command`). Le pivot fournit donc la commande de **constat du prérequis** avant celle de mesure, et marque les commandes de couverture elles-mêmes comme non exécutées — un outil absent n'est pas un projet fautif.
+- **Le repli du champ *Coverage command* ne fonctionne pas sur cette stack.** Le mapping statique module → fichier de test ferait se référencer chaque module lui-même. Le pivot le dit plutôt que de laisser rendre un classement vide de sens.
+- **`Anchor boundary` : l'hypothèse d'un contrat centré navigateur est réfutée.** Sa définition oppose déjà « frontière publique réelle du produit » à « rester dans le processus », et la table générique énonce `Anchored does not mean "in a browser."`. Le pivot y positionne la frontière Rust — binaire compilé invoqué, socket réel, `tests/` qui ne voit que le `pub` — et nomme ce qui **n'ancre pas** malgré l'apparence : `#[cfg(test)] mod tests` quelle qu'en soit la lourdeur, `#[tokio::test]`, un routeur exercé in-process, un `TempDir`. Mesuré et contre-intuitif : les tests du terrain écrivent dans le **vrai** système de fichiers via `std::env::temp_dir()` — réel et ancré ne sont pas synonymes.
+- **Six pièges d'outillage, en (constat, détection, correctif)**, dont deux mesurés en cours de route : `cargo test` écrit `target/` dans le dépôt mesuré, et aucun décompte n'existe sans compilation complète (52 s à froid ici).
+- **Contre-signal utile** : `Cargo.toml` ne porte **aucune** section `[dev-dependencies]`, sur un crate à 122 tests. L'absence de dépendances de test ne signale pas un crate sans tests.
+
+Ce que ce pivot ne fait pas : décider s'il faut un test, ni quel niveau de preuve un cas mérite. Ce que le terrain n'a pas — `tests/`, doctests, couverture, code asynchrone, `[features]` — est marqué **non vérifié** à l'endroit où il apparaît.
+
+`README.md` gagne les sections *Pivots* correspondantes, jusqu'ici absentes pour tous les pivots du plugin.
+
 ## [0.4.5] — 2026-07-28
 
 ### Changed
