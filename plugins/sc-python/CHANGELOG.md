@@ -2,6 +2,30 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/sc-python`.
 
+## [0.6.0] — 2026-07-30
+
+### Added — pivot `testing`, mesuré sur un projet Django réel
+
+`skills/sniff/references/capabilities/tools/testing.md` — les dix champs du contrat de pivot d'`overcode:control`, dans le vocabulaire de la stack Python. Deuxième pivot `testing` du marketplace après celui de `sc-js`, et **pas une traduction du sien** : le contrat dit que chaque pivot écrit ce que sa propre stack rend lisible, et les deux divergent partout où pytest/coverage.py et Vitest/Playwright divergent.
+
+Commandes et chiffres **relevés sur un projet Django réel** (Django 5.0, pytest 9.1.1, coverage.py 7.15, 80 fichiers de test, 1028 tests). Ce qui n'a pas pu être mesuré est signalé à l'endroit où il apparaît, plutôt que rendu au conditionnel partout.
+
+Les cinq constats qui portent le fichier, tous vérifiés en exécution :
+
+- **Deux runners qui ne collectent pas le même ensemble, et l'un peut n'en collecter aucun.** `manage.py test` ignore les fonctions de test au niveau module et les classes `Test*` ne dérivant pas de `TestCase` — le style pytest en entier. Sur la fixture : 280 fonctions, 218 classes nues, **0** `TestCase` ; `manage.py test` y collecterait **zéro test sur 1028**, sans erreur, en vert.
+- **Le glob de test est une valeur de configuration, pas une convention.** `python_files` **remplace** le défaut de pytest au lieu de s'y ajouter — sur la fixture, `*_test.py`, l'un des deux défauts, n'est pas collecté. Le lire est la première opération ; le supposer est une erreur mesurée.
+- **Le comptage par défaut est déjà filtré.** `addopts` s'applique à `--collect-only` aussi : la commande nue rend 1027 au lieu de 1028. La commande fournie neutralise le filtre (`-o addopts=''`) ou déclare le nombre comme filtré, et n'écrit rien dans le dépôt mesuré (`-p no:cacheprovider`, `--no-cov`).
+- **Un rapport de couverture ment de deux façons, et aucune n'est visible dans le rapport.** `--cov=<package>` laisse `config/` hors du dénominateur — ni couvert, ni non couvert : absent. Et `omit` retire du code applicatif réel (deux fichiers de vues de 21 ko sur la fixture) pendant que leurs voisins restent. D'où la règle : le *Source glob* définit l'univers, le rapport ne fait que l'enrichir, et **un fichier du glob absent du rapport est non couvert, pas inexistant**. La gate est neutralisée (`--cov-fail-under=0`, vérifié : sortie 1 → 0, rapport écrit dans les deux cas) parce que lire un rapport n'est pas passer un gate.
+- **Le test client Django n'ancre pas.** `django.test.Client`, le `client` de pytest-django et l'`APIClient` de DRF construisent la requête en mémoire et appellent le handler WSGI directement : l'observation reste **interne**, quel que soit le réalisme apparent de l'URL et du code de statut. C'est le champ le plus contre-intuitif du fichier, et celui dont dépend le classement d'une suite Django entière.
+
+Deux bornes tenues par construction, conformément au contrat : les *Signaux de risque* ouvrent sur « **Ne classent jamais un tier** » et la *Frontière d'ancrage* sur « **Ne nomme aucun tier, et n'en dérive aucun** ». Le pivot fournit du savoir de stack ; l'arbitrage appartient au consommateur, et aucun champ ne nomme lequel.
+
+- `README.md` § *Pivot de gouvernance `testing`* décrit le fichier et le tableau récapitulatif distingue ses trois modes de chargement.
+
+### Impact mesuré sur le consommateur
+
+Trois lignes d'éval d'`overcode:control` étaient N/A **faute de ce pivot** — `matrix` M15, `authority` S6, `domains` S3. Rejouées sur le même projet Django : M15 et S6 passent (`matrix` 17/18 → **18/18**, `authority` 12/17 → **13/17**), S3 reste N/A sur la moitié restante de sa cause — aucune fixture ne déclare de domaine — et le dit. Aucune ligne n'est plus N/A par absence de pivot.
+
 ## [0.5.4] — 2026-07-28
 
 ### Changed

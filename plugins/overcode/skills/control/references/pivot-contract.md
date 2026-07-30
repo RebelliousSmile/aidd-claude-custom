@@ -1,16 +1,31 @@
 # Testing pivot contract
 
-A language plugin (e.g. `sc-js`, `sc-php`, `sc-python`, `sc-rust`) MAY provide a `testing` capability pivot, nested under its own `sniff`-equivalent skill tree alongside its existing capability categories - e.g. in `sc-js` this lives at `skills/sniff/references/capabilities/tools/testing.md`, next to `tools/vitest.md` and `tools/playwright.md`. Only `sc-js` ships one today; other language plugins could provide one following the same shape, but none is an established example yet. The pivot is consumed when the target project's active language plugin ships one; its generic, stack-agnostic checks run unrefined when none is available.
+A language plugin (e.g. `sc-js`, `sc-php`, `sc-python`, `sc-rust`) MAY provide a `testing` capability pivot, nested under its own `sniff`-equivalent skill tree alongside its existing capability categories - e.g. in `sc-js` this lives at `skills/sniff/references/capabilities/tools/testing.md`, next to `tools/vitest.md` and `tools/playwright.md`. `sc-js` and `sc-python` ship one today; the remaining language plugins could provide one following the same shape. The two shipped ones are not a template to copy field by field: each writes what its own stack makes legible, in its own language, and they diverge wherever the stacks do. A pivot is consumed when a language plugin applicable to the target project ships one; the generic, stack-agnostic checks run unrefined for whichever of the project's stacks has none.
 
-## Detecting the active language plugin
+## Detecting the applicable language plugins
 
-Use the same detection convention the language plugin's own `sniff`-equivalent action uses for the target project (e.g. inspecting its package manifest or build files) - stack detection is not reimplemented here; whichever language plugin is already installed and applicable is reused.
+Use the same detection convention each language plugin's own `sniff`-equivalent action uses for the target project (e.g. inspecting its package manifest or build files) - stack detection is not reimplemented here; whichever language plugins are already installed and applicable are reused.
+
+**More than one may be applicable, and that is the ordinary case.** A Python backend carrying a `frontend/` package manifest, a TypeScript application whose engine is a Rust crate in the same repository, a PHP codebase with a Node lint pipeline - each is applicable to two. Detection therefore returns a **set**, never a winner.
+
+### The pivot follows the file
+
+There is no dominant stack and no election. **Every applicable plugin contributes its own pivot, and a field is resolved by the pivot of the plugin whose stack the file under consideration belongs to.** Electing a single plugin would answer every field of the project out of a stack most of its files are not written in - and the stack that wins a manifest-level election is regularly not the one carrying the code.
+
+Four consequences, stated here so no consumer needs a rule of its own:
+
+- **Enumerations are unions, and they say what they are made of.** The test population is the union of each contributed **Test file glob**; the source universe, the union of each **Source glob & exclusions**. A run names the globs it combined. A file matched by none is not *no test* - it is a file outside the enumerated stacks, and it is reported as such rather than being silently absent, since an under-enumeration reads exactly like a clean population.
+- **Nothing is summed across stacks.** Any count, density or coverage figure a consumer renders is rendered per stack, with the stack named. One number over two populations counted by two conventions states a quantity nothing measured.
+- **Absence is per stack, and so is the fallback.** A stack whose plugin ships no pivot falls back to that field's documented fallback, and the run states the fallback **for that stack**. *No pivot available* said of a whole polyglot project is false as soon as one of its stacks has one.
+- **The same field answered differently by two pivots is not a conflict.** They answer about different files. A consumer needing one answer for the whole project is asking something the project does not have; it renders both, attributed.
+
+Applicability is re-read at the run's `scope`, not fixed once at the project: a plugin applicable to the repository but to no file under `scope` contributes nothing to that run.
 
 ## Locating the testing pivot
 
-Canonical filename: `testing.md`. Discovery glob: `**/capabilities/**/testing.md`, run under the active language plugin's own root directory - never project-wide. The parent directory right above `testing.md` is each language plugin's own choice (`tools/`, a dedicated `testing/`, or directly under `capabilities/`); the glob's `**` accepts all of them, so no further convention is needed there.
+Canonical filename: `testing.md`. Discovery glob: `**/capabilities/**/testing.md`, run under each applicable language plugin's own root directory - never project-wide, and once per applicable plugin. The parent directory right above `testing.md` is each language plugin's own choice (`tools/`, a dedicated `testing/`, or directly under `capabilities/`); the glob's `**` accepts all of them, so no further convention is needed there.
 
-The active language plugin's root directory is resolved the same way as its detection in the section above: the root of whichever installation is actually loaded in the current session - `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` in normal execution, or the plugin's source root (`plugins/<plugin>/`) when this runs directly against a marketplace repo (e.g. while developing the skill itself). Neither path is hardcoded; the root is located the same way it is already located to detect the plugin.
+A language plugin's root directory is resolved the same way as its detection in the section above: the root of whichever installation is actually loaded in the current session - `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` in normal execution, or the plugin's source root (`plugins/<plugin>/`) when this runs directly against a marketplace repo (e.g. while developing the skill itself). Neither path is hardcoded; the root is located the same way it is already located to detect the plugin.
 
 ## Expected shape
 
@@ -49,7 +64,7 @@ Every field above states what it supplies and, where relevant, its fallback when
 
 ## Absence
 
-No pivot existing for the detected language plugin is not an error. Generic, stack-agnostic checks run, and the output states that stack-specific refinement was unavailable for that run.
+No pivot existing for a detected language plugin is not an error. Generic, stack-agnostic checks run for that plugin's stack, and the output states which stack went unrefined - never that the run was unrefined, when another of the project's stacks contributed a pivot.
 
 ## Language
 

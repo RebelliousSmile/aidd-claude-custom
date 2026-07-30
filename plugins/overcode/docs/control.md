@@ -116,6 +116,19 @@ Le motif : un champ qui nomme son consommateur s'attribue un **droit d'usage exc
 
 Le partage est le même partout où le pivot intervient : `control` possède le critère générique, le pivot possède l'inventaire propre à la stack.
 
+### Le pivot suit le fichier
+
+**Un projet a autant de plugins de langage applicables que de stacks, et il n'y a ni stack dominante ni élection.** Chaque plugin applicable contribue son pivot, et un champ est résolu par le pivot du plugin dont la stack contient le fichier considéré. Un dépôt qui câble `vitest run` et `cargo test` dans le même manifeste est le cas ordinaire ; en élire un répond à **tous** les champs depuis une stack dans laquelle la plupart de ses fichiers ne sont pas écrits.
+
+- **Les énumérations sont des unions, et elles disent ce qu'elles ont combiné.** Un fichier qu'aucun glob contribué ne prend n'est pas *pas un test* : c'est un fichier hors des stacks énumérées, et il est rapporté comme tel. Une population amputée d'une stack se lit exactement comme une stack propre.
+- **Rien n'est sommé entre stacks.** Décomptes, densités, chiffres de couverture, lignes d'outillage : rendus par stack, la stack nommée. Un nombre unique sur deux populations comptées par deux conventions énonce une quantité que rien n'a mesurée.
+- **L'absence se dit d'une stack, jamais du run.** *« Aucun pivot disponible »* est faux d'un projet dont une seule stack en a un.
+- **Deux pivots qui répondent différemment au même champ ne se contredisent pas** — ils répondent sur des fichiers différents. Le besoin d'une réponse unique pour tout le projet est une question que le projet n'a pas.
+
+L'applicabilité se relit au `scope` du run : un plugin applicable au dépôt mais à aucun fichier sous `scope` ne contribue rien à ce run.
+
+Cette règle ne donne aucune autorité nouvelle à un pivot. Multiplier les fournisseurs multiplie le savoir disponible, jamais le nombre d'instances qui tranchent (DEC-008).
+
 ## Le document du projet
 
 La stratégie de test du projet — conventionnellement `aidd_docs/memory/testing.md`. Elle appartient à la **skill de mémoire projet d'`aidd-context`**, et `control` ne fait que la lire : ce qu'il a à y faire inscrire passe par son propriétaire, par la délégation décrite plus bas. Le fichier que `control` écrit de sa propre main en est un autre — `testing-domains.md`, et `06-align` en est le seul écrivain.

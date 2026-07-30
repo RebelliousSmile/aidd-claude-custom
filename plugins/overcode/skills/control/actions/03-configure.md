@@ -22,7 +22,7 @@ It is reachable and terminal in the chaining graph: `05-stats` routes into it, a
 
 ## Process
 
-1. Resolve `project_path`. Detect the active language plugin and load its `testing` pivot if present (`@../references/pivot-contract.md`) - it lists known tooling gotchas and config-validation checks specific to that stack, and it names two fields this action reads directly: **Coverage command** and **Canonical E2E tool**. If no pivot is available, run only the tool-agnostic checks below.
+1. Resolve `project_path`. Detect the applicable language plugins and load the `testing` pivot of each one shipping it (`@../references/pivot-contract.md`) - each lists known tooling gotchas and config-validation checks specific to its stack, and names two fields this action reads directly: **Coverage command** and **Canonical E2E tool**. **Both are per stack**: a polyglot project has one coverage command per stack and no single figure, and its E2E tool of one stack says nothing about the other. Run the tool-agnostic checks below for whichever stack contributed no pivot, naming that stack.
 2. Tool-agnostic checks:
    - Is a coverage gate configured, and does it actually run in CI or a pre-commit hook - not only declared in a config file that nothing invokes?
    - When the pivot states a **Coverage command**, does it actually run **independently of the gate** - producing its per-file report even when the gate would exit non-zero? A command that only runs as part of the gate cannot be used to read coverage on a project that is failing it, which is exactly when reading it matters most.

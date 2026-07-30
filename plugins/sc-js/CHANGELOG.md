@@ -1,5 +1,28 @@
 # Changelog — sc-js
 
+## [0.15.0] — 2026-07-30
+
+### Added — le pivot `testing` fournit `Domain resolution`, jusqu'ici sans aucun fournisseur
+
+Le contrat de pivot définit ce champ depuis sa refonte : **comment une stack exprime un domaine fonctionnel** dans le système de fichiers et dans les identifiants. Aucun pivot ne le remplissait — celui-ci portait neuf sections, dont aucune n'était celle-là. Le champ est optionnel, donc son repli s'appliquait partout sans erreur ; c'est le silence qui coûtait, pas l'échec. Les prochains pivots l'auraient chacun réinventé de leur côté.
+
+- **Trois voies, dans l'ordre de fiabilité décroissante** : les répertoires (routing par système de fichiers, découpe `features/<domaine>/`, workspaces de monorepo, layers Nuxt), les identifiants (suffixes `*.service.ts`/`*.guard.ts`, symboles `use<Domaine>Store`/`<Domaine>Repository`, premier segment sous `server/api/`), puis les prudences.
+- **La découpe par couche ne porte pas le domaine** — `controllers/`, `services/`, `stores/`, `composables/`, `server/api/` sont des couches. Un arbre exclusivement en couches n'expose aucun domaine par ses répertoires, et c'est le cas ordinaire d'un backend Express : la section le dit plutôt que de laisser déduire un domaine d'un nom de couche.
+- **Les segments techniques sont nommés** — dynamiques (`[id]`, `[...slug]`), groupes sans effet d'URL (`(group)`), fichiers de rôle (`+page`/`+layout`, `layout.tsx`). Sans cette liste, un routeur file-based rend un « domaine » par segment, dont plusieurs n'en sont pas un.
+- **Un fichier de test se rattache au domaine du fichier qu'il exerce**, pas à son propre emplacement — une suite entière peut vivre sous `tests/` sans qu'un seul segment de son chemin porte un domaine.
+- **Aucune liste de domaines**, conformément au contrat : le champ répond *comment les trouver ici*, jamais *lesquels existent*, et il complète une résolution déjà énoncée sans jamais primer sur elle. Il reste distinct de `Source glob & exclusions` — l'un est structurel, l'autre sémantique.
+- `README.md` § *Pivot de gouvernance `testing`* énumère le champ ajouté.
+
+Mineure et pas corrective : un champ apparaît, aucun ne change ni ne disparaît. Aucun consommateur n'a à être modifié — le repli documenté cesse simplement de s'appliquer à cette stack.
+
+## [0.14.1] — 2026-07-30
+
+### Fixed — l'entrée 0.14.0 sous-déclarait ce qui a été fait au pivot
+
+Elle dit *« le contenu est conservé tel quel »* du champ renommé `Anchor boundary`. **Faux** : le même commit a retiré de la section les attributions de tier (`→ toujours contract`, `→ e2e`) et l'argument de budget, et lui a donné son ouverture actuelle — *« Ne nomme aucun tier, et n'en dérive aucun »*. Seul le **savoir de position** est conservé : l'émulateur qui n'ancre pas, le mismatch d'hydratation que seul le navigateur réel établit, le handler Nitro appelable en process. Le retrait n'est pas un détail de rédaction, c'est ce qui met le pivot en conformité avec la borne du contrat (`pivot-contract.md:24`).
+
+Aucun fichier de pivot ne change ici — il est déjà correct. Ce qui change est ce que le journal en dit. Un correctif sous-déclaré est un correctif qu'on refait : sur la foi de cette phrase et d'une lecture du **cache installé** plutôt que de la source, le champ a été rouvert comme non conforme deux jours plus tard. Même rectification dans DEC-007 §3 et dans les journaux d'`overcode` et du marketplace.
+
 ## [0.14.0] — 2026-07-30
 
 ### Changed — le pivot `testing` cesse de nommer son consommateur

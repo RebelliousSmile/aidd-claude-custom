@@ -118,6 +118,31 @@ Structurellement sans comportement propre à prouver dans cette stack :
 - **`waitForTimeout` (Playwright)** — attente arbitraire au lieu d'une attente d'état, flaky par construction. Détection : grep `waitForTimeout(` dans le glob E2E. Fix : `waitForLoadState`, assertion web-first `expect(locator)...`, ou `locator.waitFor()`.
 - **Émulateur Firebase non démarré en CI** — des tests qui importent `@firebase/rules-unit-testing` mais dont le script CI ne lance pas `firebase emulators:exec`/`firebase emulators:start` échouent en connexion, ou pire, tapent silencieusement le vrai projet Firebase si `FIRESTORE_EMULATOR_HOST` n'est pas forcé. Détection : `@firebase/rules-unit-testing` en dépendance sans `emulators:exec` dans le script de test correspondant. Fix : envelopper le script concerné dans `firebase emulators:exec --only firestore,auth "vitest run ..."`.
 
+## Domain resolution
+
+**Comment retrouver ici un domaine déjà nommé, jamais lesquels existent.** Quels domaines un produit possède, et à quel niveau, s'établit ailleurs. Ce champ **complète** une résolution ; il ne prime jamais sur ce qui est énoncé explicitement à propos du code du projet. Champ sémantique : il ne retire ni n'ajoute rien à ce que `Source glob & exclusions` déclare classable.
+
+### Par les répertoires
+
+- **Routing par système de fichiers** — `pages/<domaine>/` (Nuxt 2/3, Vue Router file-based), `app/pages/<domaine>/` (Nuxt 4), `app/<domaine>/` (Next app router), `src/routes/<domaine>/` (SvelteKit). Le segment porte le domaine, sauf quand il est technique : segments dynamiques (`[id]`, `[...slug]`), groupes sans effet d'URL (`(group)`), et fichiers de rôle (`+page`/`+layout` SvelteKit, `layout.tsx` Next).
+- **Découpe par fonctionnalité** — `features/<domaine>/`, `modules/<domaine>/`, `domains/<domaine>/`. Généralement doublée d'un sous-arbre par couche à l'intérieur : le domaine est au premier niveau, pas au second.
+- **Monorepo** — `packages/<domaine>/`, `apps/<domaine>/`. Le champ `name` du `package.json` du workspace (`@<scope>/<domaine>`) est plus fiable que le nom du dossier, qui est libre.
+- **Nuxt layers** — une couche par domaine, chacune rejouant l'arbre Nuxt complet. Le répertoire est libre ; les couches actives se lisent dans `extends` de `nuxt.config`, pas dans une convention de nom.
+
+**La découpe par couche ne porte pas le domaine.** `controllers/`, `services/`, `stores/`, `composables/`, `middleware/`, `server/api/` sont des couches. Sur un arbre exclusivement en couches, aucun répertoire n'expose de domaine — il se lit alors dans les identifiants.
+
+### Par les identifiants
+
+- **Noms de fichier** — `<domaine>.service.ts`, `<domaine>.guard.ts`, `<domaine>.store.ts`, `<domaine>.schema.ts`, `use<Domaine>.ts` (composable).
+- **Symboles exportés** — `use<Domaine>Store` (Pinia), `<Domaine>Provider`, `<Domaine>Repository`, `<Domaine>Controller`, `<Domaine>Service`.
+- **Routes serveur** — sous `server/api/`, le **premier** segment est le domaine ; ce qui suit est la ressource ou le verbe (`server/api/billing/invoices.post.ts` → `billing`).
+
+### Prudences
+
+- Un même domaine se graphie de plusieurs façons dans le même dépôt (`checkout`, `Checkout`, `use-checkout`, `CHECKOUT_`). Apparier sans casse et sans séparateur.
+- Un répertoire de premier niveau peut nommer une **technique** et non un domaine : `shared/`, `common/`, `core/`, `ui/`, `lib/`, `utils/`, `types/`.
+- Un fichier de test se rattache au domaine du fichier qu'il exerce, pas à son propre emplacement : une suite entière peut vivre sous `tests/` sans qu'aucun segment de son chemin ne porte de domaine.
+
 ## Canonical E2E tool
 
 Playwright, quand détecté en devDependencies. Informationnel uniquement : un outil établi se documente, il ne se remplace pas.

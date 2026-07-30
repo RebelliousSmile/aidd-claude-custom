@@ -4,6 +4,26 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [3.8.0] - 2026-07-30
+
+`sc-python` 0.5.4 → 0.6.0. Complète `overcode` 4.1.0 sans le rebumper : cette version n'a pas encore été publiée, donc le contrat corrigé et les trois runs d'éval atterrissent dans le même commit qu'elle — un numéro identifie une intention, et celle-ci n'a jamais été installable dans son état de 3.7.0.
+
+**Le contrat de pivot `testing` a un deuxième implémenteur, et c'est ce qui le rend vérifiable.** Tant qu'un seul plugin en livrait un, rien ne distinguait le contrat de ce pivot-là : toute clause du contrat pouvait être satisfaite par accident. `sc-python` en livre un écrit contre la même spécification et contre une autre stack — pytest/coverage.py au lieu de Vitest/Playwright — et les deux divergent partout où les stacks divergent, comme le contrat l'exige depuis 3.7.0. Détail dans le journal de `sc-python`.
+
+**Le contrat cesse de se citer un exemple.** `pivot-contract.md` nommait « le seul pivot livré » comme illustration : la phrase est devenue fausse le jour de cette livraison, et elle avait déjà cessé d'être vraie une fois auparavant, sur la réécriture du pivot `sc-js`. Elle est remplacée par l'énoncé de ce que les deux ont en commun — la spécification — et de ce qu'ils n'ont pas — leurs champs. Un contrat qui s'illustre d'un état du monde périme à chaque livraison.
+
+**Trois lignes d'éval d'`overcode:control` étaient N/A faute d'un pivot Python, et l'une d'elles était mal diagnostiquée.** Elles avaient été écrites contre un contrat qu'aucun projet Python ne pouvait alors satisfaire, et leur N/A ne se levait par aucune édition de la cible. Rejeu sur un projet Django réel : deux passent (`matrix` 18/18, `authority` 13/17), la troisième reste N/A sur une cause qui se nomme — aucune fixture ne déclare de domaine. En chemin, le dossier corrige une attribution de cause fausse : le blocage de `authority` S6 avait été imputé à l'absence de données de branches, alors qu'il tenait à une commande de couverture, que la fixture configure. **Un N/A qui vieillit sans être rejoué se déplace vers la mauvaise cause** — c'est le mouvement des N/A, et non le compte des FAIL, qui l'expose.
+
+## [3.7.0] - 2026-07-30
+
+`overcode` 4.0.0 → 4.1.0 · `sc-js` 0.14.0 → 0.15.0.
+
+**Le contrat de pivot de `control` cesse d'élire une stack : le pivot suit le fichier.** Un projet a autant de plugins de langage applicables que de stacks, chacun contribue son pivot, et un champ est résolu par le pivot de la stack à laquelle appartient le fichier considéré. Transverse parce que c'est le contrat — interface publique au sens de DEC-004 §5 — qui change, mais **additif** : aucun champ renommé ni retiré, aucune implémentation de pivot à modifier. Détail dans le journal d'`overcode`.
+
+**`Domain resolution` cesse d'être un champ de contrat que personne ne remplit.** Le contrat le définit, six consommateurs le lisent, aucun pivot ne le fournissait — le repli s'appliquait donc partout, sans erreur et sans bruit. `sc-js` le pourvoit le premier, et c'est cette forme-là que les quatre pivots à venir copient plutôt que d'en produire quatre interprétations parallèles. Détail dans le journal de `sc-js`.
+
+**Une rectification, dans quatre fichiers à la fois.** Les entrées 3.5.1 et 3.6.0, DEC-007 §3 et le journal de `sc-js` affirmaient que le contenu du champ `Tier thresholds` → `Anchor boundary` était *« conservé tel quel »*. Le commit de la part 3 a **aussi reborné le champ** : les attributions de tier et l'argument de budget sont partis, seul le savoir de position reste, et c'est ce retrait qui rend le pivot conforme. La phrase décrivait le plan, pas la livraison. Conservée, elle a fait rouvrir un correctif déjà fait comme un défaut ouvert — d'où la rectification partout où elle figure plutôt qu'au seul endroit où elle a été remarquée.
+
 ## [3.6.0] - 2026-07-30
 
 `overcode` 3.12.1 → 4.0.0 · `sc-js` 0.13.2 → 0.14.0. Part 3 sur 3 de la refonte de `control` : la skill reçoit le modèle posé en 3.5.1. L'écart déclaré alors, et reconduit en 3.5.2, se referme.
@@ -36,7 +56,7 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnemen
 
 ### Changed
 
-- **Le champ de pivot `Tier thresholds` sera renommé `Anchor boundary`.** C'est un changement de l'interface publique décrite par DEC-004 §5, donc un changement transverse : `overcode` le consomme, `sc-js` le fournit. La page de `control` l'anticipe dès cette version pour que le modèle qu'elle publie soit lisible ; `references/pivot-contract.md` et le pivot `sc-js` porteront le nouveau titre dans la part 3, dans le même commit — un contrat et son unique implémentation ne peuvent pas diverger le temps d'une version. Le contenu du champ est conservé tel quel : il était mal nommé, pas inutile.
+- **Le champ de pivot `Tier thresholds` sera renommé `Anchor boundary`.** C'est un changement de l'interface publique décrite par DEC-004 §5, donc un changement transverse : `overcode` le consomme, `sc-js` le fournit. La page de `control` l'anticipe dès cette version pour que le modèle qu'elle publie soit lisible ; `references/pivot-contract.md` et le pivot `sc-js` porteront le nouveau titre dans la part 3, dans le même commit — un contrat et son unique implémentation ne peuvent pas diverger le temps d'une version. Le contenu du champ est conservé tel quel : il était mal nommé, pas inutile. *(Annonce démentie par la livraison — cf. 3.7.0 : le contenu a aussi été reborné.)*
 - **`skills/control/` reste sur le modèle précédent dans cette version, par construction.** DEC-006 impose l'ordre page → suites `behave` rouges → skill, au motif que `behave` teste des sorties et jamais la cohérence entre deux documents normatifs : commencer par la skill rendrait une incohérence page/référence indétectable. L'écart est donc déclaré, et la page fait foi tant qu'il dure. Il se referme en `overcode` 4.0.0, majeur à cause du renommage ci-dessus.
 
 ## [3.5.0] - 2026-07-28
