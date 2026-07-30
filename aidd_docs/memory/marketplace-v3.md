@@ -2,6 +2,8 @@
 
 Source de vérité : `plugins/<nom>/.claude-plugin/plugin.json`, recopié dans `.claude-plugin/marketplace.json`. Ce fichier en est la lecture, pas une archive datée.
 
+Un `version.txt` racine a existé et a été **supprimé le 2026-07-30** : aucun fichier du dépôt ne le lisait et il avait dérivé de six mineures. Ne pas le recréer — un second porteur de version rediverge dès le bump suivant.
+
 | Plugin | Rôle |
 |---|---|
 | `overcode` | Extensions AIDD projet-agnostiques : alias, behave, control, harvest, status, taste, foresee, baby, readme, changelog, decompose, journey, reconcile-normative, seo-optimize, data/web/ap-optimize |

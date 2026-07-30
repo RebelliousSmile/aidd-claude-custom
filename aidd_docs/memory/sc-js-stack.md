@@ -2,8 +2,8 @@
 
 | Champ | Valeur |
 |---|---|
-| Version courante | 0.10.0 |
-| Dernière release | 2026-07-22 |
+| Version courante | 0.15.1 |
+| Dernière release | 2026-07-30 |
 
 ## Frameworks détectés
 
@@ -34,7 +34,7 @@ prisma, drizzle, typeorm, mongoose, graphql, trpc
 
 ## Pivot consommé par un autre plugin
 
-`tools/testing.md` (v0.9.0+) — seul pivot de `sc-js` qui n'est lu par aucune skill de `sc-js`. Il est découvert **par glob** (`**/capabilities/**/testing.md`) et consommé par `overcode:control`, dont `references/pivot-contract.md` fait foi sur les champs attendus. Voir `DEC-004`.
+`tools/testing.md` (v0.9.0+) — seul pivot de `sc-js` qui n'est lu par aucune skill de `sc-js`. Il est découvert **par glob** (`**/capabilities/**/testing.md`) et consommé par `overcode:control`, dont `references/pivot-contract.md` fait foi sur les champs attendus. Voir `DEC-004`, et [pivots-testing.md](pivots-testing.md) depuis que trois autres plugins en fournissent un.
 
 ## Réceptacles pivot design
 
