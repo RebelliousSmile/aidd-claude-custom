@@ -1,5 +1,11 @@
 # Changelog — sc-php
 
+## [0.10.1] — 2026-08-03
+
+### Fixed — l'en-tête d'installation est dérivé de ce qui a été écrit
+
+`sniff/02-install-pivots` n'avait qu'un bloc de sortie, en-tête `✅ pivots installed` compris. Une bibliothèque PHP ou un outil CLI, sans framework ni ORM, recevait donc « pivots installed » alors qu'aucun fichier n'était écrit — et le cas se rencontre d'autant plus ici que le plugin cible aussi bien des dépôts sans `composer.json` que des installations WordPress. La sortie se branche maintenant en trois cas : au moins un pivot écrit ou mis à jour · **rien à installer** (en-tête `✅ sc-php sniff — nothing to install`, verbatim) · tout déjà à jour.
+
 ## [0.10.0] — 2026-07-30
 
 ### Added — pivot `testing`, mesuré sur deux mondes PHP qui ne partagent presque rien

@@ -37,7 +37,7 @@
     },
     {
       "name": "sc-php",
-      "version": "0.10.0",
+      "version": "0.10.1",
       "source": "./plugins/sc-php",
       "description": "PHP ecosystem skills: sniff, audit, improve, legacy, teach, log-analysis (tail/parse-errors/search/summarize sur logs PHP/Apache/Nginx local, Docker ou SSH prod), bruno (tests API Bruno en CLI, itère jusqu'au vert). design-bridge: réceptacle du pivot design (enforce → linter PHP/WP natif + pre-commit ; diffuse → block pattern WP + theme.json) ; possède le workflow de plateforme FSE (design:detail). builder-coverage: gate WYSIWYG FSE — couverture (chaque composant de page a une pattern éditable) + organisation (patterns rangées par rôle de section, sans fourre-tout). setup: scaffold-from-zero WordPress FSE/Laravel/Symfony + Docker Compose, garde-fou COMPOSE_PROJECT_NAME, pipeline de déploiement SSH optionnel (rsync + export DB conditionnel).",
       "recommended": false

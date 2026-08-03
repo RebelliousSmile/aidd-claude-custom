@@ -36,6 +36,10 @@ This action installs ONLY to `.claude/rules/07-quality/`. It NEVER installs capa
 
 ## Output
 
+Pick the header by what actually happened — never claim "installed" when nothing was written.
+
+### Case A — at least one pivot was installed or updated
+
 ```
 ✅ sc-php sniff — pivots installed
 
@@ -54,3 +58,28 @@ This action installs ONLY to `.claude/rules/07-quality/`. It NEVER installs capa
 → /web-optimize and /data-optimize are ready for detected pivots.
 → Run /sc-php:audit to review PHP code quality against capability pivots.
 ```
+
+### Case B — nothing to install (no applicable perf/data pivot)
+
+Use this header verbatim when the manifeste lists no perf and no data pivot (e.g. a PHP library or
+a CLI tool with neither framework nor ORM). Do **not** write `pivots installed` when nothing was
+written.
+
+```
+✅ sc-php sniff — nothing to install
+
+  Perf pivots:
+    — none applicable (no framework with a perf pivot detected)
+
+  Data pivots:
+    — none detected
+
+  Capability pivots: not installed (loaded on demand by /sc-php:audit)
+
+→ /web-optimize and /data-optimize have no pivot to load for this project.
+→ Run /sc-php:audit to review PHP code quality against capability pivots.
+```
+
+### Case C — pivots were applicable but all already up-to-date
+
+Header `✅ sc-php sniff — pivots up-to-date`; list each pivot with `✓ … (skipped — up-to-date)`.
