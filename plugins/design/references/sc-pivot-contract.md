@@ -14,7 +14,7 @@ Le design garde le **QUOI** (le contrat : tokens + manifeste = autorité). Les `
 
 ## Spec d'enforcement (enforce → design-bridge)
 
-`enforce/04-pivot.md` émet ce spec en contexte (pas dans un fichier) quand un `sc-<langage>` est détecté.
+`skills/enforce/actions/04-pivot.md` émet ce spec en contexte (pas dans un fichier) quand un `sc-<langage>` est détecté.
 
 ```
 ## Design enforcement spec
@@ -68,7 +68,7 @@ Retourne : le linter installé dans le projet + les instructions de câblage dan
 
 ## Spec de rendu (diffuse → design-bridge)
 
-`diffuse/04-pivot.md` émet ce spec quand un `sc-<langage>` est détecté.
+`skills/diffuse/actions/03-pivot.md` émet ce spec quand un `sc-<langage>` est détecté.
 
 ```
 ## Design render spec
@@ -111,12 +111,29 @@ Le réceptacle **écrit un rapport pour chaque règle qui lui a été assignée*
 
 Ce que l'obligation ferme : sans rapport, une règle assignée et une règle oubliée produisent la même trace — aucune. Le runner ne peut alors que la déclarer non réalisée « sans nouvelle de son réalisateur », ce qui est vrai des deux cas. Un `status: "unrealized"` nommé par son auteur les sépare : quelqu'un a lu la règle et dit ne pas la couvrir.
 
+**Pourquoi l'obligation ne vaut que pour l'enforcement.** Le contrat demande un rapport au réceptacle d'enforcement et n'en demande aucun au réceptacle de rendu — la ligne *rapport* de la colonne rendu vaut `—` (§ *Ce que le réceptacle doit renvoyer*). Ce n'est pas une lacune : une règle non réalisée est **silencieuse**, un artefact non produit est **auto-évident**. Le fichier composant existe et passe le gate, ou il n'existe pas ; aucune trace n'a besoin d'être écrite pour que son absence se voie. L'obligation de report paie un silence — là où il n'y a pas de silence, elle n'a rien à payer.
+
+### Les sept lignes du gate
+
+Ordre du runner : les lignes de règle d'abord, dans l'ordre où le contrat les déclare, puis les `VIOLATION` en bloc.
+
 | Situation | Ce que le réceptacle écrit | Ce que le rapport du gate affiche |
 |---|---|---|
 | règle réalisée, aucune violation | `status: "pass"` | `REALIZED <id> (<type>) by <realizer>` |
-| règle réalisée, violations trouvées | `status: "fail"` + `violations[]` | `VIOLATION` par entrée, exit 1 |
+| règle typée `unrealized` par le contrat, qu'un réceptacle a couverte quand même | `status: "pass"` | `REALIZED <id> (unrealized) by <realizer> - the contract declares no realizer for it` |
 | règle hors de portée du réceptacle | `status: "unrealized"` | `UNREALIZED <id> (<type>) - <realizer> reports it unrealized` |
+| règle typée `unrealized`, qu'aucun réceptacle n'a couverte | — | `UNREALIZED <id> - declared with no realizer` |
 | réceptacle non lancé, ou rapport absent | — | `UNREALIZED <id> (<type>) - no report from its realizer` |
+| violation trouvée par le cœur portable (lint markup) | — | `VIOLATION <target>: <message>` — `<target>` est un **chemin de fichier**, exit 1 |
+| règle réalisée, violations trouvées | `status: "fail"` + `violations[]` | `VIOLATION <realizer>: <message>` — exit 1 |
+
+Trois lectures que la table impose et que sa version courte laissait passer :
+
+- **`VIOLATION` ne préfixe pas toujours un réalisateur.** Deux producteurs impriment cette ligne, et le préfixe change de nature avec eux : chemin de fichier côté cœur portable, réalisateur côté rapport de pivot. Un lecteur de `VIOLATION src/Button.tsx: …` qui ignore cette dualité conclut à un réalisateur portant le nom d'un fichier du projet.
+- **La quatrième ligne n'a pas de `(<type>)`**, contrairement à ses voisines. Le runner l'émet ainsi ; la table reproduit la sortie, elle ne la régularise pas.
+- **Sur la deuxième ligne, `<type>` vaut toujours `unrealized`** — c'est la garde même qui la produit. Aucun `(markup)` ni `(stylesheet)` ne peut y apparaître.
+
+Une règle typée `markup` sort `REALIZED <id> (markup) by lint-core` : c'est la première ligne avec `<realizer>` = `lint-core`, une constante du runner et jamais un réceptacle qui rapporte — d'où le `—` qu'elle porterait en colonne *Ce que le réceptacle écrit*.
 
 Un `unrealized` ne rougit pas le gate. Il n'a jamais à être justifié pour être accepté — seulement pour être écrit.
 
@@ -139,7 +156,7 @@ Un `unrealized` ne rougit pas le gate. Il n'a jamais à être justifié pour êt
 
 Si aucun `sc-<langage>` ne couvre le langage du projet :
 - `enforce` reste sur la baseline `lint-core.mjs` et le signale clairement.
-- `diffuse` reste sur le rendu HTML+CSS baseline et le signale clairement — ce rendu est une **preview non intégrée**, pas un artefact natif ; le hand-off de promotion vit dans `diffuse/actions/02-render.md § Étape 5` (cf. `diffuse/adapters/html-css.md § Statut de la sortie`).
+- `diffuse` reste sur le rendu HTML+CSS baseline et le signale clairement — ce rendu est une **preview non intégrée**, pas un artefact natif ; le hand-off de promotion vit dans `skills/diffuse/actions/02-render.md § Étape 5` (cf. `skills/diffuse/adapters/html-css.md § Statut de la sortie`).
 - Aucune erreur bloquante — le contrat est toujours l'autorité, seule la réalisation idiomatique est absente.
 
 ---

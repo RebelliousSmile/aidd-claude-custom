@@ -1,5 +1,21 @@
 # Changelog — design
 
+## [2.8.0] — 2026-08-03
+
+### Changed — le rapport du gate a sept lignes, pas quatre
+
+Le contrat de pivot et l'action qui le consomme décrivaient tous deux la sortie du gate en quatre lignes. Le runner en imprime **sept**. Un lecteur confronté à une des trois lignes non documentées n'avait aucun moyen de savoir si elle signalait un défaut, une configuration, ou rien. Les deux tables sont réalignées sur ce que le runner émet réellement, dans l'ordre où il l'émet — lignes de règle d'abord, `VIOLATION` en bloc.
+
+- **`VIOLATION` ne préfixe pas toujours un réalisateur.** Deux producteurs impriment cette ligne et le préfixe change de nature avec eux : **chemin de fichier** côté cœur portable (lint markup), **réalisateur** côté rapport de pivot. Rien dans la ligne ne les distingue hors la forme de la cible. Un lecteur de `VIOLATION src/Button.tsx: …` qui l'ignore conclut à un réalisateur portant le nom d'un fichier du projet.
+- **Deux lignes `UNREALIZED` manquaient**, et une troisième était mal formée : `UNREALIZED <id> - declared with no realizer` n'a **pas** de `(<type>)`, contrairement à ses voisines. La table reproduit la sortie, elle ne la régularise pas.
+- **`REALIZED <id> (unrealized) by <realizer>` existe** : un réceptacle a couvert une règle que le contrat ne route vers personne. La règle est réalisée, et le contrat est périmé sur ce point. Le `<type>` y vaut toujours `unrealized` — c'est la garde même qui produit la ligne.
+- **Une règle typée `markup` sort `by lint-core`** : une constante du runner, jamais un réceptacle qui rapporte — d'où le `—` qu'elle porterait en colonne *ce que le réceptacle écrit*.
+- **Pourquoi l'obligation de rapport ne vaut que pour l'enforcement** est maintenant écrit. Le contrat n'en demande aucun au réceptacle de rendu, et ce n'est pas une lacune : une règle non réalisée est **silencieuse**, un artefact non produit est **auto-évident**. L'obligation de report paie un silence ; là où il n'y en a pas, elle n'a rien à payer.
+
+### Fixed
+
+- **Trois chemins d'action faux dans `references/sc-pivot-contract.md`** — `enforce/04-pivot.md` et `diffuse/04-pivot.md` cités sans leur segment `skills/…/actions/`, le second portant en outre un numéro que le fichier n'a jamais eu (`03-pivot.md`). Idem pour l'adaptateur `html-css.md`. Un chemin de référence qui ne résout pas se corrige à sa source, pas à sa citation.
+
 ## [2.7.1] — 2026-07-28
 
 Correctif — **le plugin disait de lui-même des choses fausses, et un rapport taisait un désaccord entre ses deux sources.** Un audit code-quality + architecture a relevé quinze points ; treize sont fermés ici. Aucune capacité nouvelle : chaque changement corrige un énoncé que le code contredisait déjà, ou range une matière qui n'avait pas à être distribuée.

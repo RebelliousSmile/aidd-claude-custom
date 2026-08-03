@@ -42,14 +42,21 @@ Déclarer chaque Report path dans `gates.config.json § pivotReports`. Sans cett
 
 Re-jouer le gate et lire le rapport :
 
+Les sept lignes du gate, dans l'ordre où il les imprime — les lignes de règle d'abord, les `VIOLATION` en bloc ensuite :
+
 | Ligne | Lecture |
 |---|---|
 | `REALIZED <id> (<type>) by <realizer>` | assignée, réalisée, sans violation |
-| `VIOLATION <realizer>: <message>` | réalisée, non conforme — exit 1 |
-| `UNREALIZED <id> — <realizer> reports it unrealized` | le réceptacle a lu la règle et dit ne pas la couvrir |
-| `UNREALIZED <id> — no report from its realizer` | aucun rapport : réceptacle absent, ou non lancé |
+| `REALIZED <id> (unrealized) by <realizer> - the contract declares no realizer for it` | un réceptacle a couvert une règle que le contrat route vers personne — réalisée, et le contrat est périmé sur ce point |
+| `UNREALIZED <id> (<type>) - <realizer> reports it unrealized` | le réceptacle a lu la règle et dit ne pas la couvrir |
+| `UNREALIZED <id> - declared with no realizer` | typée `unrealized` par le contrat, et personne ne l'a couverte — **sans** `(<type>)`, comme le runner l'émet |
+| `UNREALIZED <id> (<type>) - no report from its realizer` | aucun rapport : réceptacle absent, ou non lancé |
+| `VIOLATION <target>: <message>` | non conforme, trouvée par le cœur portable — `<target>` est un **chemin de fichier**, exit 1 |
+| `VIOLATION <realizer>: <message>` | non conforme, trouvée par un réceptacle — exit 1 |
 
-Les deux dernières lignes ne changent pas le code de sortie. Elles ne se ferment pas en les masquant, mais en installant le réceptacle manquant ou en re-typant la règle.
+Le préfixe de `VIOLATION` n'est donc pas toujours un réalisateur : les deux formes viennent de deux producteurs, et rien dans la ligne ne les distingue hors ce que la cible ressemble à un chemin.
+
+Les trois lignes `UNREALIZED` ne changent pas le code de sortie. Elles ne se ferment pas en les masquant, mais en installant le réceptacle manquant ou en re-typant la règle.
 
 ## Sortie attendue
 
