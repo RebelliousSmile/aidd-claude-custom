@@ -1,5 +1,15 @@
 # Changelog — sc-js
 
+## [0.15.2] — 2026-08-03
+
+### Fixed — la liste fermée de `sniff/03-clean` contenait un chemin que le plugin n'a jamais distribué
+
+L'action de migration énumère les treize chemins que `sc-js 0.3.0` *pouvait* avoir installés, et ne supprime qu'un fichier dont le chemin figure dans cette liste. `.claude/rules/capabilities/styling/design-system.md` en faisait partie sans jamais avoir eu de fichier de référence dans le plugin — vérifié sur tout l'historique, `git log --all` ne connaît pas ce fichier. Jamais versionné, donc jamais installable par `0.3.0`. La liste passe à **12**, et les compteurs de l'exemple sont recalés.
+
+**Conséquence pour un projet qui possède ce fichier** : il ne vient pas de `sc-js`, et `03-clean` ne le proposera plus à la suppression. C'est le bon comportement — le supprimer aurait détruit un fichier d'une autre provenance sous couvert d'une migration `sc-js`.
+
+- **La garde de correspondance reçoit sa branche manquante.** Elle compare le contenu du candidat à la référence du plugin ; il n'était écrit nulle part ce qu'elle doit faire quand **aucune référence n'existe** pour ce chemin. Elle passe le fichier et le rapporte, plutôt que de supprimer du contenu non vérifié. C'est ce silence qui rendait le treizième chemin dangereux et non seulement faux.
+
 ## [0.15.1] — 2026-07-30
 
 ### Changed — le pivot `testing` déclare le prérequis d'outillage de sa couverture

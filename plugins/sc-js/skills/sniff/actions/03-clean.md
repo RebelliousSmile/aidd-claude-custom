@@ -15,7 +15,9 @@ Migration action for projects that installed capability rules via sc-js 0.3.0. R
 
 ## Closed path list
 
-The following paths are the complete set of files that sc-js 0.3.0 could have installed. Only files whose path appears in this list are candidates for deletion.
+The following **12** paths are the complete set of files that sc-js 0.3.0 could have installed. Only files whose path appears in this list are candidates for deletion.
+
+Each of them has a matching reference under `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/` — that correspondence is what makes the content-match guard below applicable. A path with no plugin reference has no business here: never add one, and if the guard finds no reference for a candidate, skip the file and report it rather than deleting unverified content.
 
 ```
 .claude/rules/capabilities/components/shared-scope.md
@@ -23,7 +25,6 @@ The following paths are the complete set of files that sc-js 0.3.0 could have in
 .claude/rules/capabilities/state/alpine-store.md
 .claude/rules/capabilities/code-splitting/dynamic-import.md
 .claude/rules/capabilities/code-splitting/defineAsyncComponent.md
-.claude/rules/capabilities/styling/design-system.md
 .claude/rules/capabilities/styling/css-transitions.md
 .claude/rules/capabilities/icons/lucide-vue.md
 .claude/rules/capabilities/icons/svg-inline.md
@@ -54,7 +55,7 @@ Regardless of mode, always scan first and report findings before any deletions:
 ```
 🔍 sc-js clean — scanning .claude/rules/capabilities/
 
-  Candidate files found: 7
+  Candidates examined: 7 of 12
     .claude/rules/capabilities/state/pinia.md         → matches plugin ref — eligible for deletion
     .claude/rules/capabilities/state/alpine-store.md  → not found — skip
     .claude/rules/capabilities/code-splitting/dynamic-import.md → matches — eligible
@@ -65,7 +66,7 @@ Regardless of mode, always scan first and report findings before any deletions:
 
   Would delete: 5 files
   Would skip (user-modified): 1 file (.../styling/css-transitions.md)
-  Would skip (not found): 7 files
+  Would skip (not found): 6 files
 ```
 
 ### Step 2 — Execute (unless --dry-run)
@@ -88,7 +89,7 @@ Otherwise, delete all eligible files and report:
     ⚠ .claude/rules/capabilities/styling/css-transitions.md
       Content differs from plugin reference. Review and delete manually if no longer needed.
 
-  Skipped — not found (7):
+  Skipped — not found (6):
     (not installed or already removed)
 
 → Orphaned 0.3.0 capability rules removed. Project is clean for sc-js 0.4.0.
