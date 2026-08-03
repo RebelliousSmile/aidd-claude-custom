@@ -2,6 +2,20 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/sc-python`.
 
+## [0.6.2] — 2026-08-03
+
+### Fixed — l'en-tête d'installation est dérivé de ce qui a été écrit
+
+`sniff/02-install-pivots` n'avait qu'un bloc de sortie, en-tête `✅ pivots installed` compris. Un projet Python sans framework web ni ORM — une CLI, une bibliothèque, un script de données — recevait donc « pivots installed » alors qu'aucun fichier n'était écrit. La sortie se branche maintenant en trois cas : au moins un pivot écrit ou mis à jour · **rien à installer** (en-tête `✅ sc-python sniff — nothing to install`, verbatim) · tout déjà à jour. La clause est celle que `sc-js` portait déjà : *pick the header by what actually happened*.
+
+### Changed — le pivot ActivityPub avait deux sources, il n'en a plus qu'une
+
+Deux fichiers du plugin décrivaient la même stack et visaient la même cible `.claude/rules/07-quality/ap-pivots-django-activitypub.md` : `references/capabilities/ap/django-activitypub.md` et `references/capabilities/protocol/activitypub-django.md`. Deux sources pour une cible, c'est une installation dont le contenu dépend de quel fichier le lecteur a ouvert.
+
+**`capabilities/protocol/activitypub-django.md` fait foi** ; l'autre est supprimé. Le choix n'est pas allé au plus long ni au plus récent : la lecture des deux corps montre que `protocol/` couvre la pagination de l'outbox (§3) et le circuit breaker avec `410 Gone` (§2), que `ap/` n'a pas. Ce que `ap/` avait en propre — le rate limiting `django-ratelimit` à **double clé, IP *et* domaine distant** — a été versé dans `protocol/` §1 avant le retrait, avec son snippet et sa commande de détection. Rien n'est perdu.
+
+`sniff/SKILL.md` déclarait l'ancien chemin en source d'installation ; il pointe désormais le fichier qui fait foi. **Un intégrateur qui suivait le nom de la source doit le mettre à jour** — la cible installée dans le projet, elle, ne change pas de nom.
+
 ## [0.6.1] — 2026-07-30
 
 ### Changed — le pivot `testing` déclare le prérequis d'outillage de sa couverture

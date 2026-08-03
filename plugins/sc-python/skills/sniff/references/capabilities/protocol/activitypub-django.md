@@ -65,7 +65,15 @@ Stack-specific checklist for `/ap-optimize` when a Django ActivityPub implementa
           raise ValueError(f"Date skew {delta:.0f}s exceeds limit")
   ```
 - **Validation acteur ↔ keyId** — l'acteur dans le payload `activity["actor"]` doit correspondre au `keyId` de la signature — une signature valide d'un acteur tiers ne doit pas permettre d'agir au nom d'un autre
-- **Rate limiting par IP + par domaine distant** — `429 Retry-After` ; bloquer les domaines `FederatedServer.BLOCKED` avant toute vérification coûteuse
+- **Rate limiting par IP + par domaine distant** — `429 Retry-After` ; bloquer les domaines `FederatedServer.BLOCKED` avant toute vérification coûteuse. Les deux clés sont nécessaires : les instances fédérées ont des IP connues et stables, un quota par IP seul ne protège pas d'un flood inter-instances :
+  ```python
+  # django-ratelimit — par IP
+  @ratelimit(key='ip', rate='100/h', method='POST', block=True)
+  # et par domaine distant
+  @ratelimit(key=lambda group, request: request.headers.get("host", "unknown"),
+             rate='500/h', method='POST', block=True)
+  ```
+  Détecter : `grep -n "ratelimit\|rate_limit" activitypub/views.py` — absent sur l'inbox POST = risque de flood. Ne jamais renvoyer `200` silencieusement à la place du `429`.
 - Détecter : `grep -rn "verify_signature\|check_signature" . --include="*.py"` — absente de views.py = 🔴 critique
 
 ## §2 — Delivery : fiabilité

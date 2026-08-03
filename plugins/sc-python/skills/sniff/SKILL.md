@@ -45,7 +45,7 @@ Detect AP federation when ALL of the following are true:
 - `cryptography` is present in deps (HTTP signatures)
 
 Install target: `ap-pivots-django-activitypub.md` → `.claude/rules/07-quality/`
-Source: `references/capabilities/ap/django-activitypub.md`
+Source: `references/capabilities/protocol/activitypub-django.md`
 
 ## Transversal rules
 
