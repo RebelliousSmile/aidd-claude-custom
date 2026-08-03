@@ -2,6 +2,33 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant. Détail : `git log -- plugins/sc-tiers`.
 
+## [0.3.0] — 2026-08-03
+
+### Removed — trois data pivots déclarés que le plugin n'a jamais contenus
+
+`setup/01-install.md` déclarait quatre cibles de data pivots. Une seule avait un fichier source derrière. Les trois autres promettaient un remède qui ne s'installerait jamais :
+
+- `.claude/rules/07-quality/data-pivots-supabase.md`
+- `.claude/rules/07-quality/data-pivots-dynamodb.md`
+- `.claude/rules/07-quality/data-pivots-hasura.md`
+
+La `0.2.1` avait déjà retiré ces trois noms du `README.md` et de `marketplace.json` en constatant qu'ils n'existaient pas — mais elle avait laissé la **table d'installation**, c'est-à-dire le seul endroit où la fausse promesse était opérante. Le remède retenu est le retrait de la déclaration, l'autre branche (écrire les trois pivots) étant une décision produit qui n'a pas été prise.
+
+**Conséquence pour un projet** : `data-optimize` sur une stack Supabase, DynamoDB ou Hasura ne rendra plus `not installed` avec `/sc-tiers:setup` en remède — il rendra `no provider`, ce qui est vrai. Aucun projet ne perd de fichier : ces trois n'ont jamais été écrits nulle part.
+
+### Fixed — la sortie rend ce qui a été écrit, pas ce que la table liste
+
+Le bloc de sortie annonçait `12 files written` en dur et énumérait les douze cibles déclarées, quel que soit le nombre de fichiers réellement écrits. Un run qui n'écrivait rien rendait donc le même rapport qu'un run complet.
+
+- Le compte est dérivé (`<n> files written`), l'énumération porte les cibles **effectivement touchées**, avec leur issue (`written` / `skipped — identical`), et un marqueur d'exemple empêche de recopier la liste comme si elle était la sortie.
+- Une source qui ne résout pas est rendue **manquante**, jamais écrite. Si toutes manquent, l'en-tête est `❌ sc-tiers rules — nothing written` : « installé » n'est plus prononçable à vide.
+
+### Added
+
+- `skills/setup/evals/pivot-install-scenarios.md` — 8 scénarios behave sur l'honnêteté des installeurs de la marketplace, registre append-only. Run 1 (2026-07-31) : 1 PASS / 6 FAIL. Run 2 (2026-08-03), sur le code corrigé : 6 PASS / 1 N/A.
+
+  Le run 2 tout-vert a lui-même produit le défaut suivant : la suite ne prouvait plus rien d'un défaut *nouveau*. D'où **S8, contrôle négatif non encore jugé** — le bloc de sortie *Case A* des quatre installeurs `sniff` (`sc-js`, `sc-php`, `sc-python`, `sc-rust`) lu à côté de celui de `setup`. Mesure : **0 des 4** porte le marqueur d'exemple de `01-install.md:42`, celui qui empêche de recopier un corps illustré comme si c'était la liste des fichiers écrits ; la couverture du corps illustré va de 6/6 (`sc-php`) à 3/13 (`sc-js`). La suite perd par ailleurs sa colonne *Instruction pinned* (les citations partent en appendice daté) conformément au contrat `behave` 4.3.0.
+
 ## [0.2.2] — 2026-07-28
 
 ### Changed
