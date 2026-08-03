@@ -34,6 +34,10 @@ This action installs ONLY to `.claude/rules/07-quality/`. It NEVER installs capa
 
 ## Output
 
+Pick the header by what actually happened — never claim "installed" when nothing was written.
+
+### Case A — at least one pivot was installed or updated
+
 ```
 ✅ sc-rust sniff — pivots installed
 
@@ -49,3 +53,28 @@ This action installs ONLY to `.claude/rules/07-quality/`. It NEVER installs capa
 → /web-optimize and /data-optimize are ready for detected pivots.
 → Run /sc-rust:audit to review Rust code quality against capability pivots.
 ```
+
+### Case B — nothing to install (no applicable perf/data pivot)
+
+Use this header verbatim when the manifeste lists no perf and no data pivot — the common case for
+Rust: a CLI, a library crate, or an embedded target has neither `axum` nor a SQL crate. Do **not**
+write `pivots installed` when nothing was written.
+
+```
+✅ sc-rust sniff — nothing to install
+
+  Perf pivots:
+    — none applicable (no axum server detected)
+
+  Data pivots:
+    — none detected
+
+  Capability pivots: not installed (loaded on demand by /sc-rust:audit)
+
+→ /web-optimize and /data-optimize have no pivot to load for this project.
+→ Run /sc-rust:audit to review Rust code quality against capability pivots.
+```
+
+### Case C — pivots were applicable but all already up-to-date
+
+Header `✅ sc-rust sniff — pivots up-to-date`; list each pivot with `✓ … (skipped — up-to-date)`.

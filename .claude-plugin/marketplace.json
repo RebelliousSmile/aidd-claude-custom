@@ -72,7 +72,7 @@
     },
     {
       "name": "sc-rust",
-      "version": "0.5.0",
+      "version": "0.5.1",
       "source": "./plugins/sc-rust",
       "description": "Rust-specific skills and workflows: two-tier sniff (pivot model), audit (aidd-dev:reviewer), improve, legacy, log-analysis, teach (Axum/Actix + SQLx/Diesel).",
       "recommended": false

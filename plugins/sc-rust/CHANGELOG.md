@@ -2,6 +2,12 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/sc-rust`.
 
+## [0.5.1] — 2026-08-03
+
+### Fixed — l'en-tête d'installation est dérivé de ce qui a été écrit
+
+`sniff/02-install-pivots` n'avait qu'un bloc de sortie, en-tête `✅ pivots installed` compris — écrit quel que soit le nombre de fichiers effectivement produits. C'est le plugin où ce défaut porte le plus loin : **le cas nominal de Rust est de n'avoir aucun pivot applicable** — une CLI, un crate de bibliothèque ou une cible embarquée n'a ni `axum` ni crate SQL, et recevait pourtant « pivots installed ». La sortie se branche maintenant en trois cas : au moins un pivot écrit ou mis à jour · **rien à installer** (en-tête `✅ sc-rust sniff — nothing to install`, verbatim) · tout déjà à jour.
+
 ## [0.5.0] — 2026-07-30
 
 ### Added — pivot `testing`, mesuré sur un crate binaire Win32, et trois hypothèses du contrat mises à l'épreuve
