@@ -21,7 +21,7 @@ memory/                           # guidelines d'authoring (README, CLAUDE.md)
 aidd_docs/internal/decisions/     # ADR (décisions d'architecture, ex. DEC-001)
 ```
 
-> Les tests (`tools/eval/`, `package.json`, workflow CI) sont **hors dépôt** (gitignorés) — outillage local, non versionné par choix.
+Les tests sont **versionnés** : `tools/eval/` (gardes et fixtures), `package.json` (scripts, dont `pnpm test`) et `.github/workflows/test.yml`. Ils tournent en local comme en CI — une garde ajoutée profite aux deux sans démarche.
 
 ## Anatomie d'un skill
 
@@ -103,6 +103,6 @@ Après modification d'un skill déjà installé, recharger le cache (voir la sec
 
 - JSON valides (`marketplace.json`, `index.json`, `plugin.json`, chaque `evals/scenarios.json`).
 - Chaque action a un `Test` vérifiable.
-- Si présent en local, les tests (`tools/eval/`, hors dépôt) passent : `pnpm test`.
-- Les `references` croisées (`${CLAUDE_PLUGIN_ROOT}/...`) pointent vers des fichiers existants.
+- Les tests passent : `pnpm test`.
+- Les `references` croisées (`${CLAUDE_PLUGIN_ROOT}/...`) pointent vers des fichiers existants. `M4` couvre le cas le plus coûteux — une source citée en face d'une cible `.claude/rules/` — mais pas les autres : une référence citée dans un `SKILL.md` ou dans un bloc de code reste à vérifier à la main.
 - README racine + README plugin + CHANGELOG cohérents avec la version.

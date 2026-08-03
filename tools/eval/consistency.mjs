@@ -16,6 +16,8 @@
 //   A2  tout fichier d'action figure dans la table de son SKILL.md
 //   A3  aucun préfixe numérique n'est porté par deux fichiers (les trous sont tolérés)
 //   A4  aucun titre H1 d'action ne porte son numéro (le nom de fichier le porte)
+//   M4  toute source déclarée en face d'une cible `.claude/rules/` existe sur disque
+//   M5  toute ligne de `pivot-providers.md` s'appuie sur une cible réellement installable
 
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -132,6 +134,60 @@ function numberingPolicy(numbers, skill) {
 const NUMBERED_TITLE = /^#\s+(?:actions?\s+\d+|\d{1,3}\s*[-–—.:)]\s*\S)/i;
 const titleIsClean = (h1) => !NUMBERED_TITLE.test(h1);
 
+/**
+ * M4 — une action qui annonce écrire dans `.claude/rules/` doit pouvoir le faire.
+ *
+ * Le défaut visé n'est pas une faute de frappe : c'est un installeur qui **déclare
+ * du vide**. `sc-tiers` annonçait quatre pivots data dont trois n'avaient aucune
+ * source sur disque ; `sc-css` en annonçait six pour un plugin sans le moindre
+ * `references/`. Le rapport de sortie, lui, affirmait le succès. D'où la garde :
+ * une source citée en face d'une cible se relit sur disque, sinon rien n'est écrit
+ * et l'annonce est fausse (DEC-009 §2 — un prérequis absent vaut champ absent).
+ *
+ * L'ancrage se fait sur la **forme**, jamais sur l'intitulé de colonne : `sc-tiers`
+ * écrit `Reference file`, les quatre autres `Source (in plugin)`. Est donc examinée
+ * toute ligne de table qui cite une cible `.claude/rules/…`, quelle que soit sa
+ * colonne — `sc-python/01-scan.md` met source et cible dans la *même* cellule,
+ * séparées d'une flèche, et doit être couverte comme les autres.
+ *
+ * Deux bases de résolution coexistent, et confondre les deux rendrait la garde
+ * inopérante sur la moitié du parc :
+ *   `${CLAUDE_PLUGIN_ROOT}/x`  → `plugins/<plugin>/x`             (les quatre `sc-*`)
+ *   `references/x` (relatif)   → `plugins/<plugin>/skills/<skill>/x`  (`sc-tiers`)
+ *
+ * Couverture volontairement partielle, à ne pas confondre avec une garantie :
+ *   — les listes de chemins en **bloc de code** (`sc-js/sniff/03-clean.md`) sont hors
+ *     champ : ce ne sont pas des tables, et leur sens est historique (ce qu'une
+ *     version passée a pu installer), pas déclaratif ;
+ *   — une table **sans colonne source** échappe à la garde : il n'y a rien à
+ *     résoudre. C'était le cas de `sc-css`, retiré en amont plutôt que toléré ;
+ *   — le **sens inverse** n'est pas vérifié : une référence présente sur disque et
+ *     citée hors table d'action (un `SKILL.md`, par exemple) n'est pas confrontée.
+ *
+ * @param {string} line    ligne de table brute, ex. `| \`refs/a.md\` | \`.claude/rules/x.md\` |`
+ * @param {string} plugin  nom du plugin, pour la base `${CLAUDE_PLUGIN_ROOT}`
+ * @param {string} skill   nom de la skill, pour la base relative
+ * @returns {{sources: {raw: string, path: string, ok: boolean}[], targets: string[]}}
+ */
+function ruleInstallLine(line, plugin, skill) {
+  const sources = [], targets = [];
+  for (const token of line.match(/`[^`]+`/g) ?? []) {
+    const raw = token.slice(1, -1).trim();
+    if (!raw.endsWith('.md')) continue;
+    if (raw.startsWith('.claude/rules/')) { targets.push(raw.split('/').pop()); continue; }
+    const path = raw.startsWith('${CLAUDE_PLUGIN_ROOT}/')
+      ? join('plugins', plugin, raw.slice('${CLAUDE_PLUGIN_ROOT}/'.length))
+      : join('plugins', plugin, 'skills', skill, raw);
+    sources.push({ raw, path, ok: existsSync(join(ROOT, path)) });
+  }
+  return { sources, targets };
+}
+
+// Cibles `.claude/rules/` qu'un plugin sait réellement écrire — clé `<plugin>::<fichier>`.
+// N'y entre qu'une cible dont **toutes** les sources déclarées sur la même ligne résolvent :
+// une ligne à source manquante ne promet rien, et une ligne sans source ne prouve rien.
+const installable = new Set();
+
 for (const plugin of plugins) {
   for (const skill of dirs(`plugins/${plugin}/skills`)) {
     const base = `plugins/${plugin}/skills/${skill}`;
@@ -163,10 +219,52 @@ for (const plugin of plugins) {
     for (const f of numberingPolicy(numbers, label)) fail(f.code, f.msg);
 
     for (const { file } of byAction.values()) {
-      const h1 = readFileSync(join(actionsDir, file), 'utf8').split('\n')[0].trim();
+      const text = readFileSync(join(actionsDir, file), 'utf8');
+      const h1 = text.split('\n')[0].trim();
       if (!titleIsClean(h1))
         fail('A4', `${label}/${file} — le titre porte son numéro : « ${h1} »`);
+
+      for (const line of text.split('\n')) {
+        if (!line.startsWith('|') || !line.includes('.claude/rules/')) continue;
+        const { sources, targets } = ruleInstallLine(line, plugin, skill);
+        for (const s of sources.filter((s) => !s.ok))
+          fail('M4', `${label}/${file} — source déclarée absente : \`${s.raw}\` (cherchée en ${s.path}) — la cible annoncée ne s'écrirait pas`);
+        if (sources.length && sources.every((s) => s.ok))
+          for (const t of targets) installable.add(`${plugin}::${t}`);
+      }
     }
+  }
+}
+
+// ─── Fournisseurs de pivots ────────────────────────────────────────────────────
+
+/**
+ * M5 — `pivot-providers.md` est la table que les quatre skills `*-optimize` citent
+ * pour nommer le remède quand un pivot manque. Elle **dérive** des tables d'installeurs
+ * (elle le dit elle-même, §Règle de dérivation), et une dérivation faite à la main
+ * dérive tout court : une ligne y survivrait à la disparition de la source qu'elle
+ * suppose, et la skill recommanderait alors une commande qui n'installe rien.
+ *
+ * La jointure porte sur le couple (cible, plugin) et sur lui seul — le nom du fichier
+ * de pivot suffit à identifier la cible, le chemin `07-quality/` étant déjà imposé par
+ * la borne de forme du document. Elle s'appuie sur `installable`, donc sur des sources
+ * vérifiées : M5 ne peut pas passer sur un installeur que M4 vient de déclarer creux.
+ * L'ordre entre les deux est ainsi sans effet sur le verdict.
+ *
+ * Non vérifié ici : le sens inverse (un pivot installable absent de la table) et
+ * l'unicité de la clé (deux plugins revendiquant la même stack) — chaque ligne est
+ * validée isolément.
+ */
+const PROVIDERS = 'plugins/overcode/references/pivot-providers.md';
+const PROVIDER_ROW = /^\|\s*`((?:perf|data|ap|seo)-pivots-[^`]+\.md)`\s*\|\s*`([^`]+)`/;
+
+if (existsSync(join(ROOT, PROVIDERS))) {
+  for (const line of readFileSync(join(ROOT, PROVIDERS), 'utf8').split('\n')) {
+    const m = line.match(PROVIDER_ROW);
+    if (!m) continue;
+    const [, pivot, provider] = m;
+    if (!installable.has(`${provider}::${pivot}`))
+      fail('M5', `pivot-providers — \`${pivot}\` attribué à \`${provider}\` : aucune action de ce plugin n'écrit cette cible depuis une source présente`);
   }
 }
 
