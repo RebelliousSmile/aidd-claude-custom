@@ -23,10 +23,13 @@ Analyser les fichiers CSS/SCSS/Less du projet pour détecter l'architecture, la 
      "architecture": "bem | utility | modules | itcss | adhoc",
      "custom_properties_adoption": "none | partial | full",
      "cascade_layers": "none | partial | full",
-     "files_scanned": 42,
-     "pivots_recommended": ["improve/custom-properties", "improve/cascade-layers", "legacy/float-to-flex"]
+     "files_scanned": 42
    }
    ```
+
+   Le manifeste décrit **l'état mesuré**, rien d'autre. Pas de clé de recommandation : `sc-css`
+   ne fournit aucun fichier de pivot installable, et aucune action ne lit ce manifeste pour
+   écrire quoi que ce soit. Les suites à donner sont des skills, nommés dans le rapport texte.
 
 ## Output
 
@@ -38,4 +41,10 @@ Plain-text :
 ⚠️ Custom properties : partiel — 12% des valeurs de couleur en var(--)
 ❌ Cascade layers : aucun @layer détecté
 📄 Pivot manifeste : <chemin>/css-pivot.json
+
+→ /sc-css:improve pour l'extraction en custom properties et les cascade layers
+→ /sc-css:legacy si des patterns datés ont été relevés (float, préfixes vendor, variables préprocesseur)
 ```
+
+Le manifeste est le seul fichier écrit. Ne pas annoncer de règle installée dans `.claude/rules/` :
+le plugin n'en fournit pas.

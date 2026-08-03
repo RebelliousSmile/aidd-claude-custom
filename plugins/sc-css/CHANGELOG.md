@@ -1,5 +1,23 @@
 # Changelog — sc-css
 
+## [0.4.0] — 2026-08-03
+
+### Removed — `sniff/02-install-pivots` et les six pivots qu'elle promettait
+
+L'action déclarait six pivots à installer dans `.claude/rules/07-quality/`. **Aucun des six n'existait dans le plugin** — ni fichier de référence, ni contenu d'aucune sorte. La procédure décrivait en détail une comparaison de versions, une écriture conditionnelle et un signalement `❌ non disponible dans le plugin` pour une population qui était intégralement dans ce dernier cas.
+
+Les six cibles retirées, sous la forme du fichier qu'un projet aurait vu apparaître :
+
+- `sc-css-custom-props.md` · `sc-css-layers.md` · `sc-css-specificity.md`
+- `sc-css-float-legacy.md` · `sc-css-prefixes.md` · `sc-css-prepro-vars.md`
+
+**`sc-css` n'installe donc aucun fichier de règle dans un projet**, et c'est désormais l'énoncé du plugin — dans le `SKILL.md` de `sniff`, dans son unique action, et dans le `README.md`. Le savoir CSS est porté par les actions d'`audit`, `improve` et `legacy` ; il n'a jamais transité par un pivot installé. Ce n'est pas une régression de couverture : rien n'était installé avant non plus.
+
+- **La clé `pivots_recommended` disparaît du manifeste `css-pivot.json`.** Ses trois valeurs d'exemple (`improve/custom-properties`, `improve/cascade-layers`, `legacy/float-to-flex`) ne résolvaient vers aucune action réelle, et plus aucun lecteur n'écrivait à partir d'elle. Le manifeste décrit l'état mesuré, rien d'autre.
+- **Les suites sont nommées comme des skills, jamais comme des fichiers à installer** — le rapport de `01-scan` renvoie vers `/sc-css:improve` et `/sc-css:legacy`.
+
+**Conséquence pour un projet** : `/sc-css:sniff` ne propose plus d'installation et n'a plus qu'une action. Un projet qui l'aurait lancée n'a jamais rien reçu ; il n'y a donc rien à désinstaller.
+
 ## [0.3.3] — 2026-07-28
 
 ### Changed

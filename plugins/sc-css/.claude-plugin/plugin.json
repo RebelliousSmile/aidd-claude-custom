@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "sc-css",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "description": "CSS ecosystem skills: sniff (architecture + stack), audit (spécificité, code mort, magic numbers, a11y), improve (custom properties, cascade layers, modernisation), legacy (float→flex/grid, px→rem, préfixes→standard), teach. design-bridge: réceptacle du pivot design — tokens.json → custom properties CSS, components.json → BEM stylesheets ; possède le workflow de plateforme statique (design:detail).",
   "author": {
     "name": "François-Xavier Guillois"

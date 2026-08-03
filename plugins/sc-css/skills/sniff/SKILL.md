@@ -5,8 +5,8 @@ description: >-
   CSS stack detector. Analyse les fichiers de style présents pour détecter l'architecture
   CSS (BEM, utility-first, CSS Modules, ITCSS), le préprocesseur (PostCSS, Sass/SCSS, Less,
   vanilla), les outils de lint (Stylelint, Biome), l'usage des couches de cascade (cascade
-  layers), et le degré d'adoption des custom properties. Émet un pivot manifeste consommé
-  par audit, improve, et design-bridge.
+  layers), et le degré d'adoption des custom properties. Émet un pivot manifeste JSON décrivant
+  l'état détecté, à lire avant de lancer audit, improve ou legacy. N'installe aucun fichier.
 ---
 
 # sc-css:sniff
@@ -18,11 +18,11 @@ Détecteur d'architecture CSS et producteur de pivot manifeste.
 | # | Action | Rôle | Input |
 |---|--------|------|-------|
 | 01 | `scan` | Détecter architecture + stack, émettre pivot manifeste | chemins des fichiers CSS/SCSS du projet |
-| 02 | `install-pivots` | Installer les pivots d'amélioration dans `.claude/rules/07-quality/` | pivot manifeste de scan |
 
 ## Default flow
 
-Séquentiel : `scan` → `install-pivots` (si installation demandée).
+Action unique : `scan`. Le skill **n'installe rien** — `sc-css` ne fournit aucun fichier de pivot
+sous `.claude/rules/07-quality/`. Le manifeste décrit l'état détecté ; il ne déclenche pas d'écriture.
 
 ## Modèle conceptuel
 
@@ -47,6 +47,8 @@ Séquentiel : `scan` → `install-pivots` (si installation demandée).
 ## Règles transversales
 
 - Si aucun fichier CSS/SCSS/Less n'est trouvé, arrêter avec un message explicite.
-- Ne pas installer de pivot pour un pattern non détecté.
-- Signaler les gaps : pattern détecté mais aucun pivot plugin correspondant.
+- Le scan est **read-only** : il écrit le manifeste, rien d'autre. Ne jamais annoncer l'installation
+  d'un fichier de règle — le plugin n'en fournit aucun.
+- Signaler les gaps : pattern détecté dont le traitement relève d'un skill (`improve`, `legacy`) —
+  en nommant le skill, jamais un fichier à installer.
 - Rapport en plain-text avec `✅ / ❌` par item — pas de tableaux Markdown.
