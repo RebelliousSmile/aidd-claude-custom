@@ -1,7 +1,7 @@
 # API / data-layer mapping — perf pivots
 
 > **Generic file**: this file contains ONLY the 12-section schema, the universal REST vanilla pivots, and the fallback procedure.
-> Stack-specific pivots are NOT embedded here — they are installed as project-level rules by `sc-*` plugins (sc-js, sc-php, sc-python, sc-tiers, sc-rust, …) via their `setup` skills.
+> Stack-specific pivots are NOT embedded here — they are installed as project-level rules by `sc-*` plugins. **Which plugin supplies which pivot, and by which command, is read in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` — never guessed, never derived from a plugin's name.** The command is carried per plugin, not per family: `sc-tiers` installs by `setup`, the four `sc-<language>` by `sniff`.
 >
 > **Dispatch order** when running an audit on a detected data stack:
 >
@@ -30,17 +30,11 @@ Une checklist data-layer perf tient en 12 sections, identiques quel que soit le 
 
 Les pivots installés par `sc-*` plugins remplacent les items section-par-section selon le stack cible.
 
-## Plugin → stack mapping (informative)
+## Plugin → stack mapping
 
-| Plugin | Data stacks covered |
-|---|---|
-| `sc-js` | Prisma, Drizzle, TypeORM, Sequelize, Mongoose, GraphQL (Apollo/urql/Relay), tRPC |
-| `sc-php` | Eloquent (Laravel), Doctrine (Symfony) |
-| `sc-python` | Django ORM, SQLAlchemy |
-| `sc-rust` | SQLx, Diesel, Sea-ORM |
-| `sc-tiers` | Firebase (Firestore + RTDB), Supabase, DynamoDB, Hasura |
+**Read it in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` › `data-pivots-*`.** That table is the sole source, and it is not duplicated here: a second copy drifts from the installers silently, which is exactly how this file came to advertise a `sc-rust` Sea-ORM pivot that has never existed, to omit `rusqlite` which does, and to keep listing Supabase / DynamoDB / Hasura after `sc-tiers` withdrew those three declarations.
 
-If a stack you detect has no matching plugin/pivot file, follow the fallback procedure below.
+If a stack you detect has no line in that table, the state is `no provider` — follow the fallback procedure below, and say so in the receipt.
 
 ## Universal: REST vanilla (no ORM / no SDK)
 

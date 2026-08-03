@@ -2,6 +2,38 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/overcode plugins/aidd-overlay` (le plugin s'appelait `aidd-overlay` avant la 3.0.0).
 
+## [4.3.0] — 2026-08-03
+
+### Added — la quittance de pivot : dire d'où vient la checklist, et pourquoi elle n'est pas venue d'un pivot (DEC-010)
+
+Les quatre skills `*-optimize` chargeaient un pivot quand il était là et repliaient sur leur schéma générique quand il n'y était pas — **sans le dire**. Deux rapports produits par la même skill sur deux projets pouvaient alors se ressembler trait pour trait alors que l'un mesurait la stack et l'autre la devinait. Le repli n'est pas le défaut ; le silence l'est.
+
+- **Chaque rapport rend deux champs, `source` et `pivot`, une paire par stack applicable.** `pivot` prend quatre valeurs et une seule : `installed` (le fichier est dans `.claude/rules/07-quality/`) · `not installed` (un plugin le fournit, ce projet ne l'a pas) · `no provider` (aucun plugin de la marketplace n'écrit ce nom) · `empty receptacle` (la famille existe comme interface, personne ne la remplit). Les trois derniers appellent des suites opposées — installer, générer, ne rien attendre — et les confondre fait recommander une commande qui n'existe pas.
+- **La quittance se lit par stack, pas par dépôt** (DEC-008) : un projet Django + Alpine rend deux paires, pas un verdict moyenné.
+- **« Vide » se lit sur les règles, pas sur les fichiers.** Un réceptacle contenant un `.gitkeep` reste vide : ce qui compte est qu'aucune règle n'y soit chargeable.
+- **`no provider` ne se devine pas.** Nouvelle référence partagée `references/pivot-providers.md` — table `<stack> → <plugin>, <commande>`, **33 lignes**, citée par les quatre skills et recopiée par aucune. Une skill qui tourne dans un projet ne voit pas les autres plugins de la marketplace ; elle ne peut donc rien dériver à l'exécution, d'où une table statique et unique. Une stack absente s'y rend `no provider`, jamais un nom inventé.
+- **La commande est portée par plugin, jamais par famille.** `sc-tiers` s'installe par `/sc-tiers:setup`, les quatre `sc-<langage>` par `/sc-<langage>:sniff` — `sc-tiers` n'a pas de skill `sniff`, et lui prêter un gabarit uniforme remplacerait un remède faux par un autre.
+- **`seo-optimize` n'a aucun fournisseur, et c'est écrit.** `seo-pivots-<sitetype>.md` est une interface publique qu'aucun plugin ne remplit : toute absence s'y rend `empty receptacle` / `no provider`, jamais `not installed` — il n'y a aucun installeur à recommander. Un fichier déposé à la main y est chargé et garde la précédence.
+- **Recommander n'est pas installer** (DEC-007 §2). Une skill `*-optimize` cite le plugin et sa commande ; elle ne lance jamais l'installeur.
+- **`web-optimize` distingue deux remèdes que son texte confondait** : installer les règles *ici* (le plugin est déjà présent dans la plupart des cas) et ajouter un plugin absent. Réinstaller le plugin n'a jamais été le remède.
+
+`docs/concepts.md` gagne la section correspondante — les quatre états, les deux précisions de lecture, et la table `Skill | Pivots consommés | Qui les installe`, dont la ligne `seo-optimize` porte `personne`. Le `README.md` du plugin remplace « l'absence est énoncée » par la quittance elle-même.
+
+Deux suites behave accompagnent le lot : `skills/web-optimize/evals/pivot-provenance-scenarios.md` (12 scénarios, la quittance côté consommateur) et, chez `sc-tiers`, la symétrique côté installeur. Elles sont **appendo-registres** : chaque rejeu ajoute son bloc sous le précédent, il n'en remplace aucun.
+
+### Fixed — deux tables de mapping qui annonçaient des pivots que personne n'écrit
+
+`web-optimize/references/framework-mapping.md` et `data-optimize/references/api-mapping.md` portaient chacune une table `Plugin → stack` dite « informative », recopiée de `pivot-providers.md` et dérivée depuis. La première prêtait des pivots perf à `sc-tiers` (qui n'en installe aucun) et des pivots Actix/Rocket à `sc-rust` (jamais écrits) ; la seconde annonçait un pivot Sea-ORM inexistant, omettait `rusqlite` qui existe, et listait encore Supabase / DynamoDB / Hasura après leur retrait par `sc-tiers` 0.3.0. **Les deux tables sont supprimées** plutôt que corrigées : un second exemplaire dérive de nouveau en silence, la source unique est la seule correction stable. Les deux fichiers perdent au passage la phrase « les deux fichiers de repli », fausse depuis que le repli est décrit par la quittance elle-même.
+
+`web-optimize/SKILL.md` : le slug de stack `nuxt3` devient `nuxt`, et la liste gagne l'avertissement qui manquait — **un slug de stack n'est pas un nom de fichier de pivot** (`svelte-kit` → `perf-pivots-sveltekit.md`, `static-html` et `astro` → `perf-pivots-static.md`, `php-laravel` → `perf-pivots-laravel.md`, `alpine-spa` → `perf-pivots-alpine.md`). Le pivot se résout par `pivot-providers.md`, jamais par collage du slug dans le nom.
+
+### Changed — `behave` : deux invariants que le run 2 de la suite provenance a rendus obligatoires
+
+Les deux suites du lot ont produit, après correction, un défaut de harnais que le contrat ne nommait pas. Ils sont désormais dans `behave/references/harness-conventions.md` et dans le gabarit `behave/assets/scenario-template.md`, donc devant les suites à naître, pas seulement derrière celles-ci :
+
+- **Une ligne n'annonce jamais son verdict.** Une colonne d'annotation (*Instruction pinned*, *Expected*, *Note*) est lue par le juge suivant comme la réponse — et elle **périme au correctif** : la citation qu'elle porte est supprimée, pas renumérotée. Mesuré sur la suite provenance au run 2 : 8 annotations sur 11 décrivaient un texte disparu, un juge qui les recopiait rendait six FAIL faux. Les mesures partent en **appendice daté et explicitement non-rebasable**, la ligne ne garde que situation → comportement attendu → critère falsifiable.
+- **Une suite doit garder un rouge vivant.** Une suite écrite pour reproduire un défaut passe au vert le jour du correctif et cesse d'établir qu'un *nouveau* défaut de la même famille serait attrapé : elle est devenue une suite de non-régression, ce qui est autre chose et moins. Contrôle négatif **et** contrôle positif requis, et le compte se fait **par famille** — un rouge dans une autre famille ne compte pas. La suite provenance sépare désormais explicitement *receipt* (ce que la sortie dit de ce qu'elle a chargé) et *detection* (si une stack devient applicable, en amont de toute quittance), et gagne un S12 de contrôle négatif : un pivot atteint par son propre `paths:` plutôt que par la carte de stacks — route jamais mentionnée par aucun consommateur (0 occurrence mesurée).
+
 ## [4.2.0] — 2026-07-30
 
 ### Added — `control` : ce qu'un champ de pivot supposait sans le dire (DEC-009)

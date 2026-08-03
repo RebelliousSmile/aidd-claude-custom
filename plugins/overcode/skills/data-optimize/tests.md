@@ -11,6 +11,8 @@ For each case below:
 3. Compare the detected stack + chosen checklist against the **Expected** column.
 4. If mismatch → fix `SKILL.md` Step 1 detection logic OR `api-mapping.md` pivots.
 
+> The **Expected checklist source** column below covers the `source` field of the provenance header only. The second field, `pivot`, is not fixed by the project shape: it depends on what `.claude/rules/07-quality/` holds in the fixture at run time. A run is correct only if **both** fields are emitted — matching this column while omitting `pivot` is a failure, not a pass.
+
 ## Test matrix
 
 | #  | Project shape (files present)                                                  | Expected stack             | Expected checklist source                                                                  |

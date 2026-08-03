@@ -22,13 +22,33 @@ Aucune skill d'`overcode` ne code en dur la connaissance d'une stack. C'est le p
 Une skill d'audit fonctionne en deux temps :
 
 1. **Détecter** la stack depuis les manifestes du projet (`package.json`, `composer.json`, `pyproject.toml`, `Cargo.toml`, les lockfiles).
-2. **Charger les pivots** — des fichiers de règles installés par les plugins `sc-*` sous `.claude/rules/07-quality/`. Aucun pivot trouvé → un schéma générique s'applique, et l'absence est énoncée.
+2. **Charger les pivots** — des fichiers de règles installés par les plugins `sc-*` sous `.claude/rules/07-quality/`. Aucun pivot trouvé → un schéma générique s'applique.
 
-| Skill | Pivots consommés |
-|---|---|
-| `web-optimize` | `perf-pivots-*.md` |
-| `data-optimize` | `data-pivots-*.md` |
-| `ap-optimize` | `ap-pivots-*.md` |
+### La quittance : ce que la sortie dit de ce qu'elle n'a pas chargé
+
+Une skill qui consomme un pivot **rend, en sortie, ce qu'elle a chargé et ce qu'elle n'a pas pu charger**. Ce n'est pas une politesse : un audit générique et un audit spécialisé ont la même forme, et sans cette ligne rien ne distingue les quatre situations qui y mènent.
+
+| État | Ce que le terrain porte | Ce que la sortie permet |
+|---|---|---|
+| `installed` | un pivot chargé pour cette stack | nommer le fichier et sa stack — la **provenance** |
+| `no provider` | aucun plugin ne couvre cette stack | proposer d'en générer un ; il n'y a pas d'installeur à recommander |
+| `not installed` | un plugin la couvre, rien n'est installé ici | nommer le plugin **et** sa commande |
+| `empty receptacle` | le réceptacle existe, sans aucun fichier de règle | même remède, diagnostic distinct |
+
+Deux précisions que le compte à quatre rend nécessaires. **« Vide » se lit sur les règles, pas sur les fichiers** : un `.gitkeep` ne peuple pas un réceptacle, une règle hors pivot le peuple. Et **la quittance est par stack** — une ligne par stack applicable, jamais une valeur unique pour le dépôt : le pivot suit le fichier, donc un dépôt polyglotte n'a pas d'état global.
+
+Le rationnel complet est dans DEC-010 (`aidd_docs/internal/decisions/`, dépôt de la marketplace). La forme exacte de chaque ligne vit dans le `SKILL.md` de chaque skill.
+
+| Skill | Pivots consommés | Qui les installe |
+|---|---|---|
+| `web-optimize` | `perf-pivots-*.md` | `sc-js`, `sc-php`, `sc-python`, `sc-rust` — via leur skill `sniff` |
+| `data-optimize` | `data-pivots-*.md` | les quatre mêmes, plus `sc-tiers` via `setup` pour les SaaS de données |
+| `ap-optimize` | `ap-pivots-*.md` | `sc-python` seul |
+| `seo-optimize` | `seo-pivots-*.md` | **personne** — le réceptacle est déclaré, aucun plugin ne le remplit |
+
+La dernière ligne est l'état `no provider` à l'état pur, et elle est écrite plutôt que tue : le réceptacle `seo-pivots-*` est une interface publique sans réalisateur. Une skill qui le tairait laisserait croire à un oubli d'installation là où il n'y a rien à installer.
+
+Le détail par stack — quel plugin couvre quelle stack, et sous quelle commande — vit dans `references/pivot-providers.md`, pas ici : cette page nomme le plugin par famille, ce fichier fait la correspondance par stack.
 
 L'inversion de dépendance est délibérée : `overcode` ne connaît pas Laravel ni Nuxt. C'est `sc-php` et `sc-js` qui **déposent** leur savoir dans le projet, et `overcode` qui le ramasse. Ajouter le support d'une stack ne demande donc jamais de toucher `overcode` — c'est ce qui permet aux plugins `sc-*` d'évoluer à leur propre rythme.
 

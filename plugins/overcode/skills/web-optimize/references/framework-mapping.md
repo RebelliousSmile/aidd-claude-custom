@@ -1,7 +1,7 @@
 # Framework mapping — perf pivots
 
 > **Generic file**: this file contains ONLY the 12-section schema and the fallback procedure.
-> Stack-specific pivots are NOT embedded here — they are installed as project-level rules by `sc-*` plugins (sc-js, sc-php, sc-python, sc-tiers, sc-rust, …) via their `setup` skills.
+> Stack-specific pivots are NOT embedded here — they are installed as project-level rules by `sc-*` plugins. **Which plugin supplies which pivot, and by which command, is read in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` — never guessed, never derived from a plugin's name.** The command is carried per plugin, not per family: `sc-tiers` installs by `setup`, the four `sc-<language>` by `sniff`.
 >
 > **Dispatch order** when running an audit on a detected stack:
 >
@@ -30,17 +30,11 @@ Une checklist perf web tient en 12 sections, identiques quel que soit le stack :
 
 Les pivots installés par `sc-*` plugins remplacent les items section-par-section selon le framework cible.
 
-## Plugin → stack mapping (informative)
+## Plugin → stack mapping
 
-| Plugin | Stacks covered |
-|---|---|
-| `sc-js` | Nuxt 3, Vue SPA, Vite, Alpine.js, Static / Astro / 11ty, §10 storage SSR |
-| `sc-php` | Laravel, Symfony, WordPress, PHP vanilla, HTMX hybrid |
-| `sc-python` | Django, Django + Alpine / HTMX hybrid |
-| `sc-rust` | Axum, Actix, Rocket (server-side perf) |
-| `sc-tiers` | Firebase Hosting, Supabase, third-party SaaS hosting concerns |
+**Read it in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` › `perf-pivots-*`.** That table is the sole source, and it is not duplicated here: a second copy drifts from the installers silently, which is exactly how this file came to advertise `sc-tiers` perf pivots and `sc-rust` Actix/Rocket pivots that no installer has ever written.
 
-If a stack you detect has no matching plugin/pivot file, follow the fallback procedure below.
+If a stack you detect has no line in that table, the state is `no provider` — follow the fallback procedure below, and say so in the receipt.
 
 ## Fallback: stack not covered by any installed pivot
 

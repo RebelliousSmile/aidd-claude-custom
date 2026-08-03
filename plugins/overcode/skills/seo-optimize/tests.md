@@ -11,6 +11,8 @@ For each case below:
 3. Compare the detected site type + chosen pivot against the **Expected** column.
 4. If mismatch → fix `SKILL.md` Step 1 detection logic OR `seo-geo-pivots.md` pivots.
 
+> The **Expected pivot source** column below covers the `source` field of the provenance header only. The second field, `pivot`, reports the state of the `.claude/rules/07-quality/seo-pivots-*.md` receptacle and is not fixed by the site shape — on a fixture with no such file it reads `no provider`. A run is correct only if **both** fields are emitted.
+
 ## Test matrix
 
 | # | Project shape (signals present)                                                | Expected site type        | Expected pivot source                                                       |

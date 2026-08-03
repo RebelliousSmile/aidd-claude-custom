@@ -8,7 +8,9 @@ description: >-
   produces a ranked roadmap. Detects the data-layer stack and loads
   stack-specific pivots from installed `sc-*` plugins
   (`.claude/rules/07-quality/data-pivots-*.md`); falls back to a generic
-  12-section schema + REST vanilla pivots otherwise.
+  12-section schema + REST vanilla pivots otherwise. Every report states where
+  its checklist came from and whether a pivot was installed, missing, or
+  unavailable.
   Use when the user mentions data perf, API perf, slow query, data-layer N+1
   (queries répétées sur même collection/table — distinct from web-optimize's
   render-time N+1), quota, "trop de reads", "trop de requêtes", egress, rate
@@ -28,9 +30,10 @@ Run a structured data-layer audit on a project — covering both the calls emitt
 ## Rules
 
 - Detect the data-layer stack BEFORE picking a checklist — never assume Firebase/Postgres/etc.
-- **After detecting the stack, look for installed pivot rules** at `.claude/rules/07-quality/data-pivots-<stack>.md` (provided by `sc-*` plugins: sc-js, sc-php, sc-python, sc-tiers, sc-rust). If found → load as the primary source for §1–§10. If not found → fall back to `references/api-mapping.md` (generic schema + REST vanilla pivots + fallback procedure). For hybrid stacks, load every matching `data-pivots-*.md` and concatenate
+- **After detecting the stack, look for installed pivot rules** at `.claude/rules/07-quality/data-pivots-<stack>.md` (provided by `sc-*` plugins — which plugin covers which stack is in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`, never guessed). If found → load as the primary source for §1–§10. If not found → fall back to `references/api-mapping.md` (generic schema + REST vanilla pivots + fallback procedure), **and say so in the output** — falling back is allowed, falling back silently is not. For hybrid stacks, load every matching `data-pivots-*.md` and concatenate
 - Capture a baseline (request count per route, query count per request, payload bytes, p50/p95 latency, quota usage) BEFORE recommending changes — without baseline, gains are unfalsifiable
-- If no template matches the detected stack, **propose** generating one — never silently fall back to a stack-mismatched checklist
+- If no pivot covers the detected stack, name the cause before proposing anything: **no plugin provides one** (the stack has no line in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`) → propose generating a checklist; **a plugin provides one and nothing is installed here** → recommend that plugin and its install command, read from that table. Never silently fall back to a stack-mismatched checklist, and never run the installer yourself — this skill reports and recommends, it does not install (DEC-007 §2)
+- **Every report states the provenance of its checklist** — two fields, `source` and `pivot`, one pair per applicable stack. See Step 5 for the exact form
 - Recommend changes only after reading at least these 3 files of the actual codebase: (a) the data-layer entry (`firebase config` / `prisma/schema.prisma` / `models.py` / `Models/*.php` / `drizzle.config.ts` / equivalent), (b) one hot read path (composable, controller, repository, GraphQL resolver), (c) one hot write path. Generic advice without this evidence is rejected
 - One row per checklist item, with `🟢 / 🟡 / 🔴 / N/A` + `file:line` references when actionable
 - Output goes to `aidd_docs/tasks/audits/<yyyy_mm_dd>_data-<stack>-<scope-slug>.md`. If `aidd_docs/` does not exist, fallback to `docs/data-audits/<yyyy_mm_dd>_data-<stack>-<scope-slug>.md` (create dir if needed). Day-level granularity prevents collision when multiple audits target the same scope in one month
@@ -154,12 +157,18 @@ flowchart LR
 
 **Do:**
 
-1. **Check installed plugin pivots first** — scan `.claude/rules/07-quality/data-pivots-*.md` for files matching the detected stack(s). These are installed by `sc-*` plugins via their `setup` skill and are the authoritative source when present.
+1. **Check installed plugin pivots first** — scan `.claude/rules/07-quality/data-pivots-*.md` for files matching the detected stack(s). They are installed by `sc-*` plugins, each with its own install command — the mapping `<stack> → <plugin>, <command>` is in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`. They are the authoritative source when present.
 2. **If matching pivot(s) found**: load them as the primary checklist source and proceed to Step 3. For hybrid stacks (e.g. `firebase + prisma`), load every matching `data-pivots-*.md` and concatenate items.
-3. **If no pivot rule found**, look for matching template under `aidd_docs/templates/dev/data_checklist_*.md` (or `docs/data-templates/` if no `aidd_docs/`).
+3. **If no pivot rule found**, read the state right here and emit the recommendation now — do not wait for the terminal guard below, which is only reached when no template matches either:
+   - the stack **has a line** in `pivot-providers.md` → recommend running that plugin's install command **in this project** (quote plugin + command verbatim from the table), then continue down the ladder
+   - the stack **has no line** → `no provider`; nothing to recommend, generation is the only remedy
+
+   Then look for a matching template under `aidd_docs/templates/dev/data_checklist_*.md` (or `docs/data-templates/` if no `aidd_docs/`).
 4. **If neither pivot nor template matches the stack:** halt the workflow and ask the user before proceeding:
 
-   > "No data pivot or checklist exists for `<stack>`. Options: (a) install a `sc-*` plugin that covers this stack (recommended if reused), (b) generate `data_checklist_<stack>.md` from `references/api-mapping.md` fallback procedure, or (c) abort."
+   > "No data pivot or checklist exists for `<stack>`. Options: (a) if `pivot-providers.md` lists a plugin for this stack, run its install command in this project — it is quoted in the recommendation above, (b) generate `data_checklist_<stack>.md` from `references/api-mapping.md` fallback procedure, or (c) abort."
+
+   Option (a) is about **installing the rules here**, not about installing the plugin: the plugin is usually already present, and re-installing it is not the remedy. Adding a missing plugin only comes after, and only if the table names one this project does not have.
 
 5. **If user accepts generation:**
    - Follow the fallback procedure in `references/api-mapping.md`
@@ -171,7 +180,7 @@ flowchart LR
    - Suggest packaging the produced template as a `sc-<stack>` plugin if reuse is likely
    - Continue to Step 3
 
-**Success criteria:** A checklist source is loaded into context, stack-appropriate.
+**Success criteria:** A checklist source is loaded into context, stack-appropriate, **and the pair `source` / `pivot` is determined for every applicable stack** — loading without reporting is the defect this step must not produce.
 
 ### Step 3: Capture baseline
 
@@ -251,11 +260,23 @@ flowchart LR
    - **If `<scope>` not provided as argument:** default to `full-app` (audit covers all data paths)
    - **Same-day rerun on the same scope:** suffix with `-v2`, `-v3` to keep history (no overwrite)
    - **Hybrid > 2 stacks:** if 3+ data layers detected (e.g. `firebase + prisma + redis`), do NOT concatenate into one report. Emit separate `<yyyy_mm_dd>_data-<stack>-<scope-slug>.md` files per stack and a top-level cross-link index `<yyyy_mm_dd>_data-multi-<scope-slug>.md` listing them with shared baseline reference. Single hybrid file > 33 sections is unreviewable
-3. Phases ordered by ROI (F0 stabilisation → F1 quick wins → F2 structural → F3 monitoring)
-4. Each phase: estimated effort + risk + reference (DEC-N or rule path)
-5. End with **Quick wins prioritaires** (≤ 4 items doable next week)
-6. **Per-fix success criterion**: define primary (deterministic delta — requests removed, queries removed, bytes saved, quota delta) + secondary (p95 latency). Declare "real gain" only if primary delta is unambiguous and reproducible across runs; treat latency improvements as supportive, not definitive
-7. **Bugs found during audit → issue, not normative patch**: a single-occurrence bug (e.g. missing `await` on a write, query without index on a one-off table, `.exists()` in a single loop) belongs in:
+3. **Provenance header** — right after the baseline block, before the phases, emit **one pair of fields per applicable stack**:
+
+   ```
+   <stack> — source : pivot <name> | template <name> | internal fallback api-mapping.md[ §<section>] | generated <file>
+             pivot  : installed | not installed (<plugin>, <command>) | empty receptacle (<plugin>, <command>) | no provider
+   ```
+
+   - `source` is the rung **actually reached**, not the one intended.
+   - `pivot` is the state of the plugin-provided rule, in the order of DEC-010 §1: `installed` · `not installed` (a plugin covers this stack, nothing is installed here) · `empty receptacle` (`.claude/rules/07-quality/` exists and holds no rule file — `.gitkeep` and service files do not count, a non-pivot rule does) · `no provider` (the stack has no line in the table). A **missing** receptacle is never `empty receptacle`: it is `not installed` or `no provider`.
+   - **Two fields, never one.** They are independent axes and commonly both true — `pivot : not installed` with `source : internal fallback api-mapping.md` is the ordinary run. Merged into a single value, it is always `pivot` that gets lost.
+   - `<plugin>` and `<command>` are quoted from `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` — never guessed, never derived from the family or the plugin name.
+   - A polyglot repo gets one pair per stack: a single provenance value is wrong whichever value it takes (DEC-008). This holds for the hybrid case above — each of the split reports carries its own pair.
+4. Phases ordered by ROI (F0 stabilisation → F1 quick wins → F2 structural → F3 monitoring)
+5. Each phase: estimated effort + risk + reference (DEC-N or rule path)
+6. End with **Quick wins prioritaires** (≤ 4 items doable next week)
+7. **Per-fix success criterion**: define primary (deterministic delta — requests removed, queries removed, bytes saved, quota delta) + secondary (p95 latency). Declare "real gain" only if primary delta is unambiguous and reproducible across runs; treat latency improvements as supportive, not definitive
+8. **Bugs found during audit → issue, not normative patch**: a single-occurrence bug (e.g. missing `await` on a write, query without index on a one-off table, `.exists()` in a single loop) belongs in:
    - The audit report's roadmap (F1/F2 with file:line + fix recipe), AND
    - A new tracker issue created via `gh issue create` (or equivalent) so the fix has a follow-up owner
    - **Never** in the checklist's anti-patterns table, the `api-mapping.md` pivots, or `.claude/rules/` — those files codify recurring patterns, not point fixes. A bug ≠ an anti-pattern.
@@ -276,7 +297,7 @@ flowchart LR
    - Useful ad-hoc commands — formatted `[grep] <command> — <what it surfaces>`
    - Missing pivots in `api-mapping.md` — formatted `[pivot] <stack>: <missing pivot>`
    - Counter-definition drift (queries/requests/payload bytes) — formatted `[unit] §N: <ambiguity> → <proposed wording>`
-   - **Bugs found ≠ anti-patterns**: a single-occurrence bug goes to the roadmap + tracker issue (see Step 5.7), NOT into `[antipattern]`. Only elevate to anti-pattern if you can cite ≥ 2 distinct occurrences in the codebase OR a recognized generic class.
+   - **Bugs found ≠ anti-patterns**: a single-occurrence bug goes to the roadmap + tracker issue (see Step 5.8), NOT into `[antipattern]`. Only elevate to anti-pattern if you can cite ≥ 2 distinct occurrences in the codebase OR a recognized generic class.
 3. **Trigger threshold**: if learnings count ≥ 3 gaps OR ≥ 1 anti-pattern OR ≥ 1 missing pivot OR ≥ 1 counter-drift → propose patches to the user explicitly (do NOT silently edit):
    - Diff for `aidd_docs/templates/dev/data_checklist_<stack>.md`
    - Diff for `references/api-mapping.md`
@@ -291,6 +312,7 @@ flowchart LR
 | Type      | Path                                                | Description                                                                            |
 | --------- | --------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | Template  | `aidd_docs/templates/dev/data_checklist_<stack>.md` | Auto-generated on first audit when missing (e.g. `firebase`, `prisma`, `eloquent`)     |
+| Reference | `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` | `<stack> → <plugin>, <install command>` — the only place the remedy is read from. Plugin-root path, not skill-relative |
 | Reference | `references/api-mapping.md`                         | Pivots per stack (Firebase, Supabase, Prisma, Drizzle, ORMs, DynamoDB, GraphQL, tRPC)  |
 | Output    | `aidd_docs/tasks/audits/<yyyy_mm_dd>_data-<stack>-<scope-slug>.md` | Audit report destination (fallback `docs/data-audits/...` if no `aidd_docs/`) |
 | Baseline  | `aidd_docs/tasks/audits/baselines/<scope-slug>.json` | Persisted deterministic counters — referenced by every audit on the same scope for reproducible cross-run comparison |

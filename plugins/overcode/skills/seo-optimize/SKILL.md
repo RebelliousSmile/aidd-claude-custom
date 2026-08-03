@@ -8,7 +8,8 @@ description: >-
   produces a ranked roadmap plus ready-to-paste copy. Detects site type
   (local-business, SaaS, blog/content, e-commerce, docs) and captures a
   falsifiable baseline (GSC positions, GBP score, AI citation grid) before
-  recommending changes.
+  recommending changes. Every report states where its checklist came from and
+  the state of the `.claude/rules/07-quality/seo-pivots-*.md` receptacle.
   Use when the user mentions SEO, GEO, référencement, ranking, SERP, Google
   Search Console, GSC, mots-clés, keywords, meta title, balise title, H1,
   rich results, JSON-LD, schema, Google Business Profile, GBP, fiche Google,
@@ -27,7 +28,8 @@ Run a structured SEO/GEO audit on a website, picking the right checklist for the
 ## Rules
 
 - Detect the site type BEFORE picking a checklist — never assume `local-business`
-- **After detecting the site type, load matching pivots** from `references/seo-geo-pivots.md` (or a future `sc-seo-*` plugin pivot at `.claude/rules/07-quality/seo-pivots-<sitetype>.md` if installed — it takes precedence). Load matching section(s) as the primary source for §1–§11. For hybrid sites (e.g. `local-business` + `blog`), concatenate sections
+- **After detecting the site type, load matching pivots** from `references/seo-geo-pivots.md`, the nominal source for this skill. A pivot file dropped at `.claude/rules/07-quality/seo-pivots-<sitetype>.md` **takes precedence** when present, whoever put it there — the receptacle is a public interface, and `references/seo-geo-pivots.md` contractualizes any such file. No marketplace plugin currently writes that name, so its absence is `no provider`, never `not installed`: there is no installer to recommend. Load matching section(s) as the primary source for §1–§11. For hybrid sites (e.g. `local-business` + `blog`), concatenate sections
+- **Every report states the provenance of its checklist** — two fields, `source` and `pivot`, one pair per applicable site type. See Step 5 for the exact form
 - Capture a **falsifiable baseline** (GSC positions/impressions, GBP completeness score, AI citation grid, schema validity) BEFORE recommending changes — without baseline, ranking claims are unfalsifiable
 - Recommend changes only after reading at least these 3 real artifacts: (a) the rendered `<head>` of the hot route (or the framework head config — `useHead`/`useSeoMeta`, `next/head`/`generateMetadata`, static `<head>`), (b) `robots.txt` + `sitemap.xml`, (c) one hot landing page's body content. Generic SEO advice without this evidence is rejected
 - **Ground every finding** in an authoritative source via `references/serp-signals.md` — distinguish confirmed ranking factors from correlation/folklore before recommending a fix
@@ -134,8 +136,8 @@ flowchart LR
 
 **Do:**
 
-1. **Check installed plugin pivots first** — scan `.claude/rules/07-quality/seo-pivots-*.md` for a file matching the detected type. If found → primary source, proceed to Step 3.
-2. **If no plugin pivot**, load the matching section(s) of `references/seo-geo-pivots.md`. For hybrid sites, concatenate.
+1. **Check the receptacle first** — scan `.claude/rules/07-quality/seo-pivots-*.md` for a file matching the detected type. If found → primary source, proceed to Step 3. No marketplace plugin fills this name today, so a hit means someone dropped the file by hand; it is honoured all the same.
+2. **If no such pivot**, load the matching section(s) of `references/seo-geo-pivots.md` — the nominal rung here, not a degraded one. For hybrid sites, concatenate. Record the receptacle's state for the provenance header: absent or holding no matching file, it is `no provider` — nothing to install, and no plugin to name.
 3. **If no section matches the type:** halt and ask the user:
 
    > "No SEO/GEO pivot exists for `<sitetype>`. Should I generate one from the fallback procedure in `references/seo-geo-pivots.md`, adapted to this project? (yes / no)"
@@ -146,7 +148,7 @@ flowchart LR
    - **If `aidd_docs/internal/decisions/` exists:** create a DEC documenting the convention choices. **Otherwise:** inline the conventions in the pivot header
    - Continue to Step 3
 
-**Success criteria:** A pivot source is loaded into context, site-type-appropriate.
+**Success criteria:** A pivot source is loaded into context, site-type-appropriate, **and the pair `source` / `pivot` is determined for every applicable site type** — loading without reporting is the defect this step must not produce.
 
 ### Step 3: Capture baseline
 
@@ -196,11 +198,23 @@ flowchart LR
 2. Output to `aidd_docs/tasks/audits/<yyyy_mm_dd>_seo-<sitetype>-<scope-slug>.md` (fallback `docs/seo-audits/...`)
    - **If `<scope>` not provided:** default to `full-site`
    - **Same-day rerun:** suffix `-v2`, `-v3`
-3. Phases ordered by ROI (F0 indexability/blockers → F1 on-page quick wins → F2 structural content/schema → F3 GBP/off-page/monitoring)
-4. **Ready-to-paste copy** (titles, metas, H1, FAQ, GBP fields) under each relevant item — apply the **truthfulness guard** (no invented figures, `[placeholder]` for unknowns) AND the **encoding guard** (ASCII if non-UTF-8 store)
-5. End with a **KPI tracking table** J0 → J+30 → J+60 → J+90 (GSC position/impressions per query, GBP score, AI citation grid) so gains are measurable
-6. **Per-fix success criterion**: define primary (deterministic delta — schema valid, meta present, NAP consistent) + secondary (GSC median position). Declare "real gain" only if GSC **median position post-fix beats the baseline range**, else: "fix shipped, ranking variance dominates, deterministic delta is the trustable signal"
-7. **Bugs found during audit → issue, not normative patch**: a single broken canonical or a stray noindex belongs in the roadmap (file:line + fix) + a tracker issue — never in the pivots or `.claude/rules/`. Threshold for normative elevation: ≥ 2 distinct occurrences OR a known generic class
+3. **Provenance header** — right after the baseline block, before the phases, emit **one pair of fields per applicable site type**:
+
+   ```
+   <sitetype> — source : pivot <name> | internal fallback seo-geo-pivots.md §<section> | generated <file|—>
+                pivot  : installed | empty receptacle | no provider
+   ```
+
+   - `source` is the rung **actually reached**. `internal fallback seo-geo-pivots.md` is the nominal answer here, not a degraded one — it is where almost every run lands. `generated` is distinct from it: a checklist **written** on the fly is not a maintained section that was loaded. This skill declares no destination for what it generates, hence `—`.
+   - `pivot` is the state of the receptacle, without naming a provider — there is none to name: `installed` (a matching file is there and was loaded) · `empty receptacle` (`.claude/rules/07-quality/` exists and holds no rule file — `.gitkeep` and service files do not count, a non-pivot rule does) · `no provider` (no marketplace plugin writes this name; this is the ordinary state). A **missing** receptacle is never `empty receptacle`: it is `no provider`.
+   - `not installed` is unreachable in this family, and stating it would be false: it means *a provider exists and you have not run it*, and none exists.
+   - **Two fields, never one.** They are independent axes and commonly both true — `pivot : no provider` with `source : internal fallback seo-geo-pivots.md §local-business` is the ordinary run.
+   - A site mixing several types gets one pair per type: a single provenance value is wrong whichever value it takes (DEC-008).
+4. Phases ordered by ROI (F0 indexability/blockers → F1 on-page quick wins → F2 structural content/schema → F3 GBP/off-page/monitoring)
+5. **Ready-to-paste copy** (titles, metas, H1, FAQ, GBP fields) under each relevant item — apply the **truthfulness guard** (no invented figures, `[placeholder]` for unknowns) AND the **encoding guard** (ASCII if non-UTF-8 store)
+6. End with a **KPI tracking table** J0 → J+30 → J+60 → J+90 (GSC position/impressions per query, GBP score, AI citation grid) so gains are measurable
+7. **Per-fix success criterion**: define primary (deterministic delta — schema valid, meta present, NAP consistent) + secondary (GSC median position). Declare "real gain" only if GSC **median position post-fix beats the baseline range**, else: "fix shipped, ranking variance dominates, deterministic delta is the trustable signal"
+8. **Bugs found during audit → issue, not normative patch**: a single broken canonical or a stray noindex belongs in the roadmap (file:line + fix) + a tracker issue — never in the pivots or `.claude/rules/`. Threshold for normative elevation: ≥ 2 distinct occurrences OR a known generic class
 
 **Success criteria:** User can execute Phase F0 from the report alone. Each fix has a deterministic primary criterion. Generated copy is truthful and encoding-safe.
 

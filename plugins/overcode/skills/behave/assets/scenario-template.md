@@ -16,16 +16,21 @@ This suite is **distinct** from:
 
 ## Scenarios
 
-<!-- Matrix form (Situation → Expected → Pass criteria). For quality bars, a GO / NO-GO form also works (see references/harness-conventions.md). -->
+<!-- Matrix form (Situation → Expected → Pass criteria). For quality bars, a GO / NO-GO form also works (see references/harness-conventions.md).
+     NEVER add a column that announces the expected verdict. It reads as the answer to the next judge, and it expires
+     at the fix — see harness-conventions.md › Invariants › "A row never announces its verdict". -->
 
 | #   | Situation (input) | Expected behaviour | Pass criteria |
 |-----|-------------------|--------------------|---------------|
 | S1  | <concrete input, adapted to the fixture domain> | <what the target should do> | <decisive, ideally write-scoped: forbidden path untouched / fact lands in scope X / mechanic invoked> |
 | S2  | … | … | … |
 | S3  | <a NO-GO / refuse case> | <the target must refuse / not do X> | <FAIL avoided: no forbidden write, no fabrication> |
+| S?  | **<positive control>** — <a case the target already handles correctly> | <correct behaviour, unaided> | <graded with no allowance: this row is free to fall, and its PASS is what shows the suite is not written to make everything red> |
+| S?  | **<negative control>** — <a case in the SAME family that will still be wrong after the planned fix> | <what would be right> | <a red the suite keeps after the fix lands; without it the suite goes all-green and stops proving that a NEW defect of this family would be caught> |
 | …   | | | |
 
 <!-- Optional: a "data precondition" row that guards the root cause (is the data the target needs actually present?). -->
+<!-- If a row's subject changes family (e.g. it now fails upstream of what it measures), say so in the row and tally the families apart — a red elsewhere is not evidence here. -->
 
 ## How to run
 

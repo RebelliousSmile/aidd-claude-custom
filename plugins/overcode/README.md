@@ -4,7 +4,7 @@
 
 Plugin principal, installé globalement (`recommended`). Il ne cible pas une stack : il ajoute des workflows transversaux de maintenance, d'analyse, de documentation et de planification, plus des chaînes d'alias pour enchaîner des skills AIDD.
 
-Aucune skill ne code en dur la connaissance d'une stack : les audits détectent la stack puis chargent les **pivots** déposés par les plugins `sc-*` sous `.claude/rules/07-quality/`. Sans pivot, un schéma générique s'applique et l'absence est énoncée.
+Aucune skill ne code en dur la connaissance d'une stack : les audits détectent la stack puis chargent les **pivots** déposés par les plugins `sc-*` sous `.claude/rules/07-quality/`. Sans pivot, un schéma générique s'applique — et la sortie rend une **quittance** qui sépare quatre états, une ligne par stack : chargé, aucun fournisseur, fournisseur non installé ici, réceptacle sans règle. Détail dans [`docs/concepts.md`](docs/concepts.md).
 
 ## Documentation
 
