@@ -244,9 +244,13 @@ TEMPLATE = r"""<!DOCTYPE html>
     width: 100%; max-width: 100%; margin: 0 auto; position: relative; overflow-x: hidden;
     background: #fff; transition: max-width .4s cubic-bezier(.22,1,.36,1);
   }
-  .preview-frame.tablet { max-width: 834px; border-radius: 24px; border: 10px solid #1F2A37; box-shadow: 0 30px 80px rgba(0,0,0,.25); margin: 24px auto; overflow: hidden; }
-  .preview-frame.mobile { max-width: 390px; border-radius: 32px; border: 8px solid #1F2A37; box-shadow: 0 30px 80px rgba(0,0,0,.3); margin: 32px auto; overflow: hidden; }
-  /* 834 / 390 are fixed device samples, not contract breakpoints — see the RESPONSIVE note. */
+  .preview-frame.tablet { max-width: 834px; border-radius: 24px; outline: 10px solid #1F2A37; box-shadow: 0 30px 80px rgba(0,0,0,.25); margin: 34px auto; overflow: hidden; }
+  .preview-frame.mobile { max-width: 390px; border-radius: 32px; outline: 8px solid #1F2A37; box-shadow: 0 30px 80px rgba(0,0,0,.3); margin: 40px auto; overflow: hidden; }
+  /* 834 / 390 are fixed device samples, not contract breakpoints — see the RESPONSIVE note.
+     The bezel is an outline, never a border: a border would sit inside the box (box-sizing:
+     border-box) and shrink the content box below the sample width, charging the difference to
+     a conformant implementation when the fidelity oracle measures percentage-derived values.
+     The margins absorb the outline (24+10, 32+8) so the visual gap is unchanged. */
   #page-container { display: block; width: 100%; }
 
   /* Placeholder until a page function is filled in, and the render error state. */

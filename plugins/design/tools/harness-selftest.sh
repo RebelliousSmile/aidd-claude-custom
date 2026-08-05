@@ -87,6 +87,22 @@ else
   echo "ok   no @media in scaffold or coupled output"
 fi
 
+# The device bezel is painted OUTSIDE the box. As a border it would sit inside
+# (box-sizing: border-box) and shrink the content box below the declared sample width —
+# measured at 375x812, the oracle's real mobile viewport: content 359 instead of 375,
+# and every percentage-derived value charged to a conformant implementation.
+if grep -q "outline: 8px" "$OUT/s.html" && grep -q "outline: 10px" "$OUT/s.html"; then
+  echo "ok   the device bezel is an outline"
+else
+  echo "FAIL the device bezel is not an outline"; fail=1
+fi
+# border-radius stays legitimate; a shorthand `border:` on either device rule does not.
+if grep -E "^  \.preview-frame\.(tablet|mobile) \{" "$OUT/s.html" | grep -q "border:"; then
+  echo "FAIL a border: came back on a device frame — it shrinks the content box"; fail=1
+else
+  echo "ok   no border: on the device frames"
+fi
+
 # The scaffold honours the heading rule it states. Asserting "an <h1 exists somewhere"
 # is not enough — the error block carries one, so a placeholder demoted back to <h2>
 # would still pass. Every .ph block must OPEN on an h1.
