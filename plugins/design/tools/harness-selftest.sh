@@ -64,6 +64,10 @@ check "2x"                  0 --contract "$FIX/2x"
 check "2x-no-stylesheet"    0 --contract "$FIX/2x-no-stylesheet"
 check "2x-missing-artifact" 2 --contract "$FIX/2x-missing-artifact"
 check "2x-bad-release"      2 --contract "$FIX/2x-bad-release"
+# The stylesheet is inlined verbatim: a declared artifact reaching outside the contract
+# directory, or one carrying a </style>, is a refusal — not something to sanitise.
+check "2x-artifact-escape"  2 --contract "$FIX/2x-artifact-escape"
+check "2x-style-breakout"   2 --contract "$FIX/2x-style-breakout"
 check "1x"                  3 --contract "$FIX/1x"
 
 # ─── Pages path — every malformed input is a 2, never a traceback ────────────
@@ -194,6 +198,19 @@ grep -q "tools/generate.py" "$OUT/err" || { echo "FAIL missing-artifact: message
 grep -q "migrate-contract.py" "$OUT/err" || { echo "FAIL 1x: message omits migrate-contract.py"; fail=1; }
 "$PY" "$HARNESS" --out "$OUT/o.html" --pages "/contact/:C" 2>"$OUT/err" >/dev/null || true
 grep -q "/contact/" "$OUT/err" || { echo "FAIL url-path: message omits the offending key"; fail=1; }
+# The escape message must print the RESOLVED path — the raw "../…" is what the contract
+# claims, the resolved one is what proves the escape.
+"$PY" "$HARNESS" --out "$OUT/o.html" --contract "$FIX/2x-artifact-escape" 2>"$OUT/err" >/dev/null || true
+grep -q "policies.json" "$OUT/err" || { echo "FAIL artifact-escape: message omits policies.json"; fail=1; }
+grep -q "\.\./2x" "$OUT/err" && { echo "FAIL artifact-escape: message prints the raw path, not the resolved one"; fail=1; }
+"$PY" "$HARNESS" --out "$OUT/o.html" --contract "$FIX/2x-style-breakout" 2>"$OUT/err" >/dev/null || true
+grep -q "adapters.tokens.css" "$OUT/err" || { echo "FAIL style-breakout: message omits the stylesheet"; fail=1; }
+# A refusal precedes the write; it does not repair one. Nothing produced may carry the payload.
+if grep -rq "__PWNED" "$OUT" 2>/dev/null; then
+  echo "FAIL the style-breakout payload reached a produced file"; fail=1
+else
+  echo "ok   the style-breakout payload reaches no output"
+fi
 
 # ─── Runtime ─────────────────────────────────────────────────────────────────
 # Everything above asserts on the TEXT of the generated file. A generator emitting a

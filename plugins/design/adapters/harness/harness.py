@@ -523,14 +523,41 @@ def resolve_tokens_style(contract):
     if not isinstance(artifact, str) or not artifact:
         return None, _fail(f"{POLICIES} adapters[].artifact is not a non-empty string: "
                            f"{policies_path.resolve()}")
-    css_path = cdir / artifact
+    # The artifact path is confined BEFORE the file is opened: a refused path is never
+    # read. `cdir / artifact` protects nothing on its own — pathlib lets an absolute
+    # operand win outright, and a relative "../…" simply walks out. relative_to() under
+    # try/except, not is_relative_to(), which would floor the interpreter at 3.9.
+    css_path = (cdir / artifact).resolve()
+    root = cdir.resolve()
+    try:
+        css_path.relative_to(root)
+    except ValueError:
+        return None, _fail(f"Declared stylesheet adapter resolves outside the contract "
+                           f"directory: {css_path}\n"
+                           f"  Contract directory: {root}\n"
+                           f"  Declared in: {policies_path.resolve()}\n"
+                           f"  Paths are resolved, so a symlinked artifact directory "
+                           f"pointing outside the contract is refused here too.\n"
+                           f"  Declare an artifact inside the contract directory.")
     try:
         css = css_path.read_text(encoding="utf-8")
     except (OSError, ValueError):
         # Option C: the harness never derives the stylesheet — generate.py owns it.
         return None, _fail(f"Declared stylesheet adapter is absent or unreadable: "
-                           f"{css_path.resolve()}\n"
+                           f"{css_path}\n"
                            f"  Generate it first: python tools/generate.py --contract {contract}")
+    # The stylesheet is inlined verbatim inside <style>…</style>. A closing style tag is
+    # the one sequence that leaves CSS and re-enters HTML, so it is refused, never
+    # escaped: tools/generate.py never emits it, so the refusal has no legitimate false
+    # positive, and escaping would ship an artifact nobody understands.
+    breakout = re.search(r"</\s*style", css, re.I)
+    if breakout:
+        return None, _fail(f"Structurally invalid stylesheet adapter: it closes the "
+                           f"<style> context ({breakout.group(0)!r} at offset "
+                           f"{breakout.start()}).\n"
+                           f"  {css_path}\n"
+                           f"  A generated stylesheet never contains that sequence.\n"
+                           f"  Re-generate it: python tools/generate.py --contract {contract}")
     style = "<style>\n" + css.rstrip("\n") + "\n</style>"
     return style, None
 

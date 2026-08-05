@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Instruction: le chemin `--contract` cesse d'accepter n'importe quoi
