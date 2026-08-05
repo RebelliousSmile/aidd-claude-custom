@@ -432,10 +432,13 @@ TEMPLATE = r"""<!DOCTYPE html>
     );
 
     (function init() {
-      const hash = decodeURIComponent((location.hash || '').slice(1));
+      // decodeURIComponent THROWS on a malformed fragment (#%E0%A4%A), so it belongs
+      // inside the try: outside it, the URIError aborted init() before setViewport()
+      // and render(), leaving #page-container empty — a blank file with no error block.
       // Same reason as in render(): reading the registry is what throws when the
       // page-functions script died. Swallowing here lets render() report it on screen.
       try {
+        const hash = decodeURIComponent((location.hash || '').slice(1));
         if (hash && pages[hash]) { currentPage = hash; if (select) select.value = hash; }
       } catch (e) {}
       setViewport('desktop');
@@ -533,11 +536,24 @@ def resolve_tokens_style(contract):
 _SENTINEL = re.compile(r"%%(\w+)%%(\n?)")
 
 
+def missing_sentinels(template, values):
+    """Sentinels the template names and `values` does not carry.
+
+    The scan is on the TEMPLATE only, never on a value: a --title reading
+    "%%PAGE_OPTIONS%%" is not a missing key, it is text. A dropped or misspelled key,
+    on the other hand, ships `%%FOO%%` in the HTML at exit 0 — the dead-file-at-green
+    defect one level up, which is why it is a 2 and not a warning.
+    """
+    return sorted({name for name, _ in _SENTINEL.findall(template)} - set(values))
+
+
 def substitute(template, values):
     """Fill every %%SENTINEL%% in one pass.
 
     One pass, not a chain of .replace(): a value injected by one sentinel is never
     rescanned as the next — a --title reading "%%PAGE_OPTIONS%%" stays literal.
+    Callers check missing_sentinels() first; an unknown name is left literal here so
+    that user text is never eaten.
     """
     def repl(match):
         name, eol = match.group(1), match.group(2)
@@ -592,7 +608,7 @@ def main():
     if code is not None:
         return code
 
-    document = substitute(TEMPLATE, {
+    values = {
         "TOKENS_STYLE": style,
         "TOKENS_NOTE_HEADER": TOKENS_NOTE_HEADER if style else "",
         "TOKENS_NOTE_RULES": TOKENS_NOTE_RULES if style else "",
@@ -604,7 +620,17 @@ def main():
         "PAGE_FUNCTIONS": build_functions(pages),
         "PAGE_REGISTRY": build_registry(pages),
         "FIRST_PAGE_KEY": js_literal(pages[0]["key"]),
-    })
+    }
+
+    absent = missing_sentinels(TEMPLATE, values)
+    if absent:
+        return _fail(
+            "Error: the template names sentinel(s) no value fills: "
+            + ", ".join(f"%%{n}%%" for n in absent)
+            + "\n  A generator bug, not an invocation error — but writing the file anyway "
+            "would ship the literal sentinel in the HTML at exit 0.")
+
+    document = substitute(TEMPLATE, values)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

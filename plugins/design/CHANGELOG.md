@@ -1,5 +1,15 @@
 # Changelog — design
 
+## [2.9.1] — 2026-08-05
+
+Correctif — **trois warnings d'une revue de code de 2.9.0, tous de la classe que 2.9.0 prétendait fermer : un état non rendu, une sortie muette, une preuve qui ne tient que là où elle a été écrite.**
+
+- **La garde ajoutée en 2.9.0 dans `init()` commençait après la ligne qui jette.** `decodeURIComponent` lève `URIError` sur un fragment mal formé : l'IIFE avortait avant `setViewport()` et `render()`, et `#page-container` — vide dans le template — restait vide. Mesuré au navigateur sur `#%E0%A4%A` : `innerHTML.length: 0`, aucun bloc d'erreur, `preview-frame` sans classe de viewport. Après, sur le même fragment : `152` caractères, `h1 = "Page 1"`, `window.setPage`/`setViewport` opérants (`preview-frame mobile`). Le décodage est passé **dans** le `try`, là où se lit déjà le registre. Le selftest asserte la ligne qui précède le décodage ; contre-épreuve faite en la remettant dehors, l'assertion tombe.
+- **Une sentinelle de template sans valeur partait littérale dans le HTML, à exit 0.** `substitute()` laisse volontairement intact un `%%…%%` inconnu — pour ne pas manger un `--title` qui en contiendrait un — mais rien ne distinguait ce cas d'une clé oubliée côté générateur. `missing_sentinels()` compare les sentinelles **du template** aux clés fournies, avant écriture : mesuré sur une copie où `PAGE_REGISTRY` est mal orthographiée, **exit 2**, message nommant `%%PAGE_REGISTRY%%`, et **aucun fichier écrit**. Le selftest vérifie en plus qu'aucun `%%` ne survit dans la sortie scaffold et dans la sortie couplée.
+- **Le selftest appelait `python` en dur, sur la ligne que 2.9.0 avait réécrite et fait entrer dans `pnpm test`.** Ubuntu 22+ n'expose que `python3` : chaque `check` y aurait rendu 127, rapporté comme « exit 127, expected 0 » — un interpréteur absent déguisé en échec d'assertion, la mesure exacte du défaut `bash`/WSL corrigé la veille. L'interpréteur est résolu (`HARNESS_SELFTEST_PYTHON`, puis `python3`, puis `python`) et **l'override est vérifié utilisable** : mesuré avec `HARNESS_SELFTEST_PYTHON=/nope/python`, le script s'arrête d'emblée sur un message qui nomme l'interpréteur, exit 1, au lieu de dérouler quatorze faux échecs.
+
+`pnpm test` vert, 22 assertions au selftest du harness.
+
 ## [2.9.0] — 2026-08-05
 
 Mineur — **le générateur de `harness` respecte enfin l'espace de codes qu'il déclare, refuse d'écrire un fichier dont le JS serait invalide, et une preuve branchée sur `pnpm test` casse si l'un de ces points régresse.** Un audit trois piliers (`code-quality`, `ui`, `tests`) a relevé 17 constats ; un 18ᵉ, le plus grave, a été trouvé au challenge du plan. Tous sont fermés, chacun remesuré après correction. La chaîne complète `harness.py → HTML → remplissage → measure.py → verdict` a ensuite été rejouée contre un WordPress FSE réel, pas contre des fixtures.

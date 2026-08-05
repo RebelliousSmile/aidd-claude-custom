@@ -17,9 +17,22 @@ OUT=$(mktemp -d)
 trap 'rm -rf "$OUT"' EXIT
 fail=0
 
+# The interpreter is resolved, never assumed: Ubuntu 22+ ships `python3` only, and a
+# missing `python` returns 127 on every check — an interpreter defect wearing the mask of
+# a failed assertion. A proof that only holds where it was written is not a proof.
+PY=${HARNESS_SELFTEST_PYTHON:-}
+if [ -z "$PY" ]; then PY=$(command -v python3 || command -v python || true); fi
+# The override is checked too: an unusable HARNESS_SELFTEST_PYTHON would return 127 on
+# every check and reproduce the very defect this guard removes.
+if [ -z "$PY" ] || ! command -v "$PY" >/dev/null 2>&1; then
+  echo "SELFTEST FAILED: no usable python (tried '${PY:-python3, python}')."
+  echo "  Install python3, or point HARNESS_SELFTEST_PYTHON at an interpreter."
+  exit 1
+fi
+
 check() {  # name expected_code <harness args…>
   name=$1; want=$2; shift 2
-  python "$HARNESS" --out "$OUT/o.html" "$@" >"$OUT/out" 2>"$OUT/err"
+  "$PY" "$HARNESS" --out "$OUT/o.html" "$@" >"$OUT/out" 2>"$OUT/err"
   got=$?
   # The interdiction, checked on every branch: 1 is not in the harness code space
   # (0/2/3). Asserting only the expected code is what let a dead file ship green.
@@ -51,10 +64,10 @@ check "pages-fn-collision"    2 --pages "my-page:A,my_page:B"
 check "pages-url-path"        2 --pages "/contact/:C"
 
 # ─── Generated HTML ──────────────────────────────────────────────────────────
-python "$HARNESS" --out "$OUT/c.html" --contract "$FIX/2x" >/dev/null 2>&1
-python "$HARNESS" --out "$OUT/s.html" >/dev/null 2>&1
-python "$HARNESS" --out "$OUT/m.html" --pages "home:Accueil,contact:Contact" >/dev/null 2>&1
-python "$HARNESS" --out "$OUT/x.html" --pages "p1:Fiche <b>x</b>" >/dev/null 2>&1
+"$PY" "$HARNESS" --out "$OUT/c.html" --contract "$FIX/2x" >/dev/null 2>&1
+"$PY" "$HARNESS" --out "$OUT/s.html" >/dev/null 2>&1
+"$PY" "$HARNESS" --out "$OUT/m.html" --pages "home:Accueil,contact:Contact" >/dev/null 2>&1
+"$PY" "$HARNESS" --out "$OUT/x.html" --pages "p1:Fiche <b>x</b>" >/dev/null 2>&1
 
 if grep -q "GENERATED from tokens.json" "$OUT/c.html"; then
   echo "ok   2x: stylesheet inlined"
@@ -63,7 +76,7 @@ else
 fi
 
 # The no-stylesheet contract must emit exactly one stderr warning.
-python "$HARNESS" --out "$OUT/o.html" --contract "$FIX/2x-no-stylesheet" 2>"$OUT/err" >/dev/null
+"$PY" "$HARNESS" --out "$OUT/o.html" --contract "$FIX/2x-no-stylesheet" 2>"$OUT/err" >/dev/null
 n=$(grep -c "Warning" "$OUT/err")
 if [ "$n" -eq 1 ]; then echo "ok   2x-no-stylesheet: one warning"; else echo "FAIL warning count $n"; fail=1; fi
 
@@ -126,15 +139,31 @@ else
   echo "ok   no preconnect in scaffold"
 fi
 
+# No %%SENTINEL%% survives into the output. A dropped or misspelled key would otherwise
+# ship the literal sentinel in the HTML at exit 0 — a dead file at green, one level up.
+if grep -q "%%" "$OUT/s.html" "$OUT/c.html"; then
+  echo "FAIL an unfilled %%SENTINEL%% reached the output"; grep -o "%%[A-Za-z_]*%%" "$OUT/s.html" "$OUT/c.html"; fail=1
+else
+  echo "ok   every sentinel filled"
+fi
+
+# decodeURIComponent THROWS on a malformed fragment: outside the try, the URIError
+# aborts init() before render() and leaves #page-container empty — blank, no error block.
+if grep -B1 "const hash = decodeURIComponent" "$OUT/s.html" | grep -q "try {"; then
+  echo "ok   the hash is decoded inside init()'s try"
+else
+  echo "FAIL decodeURIComponent sits outside init()'s try"; fail=1
+fi
+
 # The bad-release message must name release.json; missing-artifact must name generate.py;
 # 1x must name migrate-contract.py; an invalid page set must name the offending key.
-python "$HARNESS" --out "$OUT/o.html" --contract "$FIX/2x-bad-release" 2>"$OUT/err" >/dev/null || true
+"$PY" "$HARNESS" --out "$OUT/o.html" --contract "$FIX/2x-bad-release" 2>"$OUT/err" >/dev/null || true
 grep -q "release.json" "$OUT/err" || { echo "FAIL bad-release: message omits release.json"; fail=1; }
-python "$HARNESS" --out "$OUT/o.html" --contract "$FIX/2x-missing-artifact" 2>"$OUT/err" >/dev/null || true
+"$PY" "$HARNESS" --out "$OUT/o.html" --contract "$FIX/2x-missing-artifact" 2>"$OUT/err" >/dev/null || true
 grep -q "tools/generate.py" "$OUT/err" || { echo "FAIL missing-artifact: message omits generate.py"; fail=1; }
-python "$HARNESS" --out "$OUT/o.html" --contract "$FIX/1x" 2>"$OUT/err" >/dev/null || true
+"$PY" "$HARNESS" --out "$OUT/o.html" --contract "$FIX/1x" 2>"$OUT/err" >/dev/null || true
 grep -q "migrate-contract.py" "$OUT/err" || { echo "FAIL 1x: message omits migrate-contract.py"; fail=1; }
-python "$HARNESS" --out "$OUT/o.html" --pages "/contact/:C" 2>"$OUT/err" >/dev/null || true
+"$PY" "$HARNESS" --out "$OUT/o.html" --pages "/contact/:C" 2>"$OUT/err" >/dev/null || true
 grep -q "/contact/" "$OUT/err" || { echo "FAIL url-path: message omits the offending key"; fail=1; }
 
 if [ "$fail" -eq 0 ]; then echo "ALL GREEN"; exit 0; else echo "SELFTEST FAILED"; exit 1; fi
