@@ -54,6 +54,9 @@ test -f prisma/schema.prisma && echo "Prisma detected"
 test -f drizzle.config.ts && echo "Drizzle detected"
 test -f firebase.json && echo "Firebase project detected"
 test -f supabase/config.toml && echo "Supabase project detected"
+# Rust ORMs / drivers — the manifest is almost never at the root: search down, skip build output
+find . -maxdepth 3 -name Cargo.toml -not -path '*/target/*' 2>/dev/null \
+  | xargs grep -l -E '^(diesel|sqlx|rusqlite|sea-orm) *=|^(diesel|sqlx|rusqlite|sea-orm) *\.' 2>/dev/null
 
 # 1bis. Detect package manager from lockfile (drives all DB/CLI commands below)
 PM=${PM:-pnpm}
@@ -67,12 +70,15 @@ echo "Using package manager: $PM"
 # JS/TS: pnpm-workspace.yaml, turbo.json, nx.json, lerna.json
 # Python: pyproject.toml [tool.uv.workspace] / [tool.rye.workspace]
 # PHP: composer.json with "wikimedia/composer-merge-plugin" or repositories.path entries
-# Rust: top-level Cargo.toml [workspace]
+# Rust: a Cargo.toml carrying [workspace] — it is often NOT at the root (e.g. engine/Cargo.toml)
 ls pnpm-workspace.yaml turbo.json nx.json lerna.json 2>/dev/null
 grep -l '\[tool\.\(uv\|rye\)\.workspace\]' pyproject.toml 2>/dev/null
 grep -l 'composer-merge-plugin\|"path"' composer.json 2>/dev/null
-grep -l '^\[workspace\]' Cargo.toml 2>/dev/null
+find . -maxdepth 3 -name Cargo.toml -not -path '*/target/*' 2>/dev/null \
+  | xargs grep -l '^\[workspace\]' 2>/dev/null
 echo "⚠️  Any output above = monorepo — STOP and ask the user which package/workspace to audit before continuing"
+# When you ask, list every candidate you found — the Rust workspace members are candidates too,
+# not noise to drop because a JS marker also matched.
 
 # 1quater. No detection match? Fallback before generating an "other" template:
 # Dump direct deps and ask user which one is the data layer
@@ -137,16 +143,26 @@ flowchart LR
    - `package.json` → JS/TS data SDKs (Firebase, Supabase, Prisma, Drizzle, Mongoose, AWS SDK, Apollo, urql, tRPC)
    - `composer.json` → PHP ORMs (Eloquent via `laravel/framework`, Doctrine via `doctrine/orm` or `symfony/orm-pack`)
    - `requirements.txt` / `pyproject.toml` → Django ORM, SQLAlchemy, motor (Mongo), boto3 (AWS)
+   - `Cargo.toml` → Rust ORMs and drivers (Diesel, SQLx, rusqlite, SeaORM). **Search down, not at the root only** — in practice the manifest sits one to three levels in (`app/`, `engine/core/`, `app/rust-backend/`). Bound: `-maxdepth 3 -not -path '*/target/*'`; `target/` holds vendored manifests of every transitive dependency and would flood the match.
 2. Map to one (or more) of:
    `firebase`, `supabase`, `prisma`, `drizzle`, `typeorm`, `sequelize`, `mongoose`,
-   `django-orm`, `laravel-eloquent`, `doctrine`,
+   `django-orm`, `sqlalchemy`, `laravel-eloquent`, `doctrine`,
    `dynamodb`, `graphql-apollo`, `graphql-urql`, `trpc`, `hasura`,
-   `rest-vanilla`, `other`
+   `diesel`, `sqlx`, `rusqlite`, `sea-orm`,
+   `datasets`, `rest-vanilla`, `other`
+   `datasets` is **HuggingFace `datasets`** — the slug is a common noun, the stack is not. It is a columnar/Arrow read path, audited for memory-mapped loading and batch shape, not for query planning.
+   ⚠ **A stack slug is not a pivot filename.** Every slug above resolves to `data-pivots-<slug>.md` **except** those declared here, one line each. A divergence left unwritten makes its pivot unreachable, and `tools/eval/pivot-map.mjs` fails the build on it — so the absence of a line is a statement, not an oversight. Resolve the pivot through `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`, never by pasting the slug into the filename — a slug that matches no line there is `no provider`, and a slug that matches a differently-named pivot is **not**.
+   - `laravel-eloquent` → `data-pivots-eloquent.md`
+   - `graphql-apollo`, `graphql-urql` → `data-pivots-graphql.md`
+   **A Rust crate holding no ORM is not a data stack at all** — it falls to the `1quater` fallback (dump the deps, ask the user which one talks to the store), not to a Rust slug. `diesel`, `sqlx` and `rusqlite` each have a line in `pivot-providers.md`, as do `sqlalchemy` and `datasets`: their `pivot` axis reads `installed` or `not installed`, never `no provider`. `sea-orm` has none and reads `no provider` — it is named here so the detection can be complete without the value being guessed.
 3. Tell-tale config files:
    - `firebase.json`, `firestore.rules`, `firestore.indexes.json`
    - `supabase/config.toml`, `supabase/migrations/`
    - `prisma/schema.prisma`, `drizzle.config.ts`, `ormconfig.{js,ts}`
    - `models.py` (Django), `Models/*.php` + `database/migrations/` (Laravel), `src/Entity/*.php` (Symfony Doctrine)
+   - `alembic/` + `models/` carrying `declarative_base()` or `DeclarativeBase` (SQLAlchemy) — `alembic.ini` alone proves the migration tool, not the ORM
+   - `load_dataset(` in the sources + `datasets` in the dependency manifest (HuggingFace datasets)
+   - `diesel.toml`, `migrations/` at the crate root (Diesel) ; `.sqlx/` query cache or `sqlx-data.json` (SQLx) ; a bundled `*.db` / `*.sqlite` next to the crate (rusqlite)
    - `serverless.yml` / CDK with DynamoDB tables; GraphQL `schema.graphql` or `*.gql`
 4. **Hybrid stack:** if multiple data layers coexist (e.g. Firestore + Postgres-via-Prisma; Eloquent + Redis cache; Mongoose + DynamoDB queue), audit BOTH layers — load relevant sections from both `references/api-mapping.md` entries (do NOT generate a new combined template).
 5. Identify the **call sites** (where the client talks to the server): direct SDK calls (Firebase client SDK), REST routes (`server/api/*`, `routes/web.php`, Django views), GraphQL operations (`*.gql`, generated hooks), tRPC procedures.

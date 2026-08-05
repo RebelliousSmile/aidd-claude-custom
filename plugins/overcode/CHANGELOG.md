@@ -2,6 +2,51 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/overcode plugins/aidd-overlay` (le plugin s'appelait `aidd-overlay` avant la 3.0.0).
 
+## [4.5.0] — 2026-08-05
+
+### Fixed — sept pivots que `pivot-providers.md` fournissait et qu'aucun slug de détection n'atteignait
+
+`pivot-providers.md` est la table `<stack> → <plugin>, <commande>` : 17 lignes `perf`, 15 `data`, 1 `ap`. Chaque ligne y déclare son consommateur — `web-optimize` pour `perf`, `data-optimize` pour `data`, `ap-optimize` pour `ap`. **Sept lignes déclaraient un consommateur dont aucun slug ne menait au pivot** : le fichier était bien installé par le `sniff` du plugin fournisseur, bien présent sur le disque du projet, et jamais chargé. Le défaut est silencieux — rien ne casse, l'audit se contente d'être moins bon que ce que le projet a payé.
+
+- **`web-optimize`** reconnaît `drf`, `fastapi`, `celery`, `httpx`, `vite`. Les trois derniers sont des **couches additives** : elles se concatènent à un slug de stack au lieu de le remplacer, et ne sont **jamais la seule valeur d'un projet**. Un run qui rend `celery` seul n'a pas trouvé une stack Celery, il a mal détecté la stack. `drf` se concatène de la même façon à `django`, sans jamais s'y substituer.
+- **`data-optimize`** reconnaît `sqlalchemy` et `datasets`. `datasets` est **HuggingFace `datasets`** : le slug est un nom commun, la stack ne l'est pas — c'est un chemin de lecture colonnaire/Arrow, audité sur le chargement memory-mapped et la forme des lots, pas sur la planification de requêtes. Symétriquement, `alembic.ini` seul ne prouve pas SQLAlchemy à l'exécution : c'est l'outil de migration, pas la couche d'accès.
+- **Les deux `tests.md` reçoivent les lignes correspondantes** — `web-optimize` 14 → 18, `data-optimize` 21 → 22 — et quatre modes d'échec nommés, dont les deux symétriques des couches additives : la couche qui **avale** la stack (`celery` rendu seul), la couche qui est **perdue** (`django` rendu seul là où le manifeste porte les deux).
+
+### Added — `tools/eval/pivot-map.mjs` : l'appariement table ↔ consommateur devient une garde exécutable
+
+Une désynchronisation interne à un fichier ne se rattrape pas par une relecture — elle se rattrape par une garde. Le script lit `pivot-providers.md`, extrait les slugs de l'étape 2 de chaque consommateur, et rend en erreur tout pivot fourni qu'aucun slug n'atteint. Branché dans `pnpm test` entre `coverage.mjs` et `selftest.mjs`. État : **perf 17/17 · data 15/15 · ap 1/1 — 0 défaut**.
+
+- **La borne de collecte est le `⚠`, pas la ligne vide.** La prose des deux `SKILL.md` sépare ses lignes de slugs par des lignes vides : une collecte qui s'arrête à la première ligne vide manquait la ligne des couches additives et rendait **trois faux orphelins** après correction. La borne est désormais calculée à l'intérieur de l'étape numérotée courante.
+- **Trois fixtures** sous `tools/eval/fixtures-pivot-map/` — `no-anchor`, `orphan`, `valid` — tiennent la garde discriminante : un parseur devenu muet rendrait vert sur les trois. `selftest.mjs` passe de 4 à 7 assertions.
+
+## [4.4.0] — 2026-08-03
+
+### Added — la détection Rust, sans quoi la quittance de pivot n'avait rien à quittancer sur cette stack
+
+La 4.3.0 a livré la quittance (DEC-010) et `pivot-providers.md`, où **quatre** pivots Rust sont fournis par `sc-rust` — `perf-pivots-axum.md`, `data-pivots-diesel.md`, `data-pivots-rusqlite.md`, `data-pivots-sqlx.md`. Aucun des deux consommateurs ne savait reconnaître un projet Rust : `web-optimize/SKILL.md` ne mentionnait pas `Cargo.toml` une seule fois, `data-optimize` ne le citait qu'au service de son test monorepo. Une stack qui ne devient jamais applicable ne construit aucune paire `source` / `pivot` — le défaut était en **amont** de la quittance, qui elle fonctionnait.
+
+- **`web-optimize`** reconnaît `rust-axum` (→ `perf-pivots-axum.md`) et `rust-vanilla`. Ce dernier rend une paire `no provider` : il n'ouvre **aucune** halte « la famille ne s'applique pas ». `other` dit « stack inconnue », `rust-vanilla` dit « stack connue, non servie » — seul le second reste vrai le jour où `sc-rust` livre un second pivot `perf`.
+- **`data-optimize`** reconnaît `rusqlite`, `sqlx`, `diesel` (appariement direct à leur `data-pivots-<slug>.md`) et `sea-orm`, qui rend `no provider` — le détecter sans le nommer était précisément le défaut réparé ici.
+- **La borne de recherche fait partie de l'instruction, pas de son implémentation.** Aucun des cinq `Cargo.toml` du parc de fixtures n'est à la racine : ils vivent entre la profondeur 1 et 3. La sonde est donc `find . -maxdepth 3 -name Cargo.toml -not -path '*/target/*'` — sans la borne, la détection reste aveugle ; sans l'exclusion de `target/`, elle noie le résultat sous les manifestes vendorisés.
+- **La garde monorepo de `web-optimize` cherchait quatre marqueurs JS et rien côté Rust**, là où `data-optimize` testait `[workspace]` — mais à la racine seulement, donc elle aussi aveugle sur le parc réel (`engine/Cargo.toml` porte `[workspace]`, il n'y a aucun manifeste racine). Les deux gardes sont désormais écrites avec la même borne, et il est écrit que la halte doit **offrir les membres du workspace Rust parmi ses candidats** plutôt que les taire parce qu'un marqueur JS a répondu le premier.
+- `data-optimize/SKILL.md` gagne la note **un slug de stack n'est pas un nom de fichier de pivot**, que `web-optimize` portait déjà depuis la 4.3.0 alors que la carte data porte trois paires divergentes réelles (`laravel-eloquent` → `data-pivots-eloquent.md`, `graphql-apollo` et `graphql-urql` → `data-pivots-graphql.md`).
+
+Les deux `tests.md` gagnent leurs lignes Rust et les modes d'échec correspondants ; `web-optimize/tests.md` attendait encore `nuxt3`, slug renommé en `nuxt` par la 4.3.0 sans suivi ici.
+
+**Run 3 de `pivot-provenance-scenarios.md` (2026-08-03) : 11 PASS · 1 FAIL · 0 N/A sur 12**, juge en contexte neuf, auteur ni de la suite ni de ce lot. Trois bascules mesurées — S3 et S11 passent au vert sur la détection descendante, S4 passe **par la route reconnue** et non plus par `other`, S7 exerce le barreau *template* pour la première fois de l'histoire de la suite. L'unique FAIL est **S12**, le contrôle négatif, laissé délibérément non corrigé : un run rendant 0 FAIL aurait jugé autre chose que ce que la ligne épingle.
+
+Deux choses que ce run établit et qu'il faut lire comme telles : S4(b) et S7 sont des **premières observations, pas des non-régressions** — un seul run les a vues, elles ne verrouillent rien avant le suivant. Et la famille *detection* n'a désormais **plus aucun rouge** : ses deux lignes sont vertes ensemble, donc ses verts futurs cesseront de prouver qu'un défaut de détection *nouveau* serait attrapé. Déclaré dans le registre plutôt que compensé en inventant une ligne sur place.
+
+### Fixed — un critère de la suite provenance qui échouait sur toute fixture
+
+S9 exigeait la valeur émise `source : genere <file|—>`. La cible écrit `generated`, et surtout la valeur nominalement émise par cette famille est le repli interne — lue à la lettre, la ligne échouait partout alors que son intention était satisfaite. Le critère porte désormais sur **l'énumération des alternants** : que `generated` occupe la place que les trois familles sœurs donnent à `template`. Corriger le libellé plutôt que la cible, parce que c'est le libellé qui était faux.
+
+### Changed — trois lignes de la suite provenance mesuraient autre chose que ce qu'elles disaient
+
+- **S4 est scindée en deux binaires, tous deux requis.** La ligne rendait `no provider` — la bonne valeur — par le fourre-tout `other`. Un vert menteur : la valeur reste correcte tant que `sc-rust` ne livre pas de second pivot `perf`, et la route est fausse dès aujourd'hui. Le critère exige désormais **(a)** la valeur *et* **(b)** la route par une entrée Rust reconnue.
+- **S3 et S11** sont reformulées contre la carte corrigée : manifeste lu, stack reconnue, paire construite. S11 exige en outre que la halte monorepo offre les membres Rust — aucun des deux marqueurs de sa fixture n'est à la profondeur 0.
+- **Le barreau *template* du modèle de provenance devient exerçable.** Aucune fixture du parc ne l'atteignait, donc S7 était durablement `N/A` : dette de fixture, pas de skill. Un `perf_checklist_nuxt.md` réel a été copié (jamais déplacé — le retirer aurait muté une fixture sur laquelle S4 est mesurée) vers la fixture Nuxt. Le fichier vise Nuxt 3, le porteur est en Nuxt 4.3.1 : la divergence est **écrite** dans le bloc de préconditions, les deux se rendant au slug `nuxt`. L'axe `pivot` de S7 s'élargit dans le même lot à *un des trois états non-`installed`, cohérent avec l'état réel du réceptacle* — sans quoi la ligne devenait jugeable **et fausse**, en contradiction avec S6 qui mesure le réceptacle sur la même fixture.
+
 ## [4.3.0] — 2026-08-03
 
 ### Added — la quittance de pivot : dire d'où vient la checklist, et pourquoi elle n'est pas venue d'un pivot (DEC-010)

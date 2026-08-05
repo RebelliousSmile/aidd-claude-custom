@@ -66,6 +66,9 @@ cat composer.json 2>/dev/null | grep -E '"(laravel|symfony|wordpress)/'
 ls manage.py 2>/dev/null && echo "Django (settings.py is typically in a subfolder, e.g. <project>/settings.py)"
 grep -r "alpinejs" --include="*.html" --include="*.blade.php" --include="*.twig" -l 2>/dev/null | head -5
 test -f wp-config.php && echo "WordPress detected"
+# Rust — the manifest is almost never at the root: search down, skip build output
+find . -maxdepth 3 -name Cargo.toml -not -path '*/target/*' 2>/dev/null \
+  | xargs grep -l -E '^(axum|actix-web|rocket) *=|^(axum|actix-web|rocket) *\.' 2>/dev/null
 
 # 1bis. Detect package manager from lockfile (drives all build commands below)
 PM=${PM:-pnpm}
@@ -76,8 +79,14 @@ PM=${PM:-pnpm}
 echo "Using package manager: $PM"
 
 # 1ter. Detect monorepo — if any workspace marker is found, STOP and ask user which package to audit
-ls pnpm-workspace.yaml turbo.json nx.json lerna.json 2>/dev/null \
-  && echo "⚠️  Monorepo detected — STOP and ask the user which package/workspace to audit before continuing"
+# JS/TS: pnpm-workspace.yaml, turbo.json, nx.json, lerna.json
+# Rust: a Cargo.toml carrying [workspace] — it is often NOT at the root (e.g. engine/Cargo.toml)
+ls pnpm-workspace.yaml turbo.json nx.json lerna.json 2>/dev/null
+find . -maxdepth 3 -name Cargo.toml -not -path '*/target/*' 2>/dev/null \
+  | xargs grep -l '^\[workspace\]' 2>/dev/null
+echo "⚠️  Any output above = monorepo — STOP and ask the user which package/workspace to audit before continuing"
+# When you ask, list every candidate you found — the Rust workspace members are candidates too,
+# not noise to drop because a JS marker also matched.
 
 # 2. Capture baseline (uses $PM detected above)
 $PM nuxt build 2>&1 | tee build.log                 # Nuxt — log written to CWD (cross-platform)
@@ -130,18 +139,40 @@ flowchart LR
 1. Read all relevant manifests (a project can mix backend + frontend layer):
    - `package.json` → JS/TS frameworks
    - `composer.json` → PHP (Laravel, Symfony, vanilla)
-   - `requirements.txt` / `pyproject.toml` / `manage.py` → Django / Flask / FastAPI
+   - `requirements.txt` / `pyproject.toml` / `manage.py` → Django / Flask / FastAPI. Read the same manifest for the **layers** that ride on top of the framework and carry their own perf checklist: `djangorestframework` (API layer over Django), `celery` (task worker), `httpx` (outbound HTTP client)
+   - `Cargo.toml` → Rust web crates. **Search down, not at the root only** — in practice the manifest sits one to three levels in (`app/`, `engine/core/`, `app/rust-backend/`). Bound: `-maxdepth 3 -not -path '*/target/*'`; `target/` holds vendored manifests of every transitive dependency and would flood the match.
 2. Map to one (or more) of:
    `nuxt`, `vue-spa`, `astro`, `svelte-kit`, `static-html`,
-   `django`, `django+alpine`, `django+htmx`,
+   `django`, `django+alpine`, `django+htmx`, `drf`, `fastapi`,
    `php-laravel`, `php-symfony`, `php-vanilla`, `wordpress`, `php+alpine`,
-   `alpine-spa`, `other`
+   `alpine-spa`, `rust-axum`, `rust-vanilla`, `other`
    *(Next.js, Remix, SolidStart, Qwik, Vue 2 / Nuxt 2 fall under `other` until pivots are added to `references/framework-mapping.md`.)*
-   ⚠ **A stack slug is not a pivot filename.** `svelte-kit` is served by `perf-pivots-sveltekit.md`, `static-html` and `astro` by `perf-pivots-static.md`, `php-laravel` by `perf-pivots-laravel.md`, `alpine-spa` by `perf-pivots-alpine.md`. Resolve the pivot by looking the stack up in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`, never by pasting the slug into the filename — a slug that matches no line there is `no provider`, and a slug that matches a differently-named pivot is **not**.
+   **`drf` concatenates with `django`, it does not replace it.** A Django REST Framework project is a Django project with an API layer: it maps to both, and loads both pivots — which is what `perf-pivots-drf.md` says of itself.
+   **Rust without a web framework is `rust-vanilla`, not `other`.** A crate holding no `axum` / `actix-web` / `rocket` dependency is still a recognised stack: it emits a pair whose `pivot` axis reads `no provider` — `rust-vanilla` has no line in `pivot-providers.md`. It does **not** open a "this family does not apply" halt, and it must never be folded into `other`: `other` reaches the same `no provider` by a route that stops being right the day `sc-rust` ships a second `perf` pivot.
+
+   **Additive layers — they add to a stack, they never are one.** These slugs coexist with any backend and are never the only value a project maps to:
+   `celery`, `httpx`, `vite`
+   A Django + Celery + httpx project maps to **three** slugs and emits **three** provenance pairs. A project that mapped to `celery` alone would be mis-detected: a task worker is not a web stack, and `perf-pivots-vite.md` says of itself that it is a build tool hybrid with any backend. This is not the hybrid case of 4 below — that one pairs a backend with a frontend, both of which are stacks.
+   ⚠ **A stack slug is not a pivot filename.** Every slug above resolves to `perf-pivots-<slug>.md` **except** those declared here, one line each. A divergence left unwritten makes its pivot unreachable, and `tools/eval/pivot-map.mjs` fails the build on it — so the absence of a line is a statement, not an oversight. Resolve the pivot through `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`, never by pasting the slug into the filename — a slug that matches no line there is `no provider`, and a slug that matches a differently-named pivot is **not**.
+   - `svelte-kit` → `perf-pivots-sveltekit.md`
+   - `static-html`, `astro` → `perf-pivots-static.md`
+   - `php-laravel` → `perf-pivots-laravel.md`
+   - `php-symfony` → `perf-pivots-symfony.md`
+   - `php-vanilla` → `perf-pivots-vanilla.md`
+   - `alpine-spa` → `perf-pivots-alpine.md`
+   - `rust-axum` → `perf-pivots-axum.md`
+   - `django+alpine` → `perf-pivots-django.md` + `perf-pivots-alpine.md`
+   - `django+htmx` → `perf-pivots-django.md` + `perf-pivots-htmx.md`
+   - `php+alpine` → `perf-pivots-alpine.md`
+   - `drf` → `perf-pivots-django.md` + `perf-pivots-drf.md`
+   `rust-vanilla` is absent from this list on purpose: it resolves by identity to a `perf-pivots-rust-vanilla.md` that no plugin ships, hence `no provider`. Reading it as `perf-pivots-vanilla.md` — the JS one — because the slug ends in `vanilla` is exactly the guess this note forbids.
 3. Tell-tale config files:
-   - `nuxt.config.ts`, `vite.config.ts`, `astro.config.mjs`
-   - `manage.py`, `settings.py` (Django)
+   - `nuxt.config.ts`, `vite.config.ts`, `astro.config.mjs` — a `vite.config.*` outside a Nuxt/Astro project is the `vite` layer itself, not just a build artefact of another slug
+   - `manage.py`, `settings.py` (Django) ; `rest_framework` in `INSTALLED_APPS` (DRF)
+   - `main.py` / `app.py` holding `FastAPI()` (FastAPI) — the constructor, not the dependency alone
+   - `celery.py` / `tasks.py` + a `CELERY_BROKER_URL` setting (Celery) ; `httpx` in the dependency manifest (outbound HTTP layer)
    - `artisan`, `routes/web.php` (Laravel) ; `bin/console` (Symfony)
+   - `Cargo.toml`, `Cargo.lock`, `src/main.rs` (Rust) — `main.rs` separates a binary that serves from a library crate that does not
    - `<script src=".../alpinejs">` or `import 'alpinejs'`
 4. **Hybrid stack:** if backend (Django/PHP) + frontend layer (Alpine/Vue) coexist, audit BOTH layers — load relevant sections from both `references/framework-mapping.md` entries (do NOT generate a new combined template).
 

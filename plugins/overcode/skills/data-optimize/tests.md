@@ -32,6 +32,13 @@ For each case below:
 | 13 | Firebase + Prisma both in `package.json` (e.g. Firestore for users + PG for analytics) | `firebase-prisma` (hybrid) | Load Firebase pivots **+** Prisma pivots — no new combined template generated     |
 | 14 | Plain `fetch`/`axios` calls to a documented REST API, no ORM/SDK markers       | `rest-vanilla`             | Generate `data_checklist_rest-vanilla.md`                                                   |
 | 15 | Exotic DB without standard driver (e.g. SurrealDB, EdgeDB, FaunaDB, raw libpq) | `other` (fallback)         | Trigger fallback flow — ask user 3 infos, build from 11 generic sections                    |
+| 16 | `Cargo.toml` **in a subfolder** (`app/rust-backend/`) with `rusqlite`          | `rusqlite`                 | `data-pivots-rusqlite.md` if installed, else recommend `sc-rust`, `/sc-rust:sniff`          |
+| 17 | `Cargo.toml` in a subfolder with `diesel` + `diesel.toml` + `migrations/`      | `diesel`                   | `data-pivots-diesel.md` if installed, else recommend `sc-rust`, `/sc-rust:sniff`            |
+| 18 | `Cargo.toml` in a subfolder with `sqlx` + `.sqlx/` query cache                 | `sqlx`                     | `data-pivots-sqlx.md` if installed, else recommend `sc-rust`, `/sc-rust:sniff`              |
+| 19 | `Cargo.toml` in a subfolder with `sea-orm`                                     | `sea-orm`                  | `no provider` — no line in `pivot-providers.md`; generation is the only remedy              |
+| 20 | `Cargo.toml` with serde/tokio only, **no** ORM or driver                       | no data stack              | `1quater` fallback — dump direct deps, ask which one talks to the store                     |
+| 21 | `alembic/` + `models/` carrying `declarative_base()` or `DeclarativeBase`      | `sqlalchemy`               | `data-pivots-sqlalchemy.md` if installed, else recommend `sc-python`, `/sc-python:sniff`    |
+| 22 | `load_dataset(` in the sources + `datasets` in the dependency manifest         | `datasets`                 | `data-pivots-datasets.md` if installed, else recommend `sc-python`, `/sc-python:sniff`      |
 
 **Rule for distinguishing 14 vs 15:** `rest-vanilla` = HTTP/JSON client without a data-access library (no ORM, no SDK, no GraphQL client). `other` = a DB or service exists but uses a non-mainstream driver/client absent from the api-mapping pivots. If the project uses `fetch` to talk to its own REST endpoints AND a recognized stack handles the server side, audit BOTH (hybrid).
 
@@ -43,6 +50,11 @@ For each case below:
 - **DEC dependency leak**: skill writes to `aidd_docs/internal/decisions/` on a project where that folder doesn't exist (must be conditional per Rule 7)
 - **Mistaking GraphQL transport for stack**: tRPC + GraphQL backend (Hasura behind tRPC procedures) — must audit BOTH (transport ergonomics + DB layer)
 - **ORM transitive dep**: `prisma` appearing as transitive (e.g. via `@trigger.dev/sdk`) misidentified as primary stack — detection must grep direct deps only
+- **Rust missed for depth**: an ORM under `app/rust-backend/` reported as "no data layer" because `Cargo.toml` was looked for at the root only — the search is bounded at depth 3, not at depth 0
+- **`target/` flood**: the Rust probe matching hundreds of vendored manifests because `-not -path '*/target/*'` was dropped
+- **`alembic.ini` read as SQLAlchemy**: a project carrying the migration tool alone labelled `sqlalchemy` — the ORM is proven by `declarative_base()` / `DeclarativeBase` in the models, Alembic can front a schema it does not map
+- **HuggingFace `datasets` read as a generic word**: a `data/` folder or a `datasets` variable taken for the library — the marker is the dependency manifest plus `load_dataset(`
+- **Slug pasted into the filename**: `laravel-eloquent` resolved to `data-pivots-laravel-eloquent.md` (which does not exist) instead of `data-pivots-eloquent.md`, or `graphql-urql` to a file of its own instead of the shared `data-pivots-graphql.md` — the pivot is read off `pivot-providers.md`, never composed
 
 ## When to update
 
