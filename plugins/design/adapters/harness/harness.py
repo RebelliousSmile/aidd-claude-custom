@@ -21,16 +21,28 @@ pages.json format — list of objects (or {"pages": [...]}):
   policies.json § adapters[] entry whose consumer is "stylesheet" — into the maquette, so
   the reference speaks the same tokens the implementation is linted against. Nothing is
   derived or regenerated here (option C): the artifact is read as produced by generate.py.
-  Exit codes under --contract: 0 ok (or no stylesheet adapter → one stderr warning, scaffold);
-  3 the contract is 1.x (no release.json) — migrate it (tools/migrate-contract.py); 2 any
-  required artifact is absent, unreadable, or structurally invalid. Never 1, never 4.
-  Without --contract the scaffold path is unchanged and always exits 0.
+
+Exit-code space — the WHOLE program, not just --contract: 0 the file is written; 3 the
+  contract is 1.x (no release.json) — migrate it (tools/migrate-contract.py); 2 any invalid
+  invocation — unreadable/malformed --pages-json, invalid page set, missing or structurally
+  invalid contract artifact. Never 1, never 4 (references/harness-contract.md).
 """
 
 import argparse
+import html
 import json
+import re
 import sys
 from pathlib import Path
+
+
+# ─── Exit-code space ─────────────────────────────────────────────────────────
+# 0 / 2 / 3 for the whole program — never 1, never 4 (references/harness-contract.md).
+
+def _fail(message):
+    """Print to stderr and return the invocation/invalid-artifact code (2)."""
+    print(message, file=sys.stderr)
+    return 2
 
 
 # ─── Page parsing ────────────────────────────────────────────────────────────
@@ -56,7 +68,89 @@ def key_to_fn(key):
     return "page" + "".join(p.capitalize() for p in parts)
 
 
+def load_pages_json(path):
+    """Read --pages-json into a page list. Returns (pages, code); code is None on success.
+
+    No read path may surface a Python traceback to the caller: every failure is a 2
+    naming the file and the cause.
+    """
+    src = Path(path)
+    try:
+        raw = src.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return None, _fail(f"--pages-json: no such file: {src}")
+    except UnicodeDecodeError as exc:
+        return None, _fail(f"--pages-json is not UTF-8 text: {src}\n  {exc}")
+    except OSError as exc:
+        return None, _fail(f"--pages-json is unreadable: {src}\n  {exc}")
+    try:
+        data = json.loads(raw)
+    except ValueError as exc:
+        return None, _fail(f"--pages-json is not valid JSON: {src}\n  {exc}")
+
+    if isinstance(data, list):
+        entries = data
+    elif isinstance(data, dict):
+        entries = data.get("pages")
+        if not isinstance(entries, list):
+            return None, _fail(f'--pages-json object has no "pages" list: {src}')
+    else:
+        return None, _fail(f"--pages-json is neither a list nor an object: {src}")
+
+    pages = []
+    for i, entry in enumerate(entries):
+        if not isinstance(entry, dict):
+            return None, _fail(
+                f'--pages-json entry {i} is not an object: {src}\n'
+                f'  Expected {{"key": "...", "label": "..."}}, got {type(entry).__name__}.')
+        key = entry.get("key")
+        if not isinstance(key, str):
+            return None, _fail(f'--pages-json entry {i} has no string "key": {src}')
+        label = entry.get("label")
+        # label is optional — fall back to the key, as parse_pages_str already does.
+        page = {"key": key, "label": label if isinstance(label, str) and label.strip() else key}
+        group = entry.get("group")
+        if isinstance(group, str) and group.strip():
+            page["group"] = group
+        pages.append(page)
+    return pages, None
+
+
+def validate_pages(pages):
+    """Refuse a page set that would yield a false or dead harness. Returns a code, or None.
+
+    Called AFTER the "no pages defined" branch: an empty list is that branch's message.
+    """
+    by_key = {}
+    by_fn = {}
+    for i, page in enumerate(pages):
+        key = page.get("key")
+        if not isinstance(key, str) or not key.strip():
+            return _fail(f"Error: page {i} has an empty or blank key.")
+        if key in by_key:
+            return _fail(f"Error: duplicate page key {key!r} (pages {by_key[key]} and {i}).")
+        by_key[key] = i
+        fn = key_to_fn(key)
+        # UAX-31, shared by Python and JS: isidentifier() is stricter than JS, never
+        # wrongly so, and it accepts 'café' where an ASCII regex would not.
+        if not fn.isidentifier():
+            return _fail(
+                f"Error: page key {key!r} derives the invalid function name {fn!r}.\n"
+                "  A page key is a slug (letters, digits, '-' or '_'), never a URL path: "
+                "the site serves /contact/, the key is 'contact'.")
+        if fn in by_fn:
+            return _fail(
+                f"Error: page keys {by_fn[fn]!r} and {key!r} both derive the function name "
+                f"{fn!r}; '-', '_' and letter case do not distinguish two pages.")
+        by_fn[fn] = key
+    return None
+
+
 # ─── HTML fragment builders ──────────────────────────────────────────────────
+
+def js_literal(s):
+    """A JS string literal for `s` — quotes, backslashes and newlines all covered."""
+    return json.dumps(s, ensure_ascii=False)
 
 def build_options(pages):
     """<option> / <optgroup> HTML for the page selector."""
@@ -69,11 +163,13 @@ def build_options(pages):
 
     lines = []
     for p in ungrouped:
-        lines.append(f'        <option value="{p["key"]}">{p["label"]}</option>')
+        key, label = html.escape(p["key"]), html.escape(p["label"])
+        lines.append(f'        <option value="{key}">{label}</option>')
     for g_name, g_pages in groups.items():
-        lines.append(f'        <optgroup label="{g_name}">')
+        lines.append(f'        <optgroup label="{html.escape(g_name)}">')
         for p in g_pages:
-            lines.append(f'          <option value="{p["key"]}">{p["label"]}</option>')
+            key, label = html.escape(p["key"]), html.escape(p["label"])
+            lines.append(f'          <option value="{key}">{label}</option>')
         lines.append("        </optgroup>")
     return "\n".join(lines)
 
@@ -83,9 +179,11 @@ def build_functions(pages):
     lines = []
     for p in pages:
         fn = key_to_fn(p["key"])
-        k = p["key"].replace("'", "\\'")
-        lbl = p["label"].replace("'", "\\'").replace("<", "&lt;").replace(">", "&gt;")
-        lines.append(f"  function {fn}() {{ return placeholder('{k}', '{lbl}'); }}")
+        k = js_literal(p["key"])
+        # placeholder() writes the label through innerHTML: same html.escape as the
+        # <option>, so the selector and the page show one and the same text.
+        lbl = js_literal(html.escape(p["label"]))
+        lines.append(f"  function {fn}() {{ return placeholder({k}, {lbl}); }}")
     return "\n".join(lines)
 
 
@@ -93,9 +191,7 @@ def build_registry(pages):
     """JS object literal entries for the pages const."""
     lines = []
     for p in pages:
-        fn = key_to_fn(p["key"])
-        k = p["key"].replace("'", "\\'")
-        lines.append(f"    '{k}': {fn},")
+        lines.append(f"    {js_literal(p['key'])}: {key_to_fn(p['key'])},")
     return "\n".join(lines)
 
 
@@ -171,7 +267,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 <body>
 <!--
   ============================================================================
-  MAQUETTE DE RÉFÉRENCE · %%TITLE%%
+  MAQUETTE DE RÉFÉRENCE · %%TITLE_COMMENT%%
   Généré par : design:harness (adapters/harness/harness.py)
   ============================================================================
   À QUOI SERT CE FICHIER
@@ -213,7 +309,7 @@ TEMPLATE = r"""<!DOCTYPE html>
   ============================================================================
   PROMPT LLM (à copier pour faire remplir une page depuis un visuel/brief)
   ============================================================================
-    « Voici une maquette de référence "%%TITLE%%" (harness HTML auto-contenu avec
+    « Voici une maquette de référence "%%TITLE_COMMENT%%" (harness HTML auto-contenu avec
       .preview-bar, registre `pages` de fonctions, responsive par classe
       .preview-frame.mobile|tablet). À partir du visuel/brief que je te donne
       pour la page "<CLÉ>", remplis UNIQUEMENT le corps de la fonction `pageXxx()` :
@@ -268,7 +364,7 @@ TEMPLATE = r"""<!DOCTYPE html>
   </script>
 
   <script>
-    let currentPage = '%%FIRST_PAGE_KEY%%';
+    let currentPage = %%FIRST_PAGE_KEY%%;
     let currentViewport = 'desktop';
     const container = document.getElementById('page-container');
     const frame = document.getElementById('preview-frame');
@@ -334,12 +430,6 @@ TOKENS_NOTE_RULES = (
 )
 
 
-def _fail(message):
-    """Print to stderr and return the invocation/invalid-artifact code (2)."""
-    print(message, file=sys.stderr)
-    return 2
-
-
 def resolve_tokens_style(contract):
     """Resolve the contract's stylesheet adapter into an inline <style> block.
 
@@ -402,6 +492,30 @@ def resolve_tokens_style(contract):
     return style, None
 
 
+# ─── Template substitution ───────────────────────────────────────────────────
+
+_SENTINEL = re.compile(r"%%(\w+)%%(\n?)")
+
+
+def substitute(template, values):
+    """Fill every %%SENTINEL%% in one pass.
+
+    One pass, not a chain of .replace(): a value injected by one sentinel is never
+    rescanned as the next — a --title reading "%%PAGE_OPTIONS%%" stays literal.
+    """
+    def repl(match):
+        name, eol = match.group(1), match.group(2)
+        if name not in values:
+            return match.group(0)
+        value = values[name]
+        # %%TOKENS_STYLE%% absorbs its own line when there is no stylesheet to inline.
+        if name == "TOKENS_STYLE" and not value:
+            return ""
+        return value + eol
+
+    return _SENTINEL.sub(repl, template)
+
+
 # ─── Main ────────────────────────────────────────────────────────────────────
 
 def main():
@@ -424,8 +538,9 @@ def main():
             return code
 
     if args.pages_json:
-        data = json.loads(Path(args.pages_json).read_text("utf-8"))
-        pages = data if isinstance(data, list) else data.get("pages", [])
+        pages, code = load_pages_json(args.pages_json)
+        if code is not None:
+            return code
     elif args.pages:
         pages = parse_pages_str(args.pages)
     else:
@@ -436,22 +551,26 @@ def main():
         print("Error: no pages defined.", file=sys.stderr)
         return 2
 
-    note_header = TOKENS_NOTE_HEADER if style else ""
-    note_rules = TOKENS_NOTE_RULES if style else ""
+    code = validate_pages(pages)
+    if code is not None:
+        return code
 
-    html = (TEMPLATE
-            .replace("%%TOKENS_STYLE%%\n", (style + "\n") if style else "")
-            .replace("%%TOKENS_NOTE_HEADER%%", note_header)
-            .replace("%%TOKENS_NOTE_RULES%%", note_rules)
-            .replace("%%TITLE%%", args.title)
-            .replace("%%PAGE_OPTIONS%%", build_options(pages))
-            .replace("%%PAGE_FUNCTIONS%%", build_functions(pages))
-            .replace("%%PAGE_REGISTRY%%", build_registry(pages))
-            .replace("%%FIRST_PAGE_KEY%%", pages[0]["key"]))
+    document = substitute(TEMPLATE, {
+        "TOKENS_STYLE": style,
+        "TOKENS_NOTE_HEADER": TOKENS_NOTE_HEADER if style else "",
+        "TOKENS_NOTE_RULES": TOKENS_NOTE_RULES if style else "",
+        "TITLE": html.escape(args.title),
+        # An HTML comment ends at "-->": break every "--" run so a title cannot close it.
+        "TITLE_COMMENT": re.sub(r"-(?=-)", "- ", args.title),
+        "PAGE_OPTIONS": build_options(pages),
+        "PAGE_FUNCTIONS": build_functions(pages),
+        "PAGE_REGISTRY": build_registry(pages),
+        "FIRST_PAGE_KEY": js_literal(pages[0]["key"]),
+    })
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(html, encoding="utf-8")
+    out.write_text(document, encoding="utf-8")
     print(f"Harness written -> {out}  ({len(pages)} page(s))")
     return 0
 
