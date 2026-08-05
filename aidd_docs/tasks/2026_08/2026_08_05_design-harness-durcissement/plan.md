@@ -1,6 +1,6 @@
 ---
 objective: "Le générateur design:harness respecte l'espace de codes 0/2/3 qu'il déclare, ne sort en 0 que sur un fichier syntaxiquement valide, produit un harness accessible et titré, et une preuve exécutable branchée sur pnpm test le vérifie — de bout en bout contre le bootstrap WordPress FSE."
-status: in-progress
+status: implemented
 ---
 
 # Plan: durcissement de `design:harness`
