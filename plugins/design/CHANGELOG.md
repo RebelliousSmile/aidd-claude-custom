@@ -1,5 +1,50 @@
 # Changelog — design
 
+## [2.9.0] — 2026-08-05
+
+Mineur — **le générateur de `harness` respecte enfin l'espace de codes qu'il déclare, refuse d'écrire un fichier dont le JS serait invalide, et une preuve branchée sur `pnpm test` casse si l'un de ces points régresse.** Un audit trois piliers (`code-quality`, `ui`, `tests`) a relevé 17 constats ; un 18ᵉ, le plus grave, a été trouvé au challenge du plan. Tous sont fermés, chacun remesuré après correction. La chaîne complète `harness.py → HTML → remplissage → measure.py → verdict` a ensuite été rejouée contre un WordPress FSE réel, pas contre des fixtures.
+
+### L'espace 0/2/3 vaut pour tout le programme
+
+`harness-contract.md` écrivait « jamais 1 ni 4 » sans restriction ; `SKILL.md` restreignait la règle au chemin `--contract`. C'est cette phrase-là qui était fausse, et elle s'aligne.
+
+- **Une clé de page qui n'est pas un identifiant JS valide écrivait `function page/contact/()` et sortait en 0.** Le fichier était mort (`pages is not defined`) mais `window.setPage` existait toujours, posé par un autre `<script>` : l'oracle ne voyait rien et `page.evaluate` levait. Ce défaut n'était dans aucun des trois rapports d'audit. Après correction, `--pages '/contact/:C'` sort en **2** et le message nomme la clé fautive, le nom dérivé, et rappelle qu'une clé est un slug. La validité se teste par `key_to_fn(k).isidentifier()` : Python et JS suivent tous deux UAX-31, donc le test est plus strict que JS sans jamais l'être à tort — `café` passe là où une regex ASCII le rejetterait.
+- **`--pages-json` était lu par un `json.loads` nu** — fichier absent, JSON invalide ou forme inattendue rendaient **1 + traceback**. Les trois branches sortent maintenant en **2** avec un message nommant le fichier ou l'index fautif (`pages-json-absent`, `pages-json-not-json`, `pages-json-strings` au selftest).
+- **`my-page` et `my_page` dérivaient tous deux `pageMyPage`**, déclarée deux fois, la seconde gagnant silencieusement. Détecté avant écriture : **exit 2** nommant les deux clés et le nom dérivé (`pages-fn-collision`).
+- **`--pages 'home:A,home:B'` était accepté**, `pageHome` apparaissant cinq fois. **Exit 2** nommant la clé et les deux index (`pages-duplicate-key`).
+
+### Le harness produit
+
+- **Le scaffold ne contenait aucun `h1`** — mesuré `h1: 0`, `h2: 1` — dans un fichier qui prescrit « un seul h1 par page » trois lignes plus haut. Après correction : `h1: 1` sur une page remplie comme sur le repli « Page introuvable ». Le selftest asserte que **chaque** bloc `.ph` ouvre sur un `h1`, et non qu'un `h1` existe quelque part : la version faible de cette assertion laissait passer un `placeholder()` rétrogradé en `<h2>`, vérifié.
+- **`<select id="page-select">` n'avait ni `<label>` ni `aria-label`.** Le seul contrôle de navigation du harness n'était pas nommé (WCAG 2.2 · 4.1.2). Mesuré après : nom accessible `"Page"`.
+- **`render()` assignait `container.innerHTML = fn()` sans `try`.** Une fonction de page qui jetait laissait l'écran sur la page précédente et propageait l'exception jusqu'à `measure.py:191`, qui appelle `window.setPage(k)` sans garde. Désormais un bloc d'erreur est **rendu** : mesuré `raised: null`, texte `⚠ La page « contact » n'a pas pu être rendue / <message> / Corrigez pageContact() dans ce fichier.`, erreur consignée en console. Le `try` enveloppe la **recherche dans le registre**, pas seulement l'appel : quand le premier `<script>` meurt sur une erreur de syntaxe, `pages` n'existe pas alors que `window.setPage` existe — mesuré, ce cas rend aussi un bloc d'erreur (`pages is not defined`) au lieu de lever.
+- **Les trois `.viewport-btn` portaient un état actif purement visuel**, et leurs `<svg>` décoratifs n'étaient pas masqués. Après : `aria-pressed` maintenu par `setViewport` en même temps que la classe — mesuré `[["desktop","false"],["tablet","false"],["mobile","true"]]` après `setViewport('mobile')`, cadre à 390 px — et `aria-hidden="true"` sur les trois `<svg>`.
+- **`<html lang="fr">` était codé en dur** dans un générateur par ailleurs agnostique. Paramètre `--lang`, défaut `en` : mesuré `lang="en"` sans le flag, `lang="fr"` avec `--lang fr`.
+- **Deux `preconnect` vers Google Fonts** étaient émis inconditionnellement dans un fichier vendu comme autonome, qu'aucune `@font-face` n'utilisait. Mesuré après : **0 occurrence** dans le scaffold nu.
+
+### Échappement
+
+- **Le même label était traité différemment selon la cible** : `build_functions` échappait `<`/`>`, `build_options` interpolait brut — `p1:Fiche <b>x</b>` affichait « Fiche **x** » dans le sélecteur et `Fiche &lt;b&gt;x&lt;/b&gt;` dans la page. Une seule fonction d'échappement s'applique maintenant à `key`, `label` et `group`, attribut `value=` compris ; le selftest asserte qu'aucun `<b>` ne ressort du document.
+- **`--title` était substitué en chaîne, avant `%%PAGE_OPTIONS%%`, et sans échappement.** Substitution en une passe et titre échappé : mesuré, `--title '%%PAGE_OPTIONS%%'` laisse la sentinelle littérale dans le `<title>` et génère quand même la bonne `<option>` ; `--title 'Fin --> injection <script>'` rend `Fin --&gt; injection &lt;script&gt;` dans le `<title>`, et la séquence `--` est brisée dans le commentaire d'en-tête pour qu'un titre ne puisse pas le fermer.
+- **`--pages` découpe sur `,` sans échappement possible** : un libellé portant une virgule crée une page fantôme. Comportement inchangé — c'est le format qui le veut — mais la limite est écrite dans `SKILL.md § Paramètres` et renvoie à `--pages-json`, et un scénario d'évaluation route l'intention correspondante.
+
+### La preuve, branchée
+
+- **`tools/harness-selftest.sh` n'était appelé par aucun runner.** Écrit le 2026-07-25, jamais rejoué depuis. `tools/eval/design-harness.mjs` l'invoque et `pnpm test` compte désormais **six** maillons : mesuré exit 0 ; un `harness.py` volontairement cassé le fait rendre ≠ 0, restauré il rend 0. `bash` introuvable est un **échec explicite**, jamais un skip silencieux — reproduire le skip serait reproduire le défaut. Le runner **résout lui-même** son interpréteur : sous Windows, `bash` du `PATH` est celui de WSL, qui ne voit pas `C:/…` — mesuré, exit 127 depuis PowerShell alors que le même appel rendait 0 depuis Git Bash. Le bash de Git for Windows est donc dérivé de `git --exec-path` (`HARNESS_SELFTEST_BASH` prime), et les séparateurs sont passés en `/` parce que bash traite `\` comme un échappement et recevait le chemin amputé. Mesuré après : exit 0 depuis PowerShell **et** depuis Git Bash — une preuve qui ne passe que dans le shell où on l'a écrite n'en est pas une. Le fichier est nommé `design-harness.mjs` et non `harness.mjs` : `tools/eval/harness.mjs` est le harnais d'évaluation du marketplace, homonyme et sans rapport, et l'en-tête le rappelle.
+- **Le selftest n'assertait rien du HTML produit** hors deux chaînes. Il asserte maintenant les `h1` de chaque bloc `.ph`, l'unicité des `function page…` déclarées (ancrées sur l'indentation des déclarations générées, pour ne pas compter les exemples du cadrage LLM), l'absence de markup ré-émis, l'`aria-label` du sélecteur, les trois `aria-pressed`, l'absence de `preconnect` et de `@media`, et le contenu des messages d'erreur.
+- **Rien n'assertait que 1 ne sort jamais.** Le garde est posé **dans `check()`** : toute invocation de `harness.py`, quelle que soit la branche, échoue si elle rend 1 — même si le code attendu de la ligne valait 1. C'est l'interdit, distinct de l'assertion « code attendu », et c'est lui qui aurait attrapé le défaut `--pages-json`. Le script reste du POSIX `sh` : son shebang dit `sh`, son en-tête d'usage lance `bash`, et les deux ont été vérifiés à 0 après extension.
+- **`scenarios.json` ne couvrait que l'axe `--contract`** : 9 scénarios, zéro sur l'entrée nominale du scaffold. Trois s'ajoutent (pages en JSON, libellés à virgules, clés qui sont des chemins d'URL). Ils n'auraient rien attesté seuls : `coverage.mjs` classait la skill « couverture **non vérifiable** — aucune action déclarée dans SKILL.md ». Une table d'actions (`scaffold`, `contract-inline`) est donc déclarée d'abord ; mesuré après, `coverage.mjs` rend `2 action(s) routable(s) couverte(s) [déclencheur explicite]` et exit 0.
+- **Le couplage temporel `transition: max-width .4s` ↔ `wait_for_timeout(400)`** n'était déclaré nulle part. Il l'est dans `harness-contract.md`, à côté de l'accord sur les viewports : mesuré, à t=400 ms la largeur mobile est stabilisée à 390 px — la valeur est juste, c'est son implicite qui ne l'était pas. Raccourcir la transition est sans risque ; l'allonger sans toucher à l'attente ferait mesurer un cadre en cours d'animation, silencieusement.
+
+### Contre-épreuve de chaîne contre un WordPress FSE réel
+
+Le bootstrap `sc-php:setup` 0.10.3 a été rejoué sur une racine jetable (port 8899, projet Docker isolé, six conteneurs voisins intacts avant et après), puis la chaîne complète a tourné dessus.
+
+- La génération refuse le piège qu'elle devait éviter de tendre : `--pages '/:Accueil,/sample-page/:Page exemple'` sort en **2**, les slugs en **0**.
+- Le harness rempli d'après le rendu réel donne **un `h1` par page**, zéro `<style>` injecté par une fonction, zéro erreur console, et les variations device en classe s'appliquent (titre 32 · 28 · 24 px pour cadres 1440 · 834 · 390).
+- `measure.py` rend un **verdict machine** sur les trois échantillons device, sans exception : `OPEN — 13 unledgered style diff(s)`, complétude structurelle sans section manquante, couverture `5 targets / 3 headings` ok. Les 13 écarts sont ceux introduits sciemment dans la maquette (line-height posé côté maquette, absent du thème ; variations device que le thème sans media query n'a pas). Un écart de fidélité n'est pas un défaut de la chaîne — seul un plantage ou un verdict impossible à produire en serait un.
+- Une seconde exécution sur `page-exemple` / `/sample-page/` confirme qu'aucune page n'est mesurée à la place d'une autre : `setPage` est honoré côté maquette et la parité de texte du titre tient sur les trois breakpoints.
+
 ## [2.8.0] — 2026-08-03
 
 ### Changed — le rapport du gate a sept lignes, pas quatre
