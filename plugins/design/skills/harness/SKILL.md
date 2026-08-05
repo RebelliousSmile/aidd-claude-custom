@@ -51,6 +51,7 @@ Et une barre `.preview-bar` (masquée par l'oracle avant la mesure) avec :
 |-----------|--------|-------------|
 | `--out` | *(requis)* | Chemin du fichier HTML de sortie |
 | `--title` | `"Maquette"` | Titre du projet (affiché dans la barre et le `<title>`) |
+| `--lang` | `"en"` | Langue du document, substituée dans `<html lang="…">` |
 | `--pages` | `"page-1:Page 1"` | Pages au format `"key:Label, key2:Label 2"`. Le découpage se fait sur `,` **sans échappement possible** : dès qu'un libellé porte une virgule, passer par `--pages-json` |
 | `--pages-json` | — | Chemin vers un JSON `[{key, label, group?}]` ou `{pages:[...]}`. `label` est facultatif — à défaut, la clé sert de libellé |
 | `--contract` | — | Répertoire d'un contrat figé — inline sa feuille de tokens générée (opt-in) |

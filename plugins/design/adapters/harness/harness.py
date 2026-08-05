@@ -8,7 +8,7 @@ fidelity oracle (adapters/measure/measure.py) and the copycat fan-out.
 
 Usage:
   python harness.py --out maquette.html
-  python harness.py --out maquette.html --title "My Site" --pages "home:Accueil, contact:Contact"
+  python harness.py --out maquette.html --title "My Site" --lang fr --pages "home:Accueil, contact:Contact"
   python harness.py --out maquette.html --title "My Site" --pages-json pages.json
   python harness.py --out maquette.html --contract <dir>   # inline the contract's tokens
 
@@ -199,13 +199,11 @@ def build_registry(pages):
 # Uses %%PLACEHOLDER%% substitution — no .format() — so {} in HTML/CSS/JS are literal.
 
 TEMPLATE = r"""<!DOCTYPE html>
-<html lang="fr">
+<html lang="%%LANG%%">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>%%TITLE%% — maquette de référence</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 %%TOKENS_STYLE%%
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -251,11 +249,14 @@ TEMPLATE = r"""<!DOCTYPE html>
   /* 834 / 390 are fixed device samples, not contract breakpoints — see the RESPONSIVE note. */
   #page-container { display: block; width: 100%; }
 
-  /* Placeholder until a page function is filled in. */
+  /* Placeholder until a page function is filled in, and the render error state. */
   .ph { padding: 80px 32px; text-align: center; color: #6B7280; }
-  .ph h2 { font-size: 28px; color: #1F2A37; margin-bottom: 12px; font-weight: 600; }
+  .ph h1 { font-size: 28px; color: #1F2A37; margin-bottom: 12px; font-weight: 600; }
   .ph p { font-size: 14px; line-height: 1.6; }
+  .ph p + p { margin-top: 12px; }
   .ph code { background: #F4F4F4; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+  .ph--error h1 { color: #B42318; }
+  .ph--error .ph__message { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #B42318; }
 
   /* Author responsive overrides: `.preview-frame.mobile <sel>` / `.preview-frame.tablet <sel>`
      They fire both in manual preview (frame class) AND under the fidelity oracle, which
@@ -324,13 +325,13 @@ TEMPLATE = r"""<!DOCTYPE html>
       %%TITLE%% <small>maquette</small>
     </div>
     <div class="preview-bar__controls">
-      <select class="page-select" id="page-select">
+      <select class="page-select" id="page-select" aria-label="Page">
 %%PAGE_OPTIONS%%
       </select>
       <div class="viewport-toggle" role="group" aria-label="Device">
-        <button class="viewport-btn active" data-viewport="desktop" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Desktop</button>
-        <button class="viewport-btn" data-viewport="tablet" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none"/></svg> Tablette</button>
-        <button class="viewport-btn" data-viewport="mobile" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none"/></svg> Mobile</button>
+        <button class="viewport-btn active" data-viewport="desktop" type="button" aria-pressed="true"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Desktop</button>
+        <button class="viewport-btn" data-viewport="tablet" type="button" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none"/></svg> Tablette</button>
+        <button class="viewport-btn" data-viewport="mobile" type="button" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none"/></svg> Mobile</button>
       </div>
     </div>
   </div>
@@ -351,7 +352,7 @@ TEMPLATE = r"""<!DOCTYPE html>
     //   • device variations as `.preview-frame.mobile|tablet <sel>` in <head>, no media queries.
     //   • never edit .preview-bar or the control scripts below.%%TOKENS_NOTE_RULES%%
     function placeholder(key, label) {
-      return '<div class="ph"><h2>' + label + '</h2>'
+      return '<div class="ph"><h1>' + label + '</h1>'
         + '<p>Page <code>' + key + '</code> — remplacez le corps de la fonction '
         + 'dans le registre <code>pages</code> ci-dessous.</p></div>';
     }
@@ -370,9 +371,37 @@ TEMPLATE = r"""<!DOCTYPE html>
     const frame = document.getElementById('preview-frame');
     const select = document.getElementById('page-select');
 
+    function esc(s) {
+      return String(s).replace(/[&<>]/g, function (c) {
+        return c === '&' ? '&amp;' : c === '<' ? '&lt;' : '&gt;';
+      });
+    }
+    function keyToFn(key) {
+      return 'page' + key.replace(/[-_]/g, ' ').split(/\s+/).filter(Boolean)
+        .map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }).join('');
+    }
+    function errorBlock(key, err) {
+      return '<div class="ph ph--error"><h1>⚠ La page « ' + esc(key) + ' » n\'a pas pu être rendue</h1>'
+        + '<p class="ph__message">' + esc(err && err.message ? err.message : err) + '</p>'
+        + '<p>Corrigez <code>' + esc(keyToFn(key)) + '()</code> dans ce fichier.</p></div>';
+    }
+
     function render() {
-      const fn = pages[currentPage];
-      container.innerHTML = fn ? fn() : '<div class="ph"><h2>Page introuvable</h2></div>';
+      let markup;
+      try {
+        // The lookup is inside the try: when the first <script> died, `pages` is not
+        // defined and THIS line throws — before any page function is even called.
+        const fn = pages[currentPage];
+        markup = fn ? fn()
+          : '<div class="ph"><h1>Page introuvable</h1><p>Aucune fonction n\'est enregistrée pour '
+            + '<code>' + esc(currentPage) + '</code>.</p></div>';
+      } catch (e) {
+        // Rendered state, never a propagated exception: the fidelity oracle calls
+        // window.setPage(key) unguarded and must get a DOM, not a stack trace.
+        console.error('[harness] page "' + currentPage + '" failed to render:', e);
+        markup = errorBlock(currentPage, e);
+      }
+      container.innerHTML = markup;
       const stage = document.querySelector('.preview-stage');
       if (stage) stage.scrollTop = 0;
     }
@@ -386,9 +415,12 @@ TEMPLATE = r"""<!DOCTYPE html>
       currentViewport = vp;
       frame.classList.remove('tablet', 'mobile');
       if (vp === 'tablet' || vp === 'mobile') frame.classList.add(vp);
-      document.querySelectorAll('.viewport-btn').forEach(
-        b => b.classList.toggle('active', b.dataset.viewport === vp)
-      );
+      document.querySelectorAll('.viewport-btn').forEach(b => {
+        // Visual state and exposed state move together — they cannot diverge.
+        const on = b.dataset.viewport === vp;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
     }
 
     window.setPage = setPage;
@@ -401,7 +433,11 @@ TEMPLATE = r"""<!DOCTYPE html>
 
     (function init() {
       const hash = decodeURIComponent((location.hash || '').slice(1));
-      if (hash && pages[hash]) { currentPage = hash; if (select) select.value = hash; }
+      // Same reason as in render(): reading the registry is what throws when the
+      // page-functions script died. Swallowing here lets render() report it on screen.
+      try {
+        if (hash && pages[hash]) { currentPage = hash; if (select) select.value = hash; }
+      } catch (e) {}
       setViewport('desktop');
       render();
     })();
@@ -522,6 +558,7 @@ def main():
     ap = argparse.ArgumentParser(description="design:harness — HTML maquette generator")
     ap.add_argument("--out", required=True, help="Output HTML file path")
     ap.add_argument("--title", default="Maquette", help='Project title (default: "Maquette")')
+    ap.add_argument("--lang", default="en", help='Document language for <html lang> (default: "en")')
     ap.add_argument("--pages", default=None,
                     help='Pages as "key:Label, key2:Label 2" (default: page-1:Page 1)')
     ap.add_argument("--pages-json", default=None,
@@ -559,6 +596,7 @@ def main():
         "TOKENS_STYLE": style,
         "TOKENS_NOTE_HEADER": TOKENS_NOTE_HEADER if style else "",
         "TOKENS_NOTE_RULES": TOKENS_NOTE_RULES if style else "",
+        "LANG": html.escape(args.lang),
         "TITLE": html.escape(args.title),
         # An HTML comment ends at "-->": break every "--" run so a title cannot close it.
         "TITLE_COMMENT": re.sub(r"-(?=-)", "- ", args.title),
