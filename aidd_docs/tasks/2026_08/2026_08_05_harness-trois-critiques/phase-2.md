@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Instruction: le fichier généré est exécuté, pas seulement grepé

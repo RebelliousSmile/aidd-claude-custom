@@ -30,6 +30,19 @@ if [ -z "$PY" ] || ! command -v "$PY" >/dev/null 2>&1; then
   exit 1
 fi
 
+# Same treatment for node, which runs the runtime check below. No escape hatch: the only
+# caller of this selftest is tools/eval/design-harness.mjs, itself running under node — a
+# SKIP would cover no real case and would reopen the green-without-checking door that the
+# runtime check exists to close.
+NODE=${HARNESS_SELFTEST_NODE:-}
+if [ -z "$NODE" ]; then NODE=$(command -v node || true); fi
+if [ -z "$NODE" ] || ! command -v "$NODE" >/dev/null 2>&1; then
+  echo "SELFTEST FAILED: no usable node (tried '${NODE:-node}')."
+  echo "  Install node, or point HARNESS_SELFTEST_NODE at an interpreter."
+  exit 1
+fi
+RUNTIME="$DIR/tools/harness-runtime-check.mjs"
+
 check() {  # name expected_code <harness args…>
   name=$1; want=$2; shift 2
   "$PY" "$HARNESS" --out "$OUT/o.html" "$@" >"$OUT/out" 2>"$OUT/err"
@@ -181,5 +194,21 @@ grep -q "tools/generate.py" "$OUT/err" || { echo "FAIL missing-artifact: message
 grep -q "migrate-contract.py" "$OUT/err" || { echo "FAIL 1x: message omits migrate-contract.py"; fail=1; }
 "$PY" "$HARNESS" --out "$OUT/o.html" --pages "/contact/:C" 2>"$OUT/err" >/dev/null || true
 grep -q "/contact/" "$OUT/err" || { echo "FAIL url-path: message omits the offending key"; fail=1; }
+
+# ─── Runtime ─────────────────────────────────────────────────────────────────
+# Everything above asserts on the TEXT of the generated file. A generator emitting a
+# syntactically dead <script> satisfies all of it: measured on a copy with an unbalanced
+# brace in setViewport, this selftest printed ALL GREEN / exit 0 while the produced file
+# answered `typeof setPage === "undefined"` in a browser. The JS is now executed.
+for f in m.html c.html s.html; do
+  case "$f" in
+    m.html) args="--expect-pages home,contact" ;;
+    *)      args="" ;;
+  esac
+  # shellcheck disable=SC2086
+  if "$NODE" "$RUNTIME" "$OUT/$f" $args; then :; else
+    echo "FAIL runtime check on $f"; fail=1
+  fi
+done
 
 if [ "$fail" -eq 0 ]; then echo "ALL GREEN"; exit 0; else echo "SELFTEST FAILED"; exit 1; fi
