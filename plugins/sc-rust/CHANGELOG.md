@@ -2,6 +2,17 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/sc-rust`.
 
+## [0.5.2] — 2026-08-05
+
+### Fixed — le corps illustré de `Case A` se lisait comme la liste à reproduire (S8, rouge au run 3)
+
+`sniff/02-install-pivots` posait sa clause de sortie sur le seul **en-tête** — *Pick the header by what actually happened* — et ne disait rien du corps. Le bloc *Case B* voisin, lui, porte `Use this header verbatim`. Le fichier posait donc une norme de copie littérale sur un bloc et **aucune contre-instruction sur l'autre** : un lecteur qui reproduit *Case A* énumère les cibles des tables au lieu de celles qu'il a écrites. C'est le contrôle négatif **S8** de `plugins/sc-tiers/skills/setup/evals/pivot-install-scenarios.md`, laissé délibérément non jugé en 0.3.0 et rendu **FAIL** au run 3 sur les quatre installeurs `sniff`.
+
+- **Marqueur d'exemple** sous chaque famille du bloc : `… one line per target actually processed`.
+- **Contre-instruction** au-dessus du bloc : les blocs sont des *formes, pas des contenus*, et seuls les pivots que le manifeste liste sont traités — un crate axum + sqlx émet deux lignes, `data-pivots-diesel.md` et `data-pivots-rusqlite.md` n'apparaissent **pas même en `skipped`**.
+- **Les `(skipped — not applicable)` sont retirés du corps illustré.** Ils contredisaient la règle d'installation du fichier lui-même, qui boucle *For each pivot in the manifeste* : un pivot absent du manifeste ne peut jamais ressortir en `skipped`. Ajouter le marqueur ne suffisait pas — ce que l'exemple **montrait** était faux.
+- **Rust est la stack où les deux défauts se composent** : son cas nominal est `Case B` (aucun pivot applicable), déjà corrigé en 0.5.1 ; quand `Case A` s'ouvre, ses 4 cibles sont assez peu nombreuses pour qu'une recopie intégrale passe pour plausible.
+
 ## [0.5.1] — 2026-08-03
 
 ### Fixed — l'en-tête d'installation est dérivé de ce qui a été écrit
