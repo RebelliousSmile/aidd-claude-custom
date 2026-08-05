@@ -1,5 +1,35 @@
 # Changelog — sc-php
 
+## [0.10.3] — 2026-08-05
+
+### Fixed — le scaffold WordPress de `setup` produisait un site blanc, et son test ne pouvait pas le voir
+
+Le flow `01 → 02 → 06` a été exécuté **littéralement** contre Docker et WordPress 7.0.2, puis rejoué contre les références corrigées. Sept défauts, tous mesurés, la plupart avec contre-épreuve. Constat : `aidd_docs/tasks/2026_08/2026_08_05-constat-bootstrap-wordpress-fse.md`.
+
+- **`theme-plugin-skeleton.md` déclarait cinq fichiers `.html` sans en spécifier le contenu nulle part.** Mesuré : thème actif, HTTP 200, `.wp-site-blocks` **absent**, `body.innerText` de **zéro caractère**. Les cinq fichiers portent désormais leur markup de bloc (header/footer en `template-part`, boucle `wp:query` avec pagination et `query-no-results`, `post-title`/`post-content` pour `single`/`page`), et `theme.json` les rattache par `templateParts`. Rejoué : **161 caractères** rendus, `<header>`/`<main>`/`<footer>` présents, `single.html` et `page.html` vérifiés séparément.
+- **Le *Test* de l'action ne pouvait pas échouer sur ce défaut** — `wp core version` retourne `7.0.2` sur un site à zéro caractère. Remplacé par un test qui mesure le rendu (`wp-site-blocks` dans la page d'accueil) et l'activation du thème. Même motif que les pivots orphelins : une sortie verte qui n'atteste rien.
+- **`tests.port: 8889` était codé en dur** alors que le port du site est paramétrable. Mesuré : `Bind for 0.0.0.0:8889 failed`, et — c'est là le vrai défaut — **l'échec du conteneur de tests fait échouer `wp-env start` en entier**, rendant toute commande ultérieure impossible pour un port qui ne sert pas le site. `"testsEnvironment": false` remplace le bloc `env` ; rejoué avec 8889 toujours occupé par un voisin : démarrage complet.
+- **Le garde `COMPOSE_PROJECT_NAME` était absent d'exactement les deux endroits où la skill demandait de taper une commande Docker.** Mesuré : six conteneurs up, `service "cli" is not running`. Ajout de `scripts/wp.ps1` (troisième script du garde) et de `pnpm wp <commande>` comme seule forme prescrite ; `deploy.mjs` pose désormais la même variable, ce que sa propre section *Wiring additionnel* exigeait déjà. Contre-épreuve dans la même exécution : forme nue → `service "cli" is not running`, wrapper → `7.0.2`.
+- **`WP_DEFAULT_THEME` n'active rien** — la constante ne s'applique qu'à `wp core install`, que wp-env a déjà fait. Mesuré : `WP_DEFAULT_THEME` correctement posée, `get_stylesheet()` rendant `twentytwentyfive`. Retirée du template ; l'activation devient une **étape explicite** de l'action. Rejoué : `twentytwentyfive` → `fse-bootstrap`.
+- **`Requires at least: 6.5` contre `theme.json` v3**, qui exige 6.6 (dev-note core du 2024-06-19). Aligné sur 6.6, avec la raison écrite dans la référence.
+- **Deux placeholders déclarés que l'action ne collectait pas** : `{{THEME_NAME}}` et `{{PLUGIN_NAME}}` sont les en-têtes `Theme Name:` / `Plugin Name:` sans lesquels WordPress ne reconnaît rien. Les *Inputs* collectent maintenant quatre valeurs, pas deux.
+- **Le garde ne dérivait qu'une chose sur deux : le nom du projet, pas le répertoire d'exécution.** wp-env comme Docker Compose résolvent le projet depuis le répertoire **courant**, jamais depuis l'emplacement du script — un `.ps1` lancé par son chemin absolu depuis ailleurs pose le bon `COMPOSE_PROJECT_NAME` et cible quand même le vide. **Mesuré** sur le terrain jetable de la contre-épreuve `design:harness` : `& <racine>\scripts\stop.ps1` depuis un dossier tiers rend `Environment not initialized. Run wp-env start first.` avec les trois conteneurs up, script en échec et **projet laissé debout** ; la même ligne depuis la racine rend `Stopped WordPress.` — seule différence, le répertoire courant. Variante Compose, contre-épreuve appariée sur un projet témoin d'un service : sans `Push-Location`, `no configuration file provided: not found` et exit 1 ; avec, le service est résolu, exit 0, et le répertoire de l'appelant est rendu par le `finally`. Les trois scripts (`start`, `stop`, `wp`) portent désormais `Push-Location $ProjectRoot` / `finally { Pop-Location }` et propagent `$LASTEXITCODE`, `deploy.mjs` passe `cwd: projectRoot` à chaque `execSync`, et les *Tests* des trois actions de scaffold prescrivent d'exercer les scripts **depuis un autre répertoire** — lancés à la racine, ils passent avec ou sans le garde, donc n'en attestent rien.
+- **Le bloc `env` était déprécié** par wp-env. Retiré. Nuance mesurée sur `@wordpress/env` 11.12.0 : `testsEnvironment` est nommée dans le message de dépréciation mais, seule, n'en déclenche aucun.
+
+### Changed — le terrain est du matériau, pas du contenu
+
+Cinq références et deux actions nommaient un projet client et un hébergeur en clair (`pitfalls.md`, `docker-compose-laravel.md`, `deploy-pipeline.md`, `SKILL.md`, `05-wire-deploy.md`). La provenance — « généralisé depuis un déploiement réel » — porte tout ce que le lecteur a besoin de savoir ; le nom ne portait rien. Les terrains nommés dans le pivot `sniff/capabilities/tools/testing.md` restent : là, ils rendent la mesure traçable, ce qui est leur fonction.
+
+## [0.10.2] — 2026-08-05
+
+### Fixed — le corps illustré de `Case A` se lisait comme la liste à reproduire (S8, rouge au run 3)
+
+`sniff/02-install-pivots` posait sa clause de sortie sur le seul **en-tête** — *Pick the header by what actually happened* — et ne disait rien du corps. Le bloc *Case B* voisin, lui, porte `Use this header verbatim`. Le fichier posait donc une norme de copie littérale sur un bloc et **aucune contre-instruction sur l'autre** : un lecteur qui reproduit *Case A* énumère les cibles des tables au lieu de celles qu'il a écrites. C'est le contrôle négatif **S8** de `plugins/sc-tiers/skills/setup/evals/pivot-install-scenarios.md`, laissé délibérément non jugé en 0.3.0 et rendu **FAIL** au run 3 sur les quatre installeurs `sniff`.
+
+- **Marqueur d'exemple** sous chaque famille du bloc : `… one line per target actually processed`.
+- **Contre-instruction** au-dessus du bloc : les blocs sont des *formes, pas des contenus*, et seuls les pivots que le manifeste liste sont traités — un projet détecté Laravel seul émet deux lignes, `perf-pivots-symfony.md` et `perf-pivots-wordpress.md` n'apparaissent **pas même en `skipped`**.
+- **Les `(skipped — not applicable)` sont retirés du corps illustré.** Ils contredisaient la règle d'installation du fichier lui-même, qui boucle *For each pivot in the manifeste* : un pivot absent du manifeste ne peut jamais ressortir en `skipped`. Ajouter le marqueur ne suffisait pas — ce que l'exemple **montrait** était faux.
+
 ## [0.10.1] — 2026-08-03
 
 ### Fixed — l'en-tête d'installation est dérivé de ce qui a été écrit

@@ -1,6 +1,6 @@
 # Pièges connus — scaffold PHP + Docker
 
-Généralisés depuis un déploiement réel (projet Mauceri, WordPress). L'entrée 1 est générique à tout projet Docker Compose (WordPress, Laravel, Symfony) ; les entrées 2 et 3 sont spécifiques à WordPress/wp-env.
+Généralisés depuis un déploiement WordPress réel. L'entrée 1 est générique à tout projet Docker Compose (WordPress, Laravel, Symfony) ; les entrées 2 et 3 sont spécifiques à WordPress/wp-env.
 
 ## 1. Nom de dossier invalide pour Docker Compose (générique — tous frameworks)
 
@@ -22,4 +22,4 @@ Si PHP et wp-cli sont installés localement sur la machine hôte (ex. `php wp-cl
 
 **Symptôme classique** : une commande wp-cli semble s'exécuter sans erreur, mais le résultat n'apparaît jamais sur le site ouvert dans le navigateur — parce qu'elle a modifié la mauvaise base de données.
 
-**Solution** : toujours invoquer wp-cli via le wrapper du gestionnaire de paquets qui route vers le conteneur Docker (ex. `pnpm dlx @wordpress/env run cli wp ...`), jamais le binaire local. Documenter cette règle en tête de toute mémoire projet issue de ce scaffold.
+**Solution** : toujours invoquer wp-cli via le wrapper `scripts/wp.ps1` du projet, donc `pnpm wp <commande>` — jamais le binaire local, et jamais `pnpm dlx @wordpress/env run cli wp` nu, qui route bien vers Docker mais perd le garde `COMPOSE_PROJECT_NAME` (cf. `compose-project-name-guard.md`). Documenter cette règle en tête de toute mémoire projet issue de ce scaffold.

@@ -87,4 +87,4 @@ server {
 
 ## Portée volontairement plus légère que WordPress
 
-Ce flow s'appuie sur l'installeur officiel (`composer create-project`) et un Docker Compose standard PHP-FPM/nginx/MySQL — il n'a pas (encore) de retour d'expérience production équivalent au flow WordPress de cette skill (né d'un déploiement réel, Mauceri). Signaler tout piège rencontré en usage réel pour enrichir cette référence.
+Ce flow s'appuie sur l'installeur officiel (`composer create-project`) et un Docker Compose standard PHP-FPM/nginx/MySQL — il n'a pas (encore) de retour d'expérience production équivalent au flow WordPress de cette skill, né d'un déploiement réel. Signaler tout piège rencontré en usage réel pour enrichir cette référence.

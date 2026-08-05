@@ -38,6 +38,12 @@ This action installs ONLY to `.claude/rules/07-quality/`. It NEVER installs capa
 
 Pick the header by what actually happened — never claim "installed" when nothing was written.
 
+Report what was written, not what the tables above list. Count and enumerate the targets you
+actually processed. **The blocks below are shapes, not contents — do not copy their lines.** Only the
+pivots the manifeste lists are processed, so a project detected as Laravel alone emits two
+lines: `perf-pivots-symfony.md` and `perf-pivots-wordpress.md` never appear, not even as
+`skipped`. Emitting the two tables in full is the failure this note names.
+
 ### Case A — at least one pivot was installed or updated
 
 ```
@@ -45,13 +51,12 @@ Pick the header by what actually happened — never claim "installed" when nothi
 
   Perf pivots:
     + .claude/rules/07-quality/perf-pivots-laravel.md   (installed)
-    ✓ .claude/rules/07-quality/perf-pivots-symfony.md   (skipped — not applicable)
-    ✓ .claude/rules/07-quality/perf-pivots-wordpress.md (skipped — not applicable)
-    ✓ .claude/rules/07-quality/perf-pivots-htmx.md      (skipped — not applicable)
+    ✓ .claude/rules/07-quality/perf-pivots-htmx.md      (skipped — up-to-date)
+    … one line per target actually processed
 
   Data pivots:
     + .claude/rules/07-quality/data-pivots-eloquent.md  (installed)
-    ✓ .claude/rules/07-quality/data-pivots-doctrine.md  (skipped — not applicable)
+    … one line per target actually processed
 
   Capability pivots: not installed (loaded on demand by /sc-php:audit)
 

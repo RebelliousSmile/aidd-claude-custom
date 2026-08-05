@@ -4,8 +4,8 @@ model: sonnet
 description: >-
   Scaffolds a brand-new PHP project from scratch (WordPress FSE, Laravel, or
   Symfony) with Docker Compose ready for local dev, and optionally wires an
-  SSH-based deploy pipeline (rsync + optional DB export, alwaysdata/Scriptami-style
-  hosting). Detects/asks the target framework first — mirrors the three frameworks
+  SSH-based deploy pipeline (rsync + optional DB export, shared SSH hosting).
+  Detects/asks the target framework first — mirrors the three frameworks
   sc-php:sniff already knows how to detect (composer.json + wp-config.php / artisan /
   bin/console). Use when the user asks to: scaffold a new PHP project, set up
   WordPress/Laravel/Symfony with Docker, init wp-env, create a fresh project with
@@ -43,7 +43,7 @@ Trigger-to-action mapping for `01`:
 ## References
 
 - `references/pitfalls.md` — Docker Compose project-naming trap (generic, all frameworks), WP-specific CSS cache-busting and wp-cli-via-Docker rules.
-- `references/compose-project-name-guard.md` — `start.ps1`/`stop.ps1` template shared by all three scaffolds.
+- `references/compose-project-name-guard.md` — `start.ps1`/`stop.ps1`/`wp.ps1` template shared by all three scaffolds.
 - `references/wp-env-json.md`, `references/theme-plugin-skeleton.md` — WordPress scaffold content.
 - `references/docker-compose-laravel.md`, `references/docker-compose-symfony.md` — Docker Compose content for the other two frameworks.
 - `references/deploy-pipeline.md` — `deploy.mjs`/`deploy-targets.mjs` content for `wire-deploy`.

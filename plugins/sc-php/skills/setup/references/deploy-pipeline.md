@@ -1,19 +1,19 @@
-# Pipeline de déploiement SSH (générique, cible type alwaysdata/Scriptami)
+# Pipeline de déploiement SSH (générique, cible type hébergement mutualisé)
 
 Deux fichiers Node : `scripts/deploy-targets.mjs` (config déclarative des cibles) et `scripts/deploy.mjs` (exécution). Le transfert de fichiers (rsync/SSH) est identique pour les trois frameworks ; seule l'étape base de données est framework-conditionnelle (WordPress a un export/import dédié via wp-cli, Laravel/Symfony n'exportent pas la base par défaut — migrations rejouées côté cible à la place).
 
 ## `scripts/deploy-targets.mjs`
 
 ```javascript
-// Un projet peut avoir plusieurs cibles (ex: "ad" = staging alwaysdata, "prod" = prod réelle).
+// Un projet peut avoir plusieurs cibles (ex: "staging", "prod" = prod réelle).
 // Chaque cible est indépendante : pousser vers l'une n'affecte jamais les autres.
 
 export const targets = {
-  // ad: {
-  //   host: 'ssh-XXXXXXX.alwaysdata.net',
+  // staging: {
+  //   host: 'ssh-XXXXXXX.hebergeur.tld',
   //   user: 'XXXXXXX',
   //   remotePath: '/home/XXXXXXX/www',
-  //   url: 'https://mon-projet.scriptami.com',
+  //   url: 'https://staging.mon-projet.tld',
   //   // Optionnel — uniquement pertinent pour le flow WordPress :
   //   wpExportDb: true,
   // },
@@ -34,7 +34,19 @@ export function resolveTarget(name) {
 ```javascript
 #!/usr/bin/env node
 import { execSync } from 'node:child_process';
+import path from 'node:path';
 import { resolveTarget } from './deploy-targets.mjs';
+
+// Garde COMPOSE_PROJECT_NAME — MÊME logique que scripts/start.ps1 (cf. compose-project-name-guard.md).
+// Sans lui, l'appel wp-env ci-dessous cible un projet Docker Compose inexistant
+// et rend `service "cli" is not running` alors que les conteneurs tournent.
+const projectRoot = path.resolve(import.meta.dirname, '..');
+process.env.COMPOSE_PROJECT_NAME = path
+  .basename(projectRoot)
+  .toLowerCase()
+  .replace(/[^a-z0-9-]/g, '-')
+  .replace(/-{2,}/g, '-')
+  .replace(/^-+|-+$/g, '');
 
 const [, , targetName, ...flags] = process.argv;
 const skipDb = flags.includes('--no-db');
@@ -48,7 +60,11 @@ const target = resolveTarget(targetName);
 
 function run(cmd) {
   console.log(`$ ${cmd}`);
-  execSync(cmd, { stdio: 'inherit' });
+  // cwd explicite : wp-env et docker compose résolvent le projet depuis le répertoire
+  // courant, et les chemins relatifs ci-dessous (./dump.sql) en dépendent aussi. Poser
+  // COMPOSE_PROJECT_NAME sans fixer le cwd laisse `node scripts/deploy.mjs` lancé
+  // d'ailleurs échouer sur un projet vide, garde correctement posé.
+  execSync(cmd, { stdio: 'inherit', cwd: projectRoot });
 }
 
 // 1. Base de données (WordPress uniquement, et seulement si la cible le déclare et --no-db absent)

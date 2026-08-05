@@ -1,6 +1,6 @@
 # Wire-deploy
 
-Câble un pipeline de déploiement SSH (rsync + optionnel export DB) vers une ou plusieurs cibles distantes de type hébergement mutualisé (alwaysdata/Scriptami ou équivalent). Optionnel — à proposer après le scaffold, jamais imposé.
+Câble un pipeline de déploiement SSH (rsync + optionnel export DB) vers une ou plusieurs cibles distantes de type hébergement mutualisé avec accès SSH. Optionnel — à proposer après le scaffold, jamais imposé.
 
 ## Inputs
 

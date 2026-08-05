@@ -29,3 +29,5 @@ scripts/stop.ps1
 ## Test
 
 `pnpm run start` (ou exécution directe de `scripts/start.ps1`) démarre les conteneurs sans erreur de nom de projet Docker Compose, et `docker compose exec app php artisan --version` répond.
+
+**Puis `& <racine>\scripts\stop.ps1` depuis un dossier tiers**, qui doit arrêter les conteneurs : lancé à la racine, le script passe avec ou sans son garde de répertoire, donc ne l'atteste pas. Mesuré sans `Push-Location`, hors racine : `no configuration file provided: not found`, exit 1, conteneurs laissés debout.

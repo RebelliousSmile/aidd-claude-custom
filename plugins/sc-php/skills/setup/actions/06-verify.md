@@ -11,11 +11,14 @@ Sanity checks post-scaffold. À exécuter après `02/03/04-scaffold-*` et, si c�
 
 1. **Docker Compose up** : lancer `scripts/start.ps1` et confirmer que les conteneurs démarrent sans erreur de nom de projet (`references/pitfalls.md` #1).
 2. **CLI applicative répond** :
-   - WordPress → `pnpm dlx @wordpress/env run cli wp core version`
+   - WordPress → `pnpm wp core version` (wrapper `scripts/wp.ps1`, jamais `pnpm dlx @wordpress/env run cli wp` nu — voir `references/compose-project-name-guard.md`)
    - Laravel → `docker compose exec app php artisan --version`
    - Symfony → `docker compose exec app php bin/console --version`
-3. **Si déploiement câblé** : `pnpm deploy <cible> --no-db` en dry-run mental (vérifier que `deploy-targets.mjs` contient bien la cible, ne pas exécuter de vrai transfert sans confirmation explicite de l'utilisateur si la cible est une cible réelle et non un exemple).
-4. Rapporter un résumé pass/fail par vérification — jamais de "tout est bon" silencieux si une étape a été sautée (ex: pas de cible de déploiement configurée).
+3. **Le site rend quelque chose** — vérification distincte de la précédente, qui passe sur un site blanc :
+   - WordPress → `pnpm wp theme status <slug>` doit rendre `Status: Active`, et la page d'accueil doit contenir `wp-site-blocks`. Un thème block dont les templates sont vides sert un HTTP 200 à zéro caractère : l'étape 2 ne le distingue pas d'un scaffold réussi.
+   - Laravel / Symfony → la page d'accueil doit rendre la page de bienvenue du framework, pas seulement un code 200.
+4. **Si déploiement câblé** : `pnpm deploy <cible> --no-db` en dry-run mental (vérifier que `deploy-targets.mjs` contient bien la cible, ne pas exécuter de vrai transfert sans confirmation explicite de l'utilisateur si la cible est une cible réelle et non un exemple).
+5. Rapporter un résumé pass/fail par vérification — jamais de "tout est bon" silencieux si une étape a été sautée (ex: pas de cible de déploiement configurée).
 
 ## Outputs
 
