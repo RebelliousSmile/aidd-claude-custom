@@ -65,7 +65,7 @@
     },
     {
       "name": "sc-python",
-      "version": "0.6.2",
+      "version": "0.6.3",
       "source": "./plugins/sc-python",
       "description": "Python-specific skills and workflows: two-tier sniff (pivot model), audit (aidd-dev:reviewer), improve, legacy, log-analysis, teach (Django/FastAPI).",
       "recommended": false
