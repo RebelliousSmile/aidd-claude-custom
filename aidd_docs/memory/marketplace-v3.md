@@ -4,6 +4,8 @@ Source de vérité : `plugins/<nom>/.claude-plugin/plugin.json`, recopié dans `
 
 Un `version.txt` racine a existé et a été **supprimé le 2026-07-30** : aucun fichier du dépôt ne le lisait et il avait dérivé de six mineures. Ne pas le recréer — un second porteur de version rediverge dès le bump suivant.
 
+**⚠ `pnpm test` lit l'arbre de travail, jamais l'état commité.** La règle M1 de `tools/eval/consistency.mjs` (parité version + description `plugin.json` ↔ `marketplace.json`, l. 45-46) passe par `readFileSync(join(ROOT, p))` (l. 29) : elle n'interroge ni l'index ni un commit. Un test vert n'atteste donc rien du contenu qu'on est en train de livrer. **Mesuré le 2026-08-05** sur `feat/design-harness-durcissement` : quatre commits consécutifs (`7c7997f`, `8c3b26b`, `7e7e080`, `53be804`) portaient `plugin=2.9.1` contre `marketplace=2.9.0` — violation M1 dans l'arbre commité — pendant que le gate restait vert, parce que la copie de travail portait déjà le bump à venir. Corollaire pratique : le bump et son contenu doivent atterrir dans **le même commit**, et vérifier la parité se fait sur `git show HEAD:…`, pas sur `pnpm test`.
+
 | Plugin | Rôle |
 |---|---|
 | `overcode` | Extensions AIDD projet-agnostiques : alias, behave, control, harvest, status, taste, foresee, baby, readme, changelog, decompose, journey, reconcile-normative, seo-optimize, data/web/ap-optimize |

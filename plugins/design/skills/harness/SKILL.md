@@ -45,30 +45,48 @@ Et une barre `.preview-bar` (masquée par l'oracle avant la mesure) avec :
 - Sélecteur de pages (dropdown, optgroups supportés)
 - Boutons device : **Desktop** (fluide) · **Tablette** (834 px) · **Mobile** (390 px)
 
+## Actions
+
+Une seule commande, deux modes — le flag `--contract` est le seul discriminant.
+
+| #   | Action            | Rôle                                                                 | Déclencheur |
+| --- | ----------------- | -------------------------------------------------------------------- | ----------- |
+| 01  | `scaffold`        | Écrire le harness HTML autonome pour un jeu de pages (`--pages` / `--pages-json`) | « génère le harness », « crée la maquette de référence », « les pages sont dans ce fichier JSON », « les clés de pages sont des chemins d'URL » |
+| 02  | `contract-inline` | Même sortie, plus la feuille de tokens du contrat figé inlinée (`--contract`) | « couple la maquette au contrat », « que la référence parle les mêmes tokens que le lint » |
+
 ## Paramètres
 
 | Paramètre | Défaut | Description |
 |-----------|--------|-------------|
 | `--out` | *(requis)* | Chemin du fichier HTML de sortie |
 | `--title` | `"Maquette"` | Titre du projet (affiché dans la barre et le `<title>`) |
-| `--pages` | `"page-1:Page 1"` | Pages au format `"key:Label, key2:Label 2"` |
-| `--pages-json` | — | Chemin vers un JSON `[{key, label, group?}]` ou `{pages:[...]}` |
+| `--lang` | `"en"` | Langue du document, substituée dans `<html lang="…">` |
+| `--pages` | `"page-1:Page 1"` | Pages au format `"key:Label, key2:Label 2"`. Le découpage se fait sur `,` **sans échappement possible** : dès qu'un libellé porte une virgule, passer par `--pages-json` |
+| `--pages-json` | — | Chemin vers un JSON `[{key, label, group?}]` ou `{pages:[...]}`. `label` est facultatif — à défaut, la clé sert de libellé |
 | `--contract` | — | Répertoire d'un contrat figé — inline sa feuille de tokens générée (opt-in) |
+
+### Ce qu'est une clé de page
+
+Une clé est un **slug**, jamais un chemin d'URL : le site sert `/contact/`, la clé est `contact`. Elle doit dériver un nom de fonction JS valide (`contact` → `pageContact`), et deux clés ne peuvent pas dériver le même nom — `-`, `_` et la casse ne distinguent pas deux pages (`my-page` / `my_page`, `A-b` / `a-b`). Tout jeu de pages qui viole cela sort en **2** en nommant les clés fautives : le générateur n'écrit jamais un fichier dont le JS serait invalide.
 
 ### Couplage au contrat (`--contract`, opt-in)
 
-Sans `--contract`, le scaffold est inchangé et sort en 0. Avec, le harness **inline la feuille de tokens déjà générée** du contrat — l'entrée `policies.json § adapters[]` dont `consumer` vaut `"stylesheet"` — dans un `<style>` avant le chrome, pour que la référence parle les mêmes tokens que ceux contre lesquels l'implémentation est lintée. Rien n'est dérivé ni régénéré ici (`generate.py` reste le seul producteur). Quand la feuille est inline, le cadrage LLM du fichier généré instruit l'auteur de consommer les tokens via `var(--…)` et de ne jamais coder en dur couleur/espacement/typographie.
+Sans `--contract`, le scaffold est inchangé : il sort en 0 dès que l'invocation est valide. Avec, le harness **inline la feuille de tokens déjà générée** du contrat — l'entrée `policies.json § adapters[]` dont `consumer` vaut `"stylesheet"` — dans un `<style>` avant le chrome, pour que la référence parle les mêmes tokens que ceux contre lesquels l'implémentation est lintée. Rien n'est dérivé ni régénéré ici (`generate.py` reste le seul producteur). Quand la feuille est inline, le cadrage LLM du fichier généré instruit l'auteur de consommer les tokens via `var(--…)` et de ne jamais coder en dur couleur/espacement/typographie.
 
-Codes de sortie **sous `--contract` uniquement** (jamais 1, jamais 4) :
+Codes de sortie — l'espace **0 / 2 / 3 vaut pour tout le programme**, pas seulement sous `--contract` (jamais 1, jamais 4) :
 
 | Situation | Code |
 |---|---|
-| Feuille inline, ou pas de flag | 0 |
+| Fichier écrit (avec ou sans flag) | 0 |
 | Aucun adapter `consumer:"stylesheet"` déclaré | 0 + un avertissement stderr, poursuite en scaffold |
 | `release.json` absent (contrat 1.x) | 3 — nomme `tools/migrate-contract.py` |
 | `release.json` présent mais JSON invalide | 2 — nomme `release.json` |
 | `policies.json` absent, illisible ou pas un objet | 2 |
 | Adapter `stylesheet` déclaré, fichier absent/illisible | 2 — nomme `tools/generate.py` |
+| `--pages-json` absent, illisible, non-UTF-8 ou JSON invalide | 2 — nomme le chemin |
+| `--pages-json` de forme invalide (pas une liste d'objets, entrée sans `key`) | 2 — nomme l'index fautif |
+| Jeu de pages invalide (clé vide, dupliquée, collision de fonction, clé non-slug) | 2 — nomme les clés |
+| Aucune page définie | 2 |
 
 Détail du couplage, option C et accord measure/oracle : `references/harness-contract.md`.
 

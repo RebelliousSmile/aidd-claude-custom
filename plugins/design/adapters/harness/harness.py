@@ -8,7 +8,7 @@ fidelity oracle (adapters/measure/measure.py) and the copycat fan-out.
 
 Usage:
   python harness.py --out maquette.html
-  python harness.py --out maquette.html --title "My Site" --pages "home:Accueil, contact:Contact"
+  python harness.py --out maquette.html --title "My Site" --lang fr --pages "home:Accueil, contact:Contact"
   python harness.py --out maquette.html --title "My Site" --pages-json pages.json
   python harness.py --out maquette.html --contract <dir>   # inline the contract's tokens
 
@@ -21,16 +21,28 @@ pages.json format — list of objects (or {"pages": [...]}):
   policies.json § adapters[] entry whose consumer is "stylesheet" — into the maquette, so
   the reference speaks the same tokens the implementation is linted against. Nothing is
   derived or regenerated here (option C): the artifact is read as produced by generate.py.
-  Exit codes under --contract: 0 ok (or no stylesheet adapter → one stderr warning, scaffold);
-  3 the contract is 1.x (no release.json) — migrate it (tools/migrate-contract.py); 2 any
-  required artifact is absent, unreadable, or structurally invalid. Never 1, never 4.
-  Without --contract the scaffold path is unchanged and always exits 0.
+
+Exit-code space — the WHOLE program, not just --contract: 0 the file is written; 3 the
+  contract is 1.x (no release.json) — migrate it (tools/migrate-contract.py); 2 any invalid
+  invocation — unreadable/malformed --pages-json, invalid page set, missing or structurally
+  invalid contract artifact. Never 1, never 4 (references/harness-contract.md).
 """
 
 import argparse
+import html
 import json
+import re
 import sys
 from pathlib import Path
+
+
+# ─── Exit-code space ─────────────────────────────────────────────────────────
+# 0 / 2 / 3 for the whole program — never 1, never 4 (references/harness-contract.md).
+
+def _fail(message):
+    """Print to stderr and return the invocation/invalid-artifact code (2)."""
+    print(message, file=sys.stderr)
+    return 2
 
 
 # ─── Page parsing ────────────────────────────────────────────────────────────
@@ -56,7 +68,89 @@ def key_to_fn(key):
     return "page" + "".join(p.capitalize() for p in parts)
 
 
+def load_pages_json(path):
+    """Read --pages-json into a page list. Returns (pages, code); code is None on success.
+
+    No read path may surface a Python traceback to the caller: every failure is a 2
+    naming the file and the cause.
+    """
+    src = Path(path)
+    try:
+        raw = src.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return None, _fail(f"--pages-json: no such file: {src}")
+    except UnicodeDecodeError as exc:
+        return None, _fail(f"--pages-json is not UTF-8 text: {src}\n  {exc}")
+    except OSError as exc:
+        return None, _fail(f"--pages-json is unreadable: {src}\n  {exc}")
+    try:
+        data = json.loads(raw)
+    except ValueError as exc:
+        return None, _fail(f"--pages-json is not valid JSON: {src}\n  {exc}")
+
+    if isinstance(data, list):
+        entries = data
+    elif isinstance(data, dict):
+        entries = data.get("pages")
+        if not isinstance(entries, list):
+            return None, _fail(f'--pages-json object has no "pages" list: {src}')
+    else:
+        return None, _fail(f"--pages-json is neither a list nor an object: {src}")
+
+    pages = []
+    for i, entry in enumerate(entries):
+        if not isinstance(entry, dict):
+            return None, _fail(
+                f'--pages-json entry {i} is not an object: {src}\n'
+                f'  Expected {{"key": "...", "label": "..."}}, got {type(entry).__name__}.')
+        key = entry.get("key")
+        if not isinstance(key, str):
+            return None, _fail(f'--pages-json entry {i} has no string "key": {src}')
+        label = entry.get("label")
+        # label is optional — fall back to the key, as parse_pages_str already does.
+        page = {"key": key, "label": label if isinstance(label, str) and label.strip() else key}
+        group = entry.get("group")
+        if isinstance(group, str) and group.strip():
+            page["group"] = group
+        pages.append(page)
+    return pages, None
+
+
+def validate_pages(pages):
+    """Refuse a page set that would yield a false or dead harness. Returns a code, or None.
+
+    Called AFTER the "no pages defined" branch: an empty list is that branch's message.
+    """
+    by_key = {}
+    by_fn = {}
+    for i, page in enumerate(pages):
+        key = page.get("key")
+        if not isinstance(key, str) or not key.strip():
+            return _fail(f"Error: page {i} has an empty or blank key.")
+        if key in by_key:
+            return _fail(f"Error: duplicate page key {key!r} (pages {by_key[key]} and {i}).")
+        by_key[key] = i
+        fn = key_to_fn(key)
+        # UAX-31, shared by Python and JS: isidentifier() is stricter than JS, never
+        # wrongly so, and it accepts 'café' where an ASCII regex would not.
+        if not fn.isidentifier():
+            return _fail(
+                f"Error: page key {key!r} derives the invalid function name {fn!r}.\n"
+                "  A page key is a slug (letters, digits, '-' or '_'), never a URL path: "
+                "the site serves /contact/, the key is 'contact'.")
+        if fn in by_fn:
+            return _fail(
+                f"Error: page keys {by_fn[fn]!r} and {key!r} both derive the function name "
+                f"{fn!r}; '-', '_' and letter case do not distinguish two pages.")
+        by_fn[fn] = key
+    return None
+
+
 # ─── HTML fragment builders ──────────────────────────────────────────────────
+
+def js_literal(s):
+    """A JS string literal for `s` — quotes, backslashes and newlines all covered."""
+    return json.dumps(s, ensure_ascii=False)
 
 def build_options(pages):
     """<option> / <optgroup> HTML for the page selector."""
@@ -69,11 +163,13 @@ def build_options(pages):
 
     lines = []
     for p in ungrouped:
-        lines.append(f'        <option value="{p["key"]}">{p["label"]}</option>')
+        key, label = html.escape(p["key"]), html.escape(p["label"])
+        lines.append(f'        <option value="{key}">{label}</option>')
     for g_name, g_pages in groups.items():
-        lines.append(f'        <optgroup label="{g_name}">')
+        lines.append(f'        <optgroup label="{html.escape(g_name)}">')
         for p in g_pages:
-            lines.append(f'          <option value="{p["key"]}">{p["label"]}</option>')
+            key, label = html.escape(p["key"]), html.escape(p["label"])
+            lines.append(f'          <option value="{key}">{label}</option>')
         lines.append("        </optgroup>")
     return "\n".join(lines)
 
@@ -83,9 +179,11 @@ def build_functions(pages):
     lines = []
     for p in pages:
         fn = key_to_fn(p["key"])
-        k = p["key"].replace("'", "\\'")
-        lbl = p["label"].replace("'", "\\'").replace("<", "&lt;").replace(">", "&gt;")
-        lines.append(f"  function {fn}() {{ return placeholder('{k}', '{lbl}'); }}")
+        k = js_literal(p["key"])
+        # placeholder() writes the label through innerHTML: same html.escape as the
+        # <option>, so the selector and the page show one and the same text.
+        lbl = js_literal(html.escape(p["label"]))
+        lines.append(f"  function {fn}() {{ return placeholder({k}, {lbl}); }}")
     return "\n".join(lines)
 
 
@@ -93,9 +191,7 @@ def build_registry(pages):
     """JS object literal entries for the pages const."""
     lines = []
     for p in pages:
-        fn = key_to_fn(p["key"])
-        k = p["key"].replace("'", "\\'")
-        lines.append(f"    '{k}': {fn},")
+        lines.append(f"    {js_literal(p['key'])}: {key_to_fn(p['key'])},")
     return "\n".join(lines)
 
 
@@ -103,13 +199,11 @@ def build_registry(pages):
 # Uses %%PLACEHOLDER%% substitution — no .format() — so {} in HTML/CSS/JS are literal.
 
 TEMPLATE = r"""<!DOCTYPE html>
-<html lang="fr">
+<html lang="%%LANG%%">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>%%TITLE%% — maquette de référence</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 %%TOKENS_STYLE%%
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -150,16 +244,23 @@ TEMPLATE = r"""<!DOCTYPE html>
     width: 100%; max-width: 100%; margin: 0 auto; position: relative; overflow-x: hidden;
     background: #fff; transition: max-width .4s cubic-bezier(.22,1,.36,1);
   }
-  .preview-frame.tablet { max-width: 834px; border-radius: 24px; border: 10px solid #1F2A37; box-shadow: 0 30px 80px rgba(0,0,0,.25); margin: 24px auto; overflow: hidden; }
-  .preview-frame.mobile { max-width: 390px; border-radius: 32px; border: 8px solid #1F2A37; box-shadow: 0 30px 80px rgba(0,0,0,.3); margin: 32px auto; overflow: hidden; }
-  /* 834 / 390 are fixed device samples, not contract breakpoints — see the RESPONSIVE note. */
+  .preview-frame.tablet { max-width: 834px; border-radius: 24px; outline: 10px solid #1F2A37; box-shadow: 0 30px 80px rgba(0,0,0,.25); margin: 34px auto; overflow: hidden; }
+  .preview-frame.mobile { max-width: 390px; border-radius: 32px; outline: 8px solid #1F2A37; box-shadow: 0 30px 80px rgba(0,0,0,.3); margin: 40px auto; overflow: hidden; }
+  /* 834 / 390 are fixed device samples, not contract breakpoints — see the RESPONSIVE note.
+     The bezel is an outline, never a border: a border would sit inside the box (box-sizing:
+     border-box) and shrink the content box below the sample width, charging the difference to
+     a conformant implementation when the fidelity oracle measures percentage-derived values.
+     The margins absorb the outline (24+10, 32+8) so the visual gap is unchanged. */
   #page-container { display: block; width: 100%; }
 
-  /* Placeholder until a page function is filled in. */
+  /* Placeholder until a page function is filled in, and the render error state. */
   .ph { padding: 80px 32px; text-align: center; color: #6B7280; }
-  .ph h2 { font-size: 28px; color: #1F2A37; margin-bottom: 12px; font-weight: 600; }
+  .ph h1 { font-size: 28px; color: #1F2A37; margin-bottom: 12px; font-weight: 600; }
   .ph p { font-size: 14px; line-height: 1.6; }
+  .ph p + p { margin-top: 12px; }
   .ph code { background: #F4F4F4; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+  .ph--error h1 { color: #B42318; }
+  .ph--error .ph__message { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #B42318; }
 
   /* Author responsive overrides: `.preview-frame.mobile <sel>` / `.preview-frame.tablet <sel>`
      They fire both in manual preview (frame class) AND under the fidelity oracle, which
@@ -171,7 +272,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 <body>
 <!--
   ============================================================================
-  MAQUETTE DE RÉFÉRENCE · %%TITLE%%
+  MAQUETTE DE RÉFÉRENCE · %%TITLE_COMMENT%%
   Généré par : design:harness (adapters/harness/harness.py)
   ============================================================================
   À QUOI SERT CE FICHIER
@@ -213,7 +314,7 @@ TEMPLATE = r"""<!DOCTYPE html>
   ============================================================================
   PROMPT LLM (à copier pour faire remplir une page depuis un visuel/brief)
   ============================================================================
-    « Voici une maquette de référence "%%TITLE%%" (harness HTML auto-contenu avec
+    « Voici une maquette de référence "%%TITLE_COMMENT%%" (harness HTML auto-contenu avec
       .preview-bar, registre `pages` de fonctions, responsive par classe
       .preview-frame.mobile|tablet). À partir du visuel/brief que je te donne
       pour la page "<CLÉ>", remplis UNIQUEMENT le corps de la fonction `pageXxx()` :
@@ -228,13 +329,13 @@ TEMPLATE = r"""<!DOCTYPE html>
       %%TITLE%% <small>maquette</small>
     </div>
     <div class="preview-bar__controls">
-      <select class="page-select" id="page-select">
+      <select class="page-select" id="page-select" aria-label="Page">
 %%PAGE_OPTIONS%%
       </select>
       <div class="viewport-toggle" role="group" aria-label="Device">
-        <button class="viewport-btn active" data-viewport="desktop" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Desktop</button>
-        <button class="viewport-btn" data-viewport="tablet" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none"/></svg> Tablette</button>
-        <button class="viewport-btn" data-viewport="mobile" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none"/></svg> Mobile</button>
+        <button class="viewport-btn active" data-viewport="desktop" type="button" aria-pressed="true"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Desktop</button>
+        <button class="viewport-btn" data-viewport="tablet" type="button" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none"/></svg> Tablette</button>
+        <button class="viewport-btn" data-viewport="mobile" type="button" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none"/></svg> Mobile</button>
       </div>
     </div>
   </div>
@@ -255,7 +356,7 @@ TEMPLATE = r"""<!DOCTYPE html>
     //   • device variations as `.preview-frame.mobile|tablet <sel>` in <head>, no media queries.
     //   • never edit .preview-bar or the control scripts below.%%TOKENS_NOTE_RULES%%
     function placeholder(key, label) {
-      return '<div class="ph"><h2>' + label + '</h2>'
+      return '<div class="ph"><h1>' + label + '</h1>'
         + '<p>Page <code>' + key + '</code> — remplacez le corps de la fonction '
         + 'dans le registre <code>pages</code> ci-dessous.</p></div>';
     }
@@ -268,15 +369,43 @@ TEMPLATE = r"""<!DOCTYPE html>
   </script>
 
   <script>
-    let currentPage = '%%FIRST_PAGE_KEY%%';
+    let currentPage = %%FIRST_PAGE_KEY%%;
     let currentViewport = 'desktop';
     const container = document.getElementById('page-container');
     const frame = document.getElementById('preview-frame');
     const select = document.getElementById('page-select');
 
+    function esc(s) {
+      return String(s).replace(/[&<>]/g, function (c) {
+        return c === '&' ? '&amp;' : c === '<' ? '&lt;' : '&gt;';
+      });
+    }
+    function keyToFn(key) {
+      return 'page' + key.replace(/[-_]/g, ' ').split(/\s+/).filter(Boolean)
+        .map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }).join('');
+    }
+    function errorBlock(key, err) {
+      return '<div class="ph ph--error"><h1>⚠ La page « ' + esc(key) + ' » n\'a pas pu être rendue</h1>'
+        + '<p class="ph__message">' + esc(err && err.message ? err.message : err) + '</p>'
+        + '<p>Corrigez <code>' + esc(keyToFn(key)) + '()</code> dans ce fichier.</p></div>';
+    }
+
     function render() {
-      const fn = pages[currentPage];
-      container.innerHTML = fn ? fn() : '<div class="ph"><h2>Page introuvable</h2></div>';
+      let markup;
+      try {
+        // The lookup is inside the try: when the first <script> died, `pages` is not
+        // defined and THIS line throws — before any page function is even called.
+        const fn = pages[currentPage];
+        markup = fn ? fn()
+          : '<div class="ph"><h1>Page introuvable</h1><p>Aucune fonction n\'est enregistrée pour '
+            + '<code>' + esc(currentPage) + '</code>.</p></div>';
+      } catch (e) {
+        // Rendered state, never a propagated exception: the fidelity oracle calls
+        // window.setPage(key) unguarded and must get a DOM, not a stack trace.
+        console.error('[harness] page "' + currentPage + '" failed to render:', e);
+        markup = errorBlock(currentPage, e);
+      }
+      container.innerHTML = markup;
       const stage = document.querySelector('.preview-stage');
       if (stage) stage.scrollTop = 0;
     }
@@ -290,9 +419,12 @@ TEMPLATE = r"""<!DOCTYPE html>
       currentViewport = vp;
       frame.classList.remove('tablet', 'mobile');
       if (vp === 'tablet' || vp === 'mobile') frame.classList.add(vp);
-      document.querySelectorAll('.viewport-btn').forEach(
-        b => b.classList.toggle('active', b.dataset.viewport === vp)
-      );
+      document.querySelectorAll('.viewport-btn').forEach(b => {
+        // Visual state and exposed state move together — they cannot diverge.
+        const on = b.dataset.viewport === vp;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
     }
 
     window.setPage = setPage;
@@ -304,8 +436,15 @@ TEMPLATE = r"""<!DOCTYPE html>
     );
 
     (function init() {
-      const hash = decodeURIComponent((location.hash || '').slice(1));
-      if (hash && pages[hash]) { currentPage = hash; if (select) select.value = hash; }
+      // decodeURIComponent THROWS on a malformed fragment (#%E0%A4%A), so it belongs
+      // inside the try: outside it, the URIError aborted init() before setViewport()
+      // and render(), leaving #page-container empty — a blank file with no error block.
+      // Same reason as in render(): reading the registry is what throws when the
+      // page-functions script died. Swallowing here lets render() report it on screen.
+      try {
+        const hash = decodeURIComponent((location.hash || '').slice(1));
+        if (hash && pages[hash]) { currentPage = hash; if (select) select.value = hash; }
+      } catch (e) {}
       setViewport('desktop');
       render();
     })();
@@ -332,12 +471,6 @@ TOKENS_NOTE_RULES = (
     "\n    //   • when the contract stylesheet is inlined, consume its tokens via "
     "var(--…); never hardcode color/spacing/type values."
 )
-
-
-def _fail(message):
-    """Print to stderr and return the invocation/invalid-artifact code (2)."""
-    print(message, file=sys.stderr)
-    return 2
 
 
 def resolve_tokens_style(contract):
@@ -390,16 +523,80 @@ def resolve_tokens_style(contract):
     if not isinstance(artifact, str) or not artifact:
         return None, _fail(f"{POLICIES} adapters[].artifact is not a non-empty string: "
                            f"{policies_path.resolve()}")
-    css_path = cdir / artifact
+    # The artifact path is confined BEFORE the file is opened: a refused path is never
+    # read. `cdir / artifact` protects nothing on its own — pathlib lets an absolute
+    # operand win outright, and a relative "../…" simply walks out. relative_to() under
+    # try/except, not is_relative_to(), which would floor the interpreter at 3.9.
+    css_path = (cdir / artifact).resolve()
+    root = cdir.resolve()
+    try:
+        css_path.relative_to(root)
+    except ValueError:
+        return None, _fail(f"Declared stylesheet adapter resolves outside the contract "
+                           f"directory: {css_path}\n"
+                           f"  Contract directory: {root}\n"
+                           f"  Declared in: {policies_path.resolve()}\n"
+                           f"  Paths are resolved, so a symlinked artifact directory "
+                           f"pointing outside the contract is refused here too.\n"
+                           f"  Declare an artifact inside the contract directory.")
     try:
         css = css_path.read_text(encoding="utf-8")
     except (OSError, ValueError):
         # Option C: the harness never derives the stylesheet — generate.py owns it.
         return None, _fail(f"Declared stylesheet adapter is absent or unreadable: "
-                           f"{css_path.resolve()}\n"
+                           f"{css_path}\n"
                            f"  Generate it first: python tools/generate.py --contract {contract}")
+    # The stylesheet is inlined verbatim inside <style>…</style>. A closing style tag is
+    # the one sequence that leaves CSS and re-enters HTML, so it is refused, never
+    # escaped: tools/generate.py never emits it, so the refusal has no legitimate false
+    # positive, and escaping would ship an artifact nobody understands.
+    breakout = re.search(r"</\s*style", css, re.I)
+    if breakout:
+        return None, _fail(f"Structurally invalid stylesheet adapter: it closes the "
+                           f"<style> context ({breakout.group(0)!r} at offset "
+                           f"{breakout.start()}).\n"
+                           f"  {css_path}\n"
+                           f"  A generated stylesheet never contains that sequence.\n"
+                           f"  Re-generate it: python tools/generate.py --contract {contract}")
     style = "<style>\n" + css.rstrip("\n") + "\n</style>"
     return style, None
+
+
+# ─── Template substitution ───────────────────────────────────────────────────
+
+_SENTINEL = re.compile(r"%%(\w+)%%(\n?)")
+
+
+def missing_sentinels(template, values):
+    """Sentinels the template names and `values` does not carry.
+
+    The scan is on the TEMPLATE only, never on a value: a --title reading
+    "%%PAGE_OPTIONS%%" is not a missing key, it is text. A dropped or misspelled key,
+    on the other hand, ships `%%FOO%%` in the HTML at exit 0 — the dead-file-at-green
+    defect one level up, which is why it is a 2 and not a warning.
+    """
+    return sorted({name for name, _ in _SENTINEL.findall(template)} - set(values))
+
+
+def substitute(template, values):
+    """Fill every %%SENTINEL%% in one pass.
+
+    One pass, not a chain of .replace(): a value injected by one sentinel is never
+    rescanned as the next — a --title reading "%%PAGE_OPTIONS%%" stays literal.
+    Callers check missing_sentinels() first; an unknown name is left literal here so
+    that user text is never eaten.
+    """
+    def repl(match):
+        name, eol = match.group(1), match.group(2)
+        if name not in values:
+            return match.group(0)
+        value = values[name]
+        # %%TOKENS_STYLE%% absorbs its own line when there is no stylesheet to inline.
+        if name == "TOKENS_STYLE" and not value:
+            return ""
+        return value + eol
+
+    return _SENTINEL.sub(repl, template)
 
 
 # ─── Main ────────────────────────────────────────────────────────────────────
@@ -408,6 +605,7 @@ def main():
     ap = argparse.ArgumentParser(description="design:harness — HTML maquette generator")
     ap.add_argument("--out", required=True, help="Output HTML file path")
     ap.add_argument("--title", default="Maquette", help='Project title (default: "Maquette")')
+    ap.add_argument("--lang", default="en", help='Document language for <html lang> (default: "en")')
     ap.add_argument("--pages", default=None,
                     help='Pages as "key:Label, key2:Label 2" (default: page-1:Page 1)')
     ap.add_argument("--pages-json", default=None,
@@ -424,8 +622,9 @@ def main():
             return code
 
     if args.pages_json:
-        data = json.loads(Path(args.pages_json).read_text("utf-8"))
-        pages = data if isinstance(data, list) else data.get("pages", [])
+        pages, code = load_pages_json(args.pages_json)
+        if code is not None:
+            return code
     elif args.pages:
         pages = parse_pages_str(args.pages)
     else:
@@ -436,22 +635,37 @@ def main():
         print("Error: no pages defined.", file=sys.stderr)
         return 2
 
-    note_header = TOKENS_NOTE_HEADER if style else ""
-    note_rules = TOKENS_NOTE_RULES if style else ""
+    code = validate_pages(pages)
+    if code is not None:
+        return code
 
-    html = (TEMPLATE
-            .replace("%%TOKENS_STYLE%%\n", (style + "\n") if style else "")
-            .replace("%%TOKENS_NOTE_HEADER%%", note_header)
-            .replace("%%TOKENS_NOTE_RULES%%", note_rules)
-            .replace("%%TITLE%%", args.title)
-            .replace("%%PAGE_OPTIONS%%", build_options(pages))
-            .replace("%%PAGE_FUNCTIONS%%", build_functions(pages))
-            .replace("%%PAGE_REGISTRY%%", build_registry(pages))
-            .replace("%%FIRST_PAGE_KEY%%", pages[0]["key"]))
+    values = {
+        "TOKENS_STYLE": style,
+        "TOKENS_NOTE_HEADER": TOKENS_NOTE_HEADER if style else "",
+        "TOKENS_NOTE_RULES": TOKENS_NOTE_RULES if style else "",
+        "LANG": html.escape(args.lang),
+        "TITLE": html.escape(args.title),
+        # An HTML comment ends at "-->": break every "--" run so a title cannot close it.
+        "TITLE_COMMENT": re.sub(r"-(?=-)", "- ", args.title),
+        "PAGE_OPTIONS": build_options(pages),
+        "PAGE_FUNCTIONS": build_functions(pages),
+        "PAGE_REGISTRY": build_registry(pages),
+        "FIRST_PAGE_KEY": js_literal(pages[0]["key"]),
+    }
+
+    absent = missing_sentinels(TEMPLATE, values)
+    if absent:
+        return _fail(
+            "Error: the template names sentinel(s) no value fills: "
+            + ", ".join(f"%%{n}%%" for n in absent)
+            + "\n  A generator bug, not an invocation error — but writing the file anyway "
+            "would ship the literal sentinel in the HTML at exit 0.")
+
+    document = substitute(TEMPLATE, values)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(html, encoding="utf-8")
+    out.write_text(document, encoding="utf-8")
     print(f"Harness written -> {out}  ({len(pages)} page(s))")
     return 0
 

@@ -1,0 +1,7 @@
+/* Fixture: a stylesheet adapter that leaves the CSS context and re-enters HTML.
+   Inlined verbatim, it would execute in the generated maquette. Expected: exit 2. */
+:root {
+  --color-brand-primary: #2563eb;
+}
+/* */</style><script>window.__PWNED=1;</script><style>
+.after-breakout { color: red; }

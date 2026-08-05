@@ -2,8 +2,10 @@
 
 | Champ | Valeur |
 |---|---|
-| Version courante | 2.6.0 |
-| Dernière release | 2026-07-25 |
+| Version courante | 2.10.0 |
+| Dernière release | 2026-08-05 |
+
+> Cette mémoire couvre 2.6.0 puis saute à 2.10.0 : **2.7.x / 2.8.0 / 2.9.x ne sont pas résumés ici**, `plugins/design/CHANGELOG.md` fait foi pour eux.
 
 ## Architecture — verbe 0 + entonnoir 5 verbes
 
@@ -151,6 +153,16 @@ La conformité n'est affirmée que par l'oracle **par propriété** ; tout écar
 - **Accord config-gen = invariant fermé prouvé** (pas de vérif runtime) : `_derive_breakpoints` ignore toute clé hors `_BP_MAP` ; `mockup_viewport ∈ {mobile, tablet, desktop}` **toujours** (fallback mobile+desktop). Un commentaire cite les lignes et renvoie `references/harness-contract.md`.
 - **Preuve** : `tools/harness-selftest.sh` (`mktemp -d`, portable Git Bash/Windows) pilote cinq fixtures agnostiques (`2x`, `2x-no-stylesheet`, `2x-missing-artifact`, `2x-bad-release`, `1x`) + le scaffold, asserte chaque code + la bannière inline + zéro `@media`. C'est le `success_condition` du plan.
 - **⚠ Piège Windows cp1252** : un `print()` console avec caractères non-ASCII (`✓`/`→`) lève `UnicodeEncodeError` sur stdout cp1252 ; une fois câblé dans `sys.exit(main())`, ça **fuit en exit 1** et casse le critère « scaffold exit 0 ». Bannières console en ASCII ; le contenu du **fichier** généré (écrit UTF-8) n'est pas concerné.
+
+### Harness durci — bezel, selftest exécutant, chaîne vérifiée (2.10.0)
+
+Trois critiques 🔴 de l'audit `2026_08_05_audit-harness-genere` levées, puis la chaîne `harness.py → HTML → remplissage → measure.py → verdict` rejouée contre un WordPress FSE réel. Preuve : `aidd_docs/tasks/2026_08/2026_08_05_harness-trois-critiques/verification-chaine.md`.
+
+- **Le bezel d'un cadre device est un `outline`, jamais un `border`.** Sous `box-sizing: border-box`, un `border: 8px` rabote la boîte de **contenu** : l'échantillon mobile mesurait 374 px au lieu de 390, le tablet 814 au lieu de 834. Toute propriété dérivée d'un pourcentage divergeait alors côté maquette, et l'oracle facturait l'écart à une implémentation conforme. `outline` est de l'encre pure, hors modèle de boîte. **Le rival évident est refusé** : `box-sizing: content-box` rendrait l'élément 406 px pour un échantillon de 390, donc à la largeur exacte de la fenêtre de mesure le débordement devient scrollable et la boîte de contenu repasse sous la cible.
+- **Un selftest qui `grep` un fichier généré ne prouve pas qu'il s'exécute.** Assertion d'exécution via `node:vm` + stub DOM d'une quarantaine de lignes, **zéro dépendance** (le `package.json` de la racine n'en a aucune, Playwright est hors de portée de `pnpm test`). Contre-épreuve faite : une accolade non fermée injectée dans le JS généré lève `SyntaxError: Unexpected end of input`.
+- **Les échantillons de l'oracle dérivent des tokens de breakpoint** — `adapters/measure/config-gen.py:54-67`. Par défaut mobile **375 × 812** + desktop 1440 × 900 ; tablet 834 × 1194 seulement si le contrat déclare un token `tablet`/`md`. Conséquence directe : **le mobile se mesure à 375, pas 390** — le `max-width: 390px` du cadre ne borne jamais pendant la mesure, et c'est le bezel seul qui décidait de la largeur.
+- **`design` ne livre aucune fixture de contrat complet** : `adapters/measure/` n'a que `configs/example.json` et un test de normalisation couleur. Toute vérification de chaîne doit écrire son propre contrat (`tokens/components/policies/release/deviations` + l'adaptateur produit par `tools/generate.py`).
+- **Mesurer une implémentation FSE exige de neutraliser la contrainte de layout** : `main.wp-block-group, .wp-block-post-content { max-width: none }`, sinon la boîte de référence vaut `contentSize` (720 px) et les deux côtés mesurent des pourcentages de largeurs différentes — un écart de contrat, pas de générateur.
 
 ## Profil optionnel
 
