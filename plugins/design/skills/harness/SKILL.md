@@ -45,6 +45,15 @@ Et une barre `.preview-bar` (masquée par l'oracle avant la mesure) avec :
 - Sélecteur de pages (dropdown, optgroups supportés)
 - Boutons device : **Desktop** (fluide) · **Tablette** (834 px) · **Mobile** (390 px)
 
+## Actions
+
+Une seule commande, deux modes — le flag `--contract` est le seul discriminant.
+
+| #   | Action            | Rôle                                                                 | Déclencheur |
+| --- | ----------------- | -------------------------------------------------------------------- | ----------- |
+| 01  | `scaffold`        | Écrire le harness HTML autonome pour un jeu de pages (`--pages` / `--pages-json`) | « génère le harness », « crée la maquette de référence », « les pages sont dans ce fichier JSON », « les clés de pages sont des chemins d'URL » |
+| 02  | `contract-inline` | Même sortie, plus la feuille de tokens du contrat figé inlinée (`--contract`) | « couple la maquette au contrat », « que la référence parle les mêmes tokens que le lint » |
+
 ## Paramètres
 
 | Paramètre | Défaut | Description |

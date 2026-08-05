@@ -50,4 +50,6 @@ Le harness rend **trois vues discrètes par classe** — desktop (fluide) · tab
 
 ## Accord measure / oracle — l'ensemble fermé de viewports
 
+Deux valeurs se répondent de part et d'autre de la frontière, sans qu'aucune ne dérive de l'autre : le cadre s'anime en `transition: max-width .4s` (`harness.py:245`) et l'oracle attend `wait_for_timeout(400)` après la bascule (`measure.py:195`). Mesuré le 2026-08-05 : à t=400 ms la largeur mobile est stabilisée à 390 px — la valeur est juste, c'est son implicite qui ne l'était pas. Raccourcir la transition est sans risque ; l'allonger sans toucher à l'attente ferait mesurer un cadre en cours d'animation, silencieusement.
+
 L'oracle de fidélité (`adapters/measure/measure.py`) pose la vraie largeur de contexte par breakpoint **et** bascule la classe du cadre via `setViewport` : les échantillons par classe sont exactement ce que l'oracle pilote déjà. `config-gen.py § _derive_breakpoints` stampe un `mockup_viewport ∈ {desktop, tablet, mobile}` — toute clé `tokens.breakpoint.*` hors de `_BP_MAP` est ignorée (`config-gen.py:110-112`), le nom est pris dans `_BP_MAP` (`:121-122`), et le fallback est mobile+desktop (`:55-56`). L'ensemble est donc **clos par construction**, pas une chose à vérifier au runtime, et il coïncide avec les trois échantillons exposés par le harness.

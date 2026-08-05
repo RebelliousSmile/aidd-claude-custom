@@ -4,6 +4,6 @@
   "type": "module",
   "description": "Scripts de test du marketplace (tools/eval). Pas un paquet publiable.",
   "scripts": {
-    "test": "node tools/eval/consistency.mjs && node tools/eval/harness.mjs && node tools/eval/coverage.mjs && node tools/eval/selftest.mjs"
+    "test": "node tools/eval/consistency.mjs && node tools/eval/harness.mjs && node tools/eval/coverage.mjs && node tools/eval/pivot-map.mjs && node tools/eval/selftest.mjs && node tools/eval/design-harness.mjs"
   }
 }
