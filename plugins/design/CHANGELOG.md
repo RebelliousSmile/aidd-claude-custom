@@ -1,5 +1,27 @@
 # Changelog — design
 
+## [2.10.0] — 2026-08-05
+
+Mineur — **les trois 🔴 de l'audit du harness généré, chacun prouvé par une mesure avant et après, puis la chaîne entière rejouée contre un WordPress FSE réel.** Un audit trois piliers (`ui`, `tests`, `security`) avait rendu trois constats critiques ; les trois portaient sur la même faute de méthode : une propriété affirmée depuis la règle CSS, la présence d'un texte prise pour la preuve qu'il s'exécute, un chemin déclaré lu sans être borné.
+
+### Le bezel du cadre device sort du modèle de boîte
+
+`border` sous `box-sizing: border-box` est **à l'intérieur** de la boîte : le cadre `.preview-frame.mobile` annonçait un échantillon de 390 px et rendait une boîte de contenu de **359 px** à la fenêtre 375 × 812 de l'oracle, **374 px** à fenêtre large ; le tablet, **814 px** au lieu de 834. L'oracle de fidélité compare des chaînes normalisées, sans tolérance : toute valeur dérivée d'un pourcentage de largeur était facturée à une implémentation conforme. Mesuré après correction (`outline`, encre pure hors boîte) : **359 → 375 px** de boîte de contenu au viewport de l'oracle, et `paddingLeft` **17.9375px → 18.75px**, chaîne identique à la référence nue. À fenêtre large, mobile **374 → 390**, tablet **814 → 834** ; `scrollWidth` égal au viewport, aucune barre horizontale introduite. Les marges absorbent le bezel (24+10, 32+8) : l'écart visuel est inchangé. Contre-épreuve : le `border: 8px` réintroduit fait échouer le selftest.
+
+### Le fichier généré est exécuté, plus seulement grepé
+
+Le selftest n'assertait que du texte. Un `<script>` mort — erreur de syntaxe, `pages` non défini — passait ALL GREEN, et le défaut n'apparaissait qu'au navigateur, là où l'oracle appelle `window.setPage`. `tools/harness-runtime-check.mjs` (stdlib seule, `node:fs` + `node:vm`, sortie 0/1) évalue **les deux** scripts du fichier produit, refuse un `<script` porteur d'attributs, exige un `#page-container` non vide après `init()`, la bascule de classe de viewport, `Page introuvable` sur une clé inconnue, et pour chaque clé attendue un contenu non vide avec `select.value` accordé. Contre-épreuve dans un arbre jetable, générateur régressé sur une accolade : `FAIL runtime : script 2 did not evaluate: SyntaxError: Unexpected end of input` → `SELFTEST FAILED exit=1`. Branché sur `pnpm test`.
+
+### Le chemin `--contract` cesse d'accepter n'importe quoi
+
+L'adaptateur stylesheet déclaré était lu puis inliné **verbatim** dans `<style>…</style>`, sans borne ni contrôle. Mesuré contre le générateur d'avant (`7c7997f`) : une `policies.json` déclarant `../2x/adapters/tokens.css` sortait en **0** avec une feuille hors contrat inlinée, et une feuille portant `</style><script>window.__PWNED=1;</script>` sortait en **0** avec la charge présente dans le fichier produit. Le chemin est désormais confiné **avant ouverture** (`relative_to` sous `try/except`, chemins résolus — un répertoire d'artefacts symlinké au-dehors est refusé aussi), et la séquence qui referme le contexte CSS est **refusée, jamais échappée** : `tools/generate.py` ne l'émet jamais, donc le refus n'a pas de faux positif légitime. Les deux cas sortent maintenant en **2**, sans rien écrire — deux fixtures de refus (`2x-artifact-escape`, `2x-style-breakout`) et une garde qui vérifie qu'aucun fichier produit ne porte la charge.
+
+### La chaîne rejouée, pas les fixtures
+
+`harness.py → HTML → remplissage → measure.py → verdict` contre un WordPress FSE réel scaffoldé par `sc-php:setup` (WP 7.0.2, thème custom actif, page publiée). **Même site, même balisage, même contrat : seul le générateur change entre les deux passes.** Le contrat déclare un token `breakpoint.tablet`, donc trois échantillons ont tourné — relevés, pas supposés (`config-gen.py:54-67` n'en pose que deux sans ce token). Avant : `OPEN — 8 unledgered style diff(s)` (mobile 4, tablet 4, desktop 0). Après : **`CLOSED`**, 126 comparaisons appariées sur chacun des trois échantillons. Le verdict desktop est identique entre les deux passes — l'échantillon desktop n'a pas de bezel — et les seuls écarts qui bougent valent exactement le bezel retiré de la boîte : 0.8125 px en mobile (5 % de 16), 1 px en tablet (5 % de 20). Relevé complet : `aidd_docs/tasks/2026_08/2026_08_05_harness-trois-critiques/verification-chaine.md`.
+
+`pnpm test` vert, 31 assertions au selftest du harness.
+
 ## [2.9.1] — 2026-08-05
 
 Correctif — **trois warnings d'une revue de code de 2.9.0, tous de la classe que 2.9.0 prétendait fermer : un état non rendu, une sortie muette, une preuve qui ne tient que là où elle a été écrite.**

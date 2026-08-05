@@ -69,6 +69,16 @@ wp-env l'annonce à chaque démarrage : *« The "env", "testsPort", and "testsEn
 - **`05-wire-deploy` n'a pas été exercé** — il demande des identifiants réels.
 - **La confrontation avec la maquette n'apporterait rien.** Le harness `design:harness` rempli est mesuré vert par ailleurs (5 pages, `setPage`/`setViewport` fonctionnels, largeurs 390 / 834 / desktop fluide conformes). Le passer par `measure.py` contre cette implémentation ne ferait que rhabiller le défaut n° 1, déjà mesuré directement et plus proprement.
 
+  > **Annotation du 2026-08-05 — « largeurs 390 / 834 conformes » était faux.** La ligne
+  > ci-dessus n'a jamais été mesurée ; elle lisait la règle CSS, pas la boîte. Le bezel était
+  > un `border` sous `box-sizing: border-box`, donc **à l'intérieur** de la boîte : à la fenêtre
+  > 375 × 812 de l'oracle, `.preview-frame.mobile` rendait une boîte de contenu de **359 px**,
+  > pas 390 ; à fenêtre large, **374 px** au lieu de 390 et **814 px** au lieu de 834. Ce que la
+  > confrontation avec la maquette aurait apporté est précisément là : rejouée sur un site FSE
+  > réel, elle rend `OPEN — 8 unledgered style diff(s)` avant correctif et `CLOSED` après, à
+  > site et balisage constants (`verification-chaine.md`, dossier `2026_08_05_harness-trois-critiques`).
+  > Le constat n'est pas réécrit : cette phrase reste ce qui a été cru le jour du relevé.
+
 ## Estimation
 
 L'unité coûteuse est le contenu FSE : cinq fichiers de markup de bloc à écrire, plus les entrées `templateParts` correspondantes dans `theme.json`, plus un *Test* d'action qui mesure le rendu et non la version du core. **1 session** pour les défauts 1 et 4 (les deux qui produisent un site inutilisable), **1 session de plus** pour les défauts 2, 3, 5, 6, 7, qui sont des corrections ponctuelles de référence sans dépendance entre elles.
