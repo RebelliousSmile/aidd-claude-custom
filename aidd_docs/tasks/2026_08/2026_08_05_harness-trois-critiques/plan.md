@@ -1,6 +1,6 @@
 ---
 objective: "Le cadre device mesure la largeur qu'il déclare, aucun harness dont le JS est mort ne passe au vert, et un contrat tiers ne peut plus exécuter de JS ni faire entrer un fichier arbitraire dans la maquette."
-status: in-progress
+status: implemented
 ---
 
 # Plan: harness — les trois critiques
