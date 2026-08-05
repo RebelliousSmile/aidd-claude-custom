@@ -1,5 +1,15 @@
 # Changelog — sc-js
 
+## [0.15.3] — 2026-08-05
+
+### Fixed — le corps illustré de `Case A` se lisait comme la liste à reproduire (S8, rouge au run 3)
+
+`sniff/02-install-pivots` posait sa clause de sortie sur le seul **en-tête** — *Pick the header by what actually happened* — et ne disait rien du corps. Le bloc *Case B* voisin, lui, porte `Use this header verbatim`. Le fichier posait donc une norme de copie littérale sur un bloc et **aucune contre-instruction sur l'autre** : un lecteur qui reproduit *Case A* énumère les cibles des tables au lieu de celles qu'il a écrites. C'est le contrôle négatif **S8** de `plugins/sc-tiers/skills/setup/evals/pivot-install-scenarios.md`, laissé délibérément non jugé en 0.3.0 et rendu **FAIL** au run 3 sur les quatre installeurs `sniff`.
+
+- **Marqueur d'exemple** sous chaque famille du bloc : `… one line per target actually processed`.
+- **Contre-instruction** au-dessus du bloc : les blocs sont des *formes, pas des contenus*, et seuls les pivots que le manifeste liste sont traités — un projet détecté Vue SPA + Vite émet deux lignes, `perf-pivots-nuxt.md` et `perf-pivots-sveltekit.md` n'apparaissent **pas même en `skipped`**. C'est ici que le défaut portait le plus loin : **13 cibles** dans les tables, contre 9 pour `sc-python`, 6 pour `sc-php` et 4 pour `sc-rust` — donc le plus grand nombre de lignes à recopier à tort.
+- **Les `(skipped — not applicable)` sont retirés du corps illustré.** Ils contredisaient la règle d'installation du fichier lui-même, qui boucle *For each pivot in the manifeste* : un pivot absent du manifeste ne peut jamais ressortir en `skipped`. Ajouter le marqueur ne suffisait pas — ce que l'exemple **montrait** était faux.
+
 ## [0.15.2] — 2026-08-03
 
 ### Fixed — la liste fermée de `sniff/03-clean` contenait un chemin que le plugin n'a jamais distribué
