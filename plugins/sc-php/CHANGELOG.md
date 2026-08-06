@@ -1,5 +1,91 @@
 # Changelog — sc-php
 
+## [0.11.0] — 2026-08-06
+
+### Added — le modèle de contenu n'appartenait à personne dans la chaîne maquette → site FSE
+
+Trou relevé en routant un cas `mockup-multipage` réel : référence de onze pages, dont deux intitulées
+« Modèle — `<nom au singulier>` », plus leurs deux listes et un formulaire de soumission. Après scaffold,
+`register_post_type` : **zéro occurrence** dans le thème comme dans le plugin. Et rien dans la chaîne ne
+devait en produire.
+
+- **Aucun verbe design ne produit de types de contenu, par construction.** `design` détient le vocabulaire
+  visuel, `design-bridge` le rendu natif ; le modèle de données n'appartient ni à l'un ni à l'autre, et le
+  contrat de pivot a raison de ne pas le lui donner. Les seules mentions de CPT dans `sc-php` étaient
+  **consommatrices** — `builder-coverage` qui scanne `--post_type=…`, `sniff` qui traite les slugs
+  d'enregistrement comme cible de lint. Jamais productrices.
+- **`setup` ne pouvait pas combler le trou** : `02-scaffold-wordpress` s'exécute sur un dossier vide, avant
+  que la référence n'existe. Son squelette est figé à trois templates génériques et un `includes/` vide.
+- **Nouvelle phase `off-funnel` *Établir le modèle de contenu*** dans `workflow-fse.md`, entre la
+  préparation de l'environnement et l'enforcement natif. Le squelette du contrat l'autorisait déjà — le
+  pivot ajoute ses phases `off-funnel` (`sc-pivot-contract.md § Déclaration de phase`) ; aucune extension
+  du contrat n'a été nécessaire, et aucun gate nouveau n'est introduit.
+- **`references/content-model-fse.md`** porte le COMMENT : trois signatures qui distinguent un spécimen
+  d'une page (page « Modèle — X », liste de cartes homogènes, page de soumission), la règle de preuve — un
+  type se prouve par au moins deux vues, une page unique n'est jamais un type —, l'enregistrement dans le
+  plugin et jamais dans le thème (un CPT enregistré par le thème rend son contenu inatteignable au
+  changement de thème), les paramètres non facultatifs en FSE (`show_in_rest`, `has_archive`, `supports`
+  énuméré, `rewrite['slug']` pris sur la référence, `register_post_meta`, régénération des règles de
+  réécriture hors de `init`), les templates dérivés, et une vérification à contre-épreuve.
+- **Le mode de défaillance est nommé parce qu'il est invisible** : sans `single-<type>.html`, la hiérarchie
+  sert `single.html`. Ni le code HTTP, ni la présence de `wp-site-blocks`, ni l'absence d'erreur ne
+  distinguent ce cas du cas nominal. D'où l'étape 4 de la vérification — retirer le template et rejouer :
+  la réponse doit rester 200 et le marqueur disparaître. Sans cette bascule, l'étape précédente n'atteste
+  que la disponibilité du site. Même motif que le `wp core version` de 0.10.3.
+
+### Fixed — `02-render` livrait des patterns que rien ne posait
+
+Même motif que le trou du modèle de contenu, relevé en remontant la chaîne : la chaîne produit un artefact
+et personne ne l'intègre. `02-render` écrivait `patterns/<name>.html` puis passait au gate. Or un pattern
+enregistré n'est rendu nulle part — il entre dans l'inserteur, et c'est tout. Le gate de vocabulaire linte
+le fichier du pattern et sort vert ; le gate de fidélité mesure des templates qui ne le contiennent pas et
+sort vert. Deux verts, site inchangé.
+
+L'ancienne étape 5 ne couvrait que le cas d'un pattern **déjà en base** à re-propager, via « le script
+d'import du projet » — qui n'existe pas sur un projet neuf. Le cas de la première pose n'était traité nulle
+part, et le spec de rendu ne pouvait pas le porter : son `Render target` nomme un langage et un répertoire
+de sortie, jamais un point d'insertion, et `03-pivot` a interdiction de transporter des contraintes de
+plateforme. Le placement appartenait donc à ce réceptacle, qui ne le réclamait pas.
+
+- **Étape 5 — Poser le pattern**, avec trois destinations exclusives : référence `wp:pattern` dans un
+  template, copie dans `post_content`, ou **aucune assumée**. La troisième est un statut déclaré
+  (`posé: non — brique d'auteur`), jamais un silence : sans elle, un pattern oublié et un pattern
+  délibérément non posé laissent la même trace. La propagation devient l'étape 6.
+- **Ligne `Posé dans :` dans la sortie attendue**, avec le marqueur qui le prouve. Un `patterns/` peuplé
+  n'est pas une preuve de pose.
+- **Piège 2 étendu aux templates** : un template sauvegardé depuis l'éditeur de site est copié en base
+  (`wp_template`) et cette copie **prend le pas sur le fichier du thème**, pattern aplati compris. Le
+  fichier corrigé ensuite ne change plus rien à l'écran, sans erreur ni avertissement — le diagnostic est
+  une question (ce template existe-t-il en base ?), pas une inspection du fichier.
+
+### Fixed — « énumérer tous les templates du thème » rendait vert sur un dénominateur amputé
+
+Le § *Périmètre de mesure* de `workflow-fse.md` et le piège 10 de `wordpress-pitfalls.md` traitaient déjà
+`single-<cpt>.html` et `archive*.html` comme un trou d'**oracle** : un template sans config est un manque
+déclaré. Ils ne couvraient pas le cran au-dessus — un template **qui n'existe pas** ne manque pas à
+l'énumération. Trois templates génériques énumérés, trois mesurés, trois verts, et les vues des types que
+la référence implique hors du dénominateur : la règle rendait exacte une couverture complète d'un thème
+incomplet.
+
+- **Règle d'antériorité** ajoutée au § *Périmètre de mesure* : l'énumération n'est recevable qu'après la
+  phase de modèle de contenu, et chaque type de l'inventaire doit y avoir ses lignes — `measured` ou
+  `unmeasured(<raison>)`. Un inventaire sans lignes correspondantes invalide le bilan aussi sûrement qu'un
+  template sans ligne.
+- **Piège 10 étendu** : la distinction manque de mesure / manque de production est écrite, avec sa
+  résolution — la phase, jamais une config d'oracle supplémentaire.
+- **`theme-plugin-skeleton.md` et `02-scaffold-wordpress.md` énoncent leur propre limite.** `includes/`
+  vide et trois templates génériques se lisaient comme un état complet ; l'action prescrit désormais de
+  dire ce qu'elle ne fait pas et où la suite se traite.
+
+## [0.10.4] — 2026-08-06
+
+### Fixed — le garde `COMPOSE_PROJECT_NAME` produisait un nom qui ne nommait pas le projet
+
+Défaut relevé en exécutant `setup` contre un projet déjà scaffoldé (`arbre-de-jade/_code`), puis corrigé et rejoué.
+
+- **Un dossier feuille générique rendait un nom Compose partagé.** La dérivation ne lisait que `Split-Path -Leaf`, donc `arbre-de-jade/_code` rendait `COMPOSE_PROJECT_NAME=code`. **Mesuré** : `docker volume ls` montrait déjà un `code_webpool_pgdata` appartenant à un projet sans rapport — deux projets sur le même nom, donc sur les mêmes conteneurs et volumes. La référence assumait pourtant l'absence d'anti-collision comme un choix (« peu de projets en parallèle ») : le choix était faux dès qu'un `_code` est en jeu, et ce motif est justement celui des projets de ce terrain. `Get-SafeComposeProjectName` porte désormais une liste `$genericNames` (`code`, `src`, `app`, `www`, `web`, `site`, `public`, `project`, `workspace`) ; quand le dossier feuille y figure, le parent le préfixe — `arbre-de-jade-code`. Rejoué : nom distinct, conteneurs et volumes séparés. Pas de hash : le nom reste lisible dans `docker ps`.
+- **Le coût de la bascule n'était documenté nulle part.** Changer la dérivation sur un projet déjà démarré crée des volumes neufs et laisse les anciens orphelins — attendu. Ce qui ne l'est pas : le cache wp-env est indexé sur le **chemin** (`~/.wp-env/<hash>`), pas sur le nom Compose, donc il tient l'installation pour déjà faite et wp-cli rend `The site you have requested is not installed. Run 'wp core install'` sur une base vide. **Mesuré**, puis levé par `wp-env start --update`. La séquence de bascule (stop sous l'ancien nom → modifier les trois scripts → `start --update` → réactiver le thème) est écrite dans la référence, avec la mention que les volumes orphelins se suppriment à la main et jamais automatiquement.
+
 ## [0.10.3] — 2026-08-05
 
 ### Fixed — le scaffold WordPress de `setup` produisait un site blanc, et son test ne pouvait pas le voir

@@ -19,8 +19,9 @@ Instancie les classes de cas agnostiques de `design:detail` sur un thème de blo
 | Phase | input | output | verbe |
 |---|---|---|---|
 | Préparer l'environnement mesurable | contrat figé + runtime conteneurisé ; référence pas encore servie | instance servie, mesurable par l'oracle (précondition `harness`) | `off-funnel` |
+| Établir le modèle de contenu | inventaire des pages de la référence + arborescence du thème scaffoldé | types et taxonomies enregistrés dans le plugin + templates de vue correspondants dans le thème (`references/content-model-fse.md`) | `off-funnel` |
 | Enforcement natif | spec d'enforcement + preuve (markup de blocs, contenu stocké extrait) | linter PHP/WP idiomatique câblé + rapport de pivot | `enforce` |
-| Rendu natif | spec de rendu (composant neutre + variantes) | block pattern + `theme.json` conformes au contrat | `diffuse` |
+| Rendu natif | spec de rendu (composant neutre + variantes) | block pattern + `theme.json` conformes au contrat, **posés** dans une vue ou déclarés non posés | `diffuse` |
 | Importer le contenu | patterns rendus, instances de référence | instances en base | `off-funnel` |
 | Déployer et recetter | instances vérifiées | cible livrée, recette passée | `off-funnel` |
 
@@ -39,6 +40,13 @@ Point d'application : le gate vocabulaire après la phase d'enforcement, le gate
 La référence d'une maquette est un ensemble de pages ; la plateforme, elle, rend des **templates**. Les
 deux ensembles ne coïncident pas : `single*`, `archive*`, les templates de taxonomie et `404` n'ont
 généralement aucun fichier de maquette correspondant.
+
+**Antériorité.** L'énumération n'est recevable qu'après la phase *Établir le modèle de contenu*. Un thème
+scaffoldé porte trois templates génériques ; énumérés avant, ils rendent une couverture **complète d'un
+thème incomplet** — tous mesurés, tous verts, et les vues des types de contenu absentes du dénominateur.
+Le contrôle : chaque type de l'inventaire de contenu doit avoir ses lignes dans l'énumération, `measured`
+ou `unmeasured(<raison>)`. Un inventaire sans lignes correspondantes invalide le bilan aussi sûrement
+qu'un template sans ligne.
 
 Règle : le périmètre de mesure **énumère tous les templates du thème**, pas les pages de la maquette.
 Pour chacun, l'un des deux statuts, écrit :

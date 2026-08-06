@@ -82,11 +82,18 @@ Routes (par ordre de préférence) :
 
 Ce pivot **possède** le workflow de plateforme FSE : `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/workflow-fse.md`. Il instancie les classes de cas agnostiques de `design:detail` sur un thème de blocs, sous le squelette figé par `sc-pivot-contract.md § Workflow de plateforme`. `design:detail/02-route` l'étend à la classe quand ce pivot est installé et la stack correspond.
 
+### Modèle de contenu — hors contrat, dans le workflow
+
+Aucun verbe design ne produit de types de contenu : le contrat porte le vocabulaire visuel, jamais le modèle de données. Sur block theme, la phase `off-funnel` *Établir le modèle de contenu* comble ce trou, avant le rendu natif et avant toute énumération du périmètre de mesure — `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/content-model-fse.md`.
+
+Symptôme quand elle est sautée : `02-render` pose ses patterns dans les templates génériques du scaffold, et le bilan de fidélité rend un vert complet sur un thème qui ne porte aucune vue des types que la référence implique.
+
 ## Références
 
 - `plugins/design/references/sc-pivot-contract.md` — format des specs reçus et squelette de workflow de plateforme
 - `plugins/design/references/gate-config-schema.md` — format du rapport à écrire
 - `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/workflow-fse.md` — workflow de plateforme FSE (classes de cas instanciées sur block theme)
+- `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/content-model-fse.md` — dérivation du modèle de contenu depuis la référence (phase `off-funnel`)
 - `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md` — pièges WP
 - `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-lint-instances.md` — réalisation des règles `stored-content` (extraction du contenu en base)
 - `plugins/design/references/token-schema.md` — structure tokens.json

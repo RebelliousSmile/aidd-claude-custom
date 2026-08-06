@@ -134,7 +134,41 @@ Un échec ici n'est **jamais** absorbable par le registre de déviations : le le
 *au contrat*, pas un défaut d'accessibilité. Si la maquette est la source du défaut, corriger des deux
 côtés (piège 9).
 
-## Étape 5 — Propagation (si pattern existant mis à jour)
+## Étape 5 — Poser le pattern
+
+Un pattern enregistré n'est **rendu nulle part**. Il entre dans l'inserteur de l'éditeur, et c'est tout :
+aucune page ne le contient tant qu'il n'a pas été posé. Le gate de vocabulaire linte le fichier du pattern
+et sort vert ; le gate de fidélité mesure des templates qui ne le contiennent pas et sort vert. Deux verts,
+site inchangé — le rendu est livré et invisible.
+
+Le spec de rendu ne porte pas cette information : son `Render target` nomme un langage et un répertoire de
+sortie, jamais un point d'insertion, et le contrat interdit à `03-pivot` de transporter des contraintes de
+plateforme. Le placement appartient donc à ce réceptacle.
+
+Trois destinations, une seule à choisir, **écrite** :
+
+| Destination | Forme | Quand |
+|---|---|---|
+| Template du thème | `<!-- wp:pattern {"slug":"<prefix>/<canonical-name>"} /-->` dans `templates/*.html` ou `parts/*.html` | la section appartient à une vue, pas à une page |
+| Contenu en base | markup du pattern copié dans `post_content` | la section appartient à une page éditée |
+| Aucune, assumée | — | brique d'auteur destinée à l'insertion manuelle |
+
+La troisième est un **statut déclaré**, jamais un silence : `posé: non — brique d'auteur`. Sans elle, un
+pattern oublié et un pattern délibérément non posé laissent la même trace, et le bilan ne peut que les
+confondre.
+
+Deux conséquences à connaître avant de choisir :
+
+- L'insertion par `wp:pattern` dans un **fichier** de thème est résolue au rendu : le contenu suit la
+  source. L'insertion par copie ne suit rien (piège 2).
+- Dès qu'un template est sauvegardé depuis l'éditeur de site, WordPress en écrit une copie en base qui
+  **prend le pas sur le fichier du thème**, pattern aplati compris. Le fichier corrigé ensuite ne change
+  plus rien à l'écran. C'est le piège 2 appliqué aux templates.
+
+Vérification : charger la vue qui doit porter le pattern et y trouver un marqueur du markup produit. Un
+`patterns/` peuplé n'est pas une preuve de pose.
+
+## Étape 6 — Propagation (si pattern existant mis à jour)
 
 Si le pattern existait déjà en DB, relancer le script d'import du projet pour propager :
 
@@ -150,6 +184,7 @@ Puis relancer `design:enforce/03-lint-instances` pour vérifier les instances en
 > Block pattern WP produit : `patterns/<canonical-name>.html`
 > Variantes : <liste>
 > theme.json : <mis à jour / aucune modification>
+> Posé dans : <template ou page, et le marqueur qui le prouve> · ou `non — brique d'auteur`
 > Gate enforce : vert (exit 0)
 > Gates absolus : contraste <ratio min> · spécificité <0 conflit / N conflits>
 > Couverture : mesuré = <liste> · non mesuré = <liste + raison>

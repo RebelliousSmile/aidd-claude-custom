@@ -31,6 +31,15 @@ Si ces classes ne sont pas dans le manifeste, `lint-core.mjs` les signale comme 
 
 **Lint** : linter le pattern source ET au moins une page qui l'utilise pour vérifier la propagation.
 
+**Même mécanique sur les templates** : dès qu'un template est sauvegardé depuis l'éditeur de site,
+WordPress en écrit une copie en base (`wp_template`) qui **prend le pas sur le fichier du thème** —
+pattern inséré aplati compris. Le fichier corrigé ensuite ne change plus rien à l'écran, sans erreur ni
+avertissement. Le diagnostic est une question, pas une inspection du fichier : ce template existe-t-il en
+base ?
+
+**En amont des deux** : un pattern qui n'a jamais été posé n'a rien à propager. Voir `02-render`
+§ Étape 5 — la pose est une étape, et « non posé » un statut à déclarer.
+
 ---
 
 ## Piège 3 : `wp eval-file` deprecated en PHP 8.2
@@ -148,3 +157,10 @@ intégré ». Deux règles :
    un **manque déclaré** (avec sa raison), jamais un `extra` implicite.
 2. Tout bilan de gates publie sa **couverture** — ce qui est mesuré *et* ce qui ne l'est pas — avant son
    verdict. Un verdict sans couverture n'est pas recevable comme preuve de complétude.
+
+Cran au-dessus, et c'est le cas le plus dur à voir : un template **qui n'existe pas** ne manque même pas à
+l'énumération. Un thème scaffoldé porte trois templates génériques ; si les types de contenu que la
+référence implique n'ont jamais été enregistrés, l'énumération est exacte, complète, verte — sur un
+dénominateur amputé. Ce n'est pas un manque de mesure, c'est un manque de production : il se ferme par la
+phase *Établir le modèle de contenu* (`content-model-fse.md`), jamais par une config d'oracle
+supplémentaire.

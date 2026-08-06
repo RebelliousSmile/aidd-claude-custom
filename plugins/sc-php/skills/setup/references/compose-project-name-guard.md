@@ -2,6 +2,10 @@
 
 Contenu à écrire dans `scripts/start.ps1` et `scripts/stop.ps1` du projet scaffoldé. Ce garde-fou est partagé par les trois flows de scaffold (`scaffold-wordpress`, `scaffold-laravel`, `scaffold-symfony`) — copier-coller identique, seule la commande lancée en bas du script change (`wp-env start` vs `docker compose up -d`).
 
+**Un nom de dossier générique ne nomme pas un projet.** Dériver du seul dossier feuille suffit tant que ce dossier est distinctif ; il ne l'est pas quand le code vit sous un `_code`, `src`, `www`… **Mesuré** : un projet en `arbre-de-jade/_code` a rendu `COMPOSE_PROJECT_NAME=code`, et `docker volume ls` montrait déjà un `code_webpool_pgdata` appartenant à un projet sans rapport — deux projets sur le même nom Compose, donc sur les mêmes conteneurs et volumes. D'où la liste `$genericNames` : quand le dossier feuille y figure, le parent le préfixe (`arbre-de-jade-code`). Aucun hash : le résultat reste lisible dans `docker ps`.
+
+⚠ **Changer la dérivation sur un projet déjà démarré crée un environnement neuf.** Le nom Compose détermine les volumes ; l'ancien jeu (`code_mysql`…) survit orphelin et la nouvelle base est vide. Le cache wp-env, lui, est indexé sur le **chemin** (`~/.wp-env/<hash>`), pas sur le nom Compose : il croit l'installation déjà faite et wp-cli rend `The site you have requested is not installed`. Séquence correcte : `stop.ps1` sous l'ancien nom → modifier les trois scripts → `wp-env start --update` (le `--update` nu ne suffit pas toujours ; c'est lui qui réinstalle) → réactiver le thème. Les volumes orphelins se suppriment à la main, jamais automatiquement.
+
 **Deux choses sont dérivées, pas une.** Le nom de projet vient du dossier ; le **répertoire d'exécution** doit l'être aussi. wp-env comme Docker Compose résolvent le projet depuis le répertoire **courant**, jamais depuis l'emplacement du script : un script lancé par son chemin absolu depuis ailleurs pose le bon `COMPOSE_PROJECT_NAME` et cible quand même le vide. **Mesuré** : `& <racine>/scripts/stop.ps1` depuis un dossier tiers rend `Environment not initialized. Run wp-env start first.` avec les trois conteneurs up ; la même ligne depuis la racine du projet rend `Stopped WordPress.` — seule différence, le répertoire courant. Variante Compose, mesurée : `docker compose down` hors racine rend `no configuration file provided: not found`, exit 1. D'où le `Push-Location $ProjectRoot` de chacun des trois scripts, et le `finally` qui rend la main au répertoire de l'appelant (les scripts sont aussi lancés avec `&` depuis une session ouverte, pas seulement par `powershell -File`).
 
 ## `scripts/start.ps1`
@@ -17,22 +21,35 @@ function Get-SafeComposeProjectName {
         [string]$ProjectRoot
     )
 
-    # Nom du dossier projet uniquement (pas le chemin complet) => déterministe.
-    $folderName = Split-Path -Leaf $ProjectRoot
-
     # Minuscules, puis tout caractère hors [a-z0-9-] (y compris "_") devient "-".
     # Un underscore adjacent à un tiret ("-_") devient donc "--", jamais la
     # séquence interdite d'origine — cf. references/pitfalls.md #1.
-    $safeName = $folderName.ToLower() -replace '[^a-z0-9-]', '-'
+    # Les tirets consécutifs sont ensuite collapsés et les tirets de bord retirés.
+    function Format-Segment {
+        param([string]$Segment)
+        $v = $Segment.ToLower() -replace '[^a-z0-9-]', '-'
+        return ($v -replace '-{2,}', '-' -replace '^-+|-+$', '')
+    }
 
-    # Collapse les tirets consécutifs et retire les tirets de bord.
-    $safeName = $safeName -replace '-{2,}', '-' -replace '^-+|-+$', ''
+    # Noms de dossier trop courants pour identifier un projet : deux projets sans
+    # rapport logés dans un "_code" produiraient le même COMPOSE_PROJECT_NAME et
+    # se partageraient conteneurs et volumes. Dans ce cas, le dossier parent
+    # préfixe le nom — "arbre-de-jade/_code" => "arbre-de-jade-code".
+    $genericNames = @('code', 'src', 'app', 'www', 'web', 'site', 'public', 'project', 'workspace')
+
+    # Nom du dossier projet uniquement (pas le chemin complet) => déterministe.
+    $safeName = Format-Segment (Split-Path -Leaf $ProjectRoot)
+
+    if ($genericNames -contains $safeName) {
+        $safeParent = Format-Segment (Split-Path -Leaf (Split-Path -Parent $ProjectRoot))
+        if ($safeParent) { $safeName = "$safeParent-$safeName" }
+    }
 
     return $safeName
 
-    # Choix assumé : pas de hash anti-collision (peu de projets en parallèle).
-    # Deux dossiers proches après assainissement (ex: "mon-projet" et
-    # "mon_projet") produiront le même nom — accepté, pas un bug.
+    # Choix assumé : pas de hash anti-collision au-delà de ce préfixe. Deux dossiers
+    # proches après assainissement (ex: "mon-projet" et "mon_projet") produiront le
+    # même nom — accepté, pas un bug.
 }
 
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
@@ -66,9 +83,21 @@ function Get-SafeComposeProjectName {
 
     # IDENTIQUE à la fonction dans start.ps1 — copier-coller exact,
     # sinon stop.ps1 cible un projet Docker Compose différent de celui démarré.
-    $folderName = Split-Path -Leaf $ProjectRoot
-    $safeName = $folderName.ToLower() -replace '[^a-z0-9-]', '-'
-    $safeName = $safeName -replace '-{2,}', '-' -replace '^-+|-+$', ''
+    function Format-Segment {
+        param([string]$Segment)
+        $v = $Segment.ToLower() -replace '[^a-z0-9-]', '-'
+        return ($v -replace '-{2,}', '-' -replace '^-+|-+$', '')
+    }
+
+    $genericNames = @('code', 'src', 'app', 'www', 'web', 'site', 'public', 'project', 'workspace')
+
+    $safeName = Format-Segment (Split-Path -Leaf $ProjectRoot)
+
+    if ($genericNames -contains $safeName) {
+        $safeParent = Format-Segment (Split-Path -Leaf (Split-Path -Parent $ProjectRoot))
+        if ($safeParent) { $safeName = "$safeParent-$safeName" }
+    }
+
     return $safeName
 }
 
@@ -101,9 +130,21 @@ function Get-SafeComposeProjectName {
     )
 
     # IDENTIQUE aux fonctions de start.ps1 / stop.ps1.
-    $folderName = Split-Path -Leaf $ProjectRoot
-    $safeName = $folderName.ToLower() -replace '[^a-z0-9-]', '-'
-    $safeName = $safeName -replace '-{2,}', '-' -replace '^-+|-+$', ''
+    function Format-Segment {
+        param([string]$Segment)
+        $v = $Segment.ToLower() -replace '[^a-z0-9-]', '-'
+        return ($v -replace '-{2,}', '-' -replace '^-+|-+$', '')
+    }
+
+    $genericNames = @('code', 'src', 'app', 'www', 'web', 'site', 'public', 'project', 'workspace')
+
+    $safeName = Format-Segment (Split-Path -Leaf $ProjectRoot)
+
+    if ($genericNames -contains $safeName) {
+        $safeParent = Format-Segment (Split-Path -Leaf (Split-Path -Parent $ProjectRoot))
+        if ($safeParent) { $safeName = "$safeParent-$safeName" }
+    }
+
     return $safeName
 }
 

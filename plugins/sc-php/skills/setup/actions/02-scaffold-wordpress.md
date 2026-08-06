@@ -17,7 +17,8 @@ Scaffold un projet WordPress FSE + Docker/wp-env depuis zéro.
 5. Écrire un `.gitignore` couvrant au minimum : `node_modules/`, `wp-content/uploads/`, `dump.sql`.
 6. Ne PAS lancer `wp-env start` automatiquement — le confirmer à l'utilisateur, il choisit quand démarrer les conteneurs.
 7. Rappeler explicitement la règle wp-cli (`references/pitfalls.md` #3) : toujours par `pnpm wp <commande>`, jamais un binaire local — et jamais `pnpm dlx @wordpress/env run cli wp` nu, qui perd le garde `COMPOSE_PROJECT_NAME` et rend `service "cli" is not running` alors que les conteneurs tournent.
-8. **Prescrire l'activation du thème comme première commande après le démarrage** : `pnpm wp theme activate {{THEME_SLUG}}`. Rien ne l'active à la place — `WP_DEFAULT_THEME` ne s'applique qu'à l'installation, que wp-env a déjà faite (voir `references/wp-env-json.md`). Sans cette commande, le site sert le thème par défaut du core, et le thème scaffoldé n'est jamais exercé.
+8. **Énoncer ce que le scaffold ne fait pas** : aucun type de contenu n'est enregistré, et aucun ne peut l'être ici — cette action tourne sur un dossier vide, avant la référence. Si le projet part d'une maquette, dire explicitement que le modèle de contenu se dérive ensuite (`sc-php:design-bridge`, `references/content-model-fse.md`), avant tout rendu de patterns. Sans cet énoncé, `includes/` vide et trois templates génériques se lisent comme un état complet.
+9. **Prescrire l'activation du thème comme première commande après le démarrage** : `pnpm wp theme activate {{THEME_SLUG}}`. Rien ne l'active à la place — `WP_DEFAULT_THEME` ne s'applique qu'à l'installation, que wp-env a déjà faite (voir `references/wp-env-json.md`). Sans cette commande, le site sert le thème par défaut du core, et le thème scaffoldé n'est jamais exercé.
 
 ## Outputs
 
