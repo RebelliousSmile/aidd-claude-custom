@@ -88,7 +88,7 @@ Codes de sortie — l'espace **0 / 2 / 3 vaut pour tout le programme**, pas seul
 | Jeu de pages invalide (clé vide, dupliquée, collision de fonction, clé non-slug) | 2 — nomme les clés |
 | Aucune page définie | 2 |
 
-Détail du couplage, option C et accord measure/oracle : `references/harness-contract.md`.
+Détail du couplage, option C et accord measure/oracle : `${CLAUDE_PLUGIN_ROOT}/references/harness-contract.md`.
 
 ### Exemple — invocation minimale
 
@@ -160,6 +160,18 @@ function pageAccueil() {
 
 Le HTML retourné est injecté dans `#page-container`. **Ne pas** inclure `<html>/<head>/<body>` ni `<style>` global dans la fonction — les styles vont dans le `<style>` du `<head>`.
 
+### Clé de page — trois branches, un seul ensemble
+
+Une clé de page est écrite **trois fois** : dans le registre `const pages`, dans le `value` de son `<option>`, et dans le `reference_page` de la config d'oracle. Trois auteurs différents (le générateur, l'humain ou le LLM qui remplit, `config-gen.py`) et rien qui les réconcilie : renommée dans une branche seule, la page devient injoignable depuis le sélecteur, ou l'oracle mesure un vide — sans erreur, sans rouge.
+
+Le contrôle est machine, et il s'exécute sur un fichier **rempli** aussi bien que sur un scaffold :
+
+```bash
+node tools/harness-runtime-check.mjs <fichier.html> [--oracle-config <config.json>]
+```
+
+Registre ↔ `<option>` sont comparés à chaque appel ; la troisième branche n'est vérifiée que si `--oracle-config` est fourni (`reference_page: null` est la valeur déclarée « pas de clé SPA », pas un défaut). Le scan lit le HTML **débarrassé de ses commentaires** : le cadrage LLM en tête du fichier cite du markup, et un scan qui le lirait naîtrait rouge sur tout fichier conforme.
+
 ### Invariants oracle
 
 - Sélecteurs **stables et sémantiques** (BEM : `.hero__title`, `.card__price`) — l'oracle mesure par sélecteur CSS. Ne pas renommer entre pages.
@@ -176,7 +188,7 @@ Le HTML retourné est injecté dans `#page-container`. **Ne pas** inclure `<html
 
 ## Références
 
-- `references/harness-contract.md` — couplage `--contract`, option C, espace de codes de sortie, échantillons device, accord measure/oracle
+- `${CLAUDE_PLUGIN_ROOT}/references/harness-contract.md` — couplage `--contract`, option C, espace de codes de sortie, échantillons device, accord measure/oracle
 - `adapters/harness/harness.py` — générateur (stdlib Python uniquement, aucune dépendance)
 - `adapters/measure/measure.py` — oracle de fidélité (pilote `setPage` / `setViewport`)
 - `agents/copycat.md` — agent de réconciliation maquette→contrat

@@ -15,12 +15,12 @@ Instancie les classes de cas agnostiques de `design:detail` sur une cible sans r
 
 ## Phases
 
-| Phase | input | output | verbe |
-|---|---|---|---|
-| Servir la référence | contrat figé ; référence pas encore servie | page servie, mesurable par l'oracle (précondition `harness`) | `off-funnel` |
-| Enforcement natif | spec d'enforcement portant des règles de type `stylesheet` | vérification native des feuilles chargées + rapport de pivot | `enforce` |
-| Rendu natif | `tokens.json` + `components.json` | `tokens.css` (`:root`) + feuilles BEM par composant, sous cascade layers | `diffuse` |
-| Déployer et recetter | feuilles vérifiées | cible livrée, recette passée | `off-funnel` |
+| Phase | input | output | verbe | position |
+|---|---|---|---|---|
+| Servir la référence | contrat figé ; référence pas encore servie | page servie, mesurable par l'oracle (précondition `harness`) | `off-funnel` | `avant define` |
+| Enforcement natif | spec d'enforcement portant des règles de type `stylesheet` | vérification native des feuilles chargées + rapport de pivot | `enforce` | `—` |
+| Rendu natif | `tokens.json` + `components.json` | `tokens.css` (`:root`) + feuilles BEM par composant, sous cascade layers | `diffuse` | `—` |
+| Déployer et recetter | feuilles vérifiées | cible livrée, recette passée | `off-funnel` | `fin` |
 
 ## Gates
 

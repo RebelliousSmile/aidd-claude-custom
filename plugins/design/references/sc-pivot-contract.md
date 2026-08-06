@@ -187,11 +187,18 @@ Ces cinq chaînes sont un **jeton d'interface** : `design:detail/02-route` les a
 
 ### Déclaration de phase
 
-Sous `## Phases`, chaque phase déclare trois champs :
+Sous `## Phases`, chaque phase déclare quatre champs :
 
 - **input** — ce que la phase consomme ;
 - **output** — ce qu'elle produit ;
-- **verbe** — le verbe design qu'elle instancie (`define`, `destructure`, `adjust`, `enforce`, `diffuse`), ou **`off-funnel`** quand elle n'en instancie aucun (préparation d'environnement, déploiement, recette de production).
+- **verbe** — le verbe design qu'elle instancie (`define`, `destructure`, `adjust`, `enforce`, `diffuse`), ou **`off-funnel`** quand elle n'en instancie aucun ;
+- **position** — où la phase s'insère dans la séquence de la classe. Trois formes, et seulement trois : `avant <verbe>`, `après <verbe>`, `fin`.
+
+Une phase qui instancie un verbe prend la place de ce verbe : sa position est déterminée, le champ vaut `—`. Le champ est **requis pour toute phase `off-funnel`**, dont rien d'autre ne dit où elle tombe.
+
+Une position se lit **contre la séquence de la classe résolue**, pas contre la liste des cinq verbes. Toute classe n'appelle pas tous les verbes : quand le verbe ancre est absent de la séquence, la phase est **omise, et l'omission est énoncée** — jamais rapprochée du verbe le plus proche.
+
+Sans ce champ, la fusion des deux listes — la séquence de verbes de la classe et la table `## Phases` du pivot — est interprétée, pas dérivée : deux lecteurs produisent deux ordres différents, tous deux défendables, et la contrainte réelle reste en prose dans une référence du pivot que le consommateur du contrat n'ouvre pas.
 
 ### Règle des capabilities
 

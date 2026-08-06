@@ -16,14 +16,18 @@ Instancie les classes de cas agnostiques de `design:detail` sur un thème de blo
 
 ## Phases
 
-| Phase | input | output | verbe |
-|---|---|---|---|
-| Préparer l'environnement mesurable | contrat figé + runtime conteneurisé ; référence pas encore servie | instance servie, mesurable par l'oracle (précondition `harness`) | `off-funnel` |
-| Établir le modèle de contenu | inventaire des pages de la référence + arborescence du thème scaffoldé | types et taxonomies enregistrés dans le plugin + templates de vue correspondants dans le thème (`references/content-model-fse.md`) | `off-funnel` |
-| Enforcement natif | spec d'enforcement + preuve (markup de blocs, contenu stocké extrait) | linter PHP/WP idiomatique câblé + rapport de pivot | `enforce` |
-| Rendu natif | spec de rendu (composant neutre + variantes) | block pattern + `theme.json` conformes au contrat, **posés** dans une vue ou déclarés non posés | `diffuse` |
-| Importer le contenu | patterns rendus, instances de référence | instances en base | `off-funnel` |
-| Déployer et recetter | instances vérifiées | cible livrée, recette passée | `off-funnel` |
+| Phase | input | output | verbe | position |
+|---|---|---|---|---|
+| Préparer l'environnement mesurable | contrat figé + runtime conteneurisé ; référence pas encore servie | instance servie, mesurable par l'oracle (précondition `harness`) | `off-funnel` | `avant define` |
+| Établir le modèle de contenu | inventaire des pages de la référence + arborescence du thème scaffoldé | types et taxonomies enregistrés dans le plugin + templates de vue correspondants dans le thème (`references/content-model-fse.md`) | `off-funnel` | `avant enforce` |
+| Enforcement natif | spec d'enforcement + preuve (markup de blocs, contenu stocké extrait) | linter PHP/WP idiomatique câblé + rapport de pivot | `enforce` | `—` |
+| Rendu natif | spec de rendu (composant neutre + variantes) | block pattern + `theme.json` conformes au contrat, **posés** dans une vue ou déclarés non posés | `diffuse` | `—` |
+| Importer le contenu | patterns rendus, instances de référence | instances en base | `off-funnel` | `après diffuse` |
+| Déployer et recetter | instances vérifiées | cible livrée, recette passée | `off-funnel` | `fin` |
+
+*Établir le modèle de contenu* est posée **avant `enforce`** et non avant `diffuse` : les vues des types
+sont ce que le gate vocabulaire linte et ce que le périmètre de mesure énumère (§ Périmètre de mesure —
+Antériorité). Placée plus tard, elle laisse les deux gates verts sur un dénominateur amputé.
 
 ## Gates
 

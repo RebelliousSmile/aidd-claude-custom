@@ -6,7 +6,7 @@ Déclarées une seule fois ici ; `02-route` les lit, aucun autre fichier ne les 
 
 `harness` n'est pas une classe : c'est la **précondition** de toute classe dont la référence n'existe pas encore comme artefact mesurable. `route` l'énonce comme précondition de `mockup-multipage`, jamais comme une étape.
 
-**Extension par un workflow de plateforme.** Chaque classe est agnostique. Quand le pivot correspondant est installé et la stack correspond, son workflow de plateforme (`sc-pivot-contract.md § Workflow de plateforme`) **étend** la classe : il instancie nativement les phases `enforce` et `diffuse` et ajoute ses phases `off-funnel` (environnement, déploiement, recette). Pivot absent ou stack non correspondante → la classe seule, l'absence énoncée. La règle de résolution est portée par `02-route`.
+**Extension par un workflow de plateforme.** Chaque classe est agnostique. Quand le pivot correspondant est installé et la stack correspond, son workflow de plateforme (`sc-pivot-contract.md § Workflow de plateforme`) **étend** la classe : il instancie nativement les phases `enforce` et `diffuse` et ajoute **les phases `off-funnel` que sa table `## Phases` déclare**, chacune à la position qu'elle déclare. Ce fichier n'en énumère aucune : la liste vit dans le pivot, qui en est l'autorité, et toute énumération faite ici dérive dès qu'un pivot ajoute une phase. Pivot absent ou stack non correspondante → la classe seule, l'absence énoncée. La règle de résolution est portée par `02-route`.
 
 ---
 

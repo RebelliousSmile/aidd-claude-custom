@@ -12,19 +12,32 @@
 // Exit space 0 / 1, like the selftest that calls it. Never 2: that space belongs to
 // harness.py (references/harness-contract.md).
 //
+// It also checks the three-branch page-key invariant — the `pages` registry, the
+// <option value> set and the oracle config's reference_page are one and the same set.
+// The three are written by three different hands (generator, human filling the file,
+// config-gen) and nothing else reconciles them: a key renamed in one branch alone
+// yields a page unreachable from the selector, or a measurement of a void. That is why
+// the check runs on ANY file, filled or scaffolded, not only on generator output.
+//
 // Usage: node harness-runtime-check.mjs <file.html> [--expect-pages home,contact]
+//                                                   [--oracle-config path.json]
 
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const argv = process.argv.slice(2);
 const file = argv.find((a) => !a.startsWith('--'));
-const expectIdx = argv.indexOf('--expect-pages');
+const valueAfter = (flag) => {
+  const i = argv.indexOf(flag);
+  return i === -1 ? null : argv[i + 1] || null;
+};
+const expectRaw = valueAfter('--expect-pages');
 const expectPages =
-  expectIdx === -1 ? [] : String(argv[expectIdx + 1] || '').split(',').map((s) => s.trim()).filter(Boolean);
+  expectRaw === null ? [] : String(expectRaw).split(',').map((s) => s.trim()).filter(Boolean);
+const oracleConfig = valueAfter('--oracle-config');
 
 if (!file) {
-  console.error('usage: harness-runtime-check.mjs <file.html> [--expect-pages a,b]');
+  console.error('usage: harness-runtime-check.mjs <file.html> [--expect-pages a,b] [--oracle-config c.json]');
   process.exit(1);
 }
 
@@ -168,6 +181,69 @@ for (const key of expectPages) {
   check(`page "${key}" did not sync the selector`, select.value === key, `select.value = ${select.value}`);
 }
 
+// ─── The three-branch page-key invariant ─────────────────────────────────────
+// Branch 1 — the registry, read from the LEXICAL scope: `const pages` at a script's top
+// level lands in the context's global declarative record, shared across runInContext
+// calls (which is how script 2 reads it), but it is never a property of the global
+// object — sandbox.pages is undefined. Evaluating in the context is the only reading.
+let registryKeys;
+try {
+  registryKeys = vm.runInContext('Object.keys(pages)', ctx);
+} catch (e) {
+  fail(`the pages registry is not readable: ${e.name}: ${e.message}`);
+}
+check('the pages registry is empty', registryKeys.length > 0);
+
+// Branch 2 — the <option value> set, taken from the page selector only, on the
+// comment-stripped HTML: the template's LLM framing quotes markup inside <!-- … -->,
+// and a scan that reads it would go red on every conformant file.
+const unescape = (s) =>
+  s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+   .replace(/&#x27;/g, "'").replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+const selectBlock = stripped.match(/<select\b[^>]*id="page-select"[^>]*>([\s\S]*?)<\/select>/i);
+if (!selectBlock) fail('no <select id="page-select"> found — the page selector is the option branch');
+const optionKeys = [...selectBlock[1].matchAll(/<option\b[^>]*\bvalue="([^"]*)"/gi)].map((m) => unescape(m[1]));
+
+const missingOption = registryKeys.filter((k) => !optionKeys.includes(k));
+const orphanOption = optionKeys.filter((k) => !registryKeys.includes(k));
+check(
+  'page key(s) in the registry with no <option>',
+  missingOption.length === 0,
+  `${missingOption.join(', ')} — unreachable from the selector`,
+);
+check(
+  '<option> value(s) no registry entry declares',
+  orphanOption.length === 0,
+  `${orphanOption.join(', ')} — selecting one renders the not-found state`,
+);
+
+// Branch 3 — the oracle config. Optional: not every caller holds one. When it is given,
+// its reference_page must name a page the file declares, or the oracle measures a void.
+let oracleNote = '';
+if (oracleConfig) {
+  let cfg;
+  try {
+    cfg = JSON.parse(readFileSync(oracleConfig, 'utf8'));
+  } catch (e) {
+    fail(`--oracle-config unreadable or not JSON: ${oracleConfig}: ${e.message}`);
+  }
+  const refPage = cfg.reference_page;
+  if (refPage === undefined || refPage === null) {
+    // null is the declared "no SPA key" value of the config schema, not a defect.
+    oracleNote = ', oracle reference_page null';
+  } else {
+    check(
+      `oracle reference_page "${refPage}" is not a page of this file`,
+      registryKeys.includes(refPage),
+      `declared: ${registryKeys.join(', ')}`,
+    );
+    oracleNote = `, oracle reference_page ${refPage}`;
+  }
+}
+
 const pagesNote = expectPages.length ? `, pages ${expectPages.join('/')}` : '';
-console.log(`ok   runtime: ${bodies.length} scripts, setPage/setViewport live${pagesNote}`);
+console.log(
+  `ok   runtime: ${bodies.length} scripts, setPage/setViewport live${pagesNote}` +
+  `, ${registryKeys.length} page key(s) consistent registry/options${oracleNote}`,
+);
 process.exit(0);

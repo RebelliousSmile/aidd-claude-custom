@@ -294,7 +294,11 @@ TEMPLATE = r"""<!DOCTYPE html>
        <html>/<head>/<body> ni de <style> global dans la fonction.
        Les styles vont dans le <style> du <head>.
     3. La clé de page doit correspondre à la valeur de l'<option> ET
-       au champ "maquette_page" du config measure.
+       au champ "reference_page" du config measure. Trois branches, un seul
+       ensemble : renommer une clé sans renommer les deux autres produit une
+       page injoignable, ou une mesure d'un vide. Vérifiable :
+           node tools/harness-runtime-check.mjs <fichier.html> \
+             [--oracle-config <config.json>]
 
   RÈGLES ORACLE (fidélité mesurée)
     • Sélecteurs STABLES et sémantiques (BEM : .hero__title, .card__price).

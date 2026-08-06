@@ -1,5 +1,13 @@
 # Changelog — sc-php
 
+## [0.11.1] — 2026-08-06
+
+### Fixed — la table `## Phases` du workflow FSE ne disait pas où ses phases s'insèrent
+
+Quatre phases `off-funnel` sur six lignes, et rien qui dise à quel moment de la séquence elles tombent : la fusion avec la séquence de verbes de la classe était laissée à l'interprétation du lecteur. Colonne **`position`** renseignée pour les six lignes (`design` ≥ 2.11.0, `sc-pivot-contract.md § Déclaration de phase`) : environnement mesurable `avant define`, modèle de contenu `avant enforce`, import `après diffuse`, déploiement `fin`, `—` pour les deux phases qui instancient un verbe.
+
+Le placement du modèle de contenu est justifié dans le fichier, à côté de la table : **avant `enforce`** et non avant `diffuse`, parce que les vues des types sont ce que le gate vocabulaire linte et ce que le périmètre de mesure énumère. Placée plus tard, la phase laisse les deux gates verts sur un dénominateur amputé — le défaut même que 0.11.0 a fermé.
+
 ## [0.11.0] — 2026-08-06
 
 ### Added — le modèle de contenu n'appartenait à personne dans la chaîne maquette → site FSE

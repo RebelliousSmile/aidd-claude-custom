@@ -1,5 +1,41 @@
 # Changelog — design
 
+## [2.11.0] — 2026-08-06
+
+Mineur — **le chemin par lequel les phases d'un pivot atteignent le consommateur n'existait pas.** Constat relevé sur un terrain réel (une maquette de 11 pages à porter en WordPress FSE, `sc-php` installé). Quatre défauts, un seul motif que le plugin traque depuis 2.9 : *un artefact produit que personne n'intègre*.
+
+### `02-route` n'était pas tenu d'ouvrir le workflow du pivot
+
+`sc-pivot-contract.md` déclare depuis toujours que les cinq titres du workflow de plateforme sont « attendus à l'identique par `design:detail/02-route` ». **`02-route` ne les utilisait nulle part** : ni dans ses inputs, ni dans son process, ni dans sa sortie. Il constatait la présence d'un pivot et émettait la séquence agnostique — le contrat décrivait une lecture qui n'existait pas. Conséquence directe et mesurée sur le terrain : la phase *Établir le modèle de contenu*, ajoutée à `sc-php` 0.11.0 précisément pour fermer un trou de la chaîne, était invisible à son unique consommateur.
+
+La table `## Phases` est maintenant une **entrée obligatoire** quand l'extension est présente, la séquence **fusionnée** une sortie obligatoire, et la sortie porte sa propre falsifiabilité : extension annoncée présente, la séquence compte au moins une ligne que `workflow-classes.md` ne déclare pas. Le test l'a suivie — l'ancien ne prouvait que la présence du pivot, le nouveau retire une ligne de la table et exige que la phase disparaisse de la sortie.
+
+### L'ordre d'insertion des phases `off-funnel` n'était spécifié nulle part
+
+Une phase `off-funnel` n'instancie aucun verbe : rien ne disait où elle tombe. La fusion des deux listes était **interprétée**, pas dérivée. Quatrième champ **`position`** dans la déclaration de phase — `avant <verbe>`, `après <verbe>`, `fin`, et rien d'autre ; `—` pour une phase qui instancie un verbe, requis pour toute phase `off-funnel`. Une position se lit contre la séquence de la classe **résolue** : quand le verbe ancre en est absent, la phase est omise et l'omission énoncée, jamais rapprochée du verbe le plus proche. Les trois workflows de plateforme existants (`fse`, `spa`, `static`) renseignent la colonne.
+
+### Une énumération qui dérive à chaque phase ajoutée
+
+`workflow-classes.md` listait en dur les phases `off-funnel` d'un pivot — trois éléments pour quatre réels. La liste vit dans le pivot, qui en est l'autorité ; ce fichier n'en énumère plus aucune. Même défaut, non signalé, dans le champ **verbe** de `sc-pivot-contract.md` : la parenthèse d'exemples est retirée.
+
+### L'invariant à trois branches d'une clé de page n'avait aucun vérificateur
+
+Une clé de page est écrite trois fois — le registre `const pages`, le `value` de son `<option>`, le `reference_page` de la config d'oracle — par trois auteurs différents, et rien ne les réconciliait. Renommée dans une seule branche, la page devient injoignable depuis le sélecteur, ou l'oracle mesure un vide : sans erreur, sans rouge. Le défaut était **latent** sur le terrain observé, pas réalisé.
+
+`harness-runtime-check.mjs` compare registre ↔ `<option>` à chaque appel, et vérifie la troisième branche sous `--oracle-config` (`reference_page: null` est la valeur déclarée « pas de clé SPA », pas un défaut). Il lit le registre depuis la **portée lexicale** du contexte `vm` — `const pages` au top-level d'un script n'est jamais une propriété du global —, et le HTML **débarrassé de ses commentaires**, le cadrage LLM en tête du fichier citant du markup qui rendrait rouge tout fichier conforme. Le contrôle vaut sur un fichier **rempli** autant que sur un scaffold.
+
+Sept assertions au selftest, dont **quatre par mutation** : la clé renommée dans le registre seul, dans l'`<option>` seule, un `reference_page` inconnu, une config absente — chacune doit passer au rouge, et chaque mutant est comparé à sa source pour qu'aucune ne soit un no-op. Un vert qu'aucune mutation ne rougit n'atteste rien.
+
+### Aussi
+
+- La notice en tête du fichier généré nommait un champ de config qui n'existe pas : `maquette_page` → **`reference_page`** (`measure.py`, `config-gen.py`, `configs/example.json`).
+- `harness/SKILL.md` citait `references/harness-contract.md` en relatif à deux endroits — le fichier est à la racine du plugin, pas sous la skill. Préfixé `${CLAUDE_PLUGIN_ROOT}`.
+- `02-route` émet désormais les **capabilities sans cible** sur le terrain et les phases qu'elles bloquent : une séquence dont la dernière phase est inatteignable s'arrêtait en silence sur un vert.
+
+`pnpm test` vert, 38 assertions au selftest du harness.
+
+**Non mesuré, dit ici plutôt qu'ailleurs** : les trois premiers points sont des règles écrites. Seul le quatrième est opposé par une machine.
+
 ## [2.10.0] — 2026-08-05
 
 Mineur — **les trois 🔴 de l'audit du harness généré, chacun prouvé par une mesure avant et après, puis la chaîne entière rejouée contre un WordPress FSE réel.** Un audit trois piliers (`ui`, `tests`, `security`) avait rendu trois constats critiques ; les trois portaient sur la même faute de méthode : une propriété affirmée depuis la règle CSS, la présence d'un texte prise pour la preuve qu'il s'exécute, un chemin déclaré lu sans être borné.

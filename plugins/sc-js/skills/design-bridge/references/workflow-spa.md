@@ -15,13 +15,13 @@ Instancie les classes de cas agnostiques de `design:detail` sur une application 
 
 ## Phases
 
-| Phase | input | output | verbe |
-|---|---|---|---|
-| Servir la référence | contrat figé + runtime de build ; référence pas encore servie | vue servie, mesurable par l'oracle (précondition `harness`) | `off-funnel` |
-| Enforcement natif | spec d'enforcement + preuve (fichiers de composants) | règle de lint idiomatique câblée au pre-commit + rapport de pivot | `enforce` |
-| Rendu natif | spec de rendu (composant neutre + variantes) | composant SFC/idiomatique consommant `tokens.css` | `diffuse` |
-| Build | composants rendus | bundle de production | `off-funnel` |
-| Déployer et recetter | bundle vérifié | cible livrée, recette passée | `off-funnel` |
+| Phase | input | output | verbe | position |
+|---|---|---|---|---|
+| Servir la référence | contrat figé + runtime de build ; référence pas encore servie | vue servie, mesurable par l'oracle (précondition `harness`) | `off-funnel` | `avant define` |
+| Enforcement natif | spec d'enforcement + preuve (fichiers de composants) | règle de lint idiomatique câblée au pre-commit + rapport de pivot | `enforce` | `—` |
+| Rendu natif | spec de rendu (composant neutre + variantes) | composant SFC/idiomatique consommant `tokens.css` | `diffuse` | `—` |
+| Build | composants rendus | bundle de production | `off-funnel` | `après diffuse` |
+| Déployer et recetter | bundle vérifié | cible livrée, recette passée | `off-funnel` | `fin` |
 
 ## Gates
 

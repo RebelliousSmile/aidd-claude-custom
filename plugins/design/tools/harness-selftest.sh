@@ -228,4 +228,40 @@ for f in m.html c.html s.html; do
   fi
 done
 
+# ─── Three-branch page-key invariant ─────────────────────────────────────────
+# Registry, <option value> and the oracle's reference_page are one set written by three
+# hands. Asserting only that a conformant file passes proves nothing: each branch is
+# mutated in turn and the check must go RED. A green that no mutation can turn red is
+# the defect this whole file exists against.
+printf '%s' '{"reference_page":"contact","targets":[]}' >"$OUT/oracle-ok.json"
+printf '%s' '{"reference_page":"nowhere","targets":[]}' >"$OUT/oracle-bad.json"
+printf '%s' '{"reference_page":null,"targets":[]}'      >"$OUT/oracle-null.json"
+
+# The registry key is renamed alone — the <option> still offers "contact".
+sed 's/^    "contact": pageContact,/    "contactez": pageContact,/' "$OUT/m.html" >"$OUT/mut-registry.html"
+# The <option> value is renamed alone — the registry still declares "contact".
+sed 's/<option value="contact">/<option value="contacts">/' "$OUT/m.html" >"$OUT/mut-option.html"
+
+invariant() {  # name expect(pass|fail) <runtime args…>
+  name=$1; want=$2; shift 2
+  if "$NODE" "$RUNTIME" "$@" >/dev/null 2>"$OUT/err"; then got=pass; else got=fail; fi
+  if [ "$got" = "$want" ]; then
+    echo "ok   invariant $name: $got"
+  else
+    echo "FAIL invariant $name: $got, expected $want"; cat "$OUT/err"; fail=1
+  fi
+}
+
+# Each mutation must actually differ from the source, or the test asserts on a no-op.
+cmp -s "$OUT/m.html" "$OUT/mut-registry.html" && { echo "FAIL registry mutation is a no-op"; fail=1; }
+cmp -s "$OUT/m.html" "$OUT/mut-option.html"   && { echo "FAIL option mutation is a no-op"; fail=1; }
+
+invariant "conformant"        pass "$OUT/m.html"
+invariant "registry-renamed"  fail "$OUT/mut-registry.html"
+invariant "option-renamed"    fail "$OUT/mut-option.html"
+invariant "oracle-known"      pass "$OUT/m.html" --oracle-config "$OUT/oracle-ok.json"
+invariant "oracle-unknown"    fail "$OUT/m.html" --oracle-config "$OUT/oracle-bad.json"
+invariant "oracle-null"       pass "$OUT/m.html" --oracle-config "$OUT/oracle-null.json"
+invariant "oracle-absent"     fail "$OUT/m.html" --oracle-config "$OUT/no-such-config.json"
+
 if [ "$fail" -eq 0 ]; then echo "ALL GREEN"; exit 0; else echo "SELFTEST FAILED"; exit 1; fi

@@ -1,5 +1,11 @@
 # Changelog — sc-js
 
+## [0.15.4] — 2026-08-06
+
+### Fixed — la table `## Phases` du workflow SPA ne disait pas où ses phases s'insèrent
+
+Trois phases `off-funnel` (servir la référence, build, déployer) sans point d'insertion déclaré : leur place dans la séquence de la classe était interprétée, pas dérivée. Colonne **`position`** renseignée pour les cinq lignes (`design` ≥ 2.11.0, `sc-pivot-contract.md § Déclaration de phase`) — `avant define`, `après diffuse`, `fin`, et `—` pour les deux phases qui instancient un verbe.
+
 ## [0.15.3] — 2026-08-05
 
 ### Fixed — le corps illustré de `Case A` se lisait comme la liste à reproduire (S8, rouge au run 3)

@@ -1,5 +1,11 @@
 # Changelog — sc-css
 
+## [0.4.1] — 2026-08-06
+
+### Fixed — la table `## Phases` du workflow statique ne disait pas où ses phases s'insèrent
+
+Deux phases `off-funnel` (servir la référence, déployer) sans point d'insertion déclaré : leur place dans la séquence de la classe était interprétée, pas dérivée. Colonne **`position`** renseignée pour les quatre lignes (`design` ≥ 2.11.0, `sc-pivot-contract.md § Déclaration de phase`) — `avant define`, `fin`, et `—` pour les deux phases qui instancient un verbe.
+
 ## [0.4.0] — 2026-08-03
 
 ### Removed — `sniff/02-install-pivots` et les six pivots qu'elle promettait
