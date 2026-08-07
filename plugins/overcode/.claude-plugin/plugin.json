@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "overcode",
-  "version": "4.5.0",
+  "version": "4.5.1",
   "description": "Extends the AIDD framework with project-agnostic workflows: memory maintenance (harvest, reconcile-normative), obsolescence detection (taste), prospective analysis (foresee), behavioural-test harness for prompts (behave), test-suite governance by density and declared phase (control, user-invoked only), performance audits (data-optimize, web-optimize, ap-optimize), SEO/GEO audits (seo-optimize), project health reporting (status), plain-language explanations (baby), documentation (readme, changelog), and planning utilities (decompose, journey). Stack knowledge is never hardcoded: audits load pivots dropped by the sc-* plugins under .claude/rules/07-quality/. Alias chains: rechallenge, endtask, bump-plugin, previously, smarten, skillconf, weeklyemail, gitit, mirror, codex-vision.",
   "author": {
     "name": "François-Xavier Guillois"

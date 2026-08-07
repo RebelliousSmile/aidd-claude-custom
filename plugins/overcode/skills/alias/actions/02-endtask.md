@@ -45,7 +45,7 @@ Rename `<name>.pending.md` → `<name>.processed.md` in the same directory.
 
 ### Step 4 — Capture learnings (auto-validate)
 
-Invoke `/aidd-context:05-learn` on the archived plan file.
+Invoke `/aidd-context:10-learn` on the archived plan file.
 
 **Auto-validate all proposed learnings without asking for confirmation** — save every entry that the skill surfaces. Do not pause or prompt the user at this step.
 

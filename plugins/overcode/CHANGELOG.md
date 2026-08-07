@@ -2,6 +2,21 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/overcode plugins/aidd-overlay` (le plugin s'appelait `aidd-overlay` avant la 3.0.0).
 
+## [4.5.1] — 2026-08-07
+
+### Fixed — deux skills AIDD référencées par un numéro qui a bougé, dont une qui n'existe plus du tout
+
+Une référence `plugin:NN-nom` gèle un numéro que le plugin propriétaire est libre de renumeroter. Deux l'ont fait, et l'écart passait inaperçu : rien ne casse au chargement, seulement à l'invocation.
+
+- **`alias/02-endtask.md` étape 4 invoquait `/aidd-context:05-learn`.** La skill s'appelle `10-learn` depuis `aidd-context` 2.x ; `05` désigne aujourd'hui `05-rule-generate`, une skill sans rapport. `endtask` échouait donc à sa quatrième étape — la capture des apprentissages — après avoir déjà commité et archivé le plan.
+- **`alias/assets/skillconf-core.json` portait `aidd-dev:00-sdlc`**, retirée par `aidd-dev` 2.4.1 (« replace SDLC actions with protocols ») sans remplaçante. Une entrée CORE qui ne désigne rien ne produit aucune erreur : le test d'appartenance de `06-skillconf` ne la rencontre jamais, elle occupe simplement une allowlist qui tire sa valeur d'être courte. Supprimée plutôt que réécrite.
+
+Le reste des références AIDD a été revérifié contre les versions installées (`aidd-context` 2.6.1 · `aidd-dev` 2.4.1 · `aidd-refine` 2.2.4) : `00-onboard`, `03-context-generate`, `01-plan`, `04-audit`, `05-review`, `06-test` et ses deux actions `01-test` / `02-test-journey`, `02-challenge` — toutes valides.
+
+**Ce que l'incident confirme, et qui n'est pas corrigé ici.** `control/06-align.md` étape 8 nommait autrefois ces mêmes numéros, puis a été réécrite pour résoudre la skill de mémoire projet **par son rôle** — une chaîne cadrage/écriture/sync — et jamais par un nom ni un numéro. Vérification faite ce jour : la chaîne existe toujours en `aidd-context` 2.6.1, mais sous `01-scan` / `02-generate` / `03-sync`, contre `01-scope` / `02-write` à l'époque de la règle. Les deux tiers des noms ont bougé, la référence par rôle a tenu. Les deux points corrigés ci-dessus sont exactement ce que cette règle évite, et ils survivent parce qu'un alias *doit* émettre un `/nom` littéral — la contrainte est réelle, pas une négligence.
+
+Les mentions de `05-learn` dans `control/evals/*.md` sont laissées telles quelles : ce sont des comptes rendus de runs datés, les réécrire falsifierait l'historique de mesure.
+
 ## [4.5.0] — 2026-08-05
 
 ### Fixed — sept pivots que `pivot-providers.md` fournissait et qu'aucun slug de détection n'atteignait

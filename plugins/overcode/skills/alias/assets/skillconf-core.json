@@ -3,8 +3,7 @@
   "core": [
     "aidd-context:00-onboard",
     "aidd-context:03-context-generate",
-    "aidd-context:05-learn",
-    "aidd-dev:00-sdlc",
+    "aidd-context:10-learn",
     "aidd-dev:01-plan",
     "aidd-dev:05-review",
     "aidd-refine:02-challenge",
