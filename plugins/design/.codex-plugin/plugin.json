@@ -1,6 +1,6 @@
 {
   "name": "design",
-  "version": "2.12.0+codex.20260812093911",
+  "version": "2.12.1+codex.20260812100712",
   "description": "Builds, critiques, freezes, enforces, and diffuses design systems from briefs, visual references, or existing code through standalone skills or an optional end-to-end workflow.",
   "author": {
     "name": "Fran\u00e7ois-Xavier Guillois"

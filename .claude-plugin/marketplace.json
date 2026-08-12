@@ -16,7 +16,7 @@
     },
     {
       "name": "design",
-      "version": "2.12.0",
+      "version": "2.12.1",
       "source": "./plugins/design",
       "description": "Builds, critiques, freezes, enforces, and diffuses design systems from briefs, visual references, or existing code through standalone skills or an optional end-to-end workflow.",
       "recommended": false
