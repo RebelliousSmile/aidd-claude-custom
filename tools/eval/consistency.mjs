@@ -46,6 +46,14 @@ for (const name of plugins) {
     fail('M1', `${name} — version : plugin.json ${manifest.version} ≠ marketplace.json ${entry.version}`);
   if (entry.description !== manifest.description)
     fail('M1', `${name} — description : plugin.json et marketplace.json divergent`);
+
+  const codexPath = `plugins/${name}/.codex-plugin/plugin.json`;
+  if (existsSync(join(ROOT, codexPath))) {
+    const codex = readJson(codexPath);
+    for (const key of ['name', 'version', 'description'])
+      if (codex[key] !== manifest[key])
+        fail('M1', `${name} — ${key} : manifeste Codex et manifeste Claude divergent`);
+  }
 }
 
 for (const entry of marketplace.plugins)

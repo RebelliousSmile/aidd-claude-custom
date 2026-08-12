@@ -1,27 +1,6 @@
 ---
 name: adjust
-description: >
-  Pivot de l'entonnoir. Arbitre les incohérences entre maquettes, directions ou pistes issues de
-  destructure (motif dominant gagne ; gate humain sur les cas non tranchables), puis fige le contrat :
-  canonise les tokens, écrit les cinq artefacts racinés par release.json, marque la charte comme figée
-  et bumpe la version. Migre aussi un contrat 1.x vers ce format. Explicitement rejouable : un re-figeage
-  bumpe la version et déclenche la réconciliation dans enforce.
-triggers:
-  - "arbitre les directions"
-  - "fige le contrat"
-  - "écris le manifeste"
-  - "adjust"
-  - "cristallise le design system"
-  - "canonise les tokens"
-  - "migre le contrat"
-  - "passe le contrat en 2.0"
-requires:
-  - "une matière de design en brouillon (tokens + inventaire de composants), ou un contrat 1.x à migrer"
-references:
-  - ${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md
-  - ${CLAUDE_PLUGIN_ROOT}/skills/adjust/references/manifest-schema.md
-  - ${CLAUDE_PLUGIN_ROOT}/references/design-system-contract.md
-  - ${CLAUDE_PLUGIN_ROOT}/references/token-schema.md
+description: Freezes a draft or a scoped delta into the versioned design contract and migrates legacy contracts. Use when the user wants to arbitrate, canonicalize, freeze, re-freeze, or migrate design-system decisions.
 ---
 
 # adjust

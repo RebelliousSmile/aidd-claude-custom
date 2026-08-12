@@ -1,20 +1,6 @@
 ---
 name: harness
-description: >
-  Génère un fichier HTML autonome (harness de maquette) exposant window.setPage(key) /
-  window.setViewport(mode). Piloté par l'oracle de fidélité (measure.py) et le fan-out copycat.
-  Par défaut : une page placeholder "page-1". Pages configurables via --pages / --pages-json.
-triggers:
-  - "génère le harness"
-  - "crée la maquette de référence"
-  - "exporte le harness"
-  - "prépare le fichier de maquette"
-  - "initialise le harness"
-requires:
-  - "un chemin de sortie (--out)"
-references:
-  - ${CLAUDE_PLUGIN_ROOT}/adapters/harness/harness.py
-  - ${CLAUDE_PLUGIN_ROOT}/references/harness-contract.md
+description: Generates a standalone, measurable HTML mockup with controllable pages and viewports. Use when the user wants to scaffold, export, or prepare a visual reference for manual review or fidelity measurement.
 ---
 
 # harness

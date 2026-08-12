@@ -1,30 +1,6 @@
 ---
 name: diffuse
-description: >
-  Produit les éléments de design répétables que le LLM réutilise sans refaire la création
-  graphique. Définit l'élément en forme NEUTRE (consomme le manifeste, vocabulaire du contrat),
-  puis rend en HYBRIDE : (1) BASELINE adaptateur interne HTML+CSS (universel, sans pivot) ;
-  (2) PIVOT technique vers sc-<langage>:design-bridge quand présent, pour un rendu natif
-  idiomatique dans le langage de la cible.
-  Chaque rendu passe sous le gate enforce (lint vert obligatoire avant clôture).
-  Absorbe ex-wireframe, ex-component, ex-export.
-triggers:
-  - "diffuse un composant"
-  - "génère le rendu du composant"
-  - "produis l'élément natif"
-  - "crée le wireframe"
-  - "exporte le composant pour la stack cible"
-  - "rends le composant dans le langage du projet"
-  - "produis l'élément répétable"
-requires:
-  - "design/tokens.json (figé par adjust)"
-  - "design/components.json (figé par adjust)"
-  - "enforce gate installé (lint-core.mjs opérationnel)"
-references:
-  - ${CLAUDE_PLUGIN_ROOT}/skills/diffuse/adapters/html-css.md
-  - ${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md
-  - ${CLAUDE_PLUGIN_ROOT}/skills/enforce/adapters/lint-core.mjs
-  - ${CLAUDE_PLUGIN_ROOT}/tools/generate.py
+description: Produces a reusable component from a frozen contract or a clearly marked ungoverned prototype from a local brief. Use when the user wants a component, wireframe, preview, or stack-native rendering without rebuilding the whole system.
 ---
 
 # diffuse

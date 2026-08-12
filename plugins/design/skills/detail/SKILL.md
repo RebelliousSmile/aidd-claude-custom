@@ -1,26 +1,6 @@
 ---
 name: detail
-description: >
-  Verbe 0 de l'entonnoir : le point d'entrée qui dit ce que font les verbes et quoi lancer.
-  LECTURE SEULE sur tout artefact du contrat et sur la source du projet ; seul skill du plugin
-  sans artefact de sortie. Deux actions sans recouvrement :
-  (1) EXPLAIN — la carte, à la granularité demandée (entonnoir entier, un verbe, une action, un gate, un artefact).
-  (2) ROUTE — classe une intention en classe de cas, lit l'état du contrat et les pivots installés,
-  émet la séquence exécutable avec ses checkpoints et ses gates, étendue par le workflow de plateforme
-  quand le pivot correspondant est là. N'exécute jamais un verbe qu'il décrit.
-triggers:
-  - "que fait ce plugin"
-  - "explique l'entonnoir"
-  - "quels sont les verbes du design"
-  - "par quoi je commence"
-  - "quelle séquence pour mon cas"
-  - "detail"
-requires:
-  - "aucun artefact requis — `route` lit l'état du contrat s'il existe, `explain` fonctionne sans contrat"
-references:
-  - ${CLAUDE_PLUGIN_ROOT}/skills/detail/references/funnel-map.md
-  - ${CLAUDE_PLUGIN_ROOT}/skills/detail/references/workflow-classes.md
-  - ${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md
+description: Explains the design capabilities or routes an explicit end-to-end design-system request without executing it. Use when the user asks what to run, how the workflow fits together, or which path matches the project state.
 ---
 
 # detail

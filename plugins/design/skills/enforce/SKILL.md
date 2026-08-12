@@ -1,29 +1,6 @@
 ---
 name: enforce
-description: >
-  Transforme le contrat figé (release.json et les artefacts qu'il déclare) en gate vérifiable, en HYBRIDE.
-  (1) BASELINE : installe lint-core.mjs portable (dérivé du contrat, aucune liste codée en dur),
-  câble les 4 gates (import tokens.css · rules de génération · success_condition des plans · hook pre-commit auto-armé).
-  Porte le lint des instances déjà stockées + boucle corriger→propager→re-lint.
-  (2) PIVOT : si un sc-<langage> est installé pour le langage de la preuve, émet un spec
-  d'enforcement agnostique (sc-pivot-contract.md) et relaie la réalisation NATIVE idiomatique
-  du linter au sc-<langage>:design-bridge. Règles non réalisées déclarées si aucun n'est installé.
-triggers:
-  - "installe le linter"
-  - "câble les gates"
-  - "enforce"
-  - "lint les instances"
-  - "vérifie la conformité"
-  - "arme le pre-commit"
-requires:
-  - "design/release.json (figé par adjust) — sa racine ; absent, le contrat est en 1.x"
-  - "design/tokens.json, design/components.json, design/policies.json (déclarés par release.json)"
-  - "design/oracle.json si le contrat en produit un (lu par l'oracle de fidélité, pas par le linter)"
-references:
-  - ${CLAUDE_PLUGIN_ROOT}/skills/enforce/references/gate-wiring.md
-  - ${CLAUDE_PLUGIN_ROOT}/skills/enforce/adapters/lint-core.mjs
-  - ${CLAUDE_PLUGIN_ROOT}/references/enforcement-registry.md
-  - ${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md
+description: Inspects design quality without a contract or enforces a frozen contract through measurable gates and native pivots. Use when the user wants an audit, conformity check, lint wiring, accessibility evidence, or fidelity verification.
 ---
 
 # enforce

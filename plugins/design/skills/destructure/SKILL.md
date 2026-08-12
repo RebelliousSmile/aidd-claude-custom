@@ -1,27 +1,6 @@
 ---
 name: destructure
-model: sonnet
-description: >-
-  Verbe 2 de l'entonnoir design (define → destructure → adjust → enforce → diffuse). Le CHALLENGE côté design —
-  pendant de aidd-refine:02-challenge, mais pour la direction visuelle, pas pour un plan. Déconstruit le
-  "plausible générique", critique la direction posée par define, et propose des inspirations et pistes
-  d'évolution alternatives (phase DIVERGENTE). 7 lentilles : générique/distinctif, cohérence interne,
-  accessibilité (contrastes WCAG, états d'interaction, navigation clavier), tendances, divergence d'inspiration,
-  états comportementaux UX (états composants manquants, affordance, flux), lisibilité & hiérarchie de lecture.
-  Double usage : (1) dans l'entonnoir, sur la sortie de define ; (2) STANDALONE sur un élément existant isolé.
-  Lecture seule sur le contrat gelé et le code source — produit un rapport structuré (critique + pistes
-  actionnables + score), persisté par défaut sous `design/critique/`, n'applique RIEN au contrat.
-  Absorbe l'ancien diagnose. Ne pose pas la matière — c'est define ; ne fige pas — c'est adjust.
-triggers:
-  - "challenge la direction visuelle"
-  - "critique ce design system"
-  - "décompose ce rendu en composants"
-  - "ce design fait générique, propose autre chose"
-requires:
-  - "une matière de design posée (sortie de define) ou un élément existant à critiquer"
-references:
-  - ${CLAUDE_PLUGIN_ROOT}/references/design-system-contract.md
-  - ${CLAUDE_PLUGIN_ROOT}/skills/adjust/references/manifest-schema.md
+description: Critiques a draft, component, page, or existing design system through visual, accessibility, interaction, and hierarchy lenses. Use when the user wants actionable alternatives without changing the contract or source.
 ---
 
 # destructure
