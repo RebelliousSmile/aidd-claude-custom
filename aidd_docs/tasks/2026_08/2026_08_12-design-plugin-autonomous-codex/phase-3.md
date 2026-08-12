@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Phase 3 — Contrôles utiles

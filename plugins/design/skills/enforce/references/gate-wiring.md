@@ -1,6 +1,6 @@
 # Gate wiring — les 4 points de câblage
 
-`enforce` câble le gate à 4 endroits du projet. Chaque point est indépendant ; câbler un sous-ensemble reste valide.
+`enforce` câble le gate à 4 endroits du projet. Chaque point est indépendant ; câbler un sous-ensemble reste valide. Ces quatre points sont des contrôles **P2 d'intégration** : leur absence reste visible, mais ne peut pas invalider seule le résultat design. La classification canonique vit dans `references/control-priorities.md`.
 
 ## La commande unique
 

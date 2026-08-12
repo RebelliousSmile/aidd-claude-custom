@@ -4,5 +4,8 @@
   "linter": "../adapters/lint-core.mjs",
   "targets": ["utility-clean.html"],
   "strict": false,
-  "pivotReports": []
+  "pivotReports": ["pivot-pass.json"],
+  "workflowChecks": [
+    { "id": "pre-commit", "status": "fail", "message": "hook not installed in fixture" }
+  ]
 }

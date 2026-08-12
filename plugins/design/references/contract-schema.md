@@ -196,6 +196,7 @@ Champ par champ, invariants et exemples : `adjust/references/manifest-schema.md`
 | `usage.colorUtilityPrefixes` | non | exécutable · `lint-core.mjs` Règle 4 | Préfixes de classe utilitaire porteurs de couleur. Pour `<prefix>-<nom>-<NN\|NNN>`, `<nom>` doit être une clé top-level de `tokens.json § color.*`. Mode `utility-first` uniquement |
 | `usage.rules[].id` | oui | exécutable · `tools/run-gates.py` · pivot `sc-*` | Identifiant de la règle déclarée |
 | `usage.rules[].description` | oui | exécutable · pivot `sc-*` | Énoncé lu par le réalisateur, repris verbatim |
+| `usage.rules[].priority` | non | exécutable · `tools/run-gates.py` | `P0`, `P1` ou `P2`; défaut `P1`. Une preuve P0/P1 absente bloque, P2 avertit |
 | `usage.rules[].enforcement` | oui | exécutable · `tools/run-gates.py` (sélection du réalisateur) | Preuve que la règle doit lire, donc qui la réalise. Espace fermé : `references/enforcement-registry.md`. Absent ou hors registre ⇒ exit 2 |
 | `adapters[].artifact` | non | exécutable · `tools/generate.py` | Chemin de l'artefact à émettre, relatif au répertoire du contrat |
 | `adapters[].consumer` | non | exécutable · `tools/generate.py` (sélection de l'émetteur) | Rôle qui consomme cet artefact. Jamais un nom de plateforme ni de projet. Absent ou `unknown` ⇒ entrée non émise, signalée une fois sur stderr |

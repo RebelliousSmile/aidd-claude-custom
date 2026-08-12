@@ -13,6 +13,7 @@
       {
         "id": "state-colour-icon",
         "description": "Un badge d'état (success/warning/error/info) doit porter à la fois un token couleur ET une icône — jamais la couleur seule.",
+        "priority": "P0",
         "enforcement": "source-graph"
       }
     ]

@@ -56,7 +56,7 @@ Une règle est **non réalisée** dans deux cas, indistinguables dans le rapport
 Obligation, dans les deux cas :
 
 - `run-gates.py` liste la règle dans son rapport, avec son `id`, son type et la raison.
-- Le code de sortie est **inchangé** : une règle non réalisée n'est ni une violation ni une conformité. La déclarer est exactement ce qui empêche de la lire comme vérifiée.
+- L'effet dépend de `usage.rules[].priority` : une règle P0/P1 non réalisée est une preuve manquante bloquante ; une règle P2 non réalisée reste un warning. La déclarer empêche dans les deux cas de la lire comme vérifiée.
 - Aucun drapeau ne masque la liste.
 
 ### Collision : `unrealized` déclaré, rapporté quand même

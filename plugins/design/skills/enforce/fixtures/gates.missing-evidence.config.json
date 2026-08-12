@@ -1,8 +1,8 @@
 {
   "$schema": "design/references/gate-config-schema",
-  "contract": "status/no-contrast-run",
+  "contract": "utility",
   "linter": "../adapters/lint-core.mjs",
-  "targets": ["utility-dirty.html"],
+  "targets": ["utility-clean.html"],
   "strict": false,
-  "pivotReports": ["pivot-pass.json"]
+  "pivotReports": []
 }

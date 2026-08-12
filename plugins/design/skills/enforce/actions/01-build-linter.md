@@ -82,7 +82,7 @@ python design/lint/run-gates.py --config design/lint/gates.config.json
 | 2 | runtime ou configuration | le message nomme ce qui manque (`references/gate-wiring.md § Prérequis d'exécution`) |
 | 3 | contrat 1.x | `adjust/03-migrate` d'abord |
 
-Le rapport liste aussi les règles **non réalisées** : déclarées, sans réalisateur disponible. Elles ne rougissent pas le gate et ne doivent pas être lues comme vérifiées.
+Le rapport liste aussi les règles **non réalisées** : déclarées, sans réalisateur disponible. Une preuve P0/P1 manquante rougit le gate ; une intégration P2 manquante avertit seulement. Aucune ne doit être lue comme vérifiée.
 
 Si aucune cible du projet n'existe encore, smoke test sur les fixtures du plugin :
 

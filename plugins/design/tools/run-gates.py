@@ -7,9 +7,8 @@ pivot that writes back a report. This runner reads the contract, invokes the rea
 can invoke, collects the reports of those it cannot, and returns one exit code whatever the
 call site. It reads no target file and matches no pattern of its own.
 
-A rule with no realizer is not silently dropped: it is listed as unrealized, with its
-reason, and it never changes the exit code. Declaring it is what stops it being read as
-verified.
+A rule with no realizer is not silently dropped: it is listed as unrealized with its
+priority. Missing P0/P1 evidence blocks; missing P2 integration only warns.
 
 Registry of enforcement types:  references/enforcement-registry.md
 Configuration:                  references/gate-config-schema.md
@@ -129,23 +128,27 @@ def resolve_contract(config: dict, config_path: Path) -> Path:
     return contract_dir
 
 
-def type_rules(contract_dir: Path) -> list[tuple[str, str]]:
+def type_rules(contract_dir: Path) -> list[tuple[str, str, str]]:
     """Type every declared rule before invoking anything: an untyped rule makes the whole run
     meaningless, and finding that out after half the targets were linted helps nobody."""
     policies = read_json(contract_dir / POLICIES)
     if policies is None:
         raise abort(f"{contract_dir / POLICIES}: not found, the contract declares it.")
 
-    typed: list[tuple[str, str]] = []
+    typed: list[tuple[str, str, str]] = []
     for index, rule in enumerate((policies.get("usage") or {}).get("rules") or []):
         rule_id = rule.get("id") or f"usage.rules[{index}]"
         kind = rule.get("enforcement")
+        priority = rule.get("priority", "P1")
         if kind not in REALIZER:
             raise abort(f"{contract_dir / POLICIES}: rule \"{rule_id}\" declares "
                         f"enforcement {kind or 'nothing'}, outside the registry.\n"
                         f"  Allowed: {', '.join(sorted(REALIZER))}\n"
                         f"  See references/enforcement-registry.md")
-        typed.append((rule_id, kind))
+        if priority not in {"P0", "P1", "P2"}:
+            raise abort(f'{contract_dir / POLICIES}: rule "{rule_id}" declares unknown '
+                        f'priority {priority}; allowed: P0, P1, P2.')
+        typed.append((rule_id, kind, priority))
     return typed
 
 
@@ -225,12 +228,13 @@ def resolve_pivot_reports(config: dict, config_path: Path) -> list[Path]:
     return paths
 
 
-def read_pivot_reports(report_paths: list[Path],
-                       config_path: Path) -> tuple[dict[str, str], dict[str, str], list[str]]:
+def read_pivot_reports(report_paths: list[Path], config_path: Path,
+                       priorities: dict[str, str]) -> tuple[dict[str, str], dict[str, str], list[str], list[str]]:
     """Returns, per rule id: who realized it, who declined it, and the violations found."""
     reported: dict[str, str] = {}
     declined: dict[str, str] = {}
     violations: list[str] = []
+    warnings: list[str] = []
     for path in report_paths:
         payload = read_json(path)
         if payload is None:
@@ -248,17 +252,31 @@ def read_pivot_reports(report_paths: list[Path],
             reported[rule_id] = realizer
             if entry.get("status") == "fail":
                 for message in entry.get("violations") or [rule_id]:
-                    violations.append(f"{realizer}: {message}")
-    return reported, declined, violations
+                    rendered = f"{realizer}: {message}"
+                    (warnings if priorities.get(rule_id, "P1") == "P2" else violations).append(rendered)
+    return reported, declined, violations, warnings
 
 
-def render_rules(typed: list[tuple[str, str]], reported: dict[str, str],
-                 declined: dict[str, str]) -> list[str]:
+def read_workflow_checks(config: dict, config_path: Path) -> list[str]:
+    """Read P2 integration checks. They stay visible but never block design correctness."""
+    warnings: list[str] = []
+    for entry in config.get("workflowChecks") or []:
+        if not isinstance(entry, dict) or not entry.get("id"):
+            raise abort(f"{config_path}: every workflowChecks entry needs an id.")
+        if entry.get("status") not in {"pass", "fail"}:
+            raise abort(f"{config_path}: workflow check {entry['id']} needs status pass or fail.")
+        if entry["status"] == "fail":
+            warnings.append(f"{entry['id']}: {entry.get('message') or 'workflow integration missing'}")
+    return warnings
+
+
+def render_rules(typed: list[tuple[str, str, str]], reported: dict[str, str],
+                 declined: dict[str, str], realized_markup: set[str]) -> list[tuple[str, str]]:
     """Print one line per declared rule; return the ids left unrealized."""
-    unrealized: list[str] = []
-    for rule_id, kind in typed:
-        if kind == "markup":
-            print(f"  REALIZED   {rule_id} ({kind}) by lint-core")
+    unrealized: list[tuple[str, str]] = []
+    for rule_id, kind, priority in typed:
+        if kind == "markup" and rule_id in realized_markup:
+            print(f"  REALIZED   {rule_id} ({kind}, {priority}) by lint-core")
         elif rule_id in reported:
             # A rule the contract declares with no realizer, that a pivot covered anyway, is
             # realized: it was measured, and `read_pivot_reports` already counted whatever it
@@ -266,38 +284,44 @@ def render_rules(typed: list[tuple[str, str]], reported: dict[str, str],
             # the contract is stale on that point, and a line that hid it would assert a
             # coverage the contract routes to nobody. Realized, and said out loud.
             stale = " - the contract declares no realizer for it" if kind == "unrealized" else ""
-            print(f"  REALIZED   {rule_id} ({kind}) by {reported[rule_id]}{stale}")
+            print(f"  REALIZED   {rule_id} ({kind}, {priority}) by {reported[rule_id]}{stale}")
         elif rule_id in declined:
-            unrealized.append(rule_id)
-            print(f"  UNREALIZED {rule_id} ({kind}) - {declined[rule_id]} reports it unrealized")
+            unrealized.append((rule_id, priority))
+            print(f"  UNREALIZED {rule_id} ({kind}, {priority}) - {declined[rule_id]} reports it unrealized")
         elif kind == "unrealized":
-            unrealized.append(rule_id)
-            print(f"  UNREALIZED {rule_id} - declared with no realizer")
+            unrealized.append((rule_id, priority))
+            print(f"  UNREALIZED {rule_id} ({priority}) - declared with no realizer")
         else:
-            unrealized.append(rule_id)
-            print(f"  UNREALIZED {rule_id} ({kind}) - no report from its realizer")
+            unrealized.append((rule_id, priority))
+            print(f"  UNREALIZED {rule_id} ({kind}, {priority}) - no report from its realizer")
     return unrealized
 
 
 def render_verdict(contract_dir: Path, targets: list[Path], realized_markup: set[str],
-                   typed: list[tuple[str, str]], reported: dict[str, str],
-                   declined: dict[str, str], violations: list[str]) -> int:
+                   typed: list[tuple[str, str, str]], reported: dict[str, str],
+                   declined: dict[str, str], violations: list[str], warnings: list[str]) -> int:
     print(f"CONTRACT {contract_dir}")
     print(f"TARGETS  {len(targets)} file(s), markup rules realized: "
           f"{', '.join(sorted(realized_markup)) or 'none'}")
 
-    unrealized = render_rules(typed, reported, declined)
+    unrealized = render_rules(typed, reported, declined, realized_markup)
+
+    blocking_missing = [rule_id for rule_id, priority in unrealized if priority in {"P0", "P1"}]
+    warnings.extend(f"missing P2 evidence for {rule_id}" for rule_id, priority in unrealized if priority == "P2")
 
     for message in violations:
         print(f"  VIOLATION {message}")
+    for message in warnings:
+        print(f"  WARNING P2 {message}")
 
     if unrealized:
-        print(f"UNREALIZED {len(unrealized)} rule(s) - reported, never counted as verified, "
-              "and never a violation.")
+        print(f"UNREALIZED {len(unrealized)} rule(s) - missing P0/P1 evidence blocks; P2 only warns.")
 
     exit_code = 0
-    if violations:
-        print(f"FAIL {len(violations)} violation(s).")
+    if violations or blocking_missing:
+        for rule_id in blocking_missing:
+            print(f"  MISSING EVIDENCE {rule_id} (P0/P1)")
+        print(f"FAIL {len(violations)} violation(s), {len(blocking_missing)} blocking evidence gap(s).")
         exit_code = 1
 
     # Oppose the maturity threshold last, once every violation is already on the report. Below
@@ -312,8 +336,8 @@ def render_verdict(contract_dir: Path, targets: list[Path], realized_markup: set
         print("  See references/maturity-status.md for the gap-to-cap table.")
         return 4
 
-    if not violations:
-        print("OK   no violation.")
+    if not violations and not blocking_missing:
+        print(f"OK   no blocking violation ({len(warnings)} P2 warning(s)).")
     return exit_code
 
 
@@ -324,15 +348,18 @@ def run(config_path: Path) -> int:
         config = read_config(config_path)
         contract_dir = resolve_contract(config, config_path)
         typed = type_rules(contract_dir)
+        priorities = {rule_id: priority for rule_id, _kind, priority in typed}
         targets = collect_targets(config, config_path)
 
         violations, realized_markup = lint_markup(config, config_path, contract_dir, targets)
         report_paths = resolve_pivot_reports(config, config_path)
-        reported, declined, pivot_violations = read_pivot_reports(report_paths, config_path)
+        reported, declined, pivot_violations, pivot_warnings = read_pivot_reports(
+            report_paths, config_path, priorities)
         violations.extend(pivot_violations)
+        warnings = pivot_warnings + read_workflow_checks(config, config_path)
 
         return render_verdict(contract_dir, targets, realized_markup, typed,
-                              reported, declined, violations)
+                              reported, declined, violations, warnings)
     except GateError as error:
         return error.code
 

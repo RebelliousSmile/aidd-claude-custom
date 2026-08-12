@@ -121,9 +121,9 @@ Ordre du runner : les lignes de règle d'abord, dans l'ordre où le contrat les 
 |---|---|---|
 | règle réalisée, aucune violation | `status: "pass"` | `REALIZED <id> (<type>) by <realizer>` |
 | règle typée `unrealized` par le contrat, qu'un réceptacle a couverte quand même | `status: "pass"` | `REALIZED <id> (unrealized) by <realizer> - the contract declares no realizer for it` |
-| règle hors de portée du réceptacle | `status: "unrealized"` | `UNREALIZED <id> (<type>) - <realizer> reports it unrealized` |
-| règle typée `unrealized`, qu'aucun réceptacle n'a couverte | — | `UNREALIZED <id> - declared with no realizer` |
-| réceptacle non lancé, ou rapport absent | — | `UNREALIZED <id> (<type>) - no report from its realizer` |
+| règle hors de portée du réceptacle | `status: "unrealized"` | `UNREALIZED <id> (<type>, <priority>) - <realizer> reports it unrealized` |
+| règle typée `unrealized`, qu'aucun réceptacle n'a couverte | — | `UNREALIZED <id> (<priority>) - declared with no realizer` |
+| réceptacle non lancé, ou rapport absent | — | `UNREALIZED <id> (<type>, <priority>) - no report from its realizer` |
 | violation trouvée par le cœur portable (lint markup) | — | `VIOLATION <target>: <message>` — `<target>` est un **chemin de fichier**, exit 1 |
 | règle réalisée, violations trouvées | `status: "fail"` + `violations[]` | `VIOLATION <realizer>: <message>` — exit 1 |
 

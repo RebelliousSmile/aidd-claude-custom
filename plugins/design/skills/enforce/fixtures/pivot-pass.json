@@ -1,0 +1,6 @@
+{
+  "realizer": "fixture-source-graph",
+  "rules": [
+    { "id": "state-colour-icon", "status": "pass", "violations": [] }
+  ]
+}
