@@ -3,49 +3,26 @@ name: destructure
 description: Critiques a draft, component, page, or existing design system through visual, accessibility, interaction, and hierarchy lenses. Use when the user wants actionable alternatives without changing the contract or source.
 ---
 
-# destructure
+# Destructure
 
-Le **challenge côté design**. Là où `aidd-refine:02-challenge` rethink un plan pour vérifier sa correction, `destructure` rethink une **direction visuelle** pour l'ouvrir : il met en doute le confort du "plausible générique", nomme ce qui est convenu ou incohérent, et propose des pistes d'évolution et des inspirations alternatives. C'est la phase **divergente** de l'entonnoir — on élargit l'espace des possibles avant qu'`adjust` ne le referme.
+```mermaid
+flowchart LR
+  target([draft, component, page, or system]) --> challenge --> report([critique report])
+```
 
-Deux usages, une seule mécanique :
+Read the action when this capability is selected.
 
-- **Mode entonnoir** — sur la sortie de `define` (matière malléable encore non figée). On critique la direction avant de la figer.
-- **Mode standalone** — sur un élément existant isolé (un composant, une page, un token set déjà en place). « Comment cet élément pourrait-il évoluer ? » Sur un projet déjà figé, l'action LIT le manifeste et la charte en vigueur pour situer ses pistes contre le vocabulaire du contrat existant.
+| Action | Does |
+| --- | --- |
+| challenge | challenge a visual direction and propose alternatives |
 
-**Lecture seule sur le contrat.** `destructure` ne propose que des pistes et n'édite jamais un artefact du contrat, sa racine `release.json` ni `design-system.md` — mais il persiste par défaut son propre rapport de critique sous `design/critique/` (chemin non-contractuel, opt-out `--no-write`). L'application d'une piste reste le travail d'`adjust` (ou d'un nouveau cycle `define`).
+## Routing
 
-## Available actions
-
-| # | Action | Role | Input |
-|---|--------|------|-------|
-| 01 | `challenge` | Critique la direction + génère des pistes d'évolution classées, avec score | sortie de define OU élément existant isolé |
-
-## Default flow
-
-Action unique. L'entrée est polymorphe : la sortie de `define`, ou un élément/chemin existant.
-
-Trigger-to-action mapping :
-
-- "challenge cette direction de design", "critique ce design system", "qu'est-ce qui est trop générique ici", "propose d'autres pistes/inspirations" → `challenge` (mode entonnoir)
-- "comment ce composant pourrait évoluer", "destructure design/components/card.md", "explore des variantes pour cet élément" → `challenge` (mode standalone)
-- "on a hérité de ce codebase, quel est l'état du design" → `challenge` (mode standalone, ex-diagnose)
+- "critique or challenge this design target" → `challenge`
 
 ## Transversal rules
 
-- **Lecture seule sur le contrat gelé et le code source.** `destructure` n'édite jamais un artefact du contrat, `release.json`, `design-system.md` ni le code source — mais il persiste par défaut son propre rapport de critique sous `design/critique/<yyyy_mm_dd>-<cible>.md` (chemin non-contractuel ; opt-out `--no-write` / "ne sauvegarde pas" pour rester conversationnel). Le principe de lecture seule ne s'applique qu'au contrat gelé et au code source — jamais au rapport de critique lui-même.
-- Chaque piste doit être **actionnable** et concrète — jamais « améliore le contraste » ou « rends-le plus moderne ». Utiliser les lentilles de `references/critique-lenses.md` pour forcer la précision.
-- En mode standalone sur un projet figé, **lire d'abord** `design/release.json` et les artefacts qu'il déclare, plus `design/design-system.md` (charte) s'il existe, pour situer chaque piste contre le vocabulaire du contrat en vigueur — distinguer ce qui rentre dans le contrat actuel de ce qui demanderait un re-figeage par `adjust`.
-- **Diverger, pas trancher** : proposer 2–4 pistes contrastées par axe critiqué, pas une seule "bonne" réponse. L'arbitrage est le rôle d'`adjust`.
-- Classer les trouvailles (générique / incohérent / risque a11y / risque UX / occasion manquée) et donner un **score** de distinction de la direction.
-- Signaler l'emoji-comme-icône explicitement (smell bloquant) et proposer le jeu d'icônes de remplacement.
-
-## References
-
-- `${CLAUDE_PLUGIN_ROOT}/skills/destructure/references/critique-lenses.md` — les lentilles de critique (générique vs distinctif, cohérence, accessibilité, tendances, divergence d'inspiration)
-- `${CLAUDE_PLUGIN_ROOT}/skills/destructure/references/critique-report-template.md` — le squelette canonique du rapport persisté
-- `${CLAUDE_PLUGIN_ROOT}/references/design-system-contract.md` — pour situer les pistes contre les artefacts du contrat
-- `${CLAUDE_PLUGIN_ROOT}/references/token-schema.md` — les groupes de tokens contre lesquels juger la matière
-
-## Evals
-
-- `evals/scenarios.json`
+- Work standalone on the target supplied by the user; a draft from another capability is optional.
+- Never change the frozen contract or source code.
+- Persist only the critique report unless the user requests conversation-only output.
+- Produce concrete alternatives across distinction, consistency, accessibility, interaction states, responsive behavior, and reading hierarchy.

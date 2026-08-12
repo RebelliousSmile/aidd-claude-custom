@@ -76,8 +76,9 @@ function parseActionTable(lines) {
       trigCol = cells.findIndex((c) => TRIGGER_COL_RE.test(c));
       continue;
     }
-    if (!/^\d+$/.test(cells[0])) continue;
-    const m = new RegExp('^`(' + ID + ')`').exec(cells[1] ?? '');
+    const numbered = /^\d+$/.test(cells[0]);
+    const actionCell = numbered ? cells[1] : cells[0];
+    const m = new RegExp('^`?(' + ID + ')`?$').exec(actionCell ?? '');
     if (!m) continue;
     const id = norm(m[1]);
     declared.add(id);
@@ -110,7 +111,7 @@ function flowTriggers(flowLines, declared) {
       const cells = cellsOf(line);
       if (cells.length < 2 || isSeparator(cells)) continue;
       if (/^\d+$/.test(cells[0])) continue; // table d'actions, pas de dispatch
-      const m = new RegExp('^`(' + ID + ')`').exec(cells[cells.length - 1]);
+      const m = new RegExp('^`?(' + ID + ')`?').exec(cells[cells.length - 1]);
       if (m && declared.has(norm(m[1]))) out.add(norm(m[1]));
       continue;
     }

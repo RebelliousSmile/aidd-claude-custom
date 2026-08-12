@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Phase 2 — Entrées autonomes
