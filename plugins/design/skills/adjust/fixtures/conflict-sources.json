@@ -1,0 +1,7 @@
+{
+  "sources": [
+    { "id": "brief", "color.brand.primary": "#2563eb" },
+    { "id": "rendered-code", "color.brand.primary": "#0044cc" }
+  ],
+  "resolution": null
+}

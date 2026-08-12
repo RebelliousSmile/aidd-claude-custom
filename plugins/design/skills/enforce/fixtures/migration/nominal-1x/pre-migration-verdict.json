@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "1.x-baseline",
+  "command": "legacy-design-lint",
+  "exitCode": 0,
+  "violations": [],
+  "capturedBeforeMigration": true
+}

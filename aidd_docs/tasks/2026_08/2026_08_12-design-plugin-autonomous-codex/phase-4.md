@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Phase 4 — Comportements et validation
