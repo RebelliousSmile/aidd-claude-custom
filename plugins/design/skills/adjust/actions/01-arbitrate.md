@@ -123,4 +123,4 @@ Si des cas restent non tranchés (utilisateur n'a pas répondu), ne pas passer �
 Le brief d'arbitrage est produit dans la conversation (pas dans un fichier). Il sert d'entrée directe à `02-freeze`.
 
 Annoncer à l'utilisateur :
-> Brief d'arbitrage complet. X décisions automatiques, Y décisions humaines. Prêt à figer avec `02-freeze` (ou taper `/design:adjust` pour continuer directement).
+> Brief d'arbitrage complet. X décisions automatiques, Y décisions humaines. Prêt à figer avec `02-freeze` (ou invoquer `design:adjust` pour continuer directement).

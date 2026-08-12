@@ -11,10 +11,10 @@ Classe une intention en classe de cas et émet la séquence exécutable. Répond
 
 ## Process
 
-1. Classer en une des six classes (`${CLAUDE_PLUGIN_ROOT}/skills/detail/references/workflow-classes.md`), à partir de la signature d'entrée croisée avec l'état du contrat.
+1. Classer en une des six classes (`${DESIGN_PLUGIN_ROOT}/skills/detail/references/workflow-classes.md`), à partir de la signature d'entrée croisée avec l'état du contrat.
 2. Si la classe énoncée par le consommateur contredit l'état observé, **signaler l'écart** et re-classer sur l'état réel — jamais corriger en silence.
 3. Énoncer la précondition `harness` si la classe l'exige (référence pas encore mesurable).
-4. Appliquer la règle de résolution des pivots (`${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md § Règle de résolution`) :
+4. Appliquer la règle de résolution des pivots (`${DESIGN_PLUGIN_ROOT}/references/sc-pivot-contract.md § Règle de résolution`) :
    - pivot installé **et** stack correspondante → la classe **étendue** par le workflow de plateforme du pivot ;
    - pivot absent, ou installé mais stack non correspondante → la classe **seule**, l'absence énoncée + recommandation conditionnelle d'installer `sc-<langage>`.
 5. **Extension présente : ouvrir le workflow et fusionner.** Lire sa table `## Phases` — les cinq titres de `sc-pivot-contract.md § Cinq titres requis` sont un jeton d'interface, ils garantissent que cette lecture aboutit sur n'importe quel pivot. Puis dériver la séquence unique, sans interprétation :

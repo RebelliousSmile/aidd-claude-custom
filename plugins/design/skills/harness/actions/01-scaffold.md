@@ -12,8 +12,8 @@ A standalone HTML file exposing `window.setPage(key)` and `window.setViewport(mo
 ## Process
 
 1. **Resolve.** Normalize the page list and reject empty, duplicate, non-slug, or JavaScript-colliding keys.
-2. **Generate.** Run `${CLAUDE_PLUGIN_ROOT}/adapters/harness/harness.py` with the supplied output and page arguments.
-3. **Verify.** Run `${CLAUDE_PLUGIN_ROOT}/tools/harness-runtime-check.mjs` on the generated file and return its public exit code.
+2. **Generate.** Run `${DESIGN_PLUGIN_ROOT}/adapters/harness/harness.py` with the supplied output and page arguments.
+3. **Verify.** Run `${DESIGN_PLUGIN_ROOT}/tools/harness-runtime-check.mjs` on the generated file and return its public exit code.
 
 ## Test
 

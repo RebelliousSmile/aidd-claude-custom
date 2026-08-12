@@ -50,9 +50,11 @@ for (const name of plugins) {
   const codexPath = `plugins/${name}/.codex-plugin/plugin.json`;
   if (existsSync(join(ROOT, codexPath))) {
     const codex = readJson(codexPath);
-    for (const key of ['name', 'version', 'description'])
+    for (const key of ['name', 'description'])
       if (codex[key] !== manifest[key])
         fail('M1', `${name} — ${key} : manifeste Codex et manifeste Claude divergent`);
+    if (codex.version !== manifest.version && !codex.version?.startsWith(`${manifest.version}+codex.`))
+      fail('M1', `${name} — version : le manifeste Codex doit partager la version Claude, avec au plus un cachebuster +codex.*`);
   }
 }
 

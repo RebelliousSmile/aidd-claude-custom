@@ -1,18 +1,29 @@
 {
   "name": "design",
-  "version": "2.11.0",
+  "version": "2.12.0+codex.20260812093911",
   "description": "Builds, critiques, freezes, enforces, and diffuses design systems from briefs, visual references, or existing code through standalone skills or an optional end-to-end workflow.",
-  "author": { "name": "François-Xavier Guillois" },
+  "author": {
+    "name": "Fran\u00e7ois-Xavier Guillois"
+  },
   "license": "MIT",
-  "keywords": ["design-system", "tokens", "components", "accessibility", "visual-fidelity"],
+  "keywords": [
+    "design-system",
+    "tokens",
+    "components",
+    "accessibility",
+    "visual-fidelity"
+  ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Design",
     "shortDescription": "Build and verify design systems",
     "longDescription": "Create, critique, freeze, enforce, and diffuse a design system from a brief, a visual reference, or an existing codebase. Each capability works independently, while a complete workflow remains available for full design-system projects.",
-    "developerName": "François-Xavier Guillois",
+    "developerName": "Fran\u00e7ois-Xavier Guillois",
     "category": "Developer Tools",
-    "capabilities": ["Interactive", "Write"],
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
     "defaultPrompt": [
       "Audit this component's design and accessibility",
       "Build a design system from this brief",

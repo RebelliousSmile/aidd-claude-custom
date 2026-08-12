@@ -26,25 +26,28 @@ Le pipeline compte **cinq verbes**. Le point de bascule est `adjust` : avant lui
 
 ## Skills
 
-| Skill | Invocation | Description |
+| Skill | Capability | Description |
 |-------|-----------|-------------|
-| `detail` | `/design:detail` | **Verbe 0, lecture seule, aucun artefact.** `explain` : la carte des verbes. `route` : la séquence exécutable pour l'une des six classes de cas, étendue par le workflow de plateforme du pivot `sc-*` installé. |
-| `define` | `/design:define` | Extraction depuis références/brief → tokens + inventaire + charte brouillon. Profil mobile-first optionnel. |
-| `destructure` | `/design:destructure` | Challenge la direction design — critique multi-angles + pistes alternatives. |
-| `adjust` | `/design:adjust` | Arbitrage maquettes + figeage du contrat + migration 1.x → 2.0. |
-| `enforce` | `/design:enforce` | Linter portable dérivé du contrat · 4 gates de vocabulaire + 1 gate de fidélité · pivot par langage. |
-| `diffuse` | `/design:diffuse` | Éléments répétables sous gate lint · baseline HTML/CSS · pivot par langage. |
-| `harness` | `/design:harness` | Génère le harness HTML autonome (`setPage`/`setViewport`) piloté par l'oracle de fidélité. **Hors entonnoir.** |
+| `detail` | `design:detail` | **Verbe 0, lecture seule, aucun artefact.** `explain` : la carte des verbes. `route` : la séquence exécutable pour l'une des six classes de cas, étendue par le workflow de plateforme du pivot `sc-*` installé. |
+| `define` | `design:define` | Extraction depuis références/brief → tokens + inventaire + charte brouillon. Profil mobile-first optionnel. |
+| `destructure` | `design:destructure` | Challenge la direction design — critique multi-angles + pistes alternatives. |
+| `adjust` | `design:adjust` | Arbitrage maquettes + figeage du contrat + migration 1.x → 2.0. |
+| `enforce` | `design:enforce` | Linter portable dérivé du contrat · 4 gates de vocabulaire + 1 gate de fidélité · pivot par langage. |
+| `diffuse` | `design:diffuse` | Éléments répétables sous gate lint · baseline HTML/CSS · pivot par langage. |
+| `harness` | `design:harness` | Génère le harness HTML autonome (`setPage`/`setViewport`) piloté par l'oracle de fidélité. **Hors entonnoir.** |
 
 ## Démarrage rapide
 
-```
-/design:detail          # quelle séquence pour mon cas (lecture seule)
-/design:define          # poser le contrat depuis brief ou référence
-/design:destructure     # challenger avant de figer (recommandé)
-/design:adjust          # arbitrer + figer le contrat (ou migrer un contrat 1.x)
-/design:enforce         # câbler le linter + les gates
-/design:diffuse <comp>  # produire sous gate
+Invoquer ces capacités par leur nom dans Codex. Dans Claude Code, le même nom peut être appelé
+comme slash command (`/design:define`, etc.). Le workflow ne dépend d'aucune syntaxe d'hôte :
+
+```text
+design:detail          # quelle séquence pour mon cas (lecture seule)
+design:define          # poser le contrat depuis brief ou référence
+design:destructure     # challenger avant de figer (recommandé)
+design:adjust          # arbitrer + figer le contrat (ou migrer un contrat 1.x)
+design:enforce         # câbler le linter + les gates
+design:diffuse <comp>  # produire sous gate
 ```
 
 ## Artefacts produits dans le projet

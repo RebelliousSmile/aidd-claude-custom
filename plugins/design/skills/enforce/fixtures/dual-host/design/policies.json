@@ -1,0 +1,6 @@
+{
+  "$schema": "design/references/contract-schema#policies",
+  "version": "1.0.0",
+  "mode": "bem",
+  "usage": { "rules": [] }
+}

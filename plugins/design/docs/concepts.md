@@ -59,8 +59,8 @@ Ce choix évite le piège habituel du linter de design system : bloquer un proje
 `tools/generate.py` est le **seul producteur** des artefacts dérivés. Il lit les sources du contrat et émet un fichier par entrée de `policies.json § adapters[]` déclarant un `consumer` — un rôle (feuille de style, source pré-processée, configuration de build, fichier de tokens de plateforme), jamais un nom de plateforme.
 
 ```bash
-python ${CLAUDE_PLUGIN_ROOT}/tools/generate.py --contract design/            # au figeage
-python ${CLAUDE_PLUGIN_ROOT}/tools/generate.py --check --contract design/    # avant tout rendu
+python ${DESIGN_PLUGIN_ROOT}/tools/generate.py --contract design/            # au figeage
+python ${DESIGN_PLUGIN_ROOT}/tools/generate.py --check --contract design/    # avant tout rendu
 ```
 
 Le figeage grave dans `release.json § generated` l'empreinte de chaque source lue. `--check` l'oppose ensuite aux fichiers présents. **Une retouche manuelle et une source périmée sortent toutes deux en 1**, et aucun drapeau ne neutralise l'échec : on change la source, on régénère.

@@ -2,7 +2,7 @@
 
 ## Rôle
 
-Câbler les 4 gates dans le projet : import de la feuille de tokens, rules de génération, `success_condition` des plans, hook pre-commit auto-armé. Spécification complète de chaque point : `${CLAUDE_PLUGIN_ROOT}/skills/enforce/references/gate-wiring.md`.
+Câbler les 4 gates dans le projet : import de la feuille de tokens, rules de génération, `success_condition` des plans, hook pre-commit auto-armé. Spécification complète de chaque point : `${DESIGN_PLUGIN_ROOT}/skills/enforce/references/gate-wiring.md`.
 
 ## Prérequis
 
@@ -14,7 +14,7 @@ Câbler les 4 gates dans le projet : import de la feuille de tokens, rules de g�
 
 Lister les fichiers qui portent le vocabulaire du design system : markup statique, templates qui émettent du markup, composants du build. Ce périmètre s'écrit dans `gates.config.json § targets` — c'est là qu'il est lu, nulle part ailleurs.
 
-Ce qui n'est pas un fichier du dépôt (feuilles de style, contenu stocké, configuration de plateforme) ne va pas dans `targets` : ces règles se déclarent en `usage.rules[]` avec leur type d'enforcement et sont réalisées par un pivot (`${CLAUDE_PLUGIN_ROOT}/references/enforcement-registry.md`).
+Ce qui n'est pas un fichier du dépôt (feuilles de style, contenu stocké, configuration de plateforme) ne va pas dans `targets` : ces règles se déclarent en `usage.rules[]` avec leur type d'enforcement et sont réalisées par un pivot (`${DESIGN_PLUGIN_ROOT}/references/enforcement-registry.md`).
 
 ### Étape 2 — Vérifier/câbler Gate 0 (import de la feuille de tokens)
 
@@ -22,7 +22,17 @@ Vérifier que les artefacts émis par `generate.py` sont chargés en tête, sans
 
 ### Étape 3 — Câbler Gate 1 (rules de génération)
 
-**Projet avec rules Claude Code** : créer ou compléter `.claude/rules/08-design/01-enforce.md` :
+Détecter les hôtes réellement utilisés par le projet, conformément à
+`${DESIGN_PLUGIN_ROOT}/references/host-portability.md § Persistent project instructions` :
+
+- **Codex** : créer ou compléter la section `## Design system gate` du `AGENTS.md` le plus proche
+  qui couvre les fichiers cibles ; utiliser le `AGENTS.md` racine si le périmètre est global ;
+- **Claude Code** : créer ou compléter `.claude/rules/08-design/01-enforce.md` ;
+- **les deux** : écrire les deux surfaces avec le même contenu normatif ;
+- **aucune surface persistante détectée** : demander où persister la règle au lieu de modifier
+  une skill installée ou d'inventer une convention.
+
+Contenu de la section/rule :
 
 ```markdown
 ## Design system gate
@@ -30,10 +40,9 @@ Vérifier que les artefacts émis par `generate.py` sont chargés en tête, sans
 Avant de générer du markup ou des classes :
 - Lire `design/components.json` (classes) et `design/tokens.json` (valeurs) — n'utiliser QUE ce qui y est déclaré.
 - Toute classe non déclarée dans `components.json` est une violation ; STOP avant de générer.
-- Pour ajouter une classe : re-figer via `/design:adjust`, puis re-jouer `/design:enforce`.
+- Pour ajouter une classe : invoquer `design:adjust` pour re-figer, puis invoquer
+  `design:enforce` pour re-jouer les gates.
 ```
-
-**Projet sans rules Claude Code** : porter l'instruction dans le `SKILL.md` de `diffuse` (partie `requires:`).
 
 ### Étape 4 — Câbler Gate 2 (`success_condition`)
 
@@ -54,7 +63,7 @@ Valider : introduire une violation dans une cible et vérifier que `git commit` 
 
 > Gates câblés :
 > - Gate 0 (import) : déjà câblé par `adjust` / câblé maintenant — `:root` concurrents supprimés
-> - Gate 1 (rules) : `.claude/rules/08-design/01-enforce.md` créé
+> - Gate 1 (instructions persistantes) : `AGENTS.md` / `.claude/rules/08-design/01-enforce.md` créé ou mis à jour selon les hôtes détectés
 > - Gate 2 (`success_condition`) : N plans mis à jour
 > - Gate 3 (pre-commit) : `scripts/hooks/pre-commit` créé, auto-armement ajouté
 >

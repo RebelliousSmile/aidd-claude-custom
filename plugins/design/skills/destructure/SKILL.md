@@ -22,6 +22,7 @@ Read the action when this capability is selected.
 
 ## Transversal rules
 
+- Resolve the plugin root using [host-portability.md](../../references/host-portability.md) before loading bundled tools or references.
 - Work standalone on the target supplied by the user; a draft from another capability is optional.
 - Never change the frozen contract or source code.
 - Persist only the critique report unless the user requests conversation-only output.

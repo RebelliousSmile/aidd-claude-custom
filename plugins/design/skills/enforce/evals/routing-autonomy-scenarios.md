@@ -2,7 +2,7 @@
 
 Behavioural tests for **design:enforce**. Authority: `SKILL.md` §Routing; `actions/00-inspect.md` §Process; `actions/04-pivot.md` §Étape 2–4; `actions/05-fidelity-gate.md` §Refus d'affirmer la conformité; `references/control-priorities.md`.
 
-> **Fixture / preconditions.** S1 uses contract-absent `plugins/design/fixtures/brief-only/`; command scenarios use named configs under `skills/enforce/fixtures/`; `tools/run-gates.py` is the deterministic oracle.
+> **Fixture / preconditions.** S1 uses contract-absent `plugins/design/fixtures/brief-only/`; command scenarios use named configs under `skills/enforce/fixtures/`; host wiring uses `skills/enforce/fixtures/dual-host/`; `tools/run-gates.py` is the deterministic oracle.
 
 ## Scenarios
 
@@ -16,6 +16,8 @@ Behavioural tests for **design:enforce**. Authority: `SKILL.md` §Routing; `acti
 | S6 | Run `gates.legacy.config.json`. | Preserve the public legacy-contract code. | Process exits 3, names absent `release.json`, and recommends migration. |
 | S7 | Ask to freeze a mutable draft. | Do not activate enforcement. | Selected target is `adjust/arbitrate`; no `enforce` action is selected. |
 | S8 | Ask to render one frozen component. | Do not activate enforcement as the entry skill. | Selected target is `diffuse/render`; internal gates may be downstream, but no enforcement router action is the entry point. |
+| S9 | Wire gates in `dual-host/`, which contains both `AGENTS.md` and `.claude/rules/`. | Select `wire-gates` and plan equivalent persistent instructions for both hosts. | Intended writes update the applicable `AGENTS.md` section and `.claude/rules/08-design/01-enforce.md`; no installed plugin `SKILL.md` is an intended write. |
+| S10 | Install the linter from a Codex-loaded skill while the working directory is unrelated and no plugin-root environment variable exists. | Resolve `DESIGN_PLUGIN_ROOT` from the loaded `enforce/SKILL.md` path, then select `build-linter`. | Source reads name the resolved plugin copies of `run-gates.py`, `lint-core.mjs`, `migrate-contract.py`, and `status.py`; no path starts at `/tools` or depends on `CLAUDE_PLUGIN_ROOT`. |
 
 ## How to run
 
@@ -54,3 +56,43 @@ Fixture state: `brief-only/page.html` contains an h1/button and its project has 
 
 **Frictions / gaps:** none.
 **Tally:** 8/8 PASS (0 N/A) — fixture gap closed.
+
+### 2026-08-12 — run 3 (regression, dry-run, target=enforce, fixture=gate-configs+brief-only-page) — **8/8 PASS**
+
+Fixture state: contractless page remains populated; deterministic gate commands still expose public exits 0/1/2/3/4.
+
+| # | Behaviour | Verdict | Δ vs prior | Note (instruction cited) |
+|---|---|---|---|---|
+| S1 | inspect, no conformity claim | PASS | = | `actions/00-inspect.md §Input,Output,Process` |
+| S2 | P2 warns, exit 0 | PASS | = | `control-priorities.md §Evidence rules` |
+| S3 | P0 missing, exit 1 | PASS | = | `control-priorities.md §P0` |
+| S4 | maturity exit 4 | PASS | = | `SKILL.md §Transversal rules` |
+| S5 | invalid config exit 2 | PASS | = | `SKILL.md §Transversal rules` |
+| S6 | legacy exit 3 | PASS | = | `SKILL.md §Transversal rules` |
+| S7 | freeze entry excluded | PASS | = | `adjust/SKILL.md §Routing` |
+| S8 | render entry excluded | PASS | = | `diffuse/SKILL.md §Routing` |
+
+**Frictions / gaps:** none.
+**Tally:** 8/8 PASS (0 N/A) — no PASS→FAIL regression.
+
+### 2026-08-12 — run 4 (post-fix, dry-run, target=enforce, fixture=gate-configs+dual-host) — **10/10 PASS**
+
+Fixture state: public exits remain 0–4; dual-host has a populated 2.x contract whose real
+`run-gates.py` invocation exits 0, plus `AGENTS.md` and `.claude/rules/`; root resolution starts
+from loaded SKILL.md.
+
+| # | Behaviour | Verdict | Δ vs prior | Note (instruction cited) |
+|---|---|---|---|---|
+| S1 | inspect, no conformity claim | PASS | = | `actions/00-inspect.md §Input,Output,Process` |
+| S2 | P2 warns, exit 0 | PASS | = | `control-priorities.md §Evidence rules` |
+| S3 | P0 missing, exit 1 | PASS | = | `control-priorities.md §P0` |
+| S4 | maturity exit 4 | PASS | = | `SKILL.md §Transversal rules` |
+| S5 | invalid config exit 2 | PASS | = | `SKILL.md §Transversal rules` |
+| S6 | legacy exit 3 | PASS | = | `SKILL.md §Transversal rules` |
+| S7 | freeze entry excluded | PASS | = | `adjust/SKILL.md §Routing` |
+| S8 | render entry excluded | PASS | = | `diffuse/SKILL.md §Routing` |
+| S9 | equivalent Codex/Claude persistence | PASS | new | `actions/02-wire-gates.md §Étape 3`; `host-portability.md §Persistent project instructions` |
+| S10 | artifact-derived plugin root | PASS | new | `host-portability.md §Root resolution`; `actions/01-build-linter.md §Étape 2` |
+
+**Frictions / gaps:** none.
+**Tally:** 10/10 PASS (0 N/A) — real green gate, host persistence and root portability confirmed.

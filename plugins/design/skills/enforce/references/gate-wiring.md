@@ -12,7 +12,7 @@ python design/lint/run-gates.py --config design/lint/gates.config.json
 
 Un site d'appel qui invoque `lint-core.mjs` directement contourne le runner : il ne voit que les règles de type `markup` et ne rapporte aucune règle non réalisée. Un run vert y signifie moins qu'ailleurs, sans le dire.
 
-Contenu de la configuration : `${CLAUDE_PLUGIN_ROOT}/references/gate-config-schema.md`.
+Contenu de la configuration : `${DESIGN_PLUGIN_ROOT}/references/gate-config-schema.md`.
 
 ## Prérequis d'exécution
 
@@ -56,7 +56,9 @@ Avant de générer du markup :
 3. Classe manquante ⇒ STOP, ne pas générer ; signaler la violation.
 ```
 
-**Artefact** : `.claude/rules/08-design/` du projet consommateur, ou le `SKILL.md` de `diffuse`.
+**Artefact** : `AGENTS.md` applicable pour Codex, `.claude/rules/08-design/` pour Claude Code, les
+deux si le projet utilise les deux hôtes. Ne jamais modifier une skill installée pour persister la
+règle d'un projet consommateur.
 
 ---
 
@@ -111,7 +113,7 @@ Automatisable à l'installation des dépendances, via un script `postinstall` du
 | Gate | Artefact | Emplacement |
 |------|----------|-------------|
 | 0 — Import | artefact `stylesheet` chargé en tête, `:root` concurrents supprimés | App consommatrice |
-| 1 — Rules | Instruction dans `.claude/rules/08-design/` ou `diffuse/SKILL.md` | Projet consommateur |
+| 1 — Instructions | Section dans `AGENTS.md` et/ou `.claude/rules/08-design/` | Projet consommateur |
 | 2 — success_condition | Frontmatter des plans concernés | Plans aidd-dev |
 | 3 — pre-commit | `scripts/hooks/pre-commit` | Racine projet (versionné) |
 | 3 — auto-armer | `postinstall` du gestionnaire de paquets | Racine projet |

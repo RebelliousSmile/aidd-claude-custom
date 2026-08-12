@@ -26,6 +26,7 @@ Read only the next action in the selected path.
 
 ## Transversal rules
 
+- Resolve the plugin root using [host-portability.md](../../references/host-portability.md) before loading bundled tools or references.
 - Accept a draft, an existing frozen contract plus a scoped delta, or a legacy contract; no prior capability is mandatory.
 - On a direct delta, preserve every untouched token and component and arbitrate only the supplied change.
 - Never install gates or render components.

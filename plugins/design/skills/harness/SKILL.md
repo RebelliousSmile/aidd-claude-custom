@@ -25,6 +25,7 @@ Read only the action selected by the presence of a contract.
 
 ## Transversal rules
 
+- Resolve the plugin root using [host-portability.md](../../references/host-portability.md) before invoking the generator or runtime checker.
 - Stay outside the design-system lifecycle and change no contract artifact.
 - Require an explicit output path and validate page keys before writing.
 - Preserve the public exit space 0 success, 2 invalid input, and 3 legacy contract.

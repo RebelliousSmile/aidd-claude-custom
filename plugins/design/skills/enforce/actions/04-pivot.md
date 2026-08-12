@@ -6,7 +6,7 @@ Assigner à un réceptacle chaque règle que le cœur portable ne réalise pas, 
 
 ## Prérequis
 
-- Contrat figé, `usage.rules[]` typé (`${CLAUDE_PLUGIN_ROOT}/references/enforcement-registry.md`).
+- Contrat figé, `usage.rules[]` typé (`${DESIGN_PLUGIN_ROOT}/references/enforcement-registry.md`).
 - `01-build-linter` terminé : `run-gates.py` et `gates.config.json` installés.
 
 ## Étape 1 — Router chaque règle vers son réalisateur
@@ -29,7 +29,7 @@ Réceptacle absent de la session ⇒ ses règles restent assignées mais non ré
 
 ## Étape 3 — Émettre le spec, une fois par réceptacle
 
-Format complet : `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md § Spec d'enforcement`. Deux champs portent le contrat de cette action :
+Format complet : `${DESIGN_PLUGIN_ROOT}/references/sc-pivot-contract.md § Spec d'enforcement`. Deux champs portent le contrat de cette action :
 
 - **Declared rules** — uniquement les règles routées vers ce réceptacle, id et description repris verbatim du contrat. Un réceptacle ne reçoit jamais une règle qu'un autre réalise.
 - **Report path** — le fichier où le réceptacle écrit son rapport.

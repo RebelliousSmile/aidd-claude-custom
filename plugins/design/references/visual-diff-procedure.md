@@ -4,7 +4,7 @@
 
 Le diff pixel **pointe** où regarder ; il ne **prouve** rien. Un diff à zéro ne clôt pas le gate
 de fidélité, un diff non nul ne le fait pas échouer par lui-même : la preuve de conformité vient
-du verdict par propriété de `measure.py` (`${CLAUDE_PLUGIN_ROOT}/skills/enforce/actions/05-fidelity-gate.md`).
+du verdict par propriété de `measure.py` (`${DESIGN_PLUGIN_ROOT}/skills/enforce/actions/05-fidelity-gate.md`).
 Cette passe alimente le classement des deltas, elle ne le remplace pas.
 
 ## Quand l'utiliser
@@ -29,13 +29,13 @@ config (éléments non mappés).
 ```bash
 # 1 — captures full-page par breakpoint (mockup + cible)
 #     Même config JSON que measure.py — reference_url, implementation_url, breakpoints réutilisés.
-python ${CLAUDE_PLUGIN_ROOT}/adapters/measure/screenshot.py \
+python ${DESIGN_PLUGIN_ROOT}/adapters/measure/screenshot.py \
   --config <config-projet> \
   --out <projet>/<qa-dir>/shots/<page>
 # → <page>__mockup__desktop.png  /  <page>__implementation__desktop.png  (+ mobile, tablet)
 
 # 2 — pixel diff par breakpoint
-python ${CLAUDE_PLUGIN_ROOT}/adapters/measure/pixeldiff.py \
+python ${DESIGN_PLUGIN_ROOT}/adapters/measure/pixeldiff.py \
   --a <shots>/<page>__mockup__<bp>.png \
   --b <shots>/<page>__implementation__<bp>.png \
   --out <projet>/<qa-dir>/shots/<page>/<bp>
@@ -92,4 +92,4 @@ Un delta `source: visual` n'est **pas clos par re-capture seule**. Séquence obl
 Si l'oracle reste CLOSED après correction mais le diff persiste → l'écart n'est pas rattachable
 à une propriété CSS mesurable → investiguer (effet composite, état injecté, rendu natif spécifique).
 Options : enrichir le config oracle pour couvrir la propriété manquante, ou une entrée `active`
-dans `deviations.json` si l'écart est délibéré (schéma : `${CLAUDE_PLUGIN_ROOT}/references/deviations-schema.md`).
+dans `deviations.json` si l'écart est délibéré (schéma : `${DESIGN_PLUGIN_ROOT}/references/deviations-schema.md`).

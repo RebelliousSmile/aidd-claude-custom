@@ -35,6 +35,7 @@ Read only the next action in the selected path.
 
 ## Transversal rules
 
+- Resolve the plugin root and persistent host surface using [host-portability.md](../../references/host-portability.md).
 - A request to audit one page, component, or codebase without a contract runs `inspect` alone.
 - `inspect` is read-only and may report risks and missing evidence; it never emits green, maturity, or conformity.
 - Contract enforcement requires `release.json`; do not silently create or infer a contract.

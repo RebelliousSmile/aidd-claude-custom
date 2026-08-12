@@ -4,7 +4,7 @@
 
 Figer le contrat. Prend le brief d'arbitrage produit par `01-arbitrate` et :
 1. Canonise `design/tokens.json` (déduplique, vérifie les groupes requis).
-2. Écrit les artefacts dérivés — `components.json`, `policies.json`, et `oracle.json` seulement si le brief produit des cibles de mesure — conformes à `${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md`.
+2. Écrit les artefacts dérivés — `components.json`, `policies.json`, et `oracle.json` seulement si le brief produit des cibles de mesure — conformes à `${DESIGN_PLUGIN_ROOT}/references/contract-schema.md`.
 3. Marque `design/design-system.md` comme figé et bumpe la version.
 4. Écrit la racine `design/release.json` : versions par artefact, empreintes, provenance, statut.
 
@@ -18,7 +18,7 @@ Un contrat encore en 1.x se migre d'abord par `03-migrate` — le figeage ne con
 
 ### 1a. Vérifier les groupes requis
 
-Auditer `tokens.json` contre les groupes requis de `${CLAUDE_PLUGIN_ROOT}/references/token-schema.md` :
+Auditer `tokens.json` contre les groupes requis de `${DESIGN_PLUGIN_ROOT}/references/token-schema.md` :
 - Groupes présents → OK
 - Groupes manquants → les créer avec les valeurs retenues dans le brief
 - Groupes partiels → les compléter
@@ -33,7 +33,7 @@ Tous les `{token.path}` dans `$value` doivent pointer vers un chemin existant da
 
 ### 1d. Auditer les overlays de thème (si `themes` est présent)
 
-Pour chaque thème sous `themes.<nom>` (§ Modes / themes de `${CLAUDE_PLUGIN_ROOT}/references/token-schema.md`) et chaque chemin qu'il re-déclare :
+Pour chaque thème sous `themes.<nom>` (§ Modes / themes de `${DESIGN_PLUGIN_ROOT}/references/token-schema.md`) et chaque chemin qu'il re-déclare :
 - Vérifier que le chemin existe dans l'arbre de base (hors `themes`) de `tokens.json`. Un chemin d'overlay absent de l'arbre de base est une **erreur bloquante** (jamais un warning) — corriger le chemin, ou l'ajouter d'abord à l'arbre de base s'il doit exister pour tous les thèmes.
 - Vérifier qu'une entrée d'overlay ne porte que `$value` (jamais `$type` — le type est toujours hérité du chemin de base). Une entrée avec `$type` est non conforme au schéma.
 - `default` n'est jamais une entrée de `themes` — c'est l'arbre de base lui-même ; signaler toute clé `themes.default` comme erreur.
@@ -44,11 +44,11 @@ Réécrire `design/tokens.json` avec les tokens canonisés. Conserver le format 
 
 ## Étape 2 — Écrire les artefacts dérivés
 
-Construire les artefacts à partir des composants résolus dans le brief d'arbitrage, en suivant `${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md`. Chaque donnée vit dans un seul artefact ; ne rien dupliquer d'un fichier à l'autre.
+Construire les artefacts à partir des composants résolus dans le brief d'arbitrage, en suivant `${DESIGN_PLUGIN_ROOT}/references/contract-schema.md`. Chaque donnée vit dans un seul artefact ; ne rien dupliquer d'un fichier à l'autre.
 
 ### Structure minimale requise
 
-`design/components.json` — anatomie seule (schéma détaillé : `${CLAUDE_PLUGIN_ROOT}/skills/adjust/references/manifest-schema.md`) :
+`design/components.json` — anatomie seule (schéma détaillé : `${DESIGN_PLUGIN_ROOT}/skills/adjust/references/manifest-schema.md`) :
 
 ```json
 {
@@ -100,15 +100,15 @@ Construire les artefacts à partir des composants résolus dans le brief d'arbit
 1. **Noms canoniques en kebab-case** : `btn`, `card`, `hero`, `nav`, `form-field`, etc.
 2. **BEM strict** : `base` = le block ; `elements.*` = `block__element` ; `modifiers.*` = `block--modifier`.
 3. **Fonds et avant-plans token-référencés** : chaque chemin dans `.backgrounds` et `.foregrounds` doit exister dans le `tokens.json` canonisé. Si un chemin est absent → erreur bloquante, corriger `tokens.json` d'abord.
-3-bis. **Chaque composant qui porte du texte déclare ses `.foregrounds`** — les chemins réellement posés sur ses fonds, pris où ils vivent : `color.brand.*` et `color.domain.*` sont aussi légitimes que `color.semantic.text`. C'est la seule déclaration d'**usage** du contrat, et elle commande tout le contrôle de contraste. Un composant purement structurel (`grid`, `spacer`) l'omet ; un composant qui affiche du texte et l'omet rend sa couleur de texte intestable. Deux sources fournissent ces appariements, et aucune ne se réinvente ici : `design-system.md § Inventaire des composants` porte les colonnes fonds/avant-plans renseignées par `define` (`${CLAUDE_PLUGIN_ROOT}/references/write-system-procedure.md`) — c'est la source normale, présente sur tout contrat ; et si un rapport `design/critique/` existe, il porte la table des appariements proposés après mesure (`destructure/01-challenge.md § étape 2-bis`), qui prime en cas de divergence puisqu'elle a été chiffrée. Si les deux sont muettes sur un composant qui affiche du texte, c'est une question à poser, pas un blanc à combler : deviner un appariement produirait une mesure sur une paire que personne n'emploie.
+3-bis. **Chaque composant qui porte du texte déclare ses `.foregrounds`** — les chemins réellement posés sur ses fonds, pris où ils vivent : `color.brand.*` et `color.domain.*` sont aussi légitimes que `color.semantic.text`. C'est la seule déclaration d'**usage** du contrat, et elle commande tout le contrôle de contraste. Un composant purement structurel (`grid`, `spacer`) l'omet ; un composant qui affiche du texte et l'omet rend sa couleur de texte intestable. Deux sources fournissent ces appariements, et aucune ne se réinvente ici : `design-system.md § Inventaire des composants` porte les colonnes fonds/avant-plans renseignées par `define` (`${DESIGN_PLUGIN_ROOT}/references/write-system-procedure.md`) — c'est la source normale, présente sur tout contrat ; et si un rapport `design/critique/` existe, il porte la table des appariements proposés après mesure (`destructure/01-challenge.md § étape 2-bis`), qui prime en cas de divergence puisqu'elle a été chiffrée. Si les deux sont muettes sur un composant qui affiche du texte, c'est une question à poser, pas un blanc à combler : deviner un appariement produirait une mesure sur une paire que personne n'emploie.
 4. **Concordance avec la charte** : chaque composant listé dans `design-system.md § Inventaire des composants` doit avoir une entrée, et vice-versa. Si discordance → résoudre (ajouter l'entrée manquante ou retirer le composant de la charte).
 
 ### Sous-étape — Auditer `policies.json`
 
-`mode` est **toujours** écrit, dans les deux modes : plus aucun outil ne le déduit, et un `mode` absent fait sortir `lint-core.mjs` en 2. Les champs suivants concernent le mode utility-first (ou un `components` partiel, cf. `${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md § Où porte le vocabulaire, selon mode`) :
+`mode` est **toujours** écrit, dans les deux modes : plus aucun outil ne le déduit, et un `mode` absent fait sortir `lint-core.mjs` en 2. Les champs suivants concernent le mode utility-first (ou un `components` partiel, cf. `${DESIGN_PLUGIN_ROOT}/references/contract-schema.md § Où porte le vocabulaire, selon mode`) :
 - **`usage.rawHexForbidden`** : `true` sauf raison documentée de l'omettre.
 - **`usage.colorUtilityPrefixes`** : la liste des préfixes de classe utilitaire porteurs de couleur réellement utilisés par le projet — ne pas copier un préfixe qu'aucun fichier du projet n'emploie.
-- **`usage.rules[]`** : toute règle identifiée pendant `destructure` qu'un scanner de chaînes ne peut pas vérifier — au minimum `state-colour-icon` (`enforcement: "source-graph"`) si le design system a une notion de statut visuel. Chaque règle porte un `enforcement` du registre (`${CLAUDE_PLUGIN_ROOT}/references/enforcement-registry.md`) : absent ou hors registre, le contrat est inutilisable. Aucun réalisateur pour la règle ⇒ `unrealized`, déclarée et rapportée plutôt que sous-entendue.
+- **`usage.rules[]`** : toute règle identifiée pendant `destructure` qu'un scanner de chaînes ne peut pas vérifier — au minimum `state-colour-icon` (`enforcement: "source-graph"`) si le design system a une notion de statut visuel. Chaque règle porte un `enforcement` du registre (`${DESIGN_PLUGIN_ROOT}/references/enforcement-registry.md`) : absent ou hors registre, le contrat est inutilisable. Aucun réalisateur pour la règle ⇒ `unrealized`, déclarée et rapportée plutôt que sous-entendue.
 - **`adapters[]`** : la liste d'émission lue par `tools/generate.py` — une entrée par artefact dérivé attendu, nommant le **rôle** qui le consomme, jamais une plateforme ni un projet. Sans `consumer`, l'entrée n'est pas émise ; un rôle inconnu se complète à la main, il ne se devine pas.
 - **Cohérence avec les tokens** : les namespaces de couleur autorisés dérivent des clés top-level de `tokens.json § color.*` — vérifier qu'aucun groupe de couleur nécessaire au projet n'est manquant de l'arbre de tokens avant de figer (sinon le namespace ne sera jamais reconnu par `lint-core.mjs`).
 - Si le projet garde des composants BEM legacy à côté de l'utilitaire (transition), `components` peut rester partiel — c'est additif, pas une erreur (A5).
@@ -137,13 +137,13 @@ Ajouter/étendre `usage` (nouveau namespace, nouvelle règle déclarée) suit la
 
 ### Sous-étape — Calculer les contrôles a11y, enregistrer `checks` et `gaps`
 
-Deux volets a11y sont **calculés par le plugin au figeage** (`${CLAUDE_PLUGIN_ROOT}/references/enforcement-registry.md § Contrôles a11y`), déterministes, sans aucun markup. Le figeage ne bloque **jamais** sur un point a11y non vert : il l'enregistre comme `gap` et laisse `status.py` plafonner la maturité. Ce qui n'est pas atteint est constaté, pas caché — et jamais transformé en refus de figer.
+Deux volets a11y sont **calculés par le plugin au figeage** (`${DESIGN_PLUGIN_ROOT}/references/enforcement-registry.md § Contrôles a11y`), déterministes, sans aucun markup. Le figeage ne bloque **jamais** sur un point a11y non vert : il l'enregistre comme `gap` et laisse `status.py` plafonner la maturité. Ce qui n'est pas atteint est constaté, pas caché — et jamais transformé en refus de figer.
 
 Une seule exception, et elle ne porte pas sur un résultat : **un contrôle qui n'a rien eu à regarder n'est pas un contrôle non vert, c'est un contrôle impossible**. Un contrat sur lequel aucune paire de contraste ne peut être construite ne produit pas un écart mesuré à plafonner, il produit un vocabulaire hors de portée du contrôle — un défaut de conception, corrigeable tant que la matière est malléable et coûtant un bump majeur une fois figée. Celui-là refuse le figeage (`manifest-schema.md § Invariant 7`).
 
 1. **Contraste par thème** — lancer
    ```
-   python ${CLAUDE_PLUGIN_ROOT}/adapters/a11y/contrast.py --contract design/ --json
+   python ${DESIGN_PLUGIN_ROOT}/adapters/a11y/contrast.py --contract design/ --json
    ```
    Les paires viennent de `components.json § .foregrounds × .backgrounds`, par composant, et à défaut d'une heuristique de nom bornée à `color.semantic`. Traiter la sortie par code :
 
@@ -157,36 +157,36 @@ Une seule exception, et elle ne porte pas sur un résultat : **un contrôle qui 
 
    Sur exit 3, **ne rien écrire et ne pas figer**. Rapporter le bloc `coverage` du JSON tel quel — combien de feuilles couleur le contrat déclare, combien ont été appariées, et le décompte des non appariées par branche — puis nommer la sortie : **déclarer les paires dans `components.json § .foregrounds`**, composant par composant, en pointant les chemins réellement utilisés, `color.brand.*` et `color.domain.*` compris. Ne jamais proposer de renommer des tokens pour satisfaire l'heuristique de nom : ce serait déformer le vocabulaire du projet pour plaire à un mécanisme de secours.
 
-   Une dérogation reste possible, jamais implicite, et elle coûte **trois** écritures conjointes : `--allow-unpaired` sur la commande ; une entrée dans `deviations.json § active[]` portant le motif et l'étendue ; et un gap `{ "class": "contrast-unpaired", "caps": "normalized", "detail": "<n> feuilles couleur déclarées, 0 appariée — <motif>" }`. Sans les trois, le refus tient. Le `checks.contrast` alors écrit porte `"pairs": 0` : `allPass` y serait vrai sans rien affirmer, et `status.py` le lit avec le compte précisément pour cette raison (`${CLAUDE_PLUGIN_ROOT}/references/maturity-status.md`). Une dérogation ne fait donc pas monter le contrat — elle l'autorise à exister à `normalized` en disant pourquoi.
+   Une dérogation reste possible, jamais implicite, et elle coûte **trois** écritures conjointes : `--allow-unpaired` sur la commande ; une entrée dans `deviations.json § active[]` portant le motif et l'étendue ; et un gap `{ "class": "contrast-unpaired", "caps": "normalized", "detail": "<n> feuilles couleur déclarées, 0 appariée — <motif>" }`. Sans les trois, le refus tient. Le `checks.contrast` alors écrit porte `"pairs": 0` : `allPass` y serait vrai sans rien affirmer, et `status.py` le lit avec le compte précisément pour cette raison (`${DESIGN_PLUGIN_ROOT}/references/maturity-status.md`). Une dérogation ne fait donc pas monter le contrat — elle l'autorise à exister à `normalized` en disant pourquoi.
 
 2. **Présence déclarative des états** — lancer
    ```
-   python ${CLAUDE_PLUGIN_ROOT}/tools/status.py --contract design/ --states
+   python ${DESIGN_PLUGIN_ROOT}/tools/status.py --contract design/ --states
    ```
    Écrire `release.json § checks.states = { "ran": true, "allPass": <aucune déclaration partielle> }`. Pour **chaque composant dont la déclaration `.states` est partielle** (une clé manquante), ajouter un gap `{ "class": "states", "caps": "validated", "detail": "<composant>: clés manquantes" }`.
 
-Si un volet ne peut pas être calculé — pas de tokens couleur résolubles, ou choix explicite de ne pas le lancer — laisser `checks` sans ce volet (ou `checks: null` si aucun n'a tourné) et enregistrer le gap de classe correspondante (`contrast` ⇒ plafond `validated`) : un contrôle non lancé plafonne la maturité, il ne fait pas échouer le figeage. La table gap→plafond fait foi : `${CLAUDE_PLUGIN_ROOT}/references/maturity-status.md`.
+Si un volet ne peut pas être calculé — pas de tokens couleur résolubles, ou choix explicite de ne pas le lancer — laisser `checks` sans ce volet (ou `checks: null` si aucun n'a tourné) et enregistrer le gap de classe correspondante (`contrast` ⇒ plafond `validated`) : un contrôle non lancé plafonne la maturité, il ne fait pas échouer le figeage. La table gap→plafond fait foi : `${DESIGN_PLUGIN_ROOT}/references/maturity-status.md`.
 
 Une charte absente est elle-même un gap `charter-absent` (plafond `extracted`), enregistré ici avec `charter.present: false`.
 
 ### Écrire la racine `design/release.json`
 
-Dernière écriture de l'Étape 2 : sans elle il n'y a pas de contrat lisible, et l'Étape 2bis ne peut pas s'exécuter. Champs et sémantique : `${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md § release.json`.
+Dernière écriture de l'Étape 2 : sans elle il n'y a pas de contrat lisible, et l'Étape 2bis ne peut pas s'exécuter. Champs et sémantique : `${DESIGN_PLUGIN_ROOT}/references/contract-schema.md § release.json`.
 
 - `artifacts.<nom>.version` — la version de chaque artefact, indépendante des autres. Un artefact non touché par ce figeage garde la sienne.
 - `artifacts.<nom>.sourceHash` — empreinte de la source dont l'artefact dérive, recalculée à chaque écriture.
 - `charter` — présence, chemin et version de `design-system.md`, relevés, jamais supposés.
 - `provenance` — quoi a écrit, quand, à partir de quoi.
 - `checks` — le résultat des deux contrôles a11y de la sous-étape précédente (`contrast`, `states`), ou `null` si aucun n'a tourné. Lu par `status.py` pour franchir le 3ᵉ échelon.
-- `gaps` — la liste des écarts connus, chacun avec `class` / `caps` / `detail`. Chaque gap plafonne la maturité au lieu d'être noté en prose. La table des classes : `${CLAUDE_PLUGIN_ROOT}/references/maturity-status.md`.
-- `status` — la valeur rendue par `${CLAUDE_PLUGIN_ROOT}/tools/status.py --contract design/`. Ne jamais l'écrire à la main : le statut a une seule implémentation, qui lit `charter`, `checks` et `gaps` ci-dessus.
+- `gaps` — la liste des écarts connus, chacun avec `class` / `caps` / `detail`. Chaque gap plafonne la maturité au lieu d'être noté en prose. La table des classes : `${DESIGN_PLUGIN_ROOT}/references/maturity-status.md`.
+- `status` — la valeur rendue par `${DESIGN_PLUGIN_ROOT}/tools/status.py --contract design/`. Ne jamais l'écrire à la main : le statut a une seule implémentation, qui lit `charter`, `checks` et `gaps` ci-dessus.
 
 ### Générer les artefacts dérivés
 
 Après `release.json` — le générateur le lit et y écrit l'enregistrement de dérive :
 
 ```
-python ${CLAUDE_PLUGIN_ROOT}/tools/generate.py --contract design/
+python ${DESIGN_PLUGIN_ROOT}/tools/generate.py --contract design/
 ```
 
 Un artefact dérivé n'est jamais écrit à la main, ici ni ailleurs. La commande émet une entrée par `policies.json § adapters[]` déclarant un `consumer`, et grave dans `release.json § generated` l'empreinte de chaque source lue — le repère que `--check` opposera aux sources. Sans figeage, une source périmée est invisible.
@@ -269,7 +269,7 @@ Annoncer à l'utilisateur :
 > - `design/release.json` — statut {statut}, charte v{version charte}
 > - `design/design-system.md` — status: figé, version bumped {ancien} → {nouveau}
 >
-> Prochaine étape : `/design:enforce` pour installer le linter et câbler les gates.
+> Prochaine étape : invoquer `design:enforce` pour installer le linter et câbler les gates.
 
 ## Test de validité
 

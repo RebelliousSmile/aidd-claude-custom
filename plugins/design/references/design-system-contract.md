@@ -68,7 +68,7 @@ Voir `adjust/references/manifest-schema.md` pour la structure complète, les inv
 
 1. **Provenance** — origin (reference URL/file, or brief summary), date, version, who/what generated it.
 2. **Foundations** — narrative summary of color, typography, **iconography** (the single chosen icon library + style, `icon.library`/`icon.style`), spacing, radius, elevation, motion. Points to `tokens.json` for exact values; does not duplicate every number. The **core trio** (palette anchor · type · icon set) is settled and approved first, fast, before the rest. Never emoji as UI iconography.
-3. **Responsive strategy** — the named breakpoints, the mobile-first stance, and the three-tier intent: what the **mobile core** must always deliver, what is **enriched** only at ≥ tablet/desktop, and which **mobile-only** UX patterns exist. (See the installed `.claude/rules/08-design/` rules for the binding conventions.)
+3. **Responsive strategy** — the named breakpoints, the mobile-first stance, and the three-tier intent: what the **mobile core** must always deliver, what is **enriched** only at ≥ tablet/desktop, and which **mobile-only** UX patterns exist. (See the applicable project instruction installed in `AGENTS.md`, `.claude/rules/08-design/`, or both for the binding conventions.)
 4. **Component inventory** — table: component · purpose · key options/variants · responsive divergence (one line) · spec file. Says that the vocabulary induced by the promoted manifest is **open by default**, and points to `adjust/references/manifest-schema.md § Invariant 1` for what that means.
 5. **Open questions** — anything assumed or unresolved, so a human can close it.
 

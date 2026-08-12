@@ -49,7 +49,7 @@ Ne jamais utiliser d'emoji comme contenu de slot (règle du design system).
 
 Si `.backgrounds` est défini : utiliser le premier token de la liste comme fond par défaut (sauf si l'utilisateur précise autrement). Vérifier que le chemin existe dans `tokens.json`.
 
-Si `.foregrounds` est défini : utiliser le premier token de la liste comme couleur de texte par défaut. Ne **jamais** choisir une couleur de texte hors de cette liste : les paires `.foregrounds` × `.backgrounds` sont celles dont le contraste a été mesuré au figeage (`${CLAUDE_PLUGIN_ROOT}/adapters/a11y/contrast.py`), et poser une couleur hors liste produit un rendu dont personne n'a vérifié le ratio.
+Si `.foregrounds` est défini : utiliser le premier token de la liste comme couleur de texte par défaut. Ne **jamais** choisir une couleur de texte hors de cette liste : les paires `.foregrounds` × `.backgrounds` sont celles dont le contraste a été mesuré au figeage (`${DESIGN_PLUGIN_ROOT}/adapters/a11y/contrast.py`), et poser une couleur hors liste produit un rendu dont personne n'a vérifié le ratio.
 
 Si `.foregrounds` est absent alors que le composant affiche du texte, le signaler dans la spec : le contrat ne dit pas quelle couleur porte le texte ici, et aucune valeur par défaut ne comble ce silence — le combler serait inventer un appariement que le figeage n'a pas mesuré.
 
@@ -103,4 +103,4 @@ La spec neutre est émise dans la conversation. Elle sert d'entrée directe à `
 
 Annoncer :
 > Spec neutre de `<canonical-name>` — <N> variante(s), fond `<token.path>`. Prêt à rendre.
-> Préciser la stack cible ou taper `/design:diffuse` pour continuer vers le rendu.
+> Préciser la stack cible ou invoquer `design:diffuse` pour continuer vers le rendu.

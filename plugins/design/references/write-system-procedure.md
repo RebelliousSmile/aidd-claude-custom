@@ -52,7 +52,8 @@ One entry per consumer **present in the project**, never per consumer the plugin
 - List every written/regenerated path.
 - State the version and a one-line provenance.
 - Surface unresolved Open questions for the user to close.
-- Suggest next step: `/design:destructure` (challenge the direction) or `/design:adjust` (freeze the contract).
+- Suggest the next capability: invoke `design:destructure` (challenge the direction) or
+  `design:adjust` (freeze the contract) through the current host.
 
 ## Test
 

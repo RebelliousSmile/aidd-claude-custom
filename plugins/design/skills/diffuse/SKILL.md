@@ -31,6 +31,7 @@ Read only the next action in the selected path.
 
 ## Transversal rules
 
+- Resolve the plugin root using [host-portability.md](../../references/host-portability.md) before loading bundled tools or references.
 - A local component request does not trigger contract creation or the complete lifecycle.
 - Without `release.json`, run `prototype` and label every output as ungoverned; never claim conformity, maturity, or a green gate.
 - With a frozen contract, reject stale generated artifacts and require the blocking gates to pass before delivery.

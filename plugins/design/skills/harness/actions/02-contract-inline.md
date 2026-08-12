@@ -12,8 +12,8 @@ A standalone HTML file containing the already generated contract stylesheet with
 ## Process
 
 1. **Validate.** Require `release.json`, readable policies, and a declared readable stylesheet adapter.
-2. **Generate.** Run `${CLAUDE_PLUGIN_ROOT}/adapters/harness/harness.py` with `--contract` and the scaffold arguments.
-3. **Verify.** Run `${CLAUDE_PLUGIN_ROOT}/tools/harness-runtime-check.mjs` on the generated file and return its public exit code.
+2. **Generate.** Run `${DESIGN_PLUGIN_ROOT}/adapters/harness/harness.py` with `--contract` and the scaffold arguments.
+3. **Verify.** Run `${DESIGN_PLUGIN_ROOT}/tools/harness-runtime-check.mjs` on the generated file and return its public exit code.
 
 ## Test
 

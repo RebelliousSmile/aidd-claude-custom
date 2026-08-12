@@ -8,7 +8,7 @@ Distinctif par défaut : éviter le look générique par défaut du framework. L
 
 - `brief` (required) — brief client, positionnement produit, ou user story (texte libre ou chemin de doc).
 - La grille des drivers : `references/intake-questions.md`.
-- Le schéma de tokens : `${CLAUDE_PLUGIN_ROOT}/references/token-schema.md`.
+- Le schéma de tokens : `${DESIGN_PLUGIN_ROOT}/references/token-schema.md`.
 
 ## Process
 
@@ -25,7 +25,7 @@ Distinctif par défaut : éviter le look générique par défaut du framework. L
 0. **Core trio d'abord (vite)** — avant l'échelle complète, trancher et présenter en une passe : **ancre de palette** (primary marque + température neutre), **type** (famille/pairing), **jeu d'icônes** (une librairie + style, ex. Lucide outline). Obtenir un oui/ajuste sur le trio, puis étendre. Jamais d'emoji comme iconographie.
 1. **Système de couleurs** : un primary qui exprime la personnalité (pas le bleu par défaut du framework sauf demande du brief) ; ramp neutre à la bonne température (chaud/froid) ; secondary/accent seulement si la personnalité l'exige ; rôles sémantiques + états.
 
-   **Décider les appariements en même temps que les couleurs.** Sur ce chemin, rien n'est observable : si l'on ne dit pas quelle couleur porte du texte sur quelle autre, personne ne le dira plus tard. Établir la liste des paires avant-plan/fond prévues — y compris quand l'avant-plan est une couleur de marque, ce qui est le cas normal dès qu'un primary sert de couleur de titre. Vérifier chacune en WCAG AA (ou la barre énoncée du profil), et corriger la palette ici plutôt qu'après le figeage. Cette liste alimente `components.json § .foregrounds` et conditionne le figeage (`${CLAUDE_PLUGIN_ROOT}/skills/adjust/references/manifest-schema.md § Invariant 7`).
+   **Décider les appariements en même temps que les couleurs.** Sur ce chemin, rien n'est observable : si l'on ne dit pas quelle couleur porte du texte sur quelle autre, personne ne le dira plus tard. Établir la liste des paires avant-plan/fond prévues — y compris quand l'avant-plan est une couleur de marque, ce qui est le cas normal dès qu'un primary sert de couleur de titre. Vérifier chacune en WCAG AA (ou la barre énoncée du profil), et corriger la palette ici plutôt qu'après le figeage. Cette liste alimente `components.json § .foregrounds` et conditionne le figeage (`${DESIGN_PLUGIN_ROOT}/skills/adjust/references/manifest-schema.md § Invariant 7`).
 2. **Typographie** : famille (ou pairing) cohérente avec la personnalité ; échelle modulaire avec `clamp()` pour une croissance fluide titre/corps ; graisses et line-heights ; plancher de corps confortable pour l'audience.
 3. **Espacement** : unité de base (4 ou 8 px) et échelle cohérente en `rem`.
 4. **Radius / ombre / bordures / motion / icônes** : accordés à la personnalité (net+plat pour technique, arrondi+doux pour amical, motion restreinte pour premium). Tokens durée + easing. `icon.size.*` aligné à l'échelle de type, `icon.stroke.*` pour le set outline choisi.
@@ -43,4 +43,4 @@ Le core trio (palette · type · jeu d'icônes) a été présenté pour approbat
 
 ## En aval
 
-Ce chemin n'a pas de visuel de référence : aucun gate de fidélité (`enforce/05-fidelity-gate.md`) ne s'applique en aval — seul le gate vocabulaire (`lint-core.mjs`) + les bonnes pratiques visuelles couvrent un projet construit depuis un brief. Voir `${CLAUDE_PLUGIN_ROOT}/skills/enforce/actions/05-fidelity-gate.md § Chemin construction-depuis-brief` pour la limite assumée.
+Ce chemin n'a pas de visuel de référence : aucun gate de fidélité (`enforce/05-fidelity-gate.md`) ne s'applique en aval — seul le gate vocabulaire (`lint-core.mjs`) + les bonnes pratiques visuelles couvrent un projet construit depuis un brief. Voir `${DESIGN_PLUGIN_ROOT}/skills/enforce/actions/05-fidelity-gate.md § Chemin construction-depuis-brief` pour la limite assumée.

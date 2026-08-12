@@ -50,3 +50,19 @@ Fixture state: unchanged; installed sc-css receives the render spec, returns out
 
 **Frictions / gaps:** none.
 **Tally:** 6/6 PASS (0 N/A) — ordering corrected and confirmed.
+
+### 2026-08-12 — run 3 (regression, dry-run, target=diffuse, fixture=brief+retrofit) — **6/6 PASS**
+
+Fixture state: card declared; clean gate=0, dirty gate=1, and sc-css provider remains installed.
+
+| # | Behaviour | Verdict | Δ vs prior | Note (instruction cited) |
+|---|---|---|---|---|
+| S1 | autonomous prototype | PASS | = | `actions/00-prototype.md §Output,Process` |
+| S2 | clean baseline delivery | PASS | = | `actions/02-render.md §Étape 0–3,5` |
+| S3 | dirty candidate not delivered | PASS | = | `actions/02-render.md §Étape 3` |
+| S4 | unknown component refused | PASS | = | `actions/01-define-element.md §Entrée` |
+| S5 | audit excluded | PASS | = | `SKILL.md §Routing` |
+| S6 | pivot → provider → gate → delivery | PASS | = | `actions/03-pivot.md §Étape 1–3`; `02-render.md §Étape 3,5` |
+
+**Frictions / gaps:** no concrete target-app promotion path or returned provider artifact in the dry-run fixture; routing logic remains fully applicable.
+**Tally:** 6/6 PASS (0 N/A) — no PASS→FAIL regression.

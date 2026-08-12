@@ -15,18 +15,18 @@ Il lit `deviations.json` pour distinguer un écart sanctionné d'une dérive, pu
 boucle **mesurer → corriger à la source → re-mesurer** jusqu'à delta 0 (ou écart couvert).
 
 C'est le **second gate**, de nature différente du lint vocabulaire : ce que chacun établit et
-n'établit pas est énoncé une seule fois dans `${CLAUDE_PLUGIN_ROOT}/references/gate-natures.md`.
+n'établit pas est énoncé une seule fois dans `${DESIGN_PLUGIN_ROOT}/references/gate-natures.md`.
 
 ## Prérequis
 
 - Contrat figé (`release.json` et les artefacts qu'il déclare) — produit par `adjust`.
 - La référence visuelle résolue servie en HTTP (la maquette arbitrée).
-- L'oracle installé : `${CLAUDE_PLUGIN_ROOT}/adapters/measure/` (voir son README ; `python -m playwright install chromium`).
+- L'oracle installé : `${DESIGN_PLUGIN_ROOT}/adapters/measure/` (voir son README ; `python -m playwright install chromium`).
   Sous OD-1 le chemin Python est validé ; à défaut, mesure MCP en interactif — mais **le gate
   CI reste Python** (un gate automatisable ne peut pas dépendre d'un agent).
 - **L'oracle par propriété câblé** : un config de mesure (cibles, propriétés, breakpoints — via
   `config-gen.py`) *et* le registre `deviations.json`, passé en argument requis `--ledger-registry`.
-  Schéma du registre : `${CLAUDE_PLUGIN_ROOT}/references/deviations-schema.md`.
+  Schéma du registre : `${DESIGN_PLUGIN_ROOT}/references/deviations-schema.md`.
 
 ## Refus d'affirmer la conformité
 
@@ -56,10 +56,10 @@ rouge : rien n'est prouvé tant que l'oracle n'est pas câblé.
    entrée **active** de `deviations.json` portant sa **valeur attendue** et non expirée. `measure.py`
    valide chaque référence via `--ledger-registry` : entrée absente, sans `expected`, ou expirée →
    verdict `OPEN`. **Sans entrée → dérive → corriger** (défaut : rendu strictement identique). Les
-   cas exacts de bascule `OPEN` : `${CLAUDE_PLUGIN_ROOT}/references/deviations-schema.md`.
+   cas exacts de bascule `OPEN` : `${DESIGN_PLUGIN_ROOT}/references/deviations-schema.md`.
 4. **Corriger à la bonne couche**, jamais en patch local : valeur → token ; mauvais token → markup ;
    règle de composant → CSS du composant + `components.json`. La **réalisation dans le langage de la
-   cible** passe par le pivot (`sc-<langage>:design-bridge`, cf. `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md`).
+   cible** passe par le pivot (`sc-<langage>:design-bridge`, cf. `${DESIGN_PLUGIN_ROOT}/references/sc-pivot-contract.md`).
    **Corriger la source, jamais le magasin de contenu seul** : tout contenu généré ou seedé s'édite à
    sa **source**, puis se réécrit depuis elle. Une édition directe du magasin est écrasée à la
    prochaine génération et n'existe pas dans l'historique — le correctif disparaît sans rien signaler.
@@ -82,7 +82,7 @@ La comparaison pixel globale (`screenshot.py` + `pixeldiff.py`) **pointe** des z
 les styles calculés ne couvrent pas (layout, effets composites, éléments non mappés). Elle n'est
 **jamais** une preuve de conformité : un diff pixel à zéro ne clôt pas le gate, et un diff non nul ne
 le fait pas échouer par lui-même — il alimente le classement (§2). La clôture vient du verdict par
-propriété (§6). Protocole d'analyse des zones : `${CLAUDE_PLUGIN_ROOT}/references/visual-diff-procedure.md`.
+propriété (§6). Protocole d'analyse des zones : `${DESIGN_PLUGIN_ROOT}/references/visual-diff-procedure.md`.
 
 ## La boucle mesurer → corriger → re-mesurer
 
@@ -104,7 +104,7 @@ Terminée quand chaque unité touchée sort à delta 0 **ou** porte un écart co
 
 ## Câblage
 
-Le gate de fidélité s'arme **à côté** du lint vocabulaire (cf. `${CLAUDE_PLUGIN_ROOT}/skills/enforce/references/gate-wiring.md`) :
+Le gate de fidélité s'arme **à côté** du lint vocabulaire (cf. `${DESIGN_PLUGIN_ROOT}/skills/enforce/references/gate-wiring.md`) :
 - **diffuse / génération** : refuser de livrer si la fidélité n'est pas verte (en plus du lint).
 - **success_condition des plans** : ajouter la fidélité aux conditions de sortie.
 - **pre-commit** (optionnel) : la mesure est plus lente que le lint ; la réserver aux composants
@@ -127,7 +127,7 @@ Le gate de fidélité s'arme **à côté** du lint vocabulaire (cf. `${CLAUDE_PL
 
 **Limite assumée et nommée (2nd-audit #3 / A9), pas un gap silencieux.** Ce gate mesure la
 fidélité d'un rendu à une **référence visuelle externe** (une maquette résolue par `adjust`).
-Un projet construit **depuis un brief** (`${CLAUDE_PLUGIN_ROOT}/skills/define/actions/03-construct.md` —
+Un projet construit **depuis un brief** (`${DESIGN_PLUGIN_ROOT}/skills/define/actions/03-construct.md` —
 pas de visuel, un système de tokens dérivé de l'intention écrite) n'a, par construction, **aucune
 référence externe à comparer** : il n'y a rien à mesurer, donc l'oracle de fidélité **ne
 s'applique pas par nature** à ce chemin. C'est distinct du refus ci-dessus : là, aucune référence
@@ -137,7 +137,7 @@ n'existe ; ici, une référence existe mais l'oracle n'est pas encore câblé.
   pratiques visuelles (réduction mobile, cohérence des échelles — jugées en
   revue humaine, pas par un oracle automatisable). Pas de second gate mesuré.
   Le contraste, lui, ne relève **pas** de cette revue humaine : il a été mesuré en amont, au
-  figeage, sur les paires déclarées (`${CLAUDE_PLUGIN_ROOT}/adapters/a11y/contrast.py`), et son
+  figeage, sur les paires déclarées (`${DESIGN_PLUGIN_ROOT}/adapters/a11y/contrast.py`), et son
   résultat vit dans `release.json § checks.contrast`. Ce chemin n'a pas de référence externe ;
   il a quand même un contrôle de contraste, et il n'y a donc rien à rejuger à l'œil ici.
 - Ceci n'est **pas** un oubli du contrat : c'est la même règle que la note d'applicabilité
@@ -149,7 +149,7 @@ n'existe ; ici, une référence existe mais l'oracle n'est pas encore câblé.
   pourrait servir de proxy de fidélité *soft* pour ce chemin — non implémenté
   dans cette part, noté comme piste possible seulement. Les paires de contraste en sont
   sorties : elles ne sont plus une checklist à formaliser, elles sont calculées au figeage.
-- Renvoi croisé : `${CLAUDE_PLUGIN_ROOT}/skills/define/actions/03-construct.md` porte la note
+- Renvoi croisé : `${DESIGN_PLUGIN_ROOT}/skills/define/actions/03-construct.md` porte la note
   réciproque en aval.
 
 ## Sortie attendue

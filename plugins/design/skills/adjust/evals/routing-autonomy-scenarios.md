@@ -50,3 +50,19 @@ Fixture state: `pre-migration-verdict.json` records exit 0 before migration; rea
 
 **Frictions / gaps:** none.
 **Tally:** 6/6 PASS (0 N/A) — fixture gap closed.
+
+### 2026-08-12 — run 3 (regression, dry-run, target=adjust, fixture=utility+migration+conflict) — **6/6 PASS**
+
+Fixture state: bounded delta, archived baseline, explicit/absent migration modes, and unresolved conflict remain populated.
+
+| # | Behaviour | Verdict | Δ vs prior | Note (instruction cited) |
+|---|---|---|---|---|
+| S1 | bounded delta | PASS | = | `actions/02-freeze.md §En mode re-figeage` |
+| S2 | baseline, dry-run, approval stop | PASS | = | `actions/03-migrate.md §Étape 1–3` |
+| S3 | mode never guessed | PASS | = | `actions/03-migrate.md §Étape 2` |
+| S4 | missing input stops | PASS | = | `actions/01-arbitrate.md §Entrées acceptées` |
+| S5 | unresolved conflict blocks | PASS | = | `actions/01-arbitrate.md §Étape 4` |
+| S6 | enforcement request excluded | PASS | = | `SKILL.md §Transversal rules` |
+
+**Frictions / gaps:** archived baseline does not enumerate the eventual Step 5 reference-file set; outside this pre-approval scenario.
+**Tally:** 6/6 PASS (0 N/A) — no PASS→FAIL regression.

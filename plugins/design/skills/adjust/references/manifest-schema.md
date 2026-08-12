@@ -2,7 +2,7 @@
 
 `components.json` est l'artefact d'**anatomie** du contrat : la nomenclature déclarée des composants, et rien d'autre. Écrit par `adjust/02-freeze.md`, lu par `lint-core.mjs` (Règles 1 et 5) et par `config-gen.py` (cibles de mesure).
 
-Les quatre autres fichiers du contrat, l'étiquetage des champs, la dérivation des règles de lint et la redistribution depuis un contrat 1.x : `${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md`. Ce document ne traite que `components.json`.
+Les quatre autres fichiers du contrat, l'étiquetage des champs, la dérivation des règles de lint et la redistribution depuis un contrat 1.x : `${DESIGN_PLUGIN_ROOT}/references/contract-schema.md`. Ce document ne traite que `components.json`.
 
 ## Structure
 
@@ -93,6 +93,6 @@ La parité de versions entre artefacts n'est plus un invariant : `release.json` 
 
 Si `destructure` identifie une direction incompatible avec le manifeste actuel (`coût contrat: demande un re-figeage`) :
 
-1. `/design:adjust` rejoue l'arbitrage sur le delta (nouvelles pistes uniquement).
+1. Invoquer `design:adjust` rejoue l'arbitrage sur le delta (nouvelles pistes uniquement).
 2. `02-freeze.md` met à jour les artefacts touchés et bumpe leur version dans `release.json`.
 3. `enforce` propage et re-lint.

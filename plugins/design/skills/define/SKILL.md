@@ -31,6 +31,7 @@ Read only the next action in the selected path.
 
 ## Transversal rules
 
+- Resolve the plugin root and subagent behavior using [host-portability.md](../../references/host-portability.md).
 - Stop after producing mutable material; never freeze a contract, install gates, or render components.
 - Treat existing rendered code as extraction evidence, not as a reason to run a complete lifecycle.
 - Write no contract root or generated adapter from this capability.

@@ -4,7 +4,7 @@
 
 Faire passer un contrat 1.x (monolithe `components.json`) aux artefacts 2.0 racinés par `release.json` — trois obligatoires, plus `oracle.json` si le contrat porte des cibles de mesure — sans changer le verdict rendu sur le code du projet.
 
-La redistribution champ par champ est celle de `${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md § Redistribution depuis un contrat 1.x`. Elle est **implémentée par le script** — ne pas la rejouer à la main, ne pas la reproduire ici.
+La redistribution champ par champ est celle de `${DESIGN_PLUGIN_ROOT}/references/contract-schema.md § Redistribution depuis un contrat 1.x`. Elle est **implémentée par le script** — ne pas la rejouer à la main, ne pas la reproduire ici.
 
 **Déclencheur** : `lint-core.mjs` sort en 3 en nommant la commande de migration, ou l'utilisateur demande explicitement le passage en 2.0.
 
@@ -21,7 +21,7 @@ La redistribution champ par champ est celle de `${CLAUDE_PLUGIN_ROOT}/references
 Relever le verdict actuel, contrat 1.x en place, sur les fichiers de référence. C'est le seul point de comparaison qui prouvera que la migration n'a rien changé ; il n'est plus reconstituable une fois le contrat réécrit.
 
 ```
-node ${CLAUDE_PLUGIN_ROOT}/skills/enforce/adapters/lint-core.mjs <fichier> --contract <dossier-du-contrat>
+node ${DESIGN_PLUGIN_ROOT}/skills/enforce/adapters/lint-core.mjs <fichier> --contract <dossier-du-contrat>
 ```
 
 Consigner le code de sortie de chaque fichier. Si le linter installé est déjà en 2.0, il sort en 3 sur un contrat 1.x : dans ce cas le verdict de référence se relève avec la version du linter antérieure à la migration, ou se lit dans la dernière exécution de gate archivée. Sans verdict de référence, la migration reste possible mais l'Étape 5 ne prouve rien — le dire à l'utilisateur plutôt que de la sauter en silence.
@@ -29,7 +29,7 @@ Consigner le code de sortie de chaque fichier. Si le linter installé est déjà
 ## Étape 2 — Dry-run
 
 ```
-python ${CLAUDE_PLUGIN_ROOT}/tools/migrate-contract.py --contract <dossier> --dry-run
+python ${DESIGN_PLUGIN_ROOT}/tools/migrate-contract.py --contract <dossier> --dry-run
 ```
 
 Le rapport donne : la table de correspondance champ source → champ cible, la table des adapters réellement présents avec leur consommateur, les anomalies, et le statut de maturité initial.
@@ -55,7 +55,7 @@ Soumettre le rapport et attendre l'accord explicite. Trois points à faire lire,
 ## Étape 4 — Écrire
 
 ```
-python ${CLAUDE_PLUGIN_ROOT}/tools/migrate-contract.py --contract <dossier>
+python ${DESIGN_PLUGIN_ROOT}/tools/migrate-contract.py --contract <dossier>
 ```
 
 Le script sauvegarde le contrat 1.x avant d'écrire, dans un répertoire préfixé d'un point — le linter ignore les répertoires pointés, la sauvegarde ne peut donc pas être confondue avec un second contrat. Le rapport final nomme le répertoire de sauvegarde et les fichiers écrits.

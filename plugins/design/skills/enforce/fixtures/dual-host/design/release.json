@@ -1,0 +1,11 @@
+{
+  "$schema": "design/references/contract-schema#release",
+  "$format": "2.0",
+  "designSystem": { "version": "1.0.0" },
+  "charter": { "present": true, "path": "design-system.md", "version": "1.0.0" },
+  "checks": {
+    "contrast": { "ran": true, "allPass": true, "pairs": 1 },
+    "states": { "ran": true, "allPass": true }
+  },
+  "status": "validated"
+}

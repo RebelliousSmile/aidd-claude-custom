@@ -36,3 +36,18 @@ Fixture state: populated brief without release; utility release 2.0 status valid
 
 **Frictions / gaps:** none.
 **Tally:** 5/5 PASS (0 N/A) — first executable baseline.
+
+### 2026-08-12 — run 2 (regression, dry-run, target=detail, fixture=brief-only+utility) — **5/5 PASS**
+
+Fixture state: populated brief without release; utility release remains format 2.0 and validated.
+
+| # | Behaviour | Verdict | Δ vs prior | Note (instruction cited) |
+|---|---|---|---|---|
+| S1 | explain only | PASS | = | `actions/01-explain.md §Process` |
+| S2 | exact brief-only route | PASS | = | `actions/02-route.md §Process`; `workflow-classes.md §brief-only` |
+| S3 | precise prototype bypass | PASS | = | `SKILL.md §Transversal rules` |
+| S4 | contradiction + contract-drift | PASS | = | `workflow-classes.md §contract-drift` |
+| S5 | recipe without execution | PASS | = | `actions/02-route.md §Process 6` |
+
+**Frictions / gaps:** none.
+**Tally:** 5/5 PASS (0 N/A) — no PASS→FAIL regression.

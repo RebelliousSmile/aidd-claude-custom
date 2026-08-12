@@ -26,7 +26,7 @@ Pistes : rationaliser une dimension précise, pas "harmoniser le tout".
 
 Critique de direction, pas audit complet (l'audit de code est `sc-css:audit`, la gate d'implémentation est `enforce`) :
 
-**Contrastes — chiffrés, jamais appréciés.** Cette lentille ne donne pas un avis : elle rapporte la sortie de `${CLAUDE_PLUGIN_ROOT}/adapters/a11y/contrast.py` (`01-challenge.md § étape 2-bis`). Un ratio mesuré tient une décision, une inquiétude formulée n'en tient aucune — et c'est la différence entre une palette corrigée avant le figeage et un défaut coulé dans le contrat.
+**Contrastes — chiffrés, jamais appréciés.** Cette lentille ne donne pas un avis : elle rapporte la sortie de `${DESIGN_PLUGIN_ROOT}/adapters/a11y/contrast.py` (`01-challenge.md § étape 2-bis`). Un ratio mesuré tient une décision, une inquiétude formulée n'en tient aucune — et c'est la différence entre une palette corrigée avant le figeage et un défaut coulé dans le contrat.
 
 - Paires sous AA 4.5:1 (corps) ou 3:1 (grands titres) : les nommer avec leur ratio et leur thème, pas « limites ».
 - **Couverture** : combien de feuilles couleur le contrat déclare, combien ont été appariées. Le second chiffre sans le premier ne veut rien dire — une palette de soixante couleurs dont deux sont testées n'a pas un bon contraste, elle a deux mesures.

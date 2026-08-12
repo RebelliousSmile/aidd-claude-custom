@@ -43,7 +43,7 @@ Ce que la boucle corrige dépend de `policies.json § mode` :
 
 Terrain : une part du markup vit dans un magasin de contenu — base, CMS, API — donc hors du
 disque au moment du lint. C'est le type d'enforcement `stored-content`
-(`${CLAUDE_PLUGIN_ROOT}/references/enforcement-registry.md`). Le linter portable ne peut pas
+(`${DESIGN_PLUGIN_ROOT}/references/enforcement-registry.md`). Le linter portable ne peut pas
 l'atteindre seul : il faut l'extraire en fichiers d'abord.
 
 L'outillage d'extraction et de réécriture appartient au runtime du magasin, donc au réceptacle
@@ -68,7 +68,7 @@ Répéter pour chaque instance en violation.
 
 Ce track produit un verdict que le gate ne voit pas de lui-même : les règles `stored-content`
 sont rendues au runner par le rapport de pivot du réceptacle
-(`${CLAUDE_PLUGIN_ROOT}/references/gate-config-schema.md § Rapport de pivot`). Sans instance
+(`${DESIGN_PLUGIN_ROOT}/references/gate-config-schema.md § Rapport de pivot`). Sans instance
 extraite, elles s'écrivent `unrealized` — un `pass` y mentirait sur du contenu jamais ouvert.
 
 ## La boucle corriger → propager → re-lint

@@ -36,10 +36,19 @@ Deux formes d'entrée, un seul effet sur le gate :
 ]
 ```
 
-- Chemin nu : le rapport est lu tel qu'il est sur le disque. Rien ne garantit qu'il décrit le code actuel.
-- Objet avec `command` : le runner relance le réalisateur natif depuis le répertoire de la configuration, puis lit le rapport. Le code de sortie de la commande est ignoré — « des violations existent » est déjà dans le rapport, et le lire est ce qui décide. Un binaire introuvable sort en 2 en le nommant.
+- Chemin nu : le rapport est lu tel qu'il est sur le disque. S'il est absent, il est simplement
+  omis : les règles assignées restent `UNREALIZED` (P0/P1 bloquent, P2 avertit). Rien ne garantit
+  qu'un rapport nu décrit le code actuel.
+- Objet avec `command` : le runner retire d'abord tout ancien rapport, puis relance le réalisateur
+  natif depuis le répertoire de la configuration. Les exits 0 et 1 sont admis — les violations
+  vivent dans le rapport — mais l'invocation doit **créer** un nouveau rapport valide. Un autre
+  exit, un binaire introuvable ou l'absence de nouveau rapport sort en 2. L'ancien contenu est
+  restauré uniquement pour diagnostic après échec et n'est jamais consommé comme preuve. Cette
+  règle repose sur la création, pas sur la granularité incertaine d'un timestamp.
 
-`command` est une liste d'arguments, jamais une ligne de shell : pas de shell, donc pas de règle de quoting à rater.
+`command` est une liste non vide d'arguments non vides, jamais une ligne de shell : pas de shell,
+donc pas de règle de quoting à rater. Une clé `command: []` est invalide et sort en 2 ; elle ne
+transforme jamais silencieusement l'objet en chemin nu.
 
 ```json
 {
@@ -50,13 +59,23 @@ Deux formes d'entrée, un seul effet sur le gate :
 }
 ```
 
-- `id` reprend verbatim le `usage.rules[].id` du contrat — c'est la clé d'appariement. Une entrée sans `id` fait sortir en 2.
+Pour compatibilité avec les premiers rapports 2.x, `realizer` peut être absent (le chemin du
+rapport sert alors de nom) et `rules` peut être absent (aucune preuve apportée). Dès qu'ils sont
+présents, `realizer` doit être une chaîne non vide et `rules` un tableau. Les nouveaux pivots
+écrivent toujours les deux champs.
+
+- `id` reprend verbatim le `usage.rules[].id` du contrat — c'est la clé d'appariement. Une entrée absente, inconnue ou dupliquée fait sortir en 2.
 - `status` ∈ `pass` · `fail` · `unrealized`.
+- Toute autre valeur de `status` sort en 2 ; elle n'est jamais assimilée à `pass`.
 - `fail` ⇒ chaque entrée de `violations` compte comme une violation du gate ; liste vide ⇒ l'`id` fait office de message.
 - `unrealized` ⇒ le réalisateur a reçu la règle et déclare ne pas l'avoir réalisée. Listée non réalisée en nommant qui le déclare ; l'effet dépend de la priorité contractuelle.
 - Une règle non couverte par un rapport reste **non réalisée** elle aussi, mais sans auteur : le rapport ne peut pas distinguer « pas encore lancé » de « hors de portée ». C'est ce que `unrealized` supprime (`references/enforcement-registry.md § Marqueur non réalisé`).
 
-La priorité vient du contrat, jamais du rapport : `usage.rules[].priority` vaut `P0`, `P1` ou `P2` et vaut `P1` par défaut. Une règle P0/P1 non réalisée est une preuve manquante bloquante. Une règle P2 en échec ou non réalisée reste un warning.
+La priorité vient du contrat, jamais du rapport : `usage.rules[].priority` vaut `P0`, `P1` ou `P2` et vaut `P1` par défaut. Les identifiants `usage.rules[].id` sont uniques ; un doublon invalide le contrat et sort en 2. Une règle P0/P1 non réalisée est une preuve manquante bloquante. Une règle P2 en échec ou non réalisée reste un warning.
+
+Le protocole du linter portable est lui aussi fermé : exits 0/1 avec un objet JSON contenant des
+tableaux de chaînes `realized` et `errors`, ou exits publics 2/3 déjà diagnostiqués. JSON malformé,
+racine non objet, tableaux mal typés et tout autre exit sortent en 2, jamais par traceback.
 
 ## Prérequis d'exécution
 

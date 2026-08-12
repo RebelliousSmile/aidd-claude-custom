@@ -48,3 +48,18 @@ Fixture state: zero-pair adapter returns exit 3, paired=0/declared=2, and names 
 
 **Frictions / gaps:** none.
 **Tally:** 5/5 PASS (0 N/A) — fixture gap closed.
+
+### 2026-08-12 — run 3 (regression, dry-run, target=destructure, fixture=utility+zero-pair) — **5/5 PASS**
+
+Fixture state: utility remains frozen/validated; zero-pair adapter still reports paired=0/declared=2.
+
+| # | Behaviour | Verdict | Δ vs prior | Note (instruction cited) |
+|---|---|---|---|---|
+| S1 | standalone critique write scope | PASS | = | `actions/01-challenge.md §Outputs` |
+| S2 | mandatory lenses + costs | PASS | = | `actions/01-challenge.md §Process` |
+| S3 | plan challenge excluded | PASS | = | `SKILL.md §Routing` |
+| S4 | conversation-only opt-out | PASS | = | `actions/01-challenge.md §Outputs` |
+| S5 | zero-pair table + freeze refusal | PASS | = | `actions/01-challenge.md §Process 2-bis` |
+
+**Frictions / gaps:** none.
+**Tally:** 5/5 PASS (0 N/A) — no PASS→FAIL regression.

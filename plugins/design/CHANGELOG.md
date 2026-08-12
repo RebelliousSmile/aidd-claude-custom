@@ -1,5 +1,25 @@
 # Changelog — design
 
+## [2.12.0] — 2026-08-12
+
+### Added
+
+- Manifeste Codex natif, routage autonome des sept skills et suites Behave couvrant les déclenchements, NO-GO, frontières d'écriture et codes publics.
+- Classification canonique P0/P1/P2 : les preuves outcome et système bloquent, les commodités de workflow avertissent.
+
+### Changed
+
+- Chaque skill accepte désormais son entrée précise sans imposer le cycle complet ; la recette de bout en bout reste réservée aux demandes explicites.
+- Les outils embarqués résolvent la racine depuis le `SKILL.md` chargé, sans dépendre d'une variable propre à un hôte.
+- Le fan-out `copycat` charge un contrat feuille portable, utilise les sous-agents natifs et le modèle par défaut de l'hôte, avec fallback séquentiel.
+- `wire-gates` persiste les instructions dans `AGENTS.md` pour Codex et `.claude/rules/` pour Claude Code, sans modifier une skill installée.
+
+### Fixed
+
+- `run-gates.py` refuse les statuts de pivot inconnus, les règles inconnues ou dupliquées et les rapports mal formés au lieu de les compter comme preuves réalisées.
+- Une commande de réalisateur en échec, vide ou sans nouveau rapport ne peut plus recycler un ancien rapport vert ; la preuve repose sur une recréation, pas sur la granularité du `mtime`.
+- Le préflight Behave valide le dernier run structuré : un verdict vert individuel par scénario et un tally cohérent, sans dépendance au fuseau ni date-bombe quotidienne.
+
 ## [2.11.0] — 2026-08-06
 
 Mineur — **le chemin par lequel les phases d'un pivot atteignent le consommateur n'existait pas.** Constat relevé sur un terrain réel (une maquette de 11 pages à porter en WordPress FSE, `sc-php` installé). Quatre défauts, un seul motif que le plugin traque depuis 2.9 : *un artefact produit que personne n'intègre*.

@@ -11,7 +11,7 @@ Un même code a le même sens dans tous les outils du plugin.
 | `0` | conforme | — |
 | `1` | violations réelles, ou dérive d'un artefact généré | corriger le markup, ou régénérer depuis la source |
 | `2` | invocation invalide, ou artefact déclaré mais absent/illisible | corriger l'appel ou le contrat — ce n'est pas un verdict sur le code |
-| `3` | contrat au format 1.x | migrer : `/design:adjust` action `03-migrate` |
+| `3` | contrat au format 1.x | migrer : invoquer `design:adjust`, action `03-migrate` |
 | `4` | contrat sous le seuil de maturité | remonter le statut (voir plus bas) |
 
 Répartition par outil :
@@ -61,10 +61,12 @@ Un **gap** enregistré dans `release.json § gaps[]` plafonne le statut délibé
 `design/tokens.json` et `design/components.json` existent, mais pas `design/release.json`. Le linter ne tente pas de deviner : il sort en 3 et nomme la migration.
 
 ```bash
-python ${CLAUDE_PLUGIN_ROOT}/tools/migrate-contract.py --contract design/
+python ${DESIGN_PLUGIN_ROOT}/tools/migrate-contract.py --contract design/
 ```
 
-Ou, guidé : `/design:adjust` puis l'action `03-migrate`. Elle vérifie en plus la **non-régression du verdict** — le contrat migré doit rendre le même jugement que l'ancien sur le même markup.
+Ou, guidé : invoquer `design:adjust` puis l'action `03-migrate`. Elle vérifie en plus la
+**non-régression du verdict** — le contrat migré doit rendre le même jugement que l'ancien sur le
+même markup.
 
 Un re-figeage ordinaire **ne fait pas** la conversion au passage : il faut migrer d'abord.
 
@@ -98,7 +100,7 @@ Un artefact dérivé ne correspond plus à l'empreinte gravée dans `release.jso
 - **une source modifiée** sans régénération.
 
 ```bash
-python ${CLAUDE_PLUGIN_ROOT}/tools/generate.py --contract design/
+python ${DESIGN_PLUGIN_ROOT}/tools/generate.py --contract design/
 ```
 
 **Aucun drapeau ne neutralise cet échec.** C'est délibéré : la correction est toujours la source, jamais l'artefact. Si le fichier généré ne te convient pas, ce qui doit changer est l'entrée de `policies.json § adapters[]` ou le token en amont.
@@ -151,9 +153,7 @@ Trois refus distincts, dans cet ordre :
 
 Attendu. `adjust` a bumpé la version, donc les règles du linter dérivées de l'ancien contrat sont périmées.
 
-```bash
-/design:enforce
-```
+Invoquer `design:enforce` dans l'hôte courant.
 
 Re-jouer `enforce` re-dérive les règles depuis le nouveau contrat. La boucle *corriger → propager → re-linter* de `03-lint-instances` est l'outil de réconciliation prévu pour ça — c'est la classe de cas [`contract-drift`](workflow.md#contract-drift--les-instances-ont-divergé).
 
