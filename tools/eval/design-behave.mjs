@@ -57,6 +57,8 @@ const readme = readFileSync('README.md', 'utf8');
 for (const plugin of ['aidd-context', 'aidd-dev', 'aidd-refine'])
   if (!readme.includes(`codex plugin add ${plugin}@aidd-framework`))
     fail(`prérequis Codex absent du README: ${plugin}`);
+if (!readme.includes('codex plugin add design@my-marketplace'))
+  fail('installation Codex du plugin design absente du README');
 
 if (failures.length) {
   for (const failure of failures) console.error(`✗ design-behave — ${failure}`);

@@ -1,6 +1,6 @@
 ---
 name: design-plugin-autonomous-codex
-status: in-progress
+status: implemented
 ---
 
 # Refonte du plugin design

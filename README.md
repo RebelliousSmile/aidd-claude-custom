@@ -30,9 +30,10 @@ Les deux marketplaces sont complémentaires. Une installation Codex complète ac
 codex plugin add aidd-context@aidd-framework
 codex plugin add aidd-dev@aidd-framework
 codex plugin add aidd-refine@aidd-framework
+codex plugin add design@my-marketplace
 ```
 
-Ouvrir ensuite une nouvelle session Codex pour charger les skills nouvellement activées.
+La dernière commande s'exécute après l'enregistrement de `my-marketplace`. Ouvrir ensuite une nouvelle session Codex pour charger les skills nouvellement activées.
 
 ### 1. Enregistrer le marketplace (une seule fois, global)
 
