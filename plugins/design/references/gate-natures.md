@@ -4,6 +4,8 @@
 
 Un contrat figé se vérifie contre deux références de natures différentes. Aucune ne remplace l'autre : elles ne répondent pas à la même question et ne peuvent pas se déduire l'une de l'autre.
 
+Leur poids suit `control-priorities.md` : la fidélité rendue et les comportements utilisateur sont P0, la cohérence contractuelle est P1, et le câblage dans le workflow de développement est P2. P0/P1 échoués ou requis mais non mesurés bloquent ; P2 avertit seulement.
+
 | Gate | Oracle | Référence | Établit | N'établit pas |
 |---|---|---|---|---|
 | **Vocabulaire** | `lint-core.mjs` (Node, 5 règles dérivées du contrat) + import de la feuille de tokens | `tokens.json` · `components.json` · `policies.json` — **interne** | aucune classe ni référence de token hors contrat, **dans le markup effectivement passé au linter** | CSS, liaisons dynamiques, contenu stocké, fichiers de thème de plateforme, couverture des fichiers, rendu calculé |

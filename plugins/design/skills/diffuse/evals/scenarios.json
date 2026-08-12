@@ -1,15 +1,13 @@
 [
-  { "prompt": "diffuse le composant card en HTML baseline", "expect_action": "define+render" },
-  { "prompt": "produis l'élément répétable pour le hero", "expect_action": "define+render" },
-  { "prompt": "génère toutes les variantes du composant btn", "expect_action": "define+render" },
-  { "prompt": "exporte le card en gabarit PHP natif", "expect_action": "define+render+pivot" },
-  { "prompt": "rends le hero en composant JavaScript", "expect_action": "define+render+pivot" },
-  { "prompt": "crée le wireframe du hero pour une page d'accueil", "expect_action": "define+render" },
-  { "prompt": "le projet n'a pas de sc-php, diffuse quand même le card pour sa cible PHP", "expect_action": "define+render" },
+  { "prompt": "prototype ce composant card sans design system", "expect_action": "prototype" },
+  { "prompt": "crée un wireframe local sans contrat", "expect_action": "prototype" },
+  { "prompt": "définis le composant card depuis le contrat figé", "expect_action": "define-element" },
+  { "prompt": "diffuse le composant hero déclaré dans components.json", "expect_action": "define-element" },
+  { "prompt": "rends cette spec neutre en HTML baseline", "expect_action": "render" },
+  { "prompt": "vérifie les adapters puis rends le card", "expect_action": "render" },
+  { "prompt": "rends le hero via le pivot JavaScript natif", "expect_action": "pivot" },
+  { "prompt": "exporte le card via le design-bridge PHP", "expect_action": "pivot" },
   { "prompt": "fige le contrat et écris le manifeste", "expect_action": null },
   { "prompt": "installe le linter et câble les gates", "expect_action": null },
-  { "prompt": "challenge la direction visuelle", "expect_action": null },
-  { "prompt": "vérifie que les adapters sont à jour avant de rendre le card", "expect_action": "define+render" },
-  { "prompt": "rends le btn, mais tokens.json a bougé depuis le dernier figeage", "expect_action": "define+render" },
-  { "prompt": "régénère les adapters du contrat", "expect_action": null }
+  { "prompt": "challenge la direction visuelle", "expect_action": null }
 ]

@@ -1,0 +1,5 @@
+{
+  "$schema": "design/references/contract-schema#policies",
+  "mode": "utility-first",
+  "usage": { "rawHexForbidden": true, "colorUtilityPrefixes": ["bg", "text"], "rules": [] }
+}

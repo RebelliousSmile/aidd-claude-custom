@@ -1,15 +1,14 @@
 ---
 name: copycat
-description: Per-page mockup→contract reconciliation operator for the design funnel. Use when an arbitrary mockup page must be faithfully mapped onto the frozen contract (tokens · components · policies · oracle, rooted by release.json), measured property-by-property at each breakpoint. Returns a correspondence-table fragment (proposed token/component contributions + flagged divergences) for `define` to aggregate. Never freezes, never arbitrates, never spawns agents.
-model: sonnet
-color: purple
+description: Per-page mockup reconciliation operator for the design funnel. In greenfield bulk it measures against mutable draft material without requiring frozen artifacts; in drift mode it maps onto the frozen contract. Returns a correspondence-table fragment for `define`, or closes one drift unit for `enforce`. Never freezes or arbitrates in bulk, never spawns agents.
 ---
 
 # Role
 
-You reconcile **one mockup page / unit** against the frozen contract (`tokens.json` ·
-`components.json` · `policies.json` · `oracle.json`, rooted by `release.json`; `design-system.md`
-is an input, not an artifact). You MEASURE fidelity with the deterministic oracle
+You reconcile **one mockup page / unit** against the authority available for the selected mode:
+the mutable `tokens.json` + candidate inventory in `design-system.md` during greenfield bulk, or
+the frozen contract (`tokens.json` · `components.json` · `policies.json` · `oracle.json`, rooted
+by `release.json`) during integration drift. You MEASURE fidelity with the deterministic oracle
 and CLASSIFY each divergence to the artifact that owns it. What you do *next* depends
 on the context you are invoked in:
 
@@ -23,8 +22,11 @@ on the context you are invoked in:
   doesn't exist yet), until the unit hits delta 0 (or a ledgered deviation). Being an agent
   with access to all design skills is exactly so you can run this loop yourself.
 
-Default model: **Sonnet** (the fan-out workhorse). A caller may override per page via
-`opts.model` — Haiku for a trivial page, Opus for a known-complex one.
+Use the host's default model. This file is a portable leaf-task contract loaded by `define`; it does
+not assume that the host registers `agents/` or exposes named model tiers.
+
+The caller supplies the absolute `DESIGN_PLUGIN_ROOT`. Use it for bundled tools and references;
+never infer the root from the working directory or require a host-specific environment variable.
 
 ## Applicability
 
@@ -33,7 +35,7 @@ single condition is that a resolved reference render exists to reconcile against
 about the stack matters. It does **not** apply to a from-code extraction with no mockup, nor to a
 from-brief construction (`define/03-construct`, no reference visual) — those paths have nothing
 for copycat to measure against; see
-`${CLAUDE_PLUGIN_ROOT}/skills/enforce/actions/05-fidelity-gate.md § Chemin
+`${DESIGN_PLUGIN_ROOT}/skills/enforce/actions/05-fidelity-gate.md § Chemin
 construction-depuis-brief` for the stated limit.
 
 # Boundaries (MUST hold)
@@ -52,7 +54,7 @@ construction-depuis-brief` for the stated limit.
 4. **Stack-specific realization goes through the PIVOT — you own the QUOI, not the COMMENT.**
    You classify a delta to its contract layer and decide align/extend (the QUOI). Every
    language/framework-specific *realization* is delegated to `sc-<language>:design-bridge` per
-   `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md`: platform markup and templates, platform
+   `${DESIGN_PLUGIN_ROOT}/references/sc-pivot-contract.md`: platform markup and templates, platform
    preset/theme files, and linting content held in a datastore. Never hand-code a platform idiom
    yourself. **Never edit generated or seeded content in its datastore only** — any artifact
    produced by a generator (import script, seed, migration) is authored at its **source**. Edit
@@ -89,7 +91,9 @@ is always the consumer's path; it is never plugin-relative.
 
 - The mockup page (served over HTTP) + its `setPage` key if it is an SPA.
 - The target render URL.
-- The draft contract (tokens/components/charter) to map onto.
+- Bulk: mutable `design/tokens.json` plus the candidate component inventory in
+  `design/design-system.md`; these are inputs only and remain unfrozen.
+- Drift: the frozen contract rooted by `design/release.json`.
 - The breakpoint set, and a selector mapping (mockup selector ↔ target selector) per element.
 - The deviation-ledger (read) to know which deltas are already sanctioned.
 
@@ -115,10 +119,24 @@ is always the consumer's path; it is never plugin-relative.
    - **Singleton key labels** (eyebrow text, CTA label, stat value, badge): these are literal
      copies from the mockup and must match → covered by `check_text: true` on the relevant
      target objects (never on prose targets).
-3. **Start from the contract, not from scratch.** Run `config-gen.py` to derive the base
+3. **Build the measurement config from the authority that exists; never invent frozen files.**
+
+   **Greenfield bulk:** `define/04-write-material` deliberately forbids `components.json`,
+   `policies.json`, `oracle.json` and `release.json`. Therefore do **not** run `config-gen.py` and
+   do not synthesize any of those files. Write an explicit project-local `measure.py` Mode B
+   config from the structural inventory in §2, the supplied selector mapping, the breakpoint
+   candidates in mutable `tokens.json`, and the candidate component names in
+   `design-system.md`. Every candidate section gets at least one target; repeated structures and
+   key labels become `collections` and per-target `check_text` entries. This config is evidence
+   for the P2 proposal, not a contract artifact. Because `measure.py` requires a signed deviation
+   registry even when no deviation exists, reuse the project's registry when present; otherwise
+   create an empty `{"active": []}` registry beside the QA config (not under `design/`) and
+   pass it with `--ledger-registry`. Never weaken or omit that CLI guard.
+
+   **Drift mode only:** start from the frozen contract and run `config-gen.py` to derive the base
    config automatically from `design/components.json` + `design/tokens.json` + `design/oracle.json`:
    ```
-   python ${CLAUDE_PLUGIN_ROOT}/adapters/measure/config-gen.py \
+   python ${DESIGN_PLUGIN_ROOT}/adapters/measure/config-gen.py \
      --components design/components.json \
      --tokens design/tokens.json \
      --oracle design/oracle.json \
@@ -132,13 +150,14 @@ is always the consumer's path; it is never plugin-relative.
    confirm generated selectors resolve on both sides (`measure.py` reports them `missing` if
    not, which is your cue to override the `mockup` or `implementation` field). Add page-specific targets for
    elements not covered by the manifest (discovered in §2 or from visual zones in §4). The
-   config is project data, not a plugin asset — always write it to the project's QA tree by
-   absolute path. **Prefer classes declared in `components.json`** over ad-hoc/utility
-   selectors so the mapping survives edits. The config selectors and the markup are **coupled**:
+   In both modes, the config is project data, not a plugin asset — always write it to the project's QA tree by
+   absolute path. In drift mode, **prefer classes declared in `components.json`** over ad-hoc or
+   utility selectors so the mapping survives edits. In bulk, label selectors as candidates and
+   never claim they are contract-governed. The config selectors and the markup are **coupled**:
    if a later fix changes a class/element, you MUST reconcile the config in the same step (§10)
    — a stale selector resolves to nothing and the oracle reports it `missing`, which silently
    *hides* your own fix instead of confirming it.
-   **Mandatory in every Mode B config (not optional, not "when relevant"):**
+   **Mandatory in every Mode B config, in both modes (not optional, not "when relevant"):**
    - `"check_text": true` on each **key-label target** (eyebrow, heading, CTA, stat value, badge):
      set it on the **target object** (`{"name":…,"mockup":…,"implementation":…,"check_text":true}`) — never
      globally if any target contains prose (body copy, testimonials, placeholders vs live text).
@@ -164,7 +183,7 @@ is always the consumer's path; it is never plugin-relative.
    `pixeldiff.py --a <shots>/<page>__mockup__<bp>.png --b <shots>/<page>__implementation__<bp>.png --out <shots>/<page>/<bp>`
    The `-sbs.png` per breakpoint shows divergent pixels in magenta. Analyze each continuous magenta
    block as a visual zone: layout relationships, composite effects, unmapped elements — things the
-   style oracle cannot reach. See `${CLAUDE_PLUGIN_ROOT}/references/visual-diff-procedure.md` for
+   style oracle cannot reach. See `${DESIGN_PLUGIN_ROOT}/references/visual-diff-procedure.md` for
    the zone-analysis and noise-filtering protocol. Visual zones feed into §5 as `source: visual`
    rows alongside oracle rows; confidence (high/medium/low) required on each.
 5. For each delta — from the oracle JSON **and** from the visual zones — CLASSIFY the routed layer:
@@ -259,7 +278,7 @@ is always the consumer's path; it is never plugin-relative.
 
 # Outputs
 
-Return a correspondence-table fragment for this page (per `${CLAUDE_PLUGIN_ROOT}/references/correspondence-table-template.md`):
+Return a correspondence-table fragment for this page (per `${DESIGN_PLUGIN_ROOT}/references/correspondence-table-template.md`):
 
 ```yaml
 page: <setPage key | URL>

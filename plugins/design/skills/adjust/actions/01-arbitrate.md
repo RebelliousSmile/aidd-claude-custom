@@ -11,9 +11,9 @@ Trancher les incohérences entre sources de matière malléable (maquettes multi
 | Sortie de `define` (matière malléable) | `design/design-system.md` (status: brouillon) + `design/tokens.json` (travail) |
 | Pistes de `destructure` | Section "Pistes et inspirations" du rapport de challenge courant, ou rapport persisté sous `design/critique/` (optionnel, non-bloquant) |
 | Maquettes multiples | "J'ai 3 directions issues des maquettes Figma" |
-| Re-figeage delta | "On a décidé de changer la palette secondaire suite au destructure" |
+| Re-figeage delta | Contrat figé + changement borné, avec ou sans rapport `destructure` préalable |
 
-Si aucune source de matière malléable n'est disponible (ni `design-system.md` brouillon, ni pistes, ni maquettes), signaler à l'utilisateur qu'`adjust` présuppose que `define` a été joué et proposer de reprendre depuis `define`.
+Si aucune matière malléable **et aucun contrat figé accompagné d'un delta borné** ne sont disponibles, arrêter et demander l'entrée manquante. Un contrat + delta est une entrée autonome valide : ne pas imposer de rejouer les capacités amont.
 
 ## Processus
 
@@ -123,4 +123,4 @@ Si des cas restent non tranchés (utilisateur n'a pas répondu), ne pas passer �
 Le brief d'arbitrage est produit dans la conversation (pas dans un fichier). Il sert d'entrée directe à `02-freeze`.
 
 Annoncer à l'utilisateur :
-> Brief d'arbitrage complet. X décisions automatiques, Y décisions humaines. Prêt à figer avec `02-freeze` (ou taper `/design:adjust` pour continuer directement).
+> Brief d'arbitrage complet. X décisions automatiques, Y décisions humaines. Prêt à figer avec `02-freeze` (ou invoquer `design:adjust` pour continuer directement).

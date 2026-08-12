@@ -1,11 +1,15 @@
 ---
-description: Profil OPTIONNEL mobile-first/a11y — base = plus petit viewport, enrichissement additif, tokens sans magic number, composants à variantes, baseline a11y, un seul jeu d'icônes sans emoji. Injectable dans .claude/rules/08-design/.
+description: Profil OPTIONNEL mobile-first/a11y — base = plus petit viewport, enrichissement additif, tokens sans magic number, composants à variantes, baseline a11y, un seul jeu d'icônes sans emoji. Persistable via la surface de l'hôte.
 paths: ["**/*.vue", "**/*.tsx", "**/*.jsx", "**/*.svelte", "**/*.astro", "**/*.css", "**/*.scss", "**/*.html", "design/**"]
 ---
 
 # Profil mobile-first / accessibilité (optionnel)
 
-Profil **injectable et optionnel** rapatrié de l'ancien `design:setup`. `define` ne l'impose plus d'office : il est proposé une fois par `01-intake` et installé dans `.claude/rules/08-design/` du projet seulement si l'utilisateur le retient. Il rassemble les 7 conventions liantes que `enforce` peut ensuite vérifier.
+Profil **injectable et optionnel** rapatrié de l'ancien `design:setup`. `define` ne l'impose plus
+d'office : il est proposé une fois par `01-intake` et, seulement si l'utilisateur le retient,
+persisté dans `AGENTS.md` (Codex), `.claude/rules/08-design/` (Claude Code), ou les deux selon
+`${DESIGN_PLUGIN_ROOT}/references/host-portability.md`. Il rassemble les 7 conventions liantes
+que `enforce` peut ensuite vérifier.
 
 ## 1. Authoring mobile-first
 

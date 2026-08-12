@@ -46,6 +46,16 @@ for (const name of plugins) {
     fail('M1', `${name} — version : plugin.json ${manifest.version} ≠ marketplace.json ${entry.version}`);
   if (entry.description !== manifest.description)
     fail('M1', `${name} — description : plugin.json et marketplace.json divergent`);
+
+  const codexPath = `plugins/${name}/.codex-plugin/plugin.json`;
+  if (existsSync(join(ROOT, codexPath))) {
+    const codex = readJson(codexPath);
+    for (const key of ['name', 'description'])
+      if (codex[key] !== manifest[key])
+        fail('M1', `${name} — ${key} : manifeste Codex et manifeste Claude divergent`);
+    if (codex.version !== manifest.version && !codex.version?.startsWith(`${manifest.version}+codex.`))
+      fail('M1', `${name} — version : le manifeste Codex doit partager la version Claude, avec au plus un cachebuster +codex.*`);
+  }
 }
 
 for (const entry of marketplace.plugins)
@@ -70,8 +80,9 @@ for (const p of index.plugins) {
 // (`sc-css/audit` en a une de *dimensions*), donc seule compte celle dont l'en-tête
 // déclare une colonne `Action`. Et la cellule nomme l'action tantôt nue (`scan`),
 // tantôt avec son préfixe (`01-scan`) : les deux se lisent, le nom nu fait foi.
-const TABLE_HEAD = /^\|\s*#\s*\|\s*Actions?\s*\|/i;
+const TABLE_HEAD = /^\|\s*(?:#\s*\|\s*)?Actions?\s*\|/i;
 const TABLE_ROW = /^\|\s*`?(\d{2})`?\s*\|\s*`([^`]+)`/;
+const CANONICAL_ACTION_ROW = /^\|\s*([a-z0-9][a-z0-9._-]*)\s*\|/i;
 const ACTION_FILE = /^(?:(\d{2})-)?(.+)\.md$/;
 const bare = (name) => name.replace(/^\d{2}-/, '');
 
@@ -84,7 +95,9 @@ function actionRows(skillMd) {
     if (!inside) continue;
     if (!line.startsWith('|')) { inside = false; continue; }
     const m = line.match(TABLE_ROW);
-    if (m) rows.push({ num: Number(m[1]), name: bare(m[2]) });
+    if (m) { rows.push({ num: Number(m[1]), name: bare(m[2]) }); continue; }
+    const canonical = line.match(CANONICAL_ACTION_ROW);
+    if (canonical && !/^[-:]+$/.test(canonical[1])) rows.push({ num: null, name: bare(canonical[1]) });
   }
   return rows;
 }
@@ -209,7 +222,7 @@ for (const plugin of plugins) {
       declared.add(name);
       const action = byAction.get(name);
       if (!action) { fail('A1', `${label} — table : \`${name}\` (${num}) ne résout vers aucun fichier`); continue; }
-      if (action.num !== null && action.num !== num)
+      if (num !== null && action.num !== null && action.num !== num)
         fail('A1', `${label} — \`${name}\` : table ${String(num).padStart(2, '0')}, fichier ${action.file}`);
     }
     for (const [name, { file }] of byAction)

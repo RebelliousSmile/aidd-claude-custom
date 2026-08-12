@@ -1,0 +1,8 @@
+{
+  "$schema": "design/references/contract-schema#release",
+  "$format": "2.0",
+  "designSystem": { "version": "1.0.0" },
+  "charter": { "present": true, "path": "design-system.md", "version": "1.0.0" },
+  "provenance": { "producedBy": "behave-fixture", "producedAt": "2026-08-12T00:00:00+02:00", "from": "zero-pair test" },
+  "status": "draft"
+}

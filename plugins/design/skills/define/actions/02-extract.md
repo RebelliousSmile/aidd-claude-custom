@@ -5,7 +5,7 @@ Chemin maquettes. Capturer l'évidence visuelle d'une référence livrée, puis 
 ## Inputs
 
 - La source qualifiée par `01-intake` : image/screenshot, URL live, export Figma, ou CSS/feuille de style.
-- Le schéma de tokens : `${CLAUDE_PLUGIN_ROOT}/references/token-schema.md`.
+- Le schéma de tokens : `${DESIGN_PLUGIN_ROOT}/references/token-schema.md`.
 
 ## Process
 
@@ -26,7 +26,7 @@ Chemin maquettes. Capturer l'évidence visuelle d'une référence livrée, puis 
 
    **Relever les appariements observés, pas seulement les couleurs.** Une couleur ne dit pas d'elle-même qu'elle porte du texte : c'est la référence qui le montre, et c'est le seul moment de l'entonnoir où l'information est directement visible. Noter, pour chaque texte lisible dans la référence, **quelle couleur est posée sur quelle couleur** — y compris quand l'avant-plan est une couleur de marque et non un rôle sémantique. Un `brand.deep` qui porte un titre est un appariement à relever exactement comme `semantic.text` sur `semantic.background` ; un nom de rôle n'est ni nécessaire ni suffisant.
 
-   Vérifier chaque paire ainsi relevée en WCAG AA et noter les échecs. Cette liste n'est pas un sous-produit : c'est la matière que `components.json § .foregrounds` réclamera au figeage (`${CLAUDE_PLUGIN_ROOT}/skills/adjust/references/manifest-schema.md § Invariant 7`), et un contrat qui arrive sans elle ne se fige pas.
+   Vérifier chaque paire ainsi relevée en WCAG AA et noter les échecs. Cette liste n'est pas un sous-produit : c'est la matière que `components.json § .foregrounds` réclamera au figeage (`${DESIGN_PLUGIN_ROOT}/skills/adjust/references/manifest-schema.md § Invariant 7`), et un contrat qui arrive sans elle ne se fige pas.
 2. **Construire l'échelle de type** : familles/graisses, ajuster les tailles observées à une échelle modulaire, proposer `clamp()` pour les pas qui doivent croître entre breakpoints, fixer les line-heights.
 3. **Dériver l'échelle d'espacement** depuis l'unité de base inférée ; exprimer en `rem`.
 4. **Capturer** radius, ombres (tokens composites), largeurs de bordure, motion (durée + easing), tailles/strokes d'icônes (`icon.size.*`/`icon.stroke.*`) là où observés ; marquer le reste comme supposé.

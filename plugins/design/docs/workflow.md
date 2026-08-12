@@ -4,9 +4,7 @@ Cette page répond à « quelle séquence pour mon cas ». Le **pourquoi** de ch
 
 ## La réponse courte
 
-```
-/design:detail
-```
+Invoquer la capacité `design:detail` dans l'hôte courant.
 
 Le verbe 0 lit l'état de ton contrat et les pivots installés, classe ton intention, et émet la séquence exécutable avec ses checkpoints et ses gates. Il n'exécute rien de ce qu'il décrit — tu gardes la main sur chaque lancement.
 
@@ -98,15 +96,16 @@ Aucun checkpoint imposé : le contrat fait déjà autorité. C'est le régime de
 
 Pour un projet neuf avec un brief, dans l'ordre :
 
-```bash
-/design:define          # poser la matière — tokens de travail, inventaire, charte brouillon
-/design:destructure     # challenger la direction avant de la figer
-/design:adjust          # arbitrer + figer le contrat
-/design:enforce         # dériver le linter, câbler les gates
-/design:diffuse <comp>  # produire, sous gate
+```text
+design:define          # poser la matière — tokens de travail, inventaire, charte brouillon
+design:destructure     # challenger la direction avant de la figer
+design:adjust          # arbitrer + figer le contrat
+design:enforce         # dériver le linter, câbler les gates
+design:diffuse <comp>  # produire, sous gate
 ```
 
-Puis, en régime établi : `/design:diffuse` pour chaque nouvel élément, et un retour à `adjust` quand le contrat doit bouger.
+Puis, en régime établi : invoquer `design:diffuse` pour chaque nouvel élément, et revenir à
+`design:adjust` quand le contrat doit bouger.
 
 ## Les checkpoints humains
 

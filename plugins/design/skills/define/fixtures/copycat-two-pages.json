@@ -1,0 +1,9 @@
+{
+  "pages": [
+    { "id": "home", "status": "signed-off", "spacingEvidence": "8px" },
+    { "id": "booking", "status": "pending", "spacingEvidence": "10px" }
+  ],
+  "conflicts": [
+    { "token": "space.component.gap", "values": ["8px", "10px"], "resolution": null }
+  ]
+}

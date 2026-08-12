@@ -119,11 +119,11 @@ Ordre du runner : les lignes de règle d'abord, dans l'ordre où le contrat les 
 
 | Situation | Ce que le réceptacle écrit | Ce que le rapport du gate affiche |
 |---|---|---|
-| règle réalisée, aucune violation | `status: "pass"` | `REALIZED <id> (<type>) by <realizer>` |
-| règle typée `unrealized` par le contrat, qu'un réceptacle a couverte quand même | `status: "pass"` | `REALIZED <id> (unrealized) by <realizer> - the contract declares no realizer for it` |
-| règle hors de portée du réceptacle | `status: "unrealized"` | `UNREALIZED <id> (<type>) - <realizer> reports it unrealized` |
-| règle typée `unrealized`, qu'aucun réceptacle n'a couverte | — | `UNREALIZED <id> - declared with no realizer` |
-| réceptacle non lancé, ou rapport absent | — | `UNREALIZED <id> (<type>) - no report from its realizer` |
+| règle réalisée, aucune violation | `status: "pass"` | `REALIZED <id> (<type>, <priority>) by <realizer>` |
+| règle typée `unrealized` par le contrat, qu'un réceptacle a couverte quand même | `status: "pass"` | `REALIZED <id> (unrealized, <priority>) by <realizer> - the contract declares no realizer for it` |
+| règle hors de portée du réceptacle | `status: "unrealized"` | `UNREALIZED <id> (<type>, <priority>) - <realizer> reports it unrealized` |
+| règle typée `unrealized`, qu'aucun réceptacle n'a couverte | — | `UNREALIZED <id> (<priority>) - declared with no realizer` |
+| réceptacle non lancé, ou rapport absent | — | `UNREALIZED <id> (<type>, <priority>) - no report from its realizer` |
 | violation trouvée par le cœur portable (lint markup) | — | `VIOLATION <target>: <message>` — `<target>` est un **chemin de fichier**, exit 1 |
 | règle réalisée, violations trouvées | `status: "fail"` + `violations[]` | `VIOLATION <realizer>: <message>` — exit 1 |
 
@@ -133,9 +133,9 @@ Trois lectures que la table impose et que sa version courte laissait passer :
 - **La quatrième ligne n'a pas de `(<type>)`**, contrairement à ses voisines. Le runner l'émet ainsi ; la table reproduit la sortie, elle ne la régularise pas.
 - **Sur la deuxième ligne, `<type>` vaut toujours `unrealized`** — c'est la garde même qui la produit. Aucun `(markup)` ni `(stylesheet)` ne peut y apparaître.
 
-Une règle typée `markup` sort `REALIZED <id> (markup) by lint-core` : c'est la première ligne avec `<realizer>` = `lint-core`, une constante du runner et jamais un réceptacle qui rapporte — d'où le `—` qu'elle porterait en colonne *Ce que le réceptacle écrit*.
+Une règle typée `markup` sort `REALIZED <id> (markup, <priority>) by lint-core` : c'est la première ligne avec `<realizer>` = `lint-core`, une constante du runner et jamais un réceptacle qui rapporte — d'où le `—` qu'elle porterait en colonne *Ce que le réceptacle écrit*.
 
-Un `unrealized` ne rougit pas le gate. Il n'a jamais à être justifié pour être accepté — seulement pour être écrit.
+Un `unrealized` reste une preuve manquante : P0/P1 rougit le gate, P2 avertit sans le bloquer.
 
 ---
 

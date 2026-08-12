@@ -35,7 +35,7 @@ Pour les styles inline nécessaires (fond du conteneur de démo), utiliser `var(
 </div>
 ```
 
-Le nom de la custom property se dérive du chemin de token par `${CLAUDE_PLUGIN_ROOT}/references/token-schema.md § Path-to-variable transform` — énoncé une seule fois, partagé avec le générateur et le linter.
+Le nom de la custom property se dérive du chemin de token par `${DESIGN_PLUGIN_ROOT}/references/token-schema.md § Path-to-variable transform` — énoncé une seule fois, partagé avec le générateur et le linter.
 
 ### HTML sémantique
 

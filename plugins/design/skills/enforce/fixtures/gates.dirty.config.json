@@ -4,5 +4,5 @@
   "linter": "../adapters/lint-core.mjs",
   "targets": ["utility-dirty.html"],
   "strict": false,
-  "pivotReports": []
+  "pivotReports": ["pivot-pass.json"]
 }

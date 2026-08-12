@@ -1,0 +1,7 @@
+{
+  "$schema": "design/references/gate-config-schema",
+  "contract": "migration/nominal-1x",
+  "linter": "../adapters/lint-core.mjs",
+  "targets": ["clean.html"],
+  "strict": false
+}

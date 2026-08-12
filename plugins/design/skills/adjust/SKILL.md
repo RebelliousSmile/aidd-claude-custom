@@ -1,74 +1,33 @@
 ---
 name: adjust
-description: >
-  Pivot de l'entonnoir. Arbitre les incohérences entre maquettes, directions ou pistes issues de
-  destructure (motif dominant gagne ; gate humain sur les cas non tranchables), puis fige le contrat :
-  canonise les tokens, écrit les cinq artefacts racinés par release.json, marque la charte comme figée
-  et bumpe la version. Migre aussi un contrat 1.x vers ce format. Explicitement rejouable : un re-figeage
-  bumpe la version et déclenche la réconciliation dans enforce.
-triggers:
-  - "arbitre les directions"
-  - "fige le contrat"
-  - "écris le manifeste"
-  - "adjust"
-  - "cristallise le design system"
-  - "canonise les tokens"
-  - "migre le contrat"
-  - "passe le contrat en 2.0"
-requires:
-  - "une matière de design en brouillon (tokens + inventaire de composants), ou un contrat 1.x à migrer"
-references:
-  - ${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md
-  - ${CLAUDE_PLUGIN_ROOT}/skills/adjust/references/manifest-schema.md
-  - ${CLAUDE_PLUGIN_ROOT}/references/design-system-contract.md
-  - ${CLAUDE_PLUGIN_ROOT}/references/token-schema.md
+description: Freezes a draft or a scoped delta into the versioned design contract and migrates legacy contracts. Use when the user wants to arbitrate, canonicalize, freeze, re-freeze, or migrate design-system decisions.
 ---
 
-# adjust
+# Adjust
 
-## Rôle dans l'entonnoir
-
-```
-define (malléable) → destructure (malléable) → adjust (FIGEAGE) → enforce → diffuse
-```
-
-`adjust` est le point de non-retour : tout ce qui entre sort figé. Il est cependant **rejouable** — si `destructure` identifie une piste requérant un re-figeage (coût contrat `demande un re-figeage`), `adjust` rejoue le delta, bumpe la version et `enforce` propage.
-
-## Ce que adjust produit
-
-| Artefact | Statut après adjust |
-|----------|---------------------|
-| `design/tokens.json` | Canonisé (dédupliqué, groupes requis vérifiés) |
-| `design/components.json` | Créé ou mis à jour — anatomie déclarée ; le vocabulaire qu'elle induit est **ouvert par défaut**, cf. `references/manifest-schema.md § Invariants` |
-| `design/policies.json` | `mode`, préfixes utilitaires, règles d'usage, table des adapters |
-| `design/oracle.json` | Cibles de mesure par composant |
-| `design/release.json` | Racine : versions par artefact, empreintes, provenance, statut de maturité |
-| `design/design-system.md` | `status: figé` · version bumped · Provenance mise à jour |
-
-## Ce que adjust NE fait PAS
-
-- Adjust ne critique pas la direction visuelle (→ `destructure`).
-- Adjust n'installe pas de linter ni ne câble des gates (→ `enforce`).
-- Adjust ne produit pas d'éléments répétables ni d'exports (→ `diffuse`).
-
-## Flux
-
-```
-01-arbitrate → résolution des conflits → 02-freeze → contrat figé
-03-migrate   → contrat 1.x → contrat 2.0 (hors flux, à la demande)
+```mermaid
+flowchart LR
+  draft([draft or direct delta]) --> arbitrate --> freeze --> done([versioned contract])
+  legacy([legacy contract]) --> migrate --> done
 ```
 
-1. **01-arbitrate** — collecte la matière malléable (define output + pistes destructure), compte les occurrences de chaque option, tranche automatiquement sur motif dominant (≥ 2/3), expose les cas non tranchables à l'humain.
-2. **02-freeze** — prend le brief d'arbitrage résolu, canonise `tokens.json`, écrit les cinq artefacts et `release.json`, marque `design-system.md` figé, bumpe les versions.
-3. **03-migrate** — convertit un contrat 1.x existant. Pilote `tools/migrate-contract.py` et vérifie la non-régression du verdict. Ne s'enchaîne pas avec `01`/`02` : c'est une entrée indépendante, déclenchée par un exit 3 du linter ou par une demande explicite.
+Read only the next action in the selected path.
 
-## Mode re-figeage
+| Action | Does |
+| --- | --- |
+| arbitrate | resolve conflicts in a draft or scoped delta |
+| freeze | write or update the versioned contract |
+| migrate | migrate a legacy contract without changing its verdict |
 
-Si le contrat existe déjà (projet déjà figé), `adjust` rejoue uniquement sur le **delta** (nouvelles pistes ou tokens modifiés). Les composants et tokens non touchés sont conservés. La version est bumped minor (delta additif) ou major (renommage/suppression). Un contrat encore en 1.x se migre d'abord (`03-migrate`) — un re-figeage ne fait pas la conversion au passage.
+## Routing
 
-## Références
+- "arbitrate and freeze this draft or delta" → `arbitrate`
+- "migrate this legacy design contract" → `migrate`
 
-- `${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md` — les cinq artefacts, la racine `release.json`, la redistribution depuis un contrat 1.x
-- `${CLAUDE_PLUGIN_ROOT}/skills/adjust/references/manifest-schema.md` — structure et invariants de `components.json`
-- `${CLAUDE_PLUGIN_ROOT}/references/design-system-contract.md` — règles de consommation du contrat
-- `${CLAUDE_PLUGIN_ROOT}/references/token-schema.md` — groupes requis, liaison tokens ↔ artefacts
+## Transversal rules
+
+- Resolve the plugin root using [host-portability.md](../../references/host-portability.md) before loading bundled tools or references.
+- Accept a draft, an existing frozen contract plus a scoped delta, or a legacy contract; no prior capability is mandatory.
+- On a direct delta, preserve every untouched token and component and arbitrate only the supplied change.
+- Never install gates or render components.
+- Keep the five contract artifacts and `release.json` backward compatible with contract 2.x.

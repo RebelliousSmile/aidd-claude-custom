@@ -15,14 +15,14 @@ Prendre la spec neutre produite par `01-define-element` et la rendre dans la sta
 Rendre sur des dérivés périmés, c'est valider contre un état que les sources ont quitté.
 
 ```bash
-python ${CLAUDE_PLUGIN_ROOT}/tools/generate.py --check --contract design/
+python ${DESIGN_PLUGIN_ROOT}/tools/generate.py --check --contract design/
 ```
 
 | Exit | Sens | Suite |
 |---|---|---|
 | 0 | dérivés à jour | rendre |
 | 1 | dérive — retouche manuelle, ou source non régénérée | **stop** : le message nomme le fichier ; corriger la **source**, relancer `generate.py --contract design/` |
-| 2 | contrat invalide | **stop** → `/design:adjust` |
+| 2 | contrat invalide | **stop** → invoquer `design:adjust` |
 | 3 | contrat 1.x | **stop** → `adjust/03-migrate` |
 
 Aucun drapeau ne neutralise un exit 1.
@@ -34,7 +34,7 @@ L'adaptateur se choisit sur **le langage dans lequel l'artefact doit exister**, 
 | Condition | Adaptateur |
 |-----------|-----------|
 | Langage de la cible identifié ET `sc-<langage>` installé | `03-pivot` → `sc-<langage>:design-bridge` |
-| Langage identifié, `sc-<langage>` absent OU langage non identifié | `${CLAUDE_PLUGIN_ROOT}/skills/diffuse/adapters/html-css.md` (baseline) |
+| Langage identifié, `sc-<langage>` absent OU langage non identifié | `${DESIGN_PLUGIN_ROOT}/skills/diffuse/adapters/html-css.md` (baseline) |
 
 Si le langage de la cible n'a pas été précisé dans `01-define-element`, demander avant de continuer :
 > Dans quel langage l'artefact doit-il exister ? (langage de template ou de composant du projet / HTML+CSS baseline)
@@ -43,7 +43,7 @@ Si la branche **baseline** est retenue, le rendu produit est contractuellement u
 
 ## Étape 2 — Rendre
 
-Appliquer l'adaptateur sélectionné (voir `${CLAUDE_PLUGIN_ROOT}/skills/diffuse/adapters/html-css.md` pour la baseline, `03-pivot.md` pour le pivot). Produire le fichier de rendu.
+Appliquer l'adaptateur sélectionné (voir `${DESIGN_PLUGIN_ROOT}/skills/diffuse/adapters/html-css.md` pour la baseline, `03-pivot.md` pour le pivot). Produire le fichier de rendu.
 
 ## Étape 3 — Gate enforce (obligatoire)
 
@@ -68,13 +68,13 @@ Annoncer le résultat et proposer la prochaine action.
 3. Re-linter après correction.
 4. Répéter jusqu'à exit 0.
 
-**Ne jamais livrer un rendu en exit 1.** Si la correction est bloquée (la spec neutre elle-même référence une classe qui n'est plus dans le manifeste), interrompre et proposer de re-figer via `/design:adjust`.
+**Ne jamais livrer un rendu en exit 1.** Si la correction est bloquée (la spec neutre elle-même référence une classe qui n'est plus dans le manifeste), interrompre et proposer de re-figer en invoquant `design:adjust`.
 
 ## Étape 4 — Propagation aux instances (si applicable)
 
-Applicable dès que le rendu est **recopié** dans un magasin de contenu au lieu d'y être référencé : chaque instance est alors une copie indépendante, que corriger la source ne met pas à jour. C'est le type d'enforcement `stored-content` (`${CLAUDE_PLUGIN_ROOT}/references/enforcement-registry.md`).
+Applicable dès que le rendu est **recopié** dans un magasin de contenu au lieu d'y être référencé : chaque instance est alors une copie indépendante, que corriger la source ne met pas à jour. C'est le type d'enforcement `stored-content` (`${DESIGN_PLUGIN_ROOT}/references/enforcement-registry.md`).
 
-Déléguer la propagation à `${CLAUDE_PLUGIN_ROOT}/skills/enforce/actions/03-lint-instances.md` :
+Déléguer la propagation à `${DESIGN_PLUGIN_ROOT}/skills/enforce/actions/03-lint-instances.md` :
 - La source du rendu est mise à jour.
 - Les instances déjà stockées sont réécrites depuis cette source.
 - Les instances sont re-lintées après réécriture.
@@ -91,7 +91,7 @@ Annoncer à l'utilisateur :
 > Gate enforce : vert (0 erreur, <N> warning(s))
 > Variantes produites : <liste>
 >
-> [Si le rendu est recopié en instances] Propagation nécessaire → relancer `${CLAUDE_PLUGIN_ROOT}/skills/enforce/actions/03-lint-instances` pour réécrire les instances stockées.
+> [Si le rendu est recopié en instances] Propagation nécessaire → relancer `${DESIGN_PLUGIN_ROOT}/skills/enforce/actions/03-lint-instances` pour réécrire les instances stockées.
 
 ### Rendu baseline (preview non intégrée)
 
@@ -106,7 +106,7 @@ Le message de livraison énonce systématiquement les trois éléments du hand-o
 
 Spec neutre d'entrée : composant `card`, variante `featured`, fond `color.semantic.surface`.
 
-Rendu baseline attendu (voir `${CLAUDE_PLUGIN_ROOT}/skills/diffuse/adapters/html-css.md`) :
+Rendu baseline attendu (voir `${DESIGN_PLUGIN_ROOT}/skills/diffuse/adapters/html-css.md`) :
 
 ```html
 <article class="card card--featured" role="article">

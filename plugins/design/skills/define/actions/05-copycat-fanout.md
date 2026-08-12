@@ -11,8 +11,8 @@ unique soumise au **checkpoint humain (P2)**. Variante à l'échelle de `02-extr
 - Une maquette multi-pages : SPA exposant `window.setPage`/`setViewport`, ou une liste d'URLs.
 - Le contrat brouillon courant (tokens/composants candidats) à mapper.
 - Le breakpoint set du projet (ex. mobile 375 / tablette 834 / desktop 1440).
-- L'oracle : `${CLAUDE_PLUGIN_ROOT}/adapters/measure/` (`measure.py`, voir son README).
-- L'agent : `copycat` (`${CLAUDE_PLUGIN_ROOT}/agents/copycat.md`).
+- L'oracle : `${DESIGN_PLUGIN_ROOT}/adapters/measure/` (`measure.py`, voir son README).
+- Le contrat feuille : `copycat` (`${DESIGN_PLUGIN_ROOT}/agents/copycat.md`), chargé puis transmis au mécanisme de sous-agent natif de l'hôte.
 
 ## Process
 
@@ -27,14 +27,17 @@ unique soumise au **checkpoint humain (P2)**. Variante à l'échelle de `02-extr
 
 3. **Pré-signal de complexité** (bon marché, sans lancer l'agent) : nombre de sections /
    poids DOM / type de template par page, pour router le modèle.
-4. **Lancer un agent `copycat` par page, en parallèle** :
-   - mécanisme : `Agent` (fan-out) pour une poignée de pages ; `Workflow` (pipeline) pour des
-     dizaines. C'est `define` qui possède le fan-out — les agents `copycat` sont des **feuilles**
-     (elles ne re-spawnent jamais).
-   - modèle : **Sonnet par défaut** ; override `opts.model` seulement si le pré-signal classe la
-     page triviale (**Haiku**) ou complexe (**Opus**).
-   - chaque agent reçoit : la page, le mapping de sélecteurs maquette↔cible, le breakpoint set,
-     et renvoie un **fragment de table de correspondance** (cf. son `## Outputs`).
+4. **Appliquer le contrat `copycat` une fois par page non signée** :
+   - charger `agents/copycat.md` et le fournir comme contrat de tâche à chaque sous-agent ; ce
+     fichier est une ressource portable, pas un agent supposé enregistré par l'hôte ;
+   - utiliser les sous-agents natifs de l'hôte, son modèle par défaut et la concurrence disponible,
+     par lots bornés si les pages dépassent les slots ; sans sous-agents, traiter les pages
+     séquentiellement avec le même contrat ;
+   - c'est `define` qui possède l'orchestration — les tâches `copycat` sont des **feuilles** et ne
+     délèguent jamais à leur tour ;
+   - chaque tâche reçoit : la page, le mapping de sélecteurs maquette↔cible, le breakpoint set,
+     le `DESIGN_PLUGIN_ROOT` absolu déjà résolu et le contrat feuille ; elle renvoie un
+     **fragment de table de correspondance** (cf. son `## Outputs`).
 
 ### C. Agréger (sans arbitrer)
 
@@ -51,7 +54,7 @@ unique soumise au **checkpoint humain (P2)**. Variante à l'échelle de `02-extr
 - La **checklist** mise à jour (pages → `aggregated`).
 - **STOP au checkpoint P2** : présenter la table, attendre la validation humaine. Rien n'est figé
   ni écrit dans le contrat avant sign-off. Après validation, recommander d'invoquer `adjust`
-  (arbitrage + figeage) **sur Opus** — non configuré ici.
+  (arbitrage + figeage) avec la capacité `adjust` — aucun modèle hôte n'est imposé ici.
 
 ## Fermer la boucle après le bulk (séquentiel, jamais dans le fan-out)
 

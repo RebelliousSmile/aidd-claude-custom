@@ -1,85 +1,38 @@
 ---
 name: define
-model: sonnet
-description: >-
-  Verbe 1 de l'entonnoir design (define → destructure → adjust → enforce → diffuse). Pose la matière de
-  design encore MALLÉABLE d'un projet : tokens de travail, inventaire de composants candidats (en prose),
-  charte brouillon. Source unique d'entrée — soit l'EXTRACTION de maquettes existantes (capture/screenshot/
-  URL/Figma/CSS), soit la CONSTRUCTION depuis un brief écrit (positionnement, user story, pas de visuel).
-  Unifie les anciennes from-reference + from-brief. Produit design/tokens.json + design/design-system.md
-  (brouillon, NON figé), et RECENSE les consommateurs d'adapters sans en émettre aucun — l'émission est le
-  fait de tools/generate.py au figeage. N'écrit JAMAIS d'artefact du contrat (components.json, policies.json,
-  oracle.json, deviations.json) ni sa racine release.json : le figeage est le rôle
-  de adjust (verbe 3). Ne challenge pas la direction — c'est destructure ; ne vérifie pas une page — c'est enforce.
-triggers:
-  - "pose les tokens du projet"
-  - "extrais le design system de cette maquette"
-  - "construis la matière de design depuis ce brief"
-  - "crée la charte brouillon"
-requires:
-  - "une référence visuelle (capture, URL, CSS, Figma) ou un brief écrit"
-references:
-  - ${CLAUDE_PLUGIN_ROOT}/references/design-system-contract.md
-  - ${CLAUDE_PLUGIN_ROOT}/references/write-system-procedure.md
-  - ${CLAUDE_PLUGIN_ROOT}/references/token-schema.md
+description: Creates mutable design material from a brief, visual reference, stylesheet, or existing rendered code. Use when the user wants to extract tokens, establish a draft direction, or build a design-system draft without freezing it.
 ---
 
-# define
+# Define
 
-Porte d'entrée unique du contrat de design. `define` produit la **matière première malléable** dont les verbes suivants ont besoin : des tokens de travail, un inventaire de composants candidats, et une charte brouillon. Rien n'est figé ici — c'est délibéré. Tant que la matière bouge, le contrat n'existe pas encore.
+```mermaid
+flowchart LR
+  source([brief, visual, CSS, or rendered code]) --> intake
+  intake -->|reference or code| extract --> write-material --> done([draft])
+  intake -->|brief only| construct --> write-material
+  source -->|measured multi-page reference| copycat-fanout --> write-material
+```
 
-Deux chemins, une seule sortie :
+Read only the next action in the selected path.
 
-- **Extraction** — un visuel fait foi (maquette, screenshot, URL live, export Figma, CSS livré). On en dérive les tokens.
-- **Construction** — pas de visuel, seulement un besoin écrit (brief client, positionnement, user story). On dérive un système cohérent et distinctif depuis l'intention.
+| Action | Does |
+| --- | --- |
+| intake | classify the supplied source |
+| extract | extract design evidence from a reference or rendered code |
+| construct | construct design material from a written brief |
+| write-material | write mutable tokens and a draft charter |
+| copycat-fanout | reconcile a measured multi-page reference |
 
-La sortie est identique dans les deux cas : `design/tokens.json` + `design/design-system.md` (brouillon) + adapters générés. Le reste de l'entonnoir (`destructure`, `adjust`, `enforce`, `diffuse`) consomme cette matière.
+## Routing
 
-## Available actions
-
-| # | Action | Role | Input |
-|---|--------|------|-------|
-| 01 | `intake` | Détecte la source (maquettes vs brief) et route | la cible (visuel OU brief) |
-| 02 | `extract` | Chemin maquettes : dérive tokens + composants candidats du visuel | évidence visuelle capturée |
-| 03 | `construct` | Chemin brief : clarifie les attributs + dérive un token set distinctif | le brief / user story |
-| 04 | `write-material` | Écrit tokens.json + design-system.md (brouillon) + adapters | tokens dérivés (de 02 ou 03) |
-| 05 | `copycat-fanout` | Maquette MULTI-PAGES mesurée : fan-out de l'agent `copycat` (1/page, //) → table de correspondance agrégée (checkpoint P2) | maquette multi-pages + contrat brouillon |
-
-## Default flow
-
-Linéaire avec aiguillage : `01 → (02 OU 03 OU 05) → 04`.
-
-Trigger-to-action mapping :
-
-- "extrais le design system de cette maquette/ce screenshot/ce site/ce Figma/ce CSS", "matche ce visuel" → `intake` → `extract` → `write-material`
-- "construis un design system depuis ce brief/cette user story", "pas de référence, design from scratch" → `intake` → `construct` → `write-material`
-- "réconcilie cette maquette multi-pages", "copie conforme de ces N pages", "fan-out copycat sur les pages", "mesure toutes les pages par breakpoint" → `copycat-fanout` (puis checkpoint P2, puis `adjust`)
-- "écris la matière depuis ces tokens" → `write-material`
-
-Si la source est ambiguë (un brief mentionnant un visuel sans le fournir), `intake` tranche en demandant.
+- "create or extract design material from this source" → `intake`
+- "write this already prepared mutable token set" → `write-material`
+- "reconcile this measured multi-page reference" → `copycat-fanout`
 
 ## Transversal rules
 
-- Lire le contrat AVANT d'écrire : `${CLAUDE_PLUGIN_ROOT}/references/design-system-contract.md` et `${CLAUDE_PLUGIN_ROOT}/references/token-schema.md`.
-- **Ne JAMAIS écrire d'artefact du contrat** (`design/components.json`, `policies.json`, `oracle.json`) ni sa racine `design/release.json`. Ils sont produits par `adjust`. Ici, l'inventaire de composants est écrit en **prose candidate** dans la section "Component inventory" de `design-system.md` — explicitement malléable et distinct du manifeste JSON figé.
-- La charte produite porte la mention **"brouillon / non figé"** : `define` n'arbitre pas et ne canonise pas.
-- Identifier le **core trio d'abord, vite** — ancre de palette · type · jeu d'icônes — et le **présenter avant** de dériver le token set complet. Ce n'est pas un arrêt bloquant : poursuivre sauf objection, mais l'annoncer explicitement (« je pars sur X/Y/Z, dis-moi si ça cloche ») pour que la correction reste bon marché tant que la matière est malléable. Ne pas prétendre attendre une approbation qu'on n'attend pas.
-- Référencer, ne pas inventer : chaque token trace à une observation (extraction) ou à un attribut du brief (construction). Tout le reste va en § Open questions.
-- Un seul jeu d'icônes (`icon.library`/`icon.style`) ; jamais d'emoji comme iconographie.
-- **Profil mobile-first OPTIONNEL** : `references/profile-mobile-first.md` rassemble la philosophie mobile-first / enrichissement progressif / a11y / no-emoji. L'injecter seulement si l'utilisateur le demande ou si le projet l'exige — il n'est plus imposé d'office.
-
-## References
-
-- `${CLAUDE_PLUGIN_ROOT}/references/design-system-contract.md` — emplacement des artefacts et sections requises
-- `${CLAUDE_PLUGIN_ROOT}/references/token-schema.md` — groupes de tokens et génération des adapters
-- `${CLAUDE_PLUGIN_ROOT}/references/write-system-procedure.md` — procédure d'écriture partagée (suivie par `04-write-material`, en mode brouillon)
-- `${CLAUDE_PLUGIN_ROOT}/skills/define/references/intake-questions.md` — détection de source + drivers de clarification du brief
-- `${CLAUDE_PLUGIN_ROOT}/skills/define/references/profile-mobile-first.md` — profil injectable OPTIONNEL (mobile-first, enrichissement, a11y, iconographie)
-- `${CLAUDE_PLUGIN_ROOT}/agents/copycat.md` — agent feuille fan-outé par `05-copycat-fanout` (1/page)
-- `${CLAUDE_PLUGIN_ROOT}/adapters/measure/` — oracle de fidélité Python (getComputedStyle par breakpoint) ; voir son README
-- `${CLAUDE_PLUGIN_ROOT}/references/correspondence-table-template.md` — livrable agrégé du checkpoint P2
-- `${CLAUDE_PLUGIN_ROOT}/references/copycat-checklist-schema.md` — checklist résumable (bulk) pour la mi-intégration
-
-## Evals
-
-- `evals/scenarios.json`
+- Resolve the plugin root and subagent behavior using [host-portability.md](../../references/host-portability.md).
+- Stop after producing mutable material; never freeze a contract, install gates, or render components.
+- Treat existing rendered code as extraction evidence, not as a reason to run a complete lifecycle.
+- Write no contract root or generated adapter from this capability.
+- Present the palette, typography, and icon set before expanding the complete token set, then continue unless the user objects.

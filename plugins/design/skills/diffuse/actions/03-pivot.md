@@ -2,7 +2,7 @@
 
 ## Rôle
 
-Identifier le langage dans lequel l'artefact doit exister. Si un `sc-<langage>:design-bridge` est installé, émettre le spec de rendu (cf `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md`) et lui relayer. Sinon, utiliser la baseline `${CLAUDE_PLUGIN_ROOT}/skills/diffuse/adapters/html-css.md` et le signaler.
+Identifier le langage dans lequel l'artefact doit exister. Si un `sc-<langage>:design-bridge` est installé, émettre le spec de rendu (cf `${DESIGN_PLUGIN_ROOT}/references/sc-pivot-contract.md`) et lui relayer. Sinon, utiliser la baseline `${DESIGN_PLUGIN_ROOT}/skills/diffuse/adapters/html-css.md` et le signaler.
 
 ## Prérequis
 
@@ -24,7 +24,7 @@ Le routage se fait sur le langage, jamais sur le nom du framework ou de la plate
 
 ## Étape 2a — Si sc-* disponible : émettre le spec de rendu
 
-Construire le spec de rendu depuis la spec neutre, selon le format de `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md § Spec de rendu` :
+Construire le spec de rendu depuis la spec neutre, selon le format de `${DESIGN_PLUGIN_ROOT}/references/sc-pivot-contract.md § Spec de rendu` :
 
 ```
 ## Design render spec
@@ -61,12 +61,13 @@ Les contraintes propres à la plateforme du réceptacle — classes générées 
 
 ## Étape 2b — Si le réceptacle est absent : baseline + signal
 
-Utiliser `${CLAUDE_PLUGIN_ROOT}/skills/diffuse/adapters/html-css.md` et informer :
+Utiliser `${DESIGN_PLUGIN_ROOT}/skills/diffuse/adapters/html-css.md` et informer :
 
 ```
 Pivot non disponible pour <langage> : sc-<langage>:design-bridge n'est pas installé.
 Rendu assuré par la baseline HTML+CSS (portable, universel).
-Pour un rendu natif idiomatique en <langage>, installer sc-<langage> et re-jouer /design:diffuse.
+Pour un rendu natif idiomatique en <langage>, installer `sc-<langage>` et invoquer de nouveau
+`design:diffuse` dans l'hôte courant.
 ```
 
 La baseline est fonctionnelle — ce n'est pas une erreur, seulement une dégradation gracieuse.

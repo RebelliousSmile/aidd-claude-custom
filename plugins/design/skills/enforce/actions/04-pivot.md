@@ -6,7 +6,7 @@ Assigner à un réceptacle chaque règle que le cœur portable ne réalise pas, 
 
 ## Prérequis
 
-- Contrat figé, `usage.rules[]` typé (`${CLAUDE_PLUGIN_ROOT}/references/enforcement-registry.md`).
+- Contrat figé, `usage.rules[]` typé (`${DESIGN_PLUGIN_ROOT}/references/enforcement-registry.md`).
 - `01-build-linter` terminé : `run-gates.py` et `gates.config.json` installés.
 
 ## Étape 1 — Router chaque règle vers son réalisateur
@@ -25,11 +25,11 @@ Un même contrat peut ainsi désigner deux réceptacles : le langage des feuille
 
 ## Étape 2 — Vérifier la disponibilité de chaque réceptacle désigné
 
-Réceptacle absent de la session ⇒ ses règles restent assignées mais non réalisées. Ce n'est pas une erreur, et le gate ne rougit pas pour autant : c'est exactement ce que l'étape 4 rend lisible.
+Réceptacle absent de la session ⇒ ses règles restent assignées mais non réalisées. Le gate applique leur priorité : P0/P1 bloque pour preuve manquante, P2 avertit.
 
 ## Étape 3 — Émettre le spec, une fois par réceptacle
 
-Format complet : `${CLAUDE_PLUGIN_ROOT}/references/sc-pivot-contract.md § Spec d'enforcement`. Deux champs portent le contrat de cette action :
+Format complet : `${DESIGN_PLUGIN_ROOT}/references/sc-pivot-contract.md § Spec d'enforcement`. Deux champs portent le contrat de cette action :
 
 - **Declared rules** — uniquement les règles routées vers ce réceptacle, id et description repris verbatim du contrat. Un réceptacle ne reçoit jamais une règle qu'un autre réalise.
 - **Report path** — le fichier où le réceptacle écrit son rapport.
@@ -48,15 +48,15 @@ Les sept lignes du gate, dans l'ordre où il les imprime — les lignes de règl
 |---|---|
 | `REALIZED <id> (<type>) by <realizer>` | assignée, réalisée, sans violation |
 | `REALIZED <id> (unrealized) by <realizer> - the contract declares no realizer for it` | un réceptacle a couvert une règle que le contrat route vers personne — réalisée, et le contrat est périmé sur ce point |
-| `UNREALIZED <id> (<type>) - <realizer> reports it unrealized` | le réceptacle a lu la règle et dit ne pas la couvrir |
-| `UNREALIZED <id> - declared with no realizer` | typée `unrealized` par le contrat, et personne ne l'a couverte — **sans** `(<type>)`, comme le runner l'émet |
-| `UNREALIZED <id> (<type>) - no report from its realizer` | aucun rapport : réceptacle absent, ou non lancé |
+| `UNREALIZED <id> (<type>, <priority>) - <realizer> reports it unrealized` | le réceptacle a lu la règle et dit ne pas la couvrir |
+| `UNREALIZED <id> (<priority>) - declared with no realizer` | typée `unrealized` par le contrat, et personne ne l'a couverte |
+| `UNREALIZED <id> (<type>, <priority>) - no report from its realizer` | aucun rapport : réceptacle absent, ou non lancé |
 | `VIOLATION <target>: <message>` | non conforme, trouvée par le cœur portable — `<target>` est un **chemin de fichier**, exit 1 |
 | `VIOLATION <realizer>: <message>` | non conforme, trouvée par un réceptacle — exit 1 |
 
 Le préfixe de `VIOLATION` n'est donc pas toujours un réalisateur : les deux formes viennent de deux producteurs, et rien dans la ligne ne les distingue hors ce que la cible ressemble à un chemin.
 
-Les trois lignes `UNREALIZED` ne changent pas le code de sortie. Elles ne se ferment pas en les masquant, mais en installant le réceptacle manquant ou en re-typant la règle.
+Les trois lignes `UNREALIZED` suivent la priorité contractuelle : P0/P1 bloque, P2 avertit. Elles ne se ferment pas en les masquant, mais en installant le réceptacle manquant ou en re-typant la règle.
 
 ## Sortie attendue
 
