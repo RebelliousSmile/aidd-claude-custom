@@ -17,7 +17,7 @@ Migration action for projects that installed capability rules via sc-js 0.3.0. R
 
 The following **12** paths are the complete set of files that sc-js 0.3.0 could have installed. Only files whose path appears in this list are candidates for deletion.
 
-Each of them has a matching reference under `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/` — that correspondence is what makes the content-match guard below applicable. A path with no plugin reference has no business here: never add one, and if the guard finds no reference for a candidate, skip the file and report it rather than deleting unverified content.
+Each of them has a matching reference under `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/` — that correspondence is what makes the content-match guard below applicable. A path with no plugin reference has no business here: never add one, and if the guard finds no reference for a candidate, skip the file and report it rather than deleting unverified content.
 
 ```
 .claude/rules/capabilities/components/shared-scope.md
@@ -39,7 +39,7 @@ Each of them has a matching reference under `${CLAUDE_PLUGIN_ROOT}/skills/sniff/
 For each candidate path that exists in the project:
 
 1. Read the file content from the project
-2. Read the corresponding reference file from `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/<relative-path>`
+2. Read the corresponding reference file from `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/<relative-path>`
 3. Normalize both contents: strip trailing whitespace per line, normalize line endings to LF
 4. If normalized content matches exactly → **delete** (file is unmodified plugin content)
 5. If normalized content differs → **skip** + report conflict (user has modified the file)

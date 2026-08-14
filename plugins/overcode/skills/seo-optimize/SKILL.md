@@ -1,6 +1,5 @@
 ---
 name: seo-optimize
-model: sonnet
 description: >-
   Audits a website's SEO and GEO (generative engine optimization) against a
   site-type-aware checklist (indexability, on-page title/meta/H1, structured
@@ -9,15 +8,15 @@ description: >-
   (local-business, SaaS, blog/content, e-commerce, docs) and captures a
   falsifiable baseline (GSC positions, GBP score, AI citation grid) before
   recommending changes. Every report states where its checklist came from and
-  the state of the `.claude/rules/07-quality/seo-pivots-*.md` receptacle.
+  the state of the `${PROJECT_RULES_ROOT}/07-quality/seo-pivots-*.md` receptacle.
   Use when the user mentions SEO, GEO, référencement, ranking, SERP, Google
   Search Console, GSC, mots-clés, keywords, meta title, balise title, H1,
   rich results, JSON-LD, schema, Google Business Profile, GBP, fiche Google,
   llm.txt, "citée par ChatGPT", "visible sur Perplexity", AI Overviews, or
-  invokes /seo-optimize.
-argument-hint: <route or scope to audit (optional)>
-version: 1.0.0
+  invokes seo-optimize.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # seo-optimize
 
@@ -28,7 +27,7 @@ Run a structured SEO/GEO audit on a website, picking the right checklist for the
 ## Rules
 
 - Detect the site type BEFORE picking a checklist — never assume `local-business`
-- **After detecting the site type, load matching pivots** from `references/seo-geo-pivots.md`, the nominal source for this skill. A pivot file dropped at `.claude/rules/07-quality/seo-pivots-<sitetype>.md` **takes precedence** when present, whoever put it there — the receptacle is a public interface, and `references/seo-geo-pivots.md` contractualizes any such file. No marketplace plugin currently writes that name, so its absence is `no provider`, never `not installed`: there is no installer to recommend. Load matching section(s) as the primary source for §1–§11. For hybrid sites (e.g. `local-business` + `blog`), concatenate sections
+- **After detecting the site type, load matching pivots** from `references/seo-geo-pivots.md`, the nominal source for this skill. A pivot file dropped at `${PROJECT_RULES_ROOT}/07-quality/seo-pivots-<sitetype>.md` **takes precedence** when present, whoever put it there — the receptacle is a public interface, and `references/seo-geo-pivots.md` contractualizes any such file. No marketplace plugin currently writes that name, so its absence is `no provider`, never `not installed`: there is no installer to recommend. Load matching section(s) as the primary source for §1–§11. For hybrid sites (e.g. `local-business` + `blog`), concatenate sections
 - **Every report states the provenance of its checklist** — two fields, `source` and `pivot`, one pair per applicable site type. See Step 5 for the exact form
 - Capture a **falsifiable baseline** (GSC positions/impressions, GBP completeness score, AI citation grid, schema validity) BEFORE recommending changes — without baseline, ranking claims are unfalsifiable
 - Recommend changes only after reading at least these 3 real artifacts: (a) the rendered `<head>` of the hot route (or the framework head config — `useHead`/`useSeoMeta`, `next/head`/`generateMetadata`, static `<head>`), (b) `robots.txt` + `sitemap.xml`, (c) one hot landing page's body content. Generic SEO advice without this evidence is rejected
@@ -136,7 +135,7 @@ flowchart LR
 
 **Do:**
 
-1. **Check the receptacle first** — scan `.claude/rules/07-quality/seo-pivots-*.md` for a file matching the detected type. If found → primary source, proceed to Step 3. No marketplace plugin fills this name today, so a hit means someone dropped the file by hand; it is honoured all the same.
+1. **Check the receptacle first** — scan `${PROJECT_RULES_ROOT}/07-quality/seo-pivots-*.md` for a file matching the detected type. If found → primary source, proceed to Step 3. No marketplace plugin fills this name today, so a hit means someone dropped the file by hand; it is honoured all the same.
 2. **If no such pivot**, load the matching section(s) of `references/seo-geo-pivots.md` — the nominal rung here, not a degraded one. For hybrid sites, concatenate. Record the receptacle's state for the provenance header: absent or holding no matching file, it is `no provider` — nothing to install, and no plugin to name.
 3. **If no section matches the type:** halt and ask the user:
 
@@ -206,7 +205,7 @@ flowchart LR
    ```
 
    - `source` is the rung **actually reached**. `internal fallback seo-geo-pivots.md` is the nominal answer here, not a degraded one — it is where almost every run lands. `generated` is distinct from it: a checklist **written** on the fly is not a maintained section that was loaded. This skill declares no destination for what it generates, hence `—`.
-   - `pivot` is the state of the receptacle, without naming a provider — there is none to name: `installed` (a matching file is there and was loaded) · `empty receptacle` (`.claude/rules/07-quality/` exists and holds no rule file — `.gitkeep` and service files do not count, a non-pivot rule does) · `no provider` (no marketplace plugin writes this name; this is the ordinary state). A **missing** receptacle is never `empty receptacle`: it is `no provider`.
+   - `pivot` is the state of the receptacle, without naming a provider — there is none to name: `installed` (a matching file is there and was loaded) · `empty receptacle` (`${PROJECT_RULES_ROOT}/07-quality/` exists and holds no rule file — `.gitkeep` and service files do not count, a non-pivot rule does) · `no provider` (no marketplace plugin writes this name; this is the ordinary state). A **missing** receptacle is never `empty receptacle`: it is `no provider`.
    - `not installed` is unreachable in this family, and stating it would be false: it means *a provider exists and you have not run it*, and none exists.
    - **Two fields, never one.** They are independent axes and commonly both true — `pivot : no provider` with `source : internal fallback seo-geo-pivots.md §local-business` is the ordinary run.
    - A site mixing several types gets one pair per type: a single provenance value is wrong whichever value it takes (DEC-008).
@@ -214,7 +213,7 @@ flowchart LR
 5. **Ready-to-paste copy** (titles, metas, H1, FAQ, GBP fields) under each relevant item — apply the **truthfulness guard** (no invented figures, `[placeholder]` for unknowns) AND the **encoding guard** (ASCII if non-UTF-8 store)
 6. End with a **KPI tracking table** J0 → J+30 → J+60 → J+90 (GSC position/impressions per query, GBP score, AI citation grid) so gains are measurable
 7. **Per-fix success criterion**: define primary (deterministic delta — schema valid, meta present, NAP consistent) + secondary (GSC median position). Declare "real gain" only if GSC **median position post-fix beats the baseline range**, else: "fix shipped, ranking variance dominates, deterministic delta is the trustable signal"
-8. **Bugs found during audit → issue, not normative patch**: a single broken canonical or a stray noindex belongs in the roadmap (file:line + fix) + a tracker issue — never in the pivots or `.claude/rules/`. Threshold for normative elevation: ≥ 2 distinct occurrences OR a known generic class
+8. **Bugs found during audit → issue, not normative patch**: a single broken canonical or a stray noindex belongs in the roadmap (file:line + fix) + a tracker issue — never in the pivots or host-native project rules. Threshold for normative elevation: ≥ 2 distinct occurrences OR a known generic class
 
 **Success criteria:** User can execute Phase F0 from the report alone. Each fix has a deterministic primary criterion. Generated copy is truthful and encoding-safe.
 
@@ -248,4 +247,4 @@ flowchart LR
 | Reference | `references/serp-signals.md`                    | Authoritative grounding (Google Search Central / Schema.org / GBP) — confirmed vs folklore  |
 | Output    | `aidd_docs/tasks/audits/<yyyy_mm_dd>_seo-<sitetype>-<scope-slug>.md` | Audit report destination (fallback `docs/seo-audits/...`)              |
 | Tests     | `tests.md`                                      | Smoke test cases for site-type detection — run before trusting the skill on a new site type |
-| Sibling   | `../web-optimize/SKILL.md`                       | Produces the CWV metric consumed by §8 (ranking signal). Run it first if §8 has no data     |
+| Sibling   | `..web-optimize/SKILL.md`                       | Produces the CWV metric consumed by §8 (ranking signal). Run it first if §8 has no data     |

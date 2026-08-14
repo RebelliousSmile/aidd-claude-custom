@@ -21,7 +21,7 @@ Identify:
 
 ### Step 1.5 — Stack-specific anti-patterns from capability pivots
 
-Re-detect capabilities from `requirements.txt`, `pyproject.toml`, or `setup.py` (same conditions as `sniff/01-scan`). For each condition met, load the pivot from `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/<path>` and use its anti-patterns as **additional detection criteria** in Step 2. Report findings under a `Stack-specific` category.
+Re-detect capabilities from `requirements.txt`, `pyproject.toml`, or `setup.py` (same conditions as `sniff/01-scan`). For each condition met, load the pivot from `${SC_PYTHON_PLUGIN_ROOT}/skills/sniff/references/capabilities/<path>` and use its anti-patterns as **additional detection criteria** in Step 2. Report findings under a `Stack-specific` category.
 
 | Capability | Condition | Pivot |
 |---|---|---|

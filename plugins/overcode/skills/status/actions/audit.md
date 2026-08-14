@@ -28,14 +28,14 @@ Score: N/10
 
 1. Resolve scope: run `ls -1 aidd_docs/memory/*.md aidd_docs/memory/internal/*.md` (or the override path). Run `wc -l` on each file. Build the file list.
 2. Recount codebase entities by running targeted globs: stores (`store/*Store.js`), composables (`composables/**/*.js`), pages (`pages/**/*.vue`), components (`components/**/*.vue`), middlewares (`middleware/*.js`), contract tests (`tests/contracts/**/*.test.js`), e2e specs (`tests/e2e/**/*.spec.ts`). Record actual counts for use in P1 drift checks.
-3. Read `CLAUDE.md` and locate the `<aidd_project_memory>` block. Cross-check every `@`-prefixed reference resolves to an existing file, and every root memory file in `aidd_docs/memory/` is listed. Note any gaps.
+3. Detect the active host instruction surface. On Codex, read the applicable `AGENTS.md` chain and locate its project-memory section; on Claude Code, read `CLAUDE.md` and its `<aidd_project_memory>` block. If both exist, audit both for semantic parity. Cross-check every referenced memory path resolves and every root memory file in `aidd_docs/memory/` is listed. Note any gaps; do not require Claude-specific `@` syntax on Codex.
 4. Read each memory file fully. Run all 10 audit criteria:
    - **P1-1 Broken refs**: every file path or `@`-reference cited in memory files resolves on disk.
    - **P1-2 Drifted counts**: entity counts stated in memory match the recount from step 2.
    - **P1-3 Drifted versions**: version numbers stated in memory match `package.json` or lock files.
-   - **P1-4 CLAUDE.md sync**: every root memory file is listed in CLAUDE.md; all `@`-refs resolve.
+   - **P1-4 Host instruction sync**: every root memory file is listed by the active `AGENTS.md` or `CLAUDE.md` memory section; all references resolve; dual-host projects remain semantically equivalent.
    - **P2-5 Inter-file contradictions**: the same fact stated differently across two or more memory files.
-   - **P2-6 Memory/rules duplication**: rules or constraints duplicated verbatim between memory and `.claude/` rules files.
+   - **P2-6 Memory/rules duplication**: rules or constraints duplicated verbatim between memory and host-native instructions (`AGENTS.md`/`.agents/rules` or `.claude/rules`).
    - **P2-7 Frontmatter**: every memory file has valid frontmatter (name, description fields present and non-empty).
    - **P2-8 LLM style**: prose is imperative, factual, and unambiguous — flag hedging language, passive voice, or undefined acronyms.
    - **P3-9 Normative vs archive**: memory files mixing current state with historical narrative that should be archived.

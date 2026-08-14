@@ -1,6 +1,5 @@
 ---
 name: audit
-model: sonnet
 description: >-
   Rust code quality auditor. Detects the project stack via sniff (01-scan),
   loads the applicable Rust knowledge pivots from the plugin, and delegates
@@ -8,9 +7,11 @@ description: >-
   acceptance criteria. Use when the user asks to: audit Rust code, check Rust
   best practices, review code quality, check idiomatic Rust, audit Axum/Actix
   conventions, check ownership patterns, clippy compliance, or invokes
-  /sc-rust:audit.
+  sc-rust:audit.
   Does not install any files to .claude/rules/.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-rust Audit
 

@@ -2,8 +2,6 @@
   "plugins": [
     { "id": "overcode", "name": "overcode" },
     { "id": "design", "name": "design" },
-    { "id": "game-writer", "name": "game-writer" },
-    { "id": "sc-godot", "name": "sc-godot" },
     { "id": "sc-php", "name": "sc-php" },
     { "id": "sc-js", "name": "sc-js" },
     { "id": "sc-css", "name": "sc-css" },

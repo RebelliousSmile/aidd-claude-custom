@@ -1,18 +1,19 @@
 ---
 name: sniff
-model: sonnet
 description: >-
   JS stack detector for JavaScript projects. Reads package.json to detect
   the runtime (web vs desktop), framework (Nuxt, Vue SPA, Vite, Alpine, Astro,
   11ty), ORMs (Prisma, Drizzle, TypeORM, Mongoose, GraphQL, tRPC), and
   capabilities in use (state management, icons, code splitting, SSR, etc.).
   Emits a pivot manifeste — the list of applicable JS knowledge references
-  in the plugin — for use by /sc-js:audit. Installs perf pivots (for
+  in the plugin — for use by sc-js:audit. Installs perf pivots (for
   web-optimize) and data pivots (for data-optimize) to .claude/rules/07-quality/.
   Does not install capability rules to .claude/rules/ — those are loaded
-  on demand at audit time. Run /sc-js:sniff clean to migrate from sc-js 0.3.0.
+  on demand at audit time. Run sc-js:sniff clean to migrate from sc-js 0.3.0.
   Prefer sniff over setup on already-configured projects.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-js Sniff
 
@@ -30,7 +31,7 @@ JS stack detector and pivot manifeste producer.
 
 Sequential: `scan` → `install-pivots`.
 
-`clean` is **opt-in only** — invoke explicitly via `/sc-js:sniff clean`. It is never part of the default flow.
+`clean` is **opt-in only** — invoke explicitly via `sc-js:sniff clean`. It is never part of the default flow.
 
 ## Conceptual model
 

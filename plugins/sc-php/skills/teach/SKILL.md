@@ -1,6 +1,5 @@
 ---
 name: teach
-model: sonnet
 description: >-
   Teaches PHP language features, OOP patterns, and framework idioms by pulling
   examples directly from the current project codebase. Explains concepts with real
@@ -11,6 +10,8 @@ description: >-
   Do NOT use for code review (aidd-dev:05-review), debugging (aidd-dev:08-debug),
   generating new features, or version migrations (legacy).
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-php Teach
 

@@ -1,6 +1,5 @@
 ---
 name: sniff
-model: sonnet
 description: >-
   CSS stack detector. Analyse les fichiers de style présents pour détecter l'architecture
   CSS (BEM, utility-first, CSS Modules, ITCSS), le préprocesseur (PostCSS, Sass/SCSS, Less,
@@ -8,6 +7,8 @@ description: >-
   layers), et le degré d'adoption des custom properties. Émet un pivot manifeste JSON décrivant
   l'état détecté, à lire avant de lancer audit, improve ou legacy. N'installe aucun fichier.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-css:sniff
 

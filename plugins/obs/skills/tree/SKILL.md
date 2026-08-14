@@ -3,13 +3,15 @@ name: tree
 description: Keeps the Documents/ tree navigable as it evolves — maintains a cache (map of the real arborescence), verifies it against a small set of portability invariants, fixes drift safely, and helps sort loose items into place by arbitration. Use to check whether a directory is well-organised, to tidy it, or to decide where something belongs.
 ---
 
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
+
 # Tree
 
 Keeps `Documents/` **navigable while it keeps changing**. Rather than enforcing a frozen layout, `tree` maintains a **cache** (a map of the *actual* arborescence) and uses it to verify drift, fix it, and arbitrate where loose items go.
 
 **Local paths, discovered anchor — no global hardcoding.** `tree` works relative to a **target directory** (the CWD by default, or a path passed as argument). It finds the schema **anchor** by walking up to a `Perso`/`Pro` segment; it never hardcodes `C:\Users\…\Documents`. The cache lives at the anchor (`<anchor>/_tree/cache.json`) and is fully regenerable.
 
-> The convention — invariants, the observed default pattern, the cache format, anchor resolution — lives in `${CLAUDE_PLUGIN_ROOT}/references/tree-convention.md`. Read it before acting.
+> The convention — invariants, the observed default pattern, the cache format, anchor resolution — lives in `${OBS_PLUGIN_ROOT}/references/tree-convention.md`. Read it before acting.
 
 ## What stays fixed vs what is learned
 
@@ -57,7 +59,7 @@ Trigger-to-action mapping:
 
 ## External data
 
-- `${CLAUDE_PLUGIN_ROOT}/references/tree-convention.md` — invariants, default pattern, cache format, anchor resolution.
-- `${CLAUDE_PLUGIN_ROOT}/references/destinations-template.md` — `destinations.txt` format + fillable template for the `email-to-markdown` router; how to derive it from a scanned tree.
+- `${OBS_PLUGIN_ROOT}/references/tree-convention.md` — invariants, default pattern, cache format, anchor resolution.
+- `${OBS_PLUGIN_ROOT}/references/destinations-template.md` — `destinations.txt` format + fillable template for the `email-to-markdown` router; how to derive it from a scanned tree.
 - `<anchor>/_tree/cache.json` — the navigation cache `tree` maintains.
-- `R/bank.yml` — per-domain resource manifest `tree` maintains; format in `${CLAUDE_PLUGIN_ROOT}/references/bank-yml.md`.
+- `R/bank.yml` — per-domain resource manifest `tree` maintains; format in `${OBS_PLUGIN_ROOT}/references/bank-yml.md`.

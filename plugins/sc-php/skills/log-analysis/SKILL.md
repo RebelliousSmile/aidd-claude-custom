@@ -1,6 +1,5 @@
 ---
 name: log-analysis
-model: sonnet
 description: >-
   Analyzes server and PHP logs across three environments: host filesystem (local),
   Docker containers (docker), and remote production server (prod via SSH).
@@ -10,6 +9,8 @@ description: >-
   Do NOT use for application debugging (use aidd-dev:08-debug), DB queries
   (use data-optimize), or performance profiling.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # Log Analysis
 

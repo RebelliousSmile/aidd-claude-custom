@@ -12,6 +12,8 @@ description: >-
   (run cargo check/clippy directly), or performance profiling.
 ---
 
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
+
 # Log Analysis
 
 Inspects Rust application logs from any environment — local filesystem, Docker containers, or a remote server via SSH. Produces a raw tail, filtered error list, pattern search, or period summary. Handles tracing subscriber output, env_logger, actix-web/axum request logs, and panic backtraces.

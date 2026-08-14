@@ -12,6 +12,8 @@ description: >-
   migration (legacy), or line-by-line code review (aidd-dev:05-review).
 ---
 
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
+
 # sc-rust Improve
 
 Reads the Rust codebase, identifies idiomatic Rust gaps and design pattern opportunities, then produces a prioritized improvement plan with concrete before/after examples.

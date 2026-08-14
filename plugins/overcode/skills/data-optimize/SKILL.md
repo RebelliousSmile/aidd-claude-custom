@@ -1,13 +1,12 @@
 ---
 name: data-optimize
-model: sonnet
 description: >-
   Audits a project's data layer (client + server) against a stack-aware
   checklist (N+1, query count, pagination, real-time listeners, payload size,
   cache strategy, quota/cost, indexing, security rules, observability) and
   produces a ranked roadmap. Detects the data-layer stack and loads
   stack-specific pivots from installed `sc-*` plugins
-  (`.claude/rules/07-quality/data-pivots-*.md`); falls back to a generic
+  (`${PROJECT_RULES_ROOT}/07-quality/data-pivots-*.md`); falls back to a generic
   12-section schema + REST vanilla pivots otherwise. Every report states where
   its checklist came from and whether a pivot was installed, missing, or
   unavailable.
@@ -16,10 +15,10 @@ description: >-
   render-time N+1), quota, "trop de reads", "trop de requêtes", egress, rate
   limit, cold start, connection pool, réplication, read replica, sharding,
   "API lente", "backend lent", "DB perf", "audit data", "audit backend", or
-  invokes /data-optimize.
-argument-hint: <route, action or scope to audit (optional)>
-version: 1.0.0
+  invokes data-optimize.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # data-optimize
 
@@ -30,9 +29,9 @@ Run a structured data-layer audit on a project — covering both the calls emitt
 ## Rules
 
 - Detect the data-layer stack BEFORE picking a checklist — never assume Firebase/Postgres/etc.
-- **After detecting the stack, look for installed pivot rules** at `.claude/rules/07-quality/data-pivots-<stack>.md` (provided by `sc-*` plugins — which plugin covers which stack is in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`, never guessed). If found → load as the primary source for §1–§10. If not found → fall back to `references/api-mapping.md` (generic schema + REST vanilla pivots + fallback procedure), **and say so in the output** — falling back is allowed, falling back silently is not. For hybrid stacks, load every matching `data-pivots-*.md` and concatenate
+- **After detecting the stack, look for installed pivot rules** at `${PROJECT_RULES_ROOT}/07-quality/data-pivots-<stack>.md` (provided by `sc-*` plugins — which plugin covers which stack is in `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md`, never guessed). If found → load as the primary source for §1–§10. If not found → fall back to `references/api-mapping.md` (generic schema + REST vanilla pivots + fallback procedure), **and say so in the output** — falling back is allowed, falling back silently is not. For hybrid stacks, load every matching `data-pivots-*.md` and concatenate
 - Capture a baseline (request count per route, query count per request, payload bytes, p50/p95 latency, quota usage) BEFORE recommending changes — without baseline, gains are unfalsifiable
-- If no pivot covers the detected stack, name the cause before proposing anything: **no plugin provides one** (the stack has no line in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`) → propose generating a checklist; **a plugin provides one and nothing is installed here** → recommend that plugin and its install command, read from that table. Never silently fall back to a stack-mismatched checklist, and never run the installer yourself — this skill reports and recommends, it does not install (DEC-007 §2)
+- If no pivot covers the detected stack, name the cause before proposing anything: **no plugin provides one** (the stack has no line in `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md`) → propose generating a checklist; **a plugin provides one and nothing is installed here** → recommend that plugin and its install command, read from that table. Never silently fall back to a stack-mismatched checklist, and never run the installer yourself — this skill reports and recommends, it does not install (DEC-007 §2)
 - **Every report states the provenance of its checklist** — two fields, `source` and `pivot`, one pair per applicable stack. See Step 5 for the exact form
 - Recommend changes only after reading at least these 3 files of the actual codebase: (a) the data-layer entry (`firebase config` / `prisma/schema.prisma` / `models.py` / `Models/*.php` / `drizzle.config.ts` / equivalent), (b) one hot read path (composable, controller, repository, GraphQL resolver), (c) one hot write path. Generic advice without this evidence is rejected
 - One row per checklist item, with `🟢 / 🟡 / 🔴 / N/A` + `file:line` references when actionable
@@ -102,7 +101,7 @@ $PM playwright test --trace on tests/e2e/<flow>.spec.ts
 # 3. Apply checklist (see Workflow)
 ```
 
-> **Cross-project use:** this skill lives in `.claude/skills/data-optimize/` (project-scoped). To use it across all your projects, copy the `data-optimize/` folder to `~/.claude/skills/data-optimize/`.
+> **Cross-project use:** install the `overcode` plugin through the active host's marketplace. Do not copy a bundled skill into a host-specific skills directory.
 
 ## Workflow
 
@@ -151,7 +150,7 @@ flowchart LR
    `diesel`, `sqlx`, `rusqlite`, `sea-orm`,
    `datasets`, `rest-vanilla`, `other`
    `datasets` is **HuggingFace `datasets`** — the slug is a common noun, the stack is not. It is a columnar/Arrow read path, audited for memory-mapped loading and batch shape, not for query planning.
-   ⚠ **A stack slug is not a pivot filename.** Every slug above resolves to `data-pivots-<slug>.md` **except** those declared here, one line each. A divergence left unwritten makes its pivot unreachable, and `tools/eval/pivot-map.mjs` fails the build on it — so the absence of a line is a statement, not an oversight. Resolve the pivot through `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`, never by pasting the slug into the filename — a slug that matches no line there is `no provider`, and a slug that matches a differently-named pivot is **not**.
+   ⚠ **A stack slug is not a pivot filename.** Every slug above resolves to `data-pivots-<slug>.md` **except** those declared here, one line each. A divergence left unwritten makes its pivot unreachable, and `tools/eval/pivot-map.mjs` fails the build on it — so the absence of a line is a statement, not an oversight. Resolve the pivot through `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md`, never by pasting the slug into the filename — a slug that matches no line there is `no provider`, and a slug that matches a differently-named pivot is **not**.
    - `laravel-eloquent` → `data-pivots-eloquent.md`
    - `graphql-apollo`, `graphql-urql` → `data-pivots-graphql.md`
    **A Rust crate holding no ORM is not a data stack at all** — it falls to the `1quater` fallback (dump the deps, ask the user which one talks to the store), not to a Rust slug. `diesel`, `sqlx` and `rusqlite` each have a line in `pivot-providers.md`, as do `sqlalchemy` and `datasets`: their `pivot` axis reads `installed` or `not installed`, never `no provider`. `sea-orm` has none and reads `no provider` — it is named here so the detection can be complete without the value being guessed.
@@ -173,7 +172,7 @@ flowchart LR
 
 **Do:**
 
-1. **Check installed plugin pivots first** — scan `.claude/rules/07-quality/data-pivots-*.md` for files matching the detected stack(s). They are installed by `sc-*` plugins, each with its own install command — the mapping `<stack> → <plugin>, <command>` is in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`. They are the authoritative source when present.
+1. **Check installed plugin pivots first** — scan `${PROJECT_RULES_ROOT}/07-quality/data-pivots-*.md` for files matching the detected stack(s). They are installed by `sc-*` plugins, each with its own install command — the mapping `<stack> → <plugin>, <command>` is in `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md`. They are the authoritative source when present.
 2. **If matching pivot(s) found**: load them as the primary checklist source and proceed to Step 3. For hybrid stacks (e.g. `firebase + prisma`), load every matching `data-pivots-*.md` and concatenate items.
 3. **If no pivot rule found**, read the state right here and emit the recommendation now — do not wait for the terminal guard below, which is only reached when no template matches either:
    - the stack **has a line** in `pivot-providers.md` → recommend running that plugin's install command **in this project** (quote plugin + command verbatim from the table), then continue down the ladder
@@ -284,9 +283,9 @@ flowchart LR
    ```
 
    - `source` is the rung **actually reached**, not the one intended.
-   - `pivot` is the state of the plugin-provided rule, in the order of DEC-010 §1: `installed` · `not installed` (a plugin covers this stack, nothing is installed here) · `empty receptacle` (`.claude/rules/07-quality/` exists and holds no rule file — `.gitkeep` and service files do not count, a non-pivot rule does) · `no provider` (the stack has no line in the table). A **missing** receptacle is never `empty receptacle`: it is `not installed` or `no provider`.
+   - `pivot` is the state of the plugin-provided rule, in the order of DEC-010 §1: `installed` · `not installed` (a plugin covers this stack, nothing is installed here) · `empty receptacle` (`${PROJECT_RULES_ROOT}/07-quality/` exists and holds no rule file — `.gitkeep` and service files do not count, a non-pivot rule does) · `no provider` (the stack has no line in the table). A **missing** receptacle is never `empty receptacle`: it is `not installed` or `no provider`.
    - **Two fields, never one.** They are independent axes and commonly both true — `pivot : not installed` with `source : internal fallback api-mapping.md` is the ordinary run. Merged into a single value, it is always `pivot` that gets lost.
-   - `<plugin>` and `<command>` are quoted from `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` — never guessed, never derived from the family or the plugin name.
+   - `<plugin>` and `<command>` are quoted from `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md` — never guessed, never derived from the family or the plugin name.
    - A polyglot repo gets one pair per stack: a single provenance value is wrong whichever value it takes (DEC-008). This holds for the hybrid case above — each of the split reports carries its own pair.
 4. Phases ordered by ROI (F0 stabilisation → F1 quick wins → F2 structural → F3 monitoring)
 5. Each phase: estimated effort + risk + reference (DEC-N or rule path)
@@ -295,7 +294,7 @@ flowchart LR
 8. **Bugs found during audit → issue, not normative patch**: a single-occurrence bug (e.g. missing `await` on a write, query without index on a one-off table, `.exists()` in a single loop) belongs in:
    - The audit report's roadmap (F1/F2 with file:line + fix recipe), AND
    - A new tracker issue created via `gh issue create` (or equivalent) so the fix has a follow-up owner
-   - **Never** in the checklist's anti-patterns table, the `api-mapping.md` pivots, or `.claude/rules/` — those files codify recurring patterns, not point fixes. A bug ≠ an anti-pattern.
+   - **Never** in the checklist's anti-patterns table, the `api-mapping.md` pivots, or host-native project rules — those files codify recurring patterns, not point fixes. A bug ≠ an anti-pattern.
    - Threshold for normative elevation: see Step 6 (≥ 2 distinct occurrences OR a known generic class — OWASP, vendor docs, well-known DB anti-pattern)
 
 **Success criteria:** User can execute Phase F0 from the report alone, no further questions. Each fix has a deterministic primary success criterion (request/query/byte/quota delta). Each bug has either a roadmap entry + tracker issue, or is silently fixed in the same PR if trivial — never normative pollution.
@@ -328,8 +327,8 @@ flowchart LR
 | Type      | Path                                                | Description                                                                            |
 | --------- | --------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | Template  | `aidd_docs/templates/dev/data_checklist_<stack>.md` | Auto-generated on first audit when missing (e.g. `firebase`, `prisma`, `eloquent`)     |
-| Reference | `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` | `<stack> → <plugin>, <install command>` — the only place the remedy is read from. Plugin-root path, not skill-relative |
+| Reference | `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md` | `<stack> → <plugin>, <install command>` — the only place the remedy is read from. Plugin-root path, not skill-relative |
 | Reference | `references/api-mapping.md`                         | Pivots per stack (Firebase, Supabase, Prisma, Drizzle, ORMs, DynamoDB, GraphQL, tRPC)  |
 | Output    | `aidd_docs/tasks/audits/<yyyy_mm_dd>_data-<stack>-<scope-slug>.md` | Audit report destination (fallback `docs/data-audits/...` if no `aidd_docs/`) |
 | Baseline  | `aidd_docs/tasks/audits/baselines/<scope-slug>.json` | Persisted deterministic counters — referenced by every audit on the same scope for reproducible cross-run comparison |
-| Tests     | `.claude/skills/data-optimize/tests.md`             | Smoke test cases for stack detection — run before trusting the skill on new stacks     |
+| Tests     | `${OVERCODE_PLUGIN_ROOT}/skills/data-optimize/tests.md` | Smoke test cases for stack detection — run before trusting the skill on new stacks  |

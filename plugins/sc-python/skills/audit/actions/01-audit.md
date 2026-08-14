@@ -6,7 +6,7 @@ Orchestrate a Python code quality review: detect applicable pivots, load them fr
 
 - Invoke `01-scan` only — never `02-install-pivots`. Audit is read-only.
 - Never install any file to `.claude/rules/` or any project path.
-- All knowledge is read from `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/` at runtime.
+- All knowledge is read from `${SC_PYTHON_PLUGIN_ROOT}/skills/sniff/references/capabilities/` at runtime.
 
 ## Process
 
@@ -26,7 +26,7 @@ If no Python manifest is found, abort with:
 Always load `python/idioms.md` (applies to all Python projects). For each additional capability in the manifeste, load the corresponding pivot:
 
 ```
-${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/<pivot-path>
+${SC_PYTHON_PLUGIN_ROOT}/skills/sniff/references/capabilities/<pivot-path>
 ```
 
 Collect all loaded pivot contents into an acceptance criteria document:

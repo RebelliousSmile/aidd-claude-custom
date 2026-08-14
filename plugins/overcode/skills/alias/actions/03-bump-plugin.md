@@ -1,80 +1,22 @@
 # Bump-plugin
 
-Bumps a plugin version across the **two** manifests that carry it — `plugin.json` and `marketplace.json` — verifies with the repo's own consistency gate, commits, and pushes to the marketplace.
+Bump a plugin version across its Claude Code and Codex manifests and both marketplace catalogs, validate the result, then commit and push when authorized by the parent alias.
 
 ## Context required
 
-- Plugin name (e.g. `sc-js`, `overcode`, `writing`).
-- Version or bump type (`major`, `minor`, `patch`). If absent, ask: *"Which plugin and what version bump?"*
+Require a plugin name and an exact version or bump type (`major`, `minor`, `patch`). Ask if either is missing.
 
-## Prompt
+## Process
 
-### Step 0 — Locate marketplace root
+1. **Locate the source marketplace repository.** Prefer the current repository when it contains `index.json`, `.claude-plugin/marketplace.json`, `.agents/plugins/marketplace.json`, and `plugins/`. Otherwise inspect the host's configured marketplace list (`codex plugin marketplace list` on Codex or Claude Code's known marketplaces) and ask if no unambiguous local source exists. Never edit an installed cache.
+2. **Resolve the version.** Read `plugins/NAME/.claude-plugin/plugin.json` as the semantic-version source of truth and calculate the requested bump.
+3. **Update both plugin manifests.** Write the semantic version to `.claude-plugin/plugin.json`. Write the same version to `.codex-plugin/plugin.json`; a Codex build suffix is allowed only when the existing repository convention requires a cachebuster.
+4. **Update catalogs.** In `.claude-plugin/marketplace.json`, synchronize `version` and `description`. Ensure `.agents/plugins/marketplace.json` contains the plugin's local source entry and required policy/category metadata; this Codex catalog intentionally carries no duplicated version or description.
+5. **Update `index.json` only if the plugin is new.** It carries only `{ "id", "name" }`.
+6. **Validate before committing.** Run the repository's consistency gate and the official plugin validator. Re-read both manifests and both catalogs; any mismatch stops the action.
+7. **Commit and push.** Stage only the plugin manifests, affected catalogs, and `index.json` when changed. Commit as `chore(NAME): bump version OLD → NEW`, then push the intended branch.
+8. **Activation.** Report that Claude Code and Codex require their native plugin refresh/update flow and a new session. Do not emit commands for the wrong host.
 
-Find automatically:
-- a. Read `~/.claude/plugins/known_marketplaces.json` (or `%USERPROFILE%\.claude\plugins\known_marketplaces.json`). Use the `path` of the entry whose `source.source` is `"directory"`.
-- b. If absent, search for `index.json` containing a `"plugins"` array in `~/Documents`, `~/Projects`, `~/Projets` (one level deep).
-- c. If still not found, ask: *"Where is your marketplace repo?"*
+## Report
 
-### Step 1 — Resolve version
-
-Read `plugins/<name>/.claude-plugin/plugin.json`. If bump type given, compute new semver (e.g. `0.1.0` + `minor` → `0.2.0`).
-
-### Step 2 — Bump plugin.json
-
-Replace `"version"` in `plugins/<name>/.claude-plugin/plugin.json` with the new version. **This file is the source of truth** for both `version` and `description`; Step 3 propagates from it, never the reverse.
-
-### Step 3 — Update marketplace.json
-
-In `.claude-plugin/marketplace.json`, update the entry whose `"name"` matches the plugin name:
-- `"version"` → the new version;
-- `"description"` → copied verbatim from `plugin.json` if it differs.
-
-If the entry is absent, append a new one: `name`, `version`, `source` (`./plugins/<name>`), `description`, `recommended: false`.
-
-> **Why this one too.** `marketplace.json` is what Claude Code reads at install time. Skipping it leaves a divergence that only surfaces when a user installs the plugin and gets a version the repo does not claim.
-
-### Step 4 — Register in index.json if absent
-
-`index.json` carries **no version and no description** — only `{ "id", "name" }` per plugin, which is what makes it unable to drift. Add the entry if the plugin is new; otherwise leave the file untouched.
-
-### Step 5 — Verify before committing
-
-If the marketplace ships a consistency gate — a `test` script, `tools/eval/consistency.mjs` — run it and prefer its verdict:
-
-```bash
-node tools/eval/consistency.mjs
-```
-
-Otherwise, re-read `plugin.json` and `marketplace.json` and assert that `version` **and** `description` are identical for `<name>`.
-
-Either way, a failure stops the action: report rather than commit a partial bump.
-
-### Step 6 — Commit
-
-Stage `plugins/<name>/.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` (plus `index.json` if Step 4 added an entry). Commit:
-```
-chore(<name>): bump version <old> → <new>
-```
-
-### Step 7 — Push
-
-```bash
-git push origin main
-```
-
-### Step 8 — Activation
-
-Output to user:
-> ```
-> /plugin update
-> /reload-plugins
-> ```
-
-### Step 9 — Report
-
-- Marketplace path
-- Plugin: `<name>` `<old>` → `<new>`
-- `consistency.mjs` green
-- Commit SHA
-- Push confirmed
+Return the marketplace path, old and new versions, validator results, commit SHA, push status, and the host-specific activation instruction.

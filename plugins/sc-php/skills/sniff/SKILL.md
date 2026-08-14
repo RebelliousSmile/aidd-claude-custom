@@ -1,18 +1,19 @@
 ---
 name: sniff
-model: sonnet
 description: >-
   PHP stack detector for PHP projects. Reads composer.json and sentinel files
   (artisan, bin/console, wp-config.php) to detect the framework (Laravel,
   Symfony, WordPress), data layer (Eloquent, Doctrine), frontend bridge (HTMX),
   and testing harness (Bruno). Uses a two-tier model: capability pivots (SOLID,
-  Bruno) are loaded at audit time by /sc-php:audit and never written to disk;
+  Bruno) are loaded at audit time by sc-php:audit and never written to disk;
   perf pivots (for web-optimize) and data pivots (for data-optimize) are
   installed selectively to .claude/rules/07-quality/. Emits a pivot manifeste
-  for use by /sc-php:audit. Reports gaps when a capability is detected but no
+  for use by sc-php:audit. Reports gaps when a capability is detected but no
   matching plugin pivot exists. Prefer sniff over setup on already-configured
   projects.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-php Sniff
 
@@ -33,7 +34,7 @@ Sequential: `scan` → `install-pivots`.
 
 - A **capability** is something the app does: use SOLID patterns, test with Bruno, serve HTTP via a framework, query a database via an ORM, render lightweight HTML via HTMX, etc.
 - A **pivot** is the PHP knowledge for the chosen solution (e.g. Laravel perf patterns, Eloquent query conventions)
-- Capability pivots live in the plugin (`skills/sniff/references/capabilities/`) — they are loaded at audit time by `/sc-php:audit`, not installed to the project
+- Capability pivots live in the plugin (`skills/sniff/references/capabilities/`) — they are loaded at audit time by `sc-php:audit`, not installed to the project
 - **Perf pivots** and **data pivots** are the exception: they ARE written to `.claude/rules/07-quality/` because `web-optimize` and `data-optimize` read them from there
 
 ## Transversal rules

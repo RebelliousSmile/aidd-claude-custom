@@ -1,23 +1,22 @@
 ---
 name: ap-optimize
-model: sonnet
 description: >-
   Audits an ActivityPub federation implementation against a stack-aware
   checklist (inbox idempotency, HTTP signature verification, fan-out delivery,
   actor/key caching, outbox pagination conformance, rate limiting, circuit
   breaker, AS2 conformance, security, observability) and produces a ranked
   roadmap. Detects the AP stack and loads stack-specific pivots from installed
-  sc-* plugins (.claude/rules/07-quality/ap-pivots-*.md); falls back to a
+  sc-* plugins (${PROJECT_RULES_ROOT}/07-quality/ap-pivots-*.md); falls back to a
   generic 11-section schema otherwise. Every report states where its checklist
   came from and whether a pivot was installed, missing, or unavailable. On a
   project that implements no federation, reports that the family does not apply
   instead of proposing an install.
   Use when the user mentions federation, ActivityPub, fediverse, AP delivery,
   inbox, outbox, HTTP signatures, WebFinger, actor, fan-out, "AP lent",
-  "inbox lent", "delivery fail", "signature invalid", or invokes /ap-optimize.
-argument-hint: <actor, app or scope to audit (optional)>
-version: 1.0.0
+  "inbox lent", "delivery fail", "signature invalid", or invokes ap-optimize.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # ap-optimize
 
@@ -28,9 +27,9 @@ Run a structured ActivityPub federation audit on a project — covering inbox pr
 ## Rules
 
 - Detect the AP stack BEFORE picking a checklist — never assume Django/Rails/Go
-- **After detecting the stack, look for installed pivot rules** at `.claude/rules/07-quality/ap-pivots-<stack>.md` (provided by `sc-*` plugins — which plugin covers which stack is in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`, never guessed; this family has far fewer providers than the others, so the table is the only safe answer). If found → load as the primary source for §1–§11. If not found → fall back to `references/ap-protocol-specs.md` + generic 11-section schema, **and say so in the output** — falling back is allowed, falling back silently is not. For hybrid stacks, load every matching `ap-pivots-*.md` and concatenate
+- **After detecting the stack, look for installed pivot rules** at `${PROJECT_RULES_ROOT}/07-quality/ap-pivots-<stack>.md` (provided by `sc-*` plugins — which plugin covers which stack is in `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md`, never guessed; this family has far fewer providers than the others, so the table is the only safe answer). If found → load as the primary source for §1–§11. If not found → fall back to `references/ap-protocol-specs.md` + generic 11-section schema, **and say so in the output** — falling back is allowed, falling back silently is not. For hybrid stacks, load every matching `ap-pivots-*.md` and concatenate
 - Capture a baseline (inbox request count, delivery queue depth, ProcessedActivity count, signature verify latency) BEFORE recommending changes — without baseline, gains are unfalsifiable
-- If no pivot covers the detected stack, name the cause before proposing anything: **no plugin provides one** (the stack has no line in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`) → propose generating a checklist; **a plugin provides one and nothing is installed here** → recommend that plugin and its install command, read from that table. Never silently fall back to a stack-mismatched checklist, and never run the installer yourself — this skill reports and recommends, it does not install (DEC-007 §2). All of this holds only where the family applies: a project that implements no federation is reported as such and gets neither proposal nor recommendation (Step 1)
+- If no pivot covers the detected stack, name the cause before proposing anything: **no plugin provides one** (the stack has no line in `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md`) → propose generating a checklist; **a plugin provides one and nothing is installed here** → recommend that plugin and its install command, read from that table. Never silently fall back to a stack-mismatched checklist, and never run the installer yourself — this skill reports and recommends, it does not install (DEC-007 §2). All of this holds only where the family applies: a project that implements no federation is reported as such and gets neither proposal nor recommendation (Step 1)
 - **Every report states the provenance of its checklist** — two fields, `source` and `pivot`, one pair per applicable stack. See Step 5 for the exact form
 - Recommend changes only after reading at least these 3 files: (a) inbox view, (b) signature verification module, (c) delivery task. Generic advice without this evidence is rejected
 - One row per checklist item, with `🟢 / 🟡 / 🔴 / N/A` + `file:line` references when actionable
@@ -117,8 +116,8 @@ flowchart LR
 
 **Do:**
 
-1. Scan `.claude/rules/07-quality/ap-pivots-*.md` for matching stack. They are installed by `sc-*` plugins, each with its own install command — the mapping `<stack> → <plugin>, <command>` is in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`
-2. If found → load as primary source. Then **also load all supplementary pivots** present in `.claude/rules/07-quality/` — `perf-pivots-*.md` and `data-pivots-*.md` — to extend coverage with stack-specific patterns (e.g. Celery delivery, DRF serializer N+1). Concatenate with the AP pivot, AP pivot takes precedence on conflicts.
+1. Scan `${PROJECT_RULES_ROOT}/07-quality/ap-pivots-*.md` for matching stack. They are installed by `sc-*` plugins, each with its own install command — the mapping `<stack> → <plugin>, <command>` is in `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md`
+2. If found → load as primary source. Then **also load all supplementary pivots** present in `${PROJECT_RULES_ROOT}/07-quality/` — `perf-pivots-*.md` and `data-pivots-*.md` — to extend coverage with stack-specific patterns (e.g. Celery delivery, DRF serializer N+1). Concatenate with the AP pivot, AP pivot takes precedence on conflicts.
 3. If not found → read the state right here and emit the recommendation now, without waiting for the terminal guard below:
    - the stack **has a line** in `pivot-providers.md` → recommend running that plugin's install command **in this project** (quote plugin + command verbatim from the table), then continue down the ladder
    - the stack **has no line** → `no provider`; nothing to recommend, generation is the only remedy. This is the common case here — the table lists a single AP provider
@@ -212,9 +211,9 @@ grep -rn "logger\." . --include="*tasks*.py" --include="*delivery*.py"
    ```
 
    - `source` is the rung **actually reached**, not the one intended.
-   - `pivot` is the state of the plugin-provided rule, in the order of DEC-010 §1: `installed` · `not installed` (a plugin covers this stack, nothing is installed here) · `empty receptacle` (`.claude/rules/07-quality/` exists and holds no rule file — `.gitkeep` and service files do not count, a non-pivot rule does) · `no provider` (the stack has no line in the table). A **missing** receptacle is never `empty receptacle`: it is `not installed` or `no provider`.
+   - `pivot` is the state of the plugin-provided rule, in the order of DEC-010 §1: `installed` · `not installed` (a plugin covers this stack, nothing is installed here) · `empty receptacle` (`${PROJECT_RULES_ROOT}/07-quality/` exists and holds no rule file — `.gitkeep` and service files do not count, a non-pivot rule does) · `no provider` (the stack has no line in the table). A **missing** receptacle is never `empty receptacle`: it is `not installed` or `no provider`.
    - **Two fields, never one.** They are independent axes and commonly both true — `pivot : not installed` with `source : internal fallback ap-protocol-specs.md` is the ordinary run. Merged into a single value, it is always `pivot` that gets lost.
-   - `<plugin>` and `<command>` are quoted from `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` — never guessed, never derived from the family or the plugin name.
+   - `<plugin>` and `<command>` are quoted from `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md` — never guessed, never derived from the family or the plugin name.
    - A polyglot repo gets one pair per stack: a single provenance value is wrong whichever value it takes (DEC-008).
    - A `none` stack has no pair: the family does not apply, and there is no checklist whose provenance could be stated. The one-line answer of Step 1 stands alone.
 4. Phases ordered by security risk first (not ROI — federation has security-critical paths):
@@ -247,7 +246,7 @@ grep -rn "logger\." . --include="*tasks*.py" --include="*delivery*.py"
 | Type | Path | Description |
 |------|------|-------------|
 | Reference | `references/ap-protocol-specs.md` | W3C ActivityPub, AS2, HTTP Signatures, WebFinger — spec anchors for all findings |
-| Reference | `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` | `<stack> → <plugin>, <install command>` — the only place the remedy is read from. Plugin-root path, not skill-relative |
-| Pivot | `.claude/rules/07-quality/ap-pivots-<stack>.md` | Absent from this project → Step 2 quotes the providing plugin and its install command from the table above, and says so in the provenance header. Absent from the table → `no provider`, and generation is the only remedy |
+| Reference | `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md` | `<stack> → <plugin>, <install command>` — the only place the remedy is read from. Plugin-root path, not skill-relative |
+| Pivot | `${PROJECT_RULES_ROOT}/07-quality/ap-pivots-<stack>.md` | Absent from this project → Step 2 quotes the providing plugin and its install command from the table above, and says so in the provenance header. Absent from the table → `no provider`, and generation is the only remedy |
 | Output | `aidd_docs/tasks/audits/<yyyy_mm_dd>_ap-<stack>-<scope-slug>.md` | Audit report destination |
 | Baseline | `aidd_docs/tasks/audits/baselines/<scope-slug>.json` | Persisted counters for cross-run comparison |

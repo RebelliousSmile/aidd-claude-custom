@@ -11,12 +11,9 @@ description: >-
   que tous les blocs natifs survivent au round-trip parse → save() → compare.
   Ni un linter de design system, ni un diff de texte ne détectent ça : seul
   l'éditeur est juge.
-triggers:
-  - "sc-js:wp-blocks"
-  - "valide les blocs gutenberg / le markup de blocs WordPress"
-  - "vérifie que les blocs ne sont pas cassés dans l'éditeur"
-  - projet WordPress FSE où le markup de bloc est généré par du code (import / patterns)
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-js:wp-blocks
 

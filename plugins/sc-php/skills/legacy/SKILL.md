@@ -1,6 +1,5 @@
 ---
 name: legacy
-model: sonnet
 description: >-
   Scans PHP code for version-specific and deprecated patterns, then proposes an
   upgrade (toward PHP 8+) or a downgrade (to a target PHP version for hosting
@@ -13,6 +12,8 @@ description: >-
   Do NOT use for dependency management (Composer), performance optimization
   (web-optimize), or general refactoring unrelated to PHP version compatibility.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-php Legacy
 

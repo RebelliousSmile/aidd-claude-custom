@@ -2,6 +2,12 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/obs`.
 
+## [Unreleased]
+
+### Removed
+
+- `research` a été déplacée vers `overcode:research`. `obs` conserve sa copie de `domain-layout.md` pour `extract-pdf`, tandis que la skill déplacée embarque sa propre référence afin que les deux plugins restent installables indépendamment.
+
 ## [0.37.2] — 2026-07-28
 
 ### Added

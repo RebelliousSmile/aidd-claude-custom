@@ -1,21 +1,20 @@
 ---
 name: web-optimize
-model: sonnet
 description: >-
   Audits a web application's performance against a stack-aware checklist
   (LCP, CLS, INP, TBT, TTFB, bundle size, render-blocking resources, N+1
   queries) and produces a ranked roadmap. Detects the stack and loads
   stack-specific pivots from installed `sc-*` plugins
-  (`.claude/rules/07-quality/perf-pivots-*.md`); falls back to a generic
+  (`${PROJECT_RULES_ROOT}/07-quality/perf-pivots-*.md`); falls back to a generic
   12-section schema otherwise. Every report states where its checklist came
   from and whether a pivot was installed, missing, or unavailable.
   Use when the user mentions perf, PSI, PageSpeed, Lighthouse, Core Web
   Vitals, LCP, CLS, INP, TBT, TTFB, bundle size, chunks, code-split,
   render-blocking, N+1, "site lent", "page lente", "Lighthouse 50",
-  "optimise", "audit perf", or invokes /web-optimize.
-argument-hint: <route or scope to audit (optional)>
-version: 1.0.0
+  "optimise", "audit perf", or invokes web-optimize.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # web-optimize
 
@@ -26,9 +25,9 @@ Run a structured performance audit on a web project, picking the right checklist
 ## Rules
 
 - Detect the stack BEFORE picking a checklist — never assume any specific framework
-- **After detecting the stack, look for installed pivot rules** at `.claude/rules/07-quality/perf-pivots-<stack>.md` (provided by `sc-*` plugins — which plugin covers which stack is in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`, never guessed). If found → load as the primary source for §1–§11. If not found → fall back to `references/framework-mapping.md` + its fallback procedure, **and say so in the output** — falling back is allowed, falling back silently is not. For hybrid stacks, load every matching `perf-pivots-*.md` and concatenate
+- **After detecting the stack, look for installed pivot rules** at `${PROJECT_RULES_ROOT}/07-quality/perf-pivots-<stack>.md` (provided by `sc-*` plugins — which plugin covers which stack is in `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md`, never guessed). If found → load as the primary source for §1–§11. If not found → fall back to `references/framework-mapping.md` + its fallback procedure, **and say so in the output** — falling back is allowed, falling back silently is not. For hybrid stacks, load every matching `perf-pivots-*.md` and concatenate
 - Capture a baseline (PSI / Lighthouse / build output / DB query count) BEFORE recommending changes — without baseline, gains are unfalsifiable
-- If no pivot covers the detected stack, name the cause before proposing anything: **no plugin provides one** (the stack has no line in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`) → propose generating a checklist; **a plugin provides one and nothing is installed here** → recommend that plugin and its install command, read from that table. Never silently fall back to a stack-mismatched checklist, and never run the installer yourself — this skill reports and recommends, it does not install (DEC-007 §2)
+- If no pivot covers the detected stack, name the cause before proposing anything: **no plugin provides one** (the stack has no line in `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md`) → propose generating a checklist; **a plugin provides one and nothing is installed here** → recommend that plugin and its install command, read from that table. Never silently fall back to a stack-mismatched checklist, and never run the installer yourself — this skill reports and recommends, it does not install (DEC-007 §2)
 - **Every report states the provenance of its checklist** — two fields, `source` and `pivot`, one pair per applicable stack. See Step 5 for the exact form
 - Recommend changes only after reading at least these 3 files of the actual codebase: (a) the framework config (`nuxt.config.ts` / `vite.config.ts` / `settings.py` / `routes/web.php` / equivalent), (b) the entry point (`app.vue` / `urls.py` / `bootstrap/app.php` / equivalent), (c) one hot route — typically the LCP target. Generic advice without this evidence is rejected
 - One row per checklist item, with `🟢 / 🟡 / 🔴 / N/A` + `file:line` references when actionable
@@ -40,7 +39,7 @@ Run a structured performance audit on a web project, picking the right checklist
 
 ## Scope boundaries
 
-`web-optimize` couvre les métriques web (render-blocking, LCP, CLS, INP/TBT, bundle, CSS, caching, SSR/hydration, TTFB latence). Les pivots installés par les plugins `sc-*` — quelle stack, quel plugin : `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` — précisent la mise en œuvre concrète par stack.
+`web-optimize` couvre les métriques web (render-blocking, LCP, CLS, INP/TBT, bundle, CSS, caching, SSR/hydration, TTFB latence). Les pivots installés par les plugins `sc-*` — quelle stack, quel plugin : `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md` — précisent la mise en œuvre concrète par stack.
 
 | Dans le périmètre | Hors périmètre — outil dédié |
 |---|---|
@@ -99,7 +98,7 @@ python manage.py runserver & wrk -d 30s http://localhost:8000/
 # 3. Apply checklist (see Workflow)
 ```
 
-> **Cross-project use:** this skill lives in `.claude/skills/web-optimize/` (project-scoped). To use it across all your projects (Django/PHP/etc. elsewhere), copy the `web-optimize/` folder to `~/.claude/skills/web-optimize/`.
+> **Cross-project use:** install the `overcode` plugin through the active host's marketplace. Do not copy a bundled skill into a host-specific skills directory.
 
 ## Workflow
 
@@ -153,7 +152,7 @@ flowchart LR
    **Additive layers — they add to a stack, they never are one.** These slugs coexist with any backend and are never the only value a project maps to:
    `celery`, `httpx`, `vite`
    A Django + Celery + httpx project maps to **three** slugs and emits **three** provenance pairs. A project that mapped to `celery` alone would be mis-detected: a task worker is not a web stack, and `perf-pivots-vite.md` says of itself that it is a build tool hybrid with any backend. This is not the hybrid case of 4 below — that one pairs a backend with a frontend, both of which are stacks.
-   ⚠ **A stack slug is not a pivot filename.** Every slug above resolves to `perf-pivots-<slug>.md` **except** those declared here, one line each. A divergence left unwritten makes its pivot unreachable, and `tools/eval/pivot-map.mjs` fails the build on it — so the absence of a line is a statement, not an oversight. Resolve the pivot through `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`, never by pasting the slug into the filename — a slug that matches no line there is `no provider`, and a slug that matches a differently-named pivot is **not**.
+   ⚠ **A stack slug is not a pivot filename.** Every slug above resolves to `perf-pivots-<slug>.md` **except** those declared here, one line each. A divergence left unwritten makes its pivot unreachable, and `tools/eval/pivot-map.mjs` fails the build on it — so the absence of a line is a statement, not an oversight. Resolve the pivot through `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md`, never by pasting the slug into the filename — a slug that matches no line there is `no provider`, and a slug that matches a differently-named pivot is **not**.
    - `svelte-kit` → `perf-pivots-sveltekit.md`
    - `static-html`, `astro` → `perf-pivots-static.md`
    - `php-laravel` → `perf-pivots-laravel.md`
@@ -182,7 +181,7 @@ flowchart LR
 
 **Do:**
 
-1. **Check installed plugin pivots first** — scan `.claude/rules/07-quality/perf-pivots-*.md` for files matching the detected stack(s). They are installed by `sc-*` plugins, each with its own install command — the mapping `<stack> → <plugin>, <command>` is in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md`. They are the authoritative source when present.
+1. **Check installed plugin pivots first** — scan `${PROJECT_RULES_ROOT}/07-quality/perf-pivots-*.md` for files matching the detected stack(s). They are installed by `sc-*` plugins, each with its own install command — the mapping `<stack> → <plugin>, <command>` is in `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md`. They are the authoritative source when present.
 2. **If matching pivot(s) found**: load them as the primary checklist source and proceed to Step 3. For hybrid stacks (e.g. `django+alpine`, `firebase+prisma`), load every matching `perf-pivots-*.md` and concatenate items.
 3. **If no pivot rule found**, read the state right here and emit the recommendation now — do not wait for the terminal guard below, which is only reached when no template matches either:
    - the stack **has a line** in `pivot-providers.md` → recommend running that plugin's install command **in this project** (quote plugin + command verbatim from the table), then continue down the ladder
@@ -269,9 +268,9 @@ flowchart LR
    ```
 
    - `source` is the rung **actually reached**, not the one intended.
-   - `pivot` is the state of the plugin-provided rule, in the order of DEC-010 §1: `installed` · `not installed` (a plugin covers this stack, nothing is installed here) · `empty receptacle` (`.claude/rules/07-quality/` exists and holds no rule file — `.gitkeep` and service files do not count, a non-pivot rule does) · `no provider` (the stack has no line in the table). A **missing** receptacle is never `empty receptacle`: it is `not installed` or `no provider`.
+   - `pivot` is the state of the plugin-provided rule, in the order of DEC-010 §1: `installed` · `not installed` (a plugin covers this stack, nothing is installed here) · `empty receptacle` (`${PROJECT_RULES_ROOT}/07-quality/` exists and holds no rule file — `.gitkeep` and service files do not count, a non-pivot rule does) · `no provider` (the stack has no line in the table). A **missing** receptacle is never `empty receptacle`: it is `not installed` or `no provider`.
    - **Two fields, never one.** They are independent axes and commonly both true — `pivot : not installed` with `source : internal fallback framework-mapping.md` is the ordinary run. Merged into a single value, it is always `pivot` that gets lost.
-   - `<plugin>` and `<command>` are quoted from `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` — never guessed, never derived from the family or the plugin name.
+   - `<plugin>` and `<command>` are quoted from `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md` — never guessed, never derived from the family or the plugin name.
    - A polyglot repo gets one pair per stack: a single provenance value is wrong whichever value it takes (DEC-008).
 4. Phases ordered by ROI (F0 stabilisation → F1 quick wins → F2 structural → F3 monitoring)
 5. Each phase: estimated effort + risk + reference (DEC-N or rule path)
@@ -280,7 +279,7 @@ flowchart LR
 8. **Bugs found during audit → issue, not normative patch**: a single-occurrence bug (e.g. `setInterval` handle not stored, off-by-one in pagination, missing `await`) belongs in:
    - The audit report's roadmap (F1/F2 with file:line + fix recipe), AND
    - A new tracker issue created via `gh issue create` (or equivalent) so the fix has a follow-up owner
-   - **Never** in the checklist's anti-patterns table, the framework-mapping pivots, or `.claude/rules/` — those files codify recurring patterns, not point fixes. A bug ≠ an anti-pattern.
+   - **Never** in the checklist's anti-patterns table, the framework-mapping pivots, or host-native project rules — those files codify recurring patterns, not point fixes. A bug ≠ an anti-pattern.
    - Threshold for normative elevation: see Step 6 (≥ 2 distinct occurrences OR a known generic class — OWASP, Web.dev, MDN)
 
 **Success criteria:** User can execute Phase F0 from the report alone, no further questions. Each fix has a deterministic primary success criterion. Each bug has either a roadmap entry + tracker issue, or is silently fixed in the same PR if trivial — never normative pollution.
@@ -314,7 +313,7 @@ flowchart LR
 | Template  | `aidd_docs/templates/dev/perf_checklist_nuxt.md`    | Reference checklist (Nuxt 3); model for new stack templates                            |
 | Template  | `aidd_docs/templates/dev/perf_checklist_<stack>.md` | Auto-generated on first audit when missing (e.g. `vue-spa`, `django`, `laravel`)       |
 | Reference | `references/framework-mapping.md`                   | Pivots LCP/CLS/INP/TTFB/N+1 per stack (Nuxt, Vue SPA, Django, Alpine, PHP, static)     |
-| Reference | `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` | `<stack> → <plugin>, <install command>` — the only place the remedy is read from. Plugin-root path, not skill-relative |
+| Reference | `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md` | `<stack> → <plugin>, <install command>` — the only place the remedy is read from. Plugin-root path, not skill-relative |
 | Reference | `references/w3c-perf-specs.md`                      | W3C/WICG specs that underpin PSI metrics — use as pre-implementation checklist or to verify audit findings against spec criteria |
 | Output    | `aidd_docs/tasks/audits/<yyyy_mm_dd>_perf-<framework>-<scope-slug>.md` | Audit report destination (fallback `docs/perf-audits/...` if no `aidd_docs/`) |
-| Tests     | `.claude/skills/web-optimize/tests.md`              | Smoke test cases for stack detection — run before trusting the skill on new stacks     |
+| Tests     | `${OVERCODE_PLUGIN_ROOT}/skills/web-optimize/tests.md` | Smoke test cases for stack detection — run before trusting the skill on new stacks  |

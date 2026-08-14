@@ -1,8 +1,9 @@
 ---
 name: baby
-model: sonnet
 description: Explain, rewrite, or compare a topic in simple, progressive, concrete language without undefined jargon. Use when the user asks for "baby mode", "mode baby", "explain it simply", "explique-moi simplement", "break it down step by step", "detaille pas a pas", an explanation for a teenager or beginner, a more accessible rewrite, or a clear comparison of technical choices and tradeoffs.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # Baby — plain-language explanations
 

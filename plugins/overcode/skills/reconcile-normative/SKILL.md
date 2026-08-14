@@ -1,14 +1,15 @@
 ---
 name: reconcile-normative
-description: Reconciles normative content across archives (decisions/), project memory (memory/) and codified rules (.claude/rules/). Applies the normative-load rule, detects redundancy, contradictions, uncodified patterns and stale rules.
-model: opus
+description: Reconcile normative content across decision archives, project memory, and host-native project instructions. Use to detect redundancy, contradictions, uncodified patterns, or stale rules across AGENTS.md/.agents rules on Codex and .claude/rules on Claude Code.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # Reconcile-normative — normative content reconciliation
 
 ## Purpose
 
-Apply the normative-load rule (`@.claude/rules/01-standards/1-normative-vs-archive.md`) to all normative sources in the project: drain the archive, detect duplicates and contradictions, elevate recurring patterns to rules, and flag existing rules potentially stale because newer memory or decision content has shifted under them.
+Apply the project's normative-load rule to all normative sources: drain the archive, detect duplicates and contradictions, elevate recurring patterns to host-native instructions, and flag existing rules potentially stale because newer memory or decision content has shifted under them.
 
 ## When to invoke
 
@@ -20,6 +21,7 @@ Apply the normative-load rule (`@.claude/rules/01-standards/1-normative-vs-archi
 - Never delete an archive file without explicit confirmation
 - Never modify an existing rule without explicit confirmation
 - Batch mode allowed: > 5 entries of the same nature → 3-sample preview then bulk
+- Resolve `PROJECT_RULES_ROOT` from host portability. On Codex, include the nearest applicable `AGENTS.md` in every mapping and maintain a bounded index there for rules stored under `.agents/rules/`. On Claude Code, use `.claude/rules/`. When both exist, reconcile their semantics rather than treating one as stale by default.
 
 ## Configuration (overridable via argument)
 
@@ -36,12 +38,13 @@ Apply the normative-load rule (`@.claude/rules/01-standards/1-normative-vs-archi
 
 - `aidd_docs/internal/decisions/` — normative archive to drain
 - `aidd_docs/memory/` — project memory (auto-loaded)
-- `.claude/rules/` — codified rules (all categories 00-09)
+- `${PROJECT_RULES_ROOT}/` — codified rule references (all categories 00-09)
+- `AGENTS.md` — auto-loaded Codex project instructions, when present
 
 ### Reference rule
 
 ```markdown
-@.claude/rules/01-standards/1-normative-vs-archive.md
+${PROJECT_RULES_ROOT}/01-standards/1-normative-vs-archive.md
 ```
 
 ### Last-run detection
@@ -58,16 +61,16 @@ Get-ChildItem aidd_docs/harvests\*.md | Sort-Object LastWriteTime -Descending | 
 
 ### Incremental scan
 
-List files in `aidd_docs/memory/` and `.claude/rules/` modified since that date (if no prior harvest: scan all):
+List files in `aidd_docs/memory/`, `${PROJECT_RULES_ROOT}/`, and the applicable `AGENTS.md` modified since that date (if no prior harvest: scan all). Skip absent optional paths without failing:
 
 ```bash
 # macOS / Linux
-find aidd_docs/memory .claude/rules \
+find aidd_docs/memory ${PROJECT_RULES_ROOT} \
   -type f -name "*.md" -newer aidd_docs/harvests/<last-report>.md | sort
 
 # Windows (PowerShell)
 $lastHarvest = Get-ChildItem aidd_docs\harvests\*.md | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-Get-ChildItem -Recurse -Filter "*.md" aidd_docs\memory, .claude\rules |
+Get-ChildItem -Recurse -Filter "*.md" aidd_docs\memory, ${PROJECT_RULES_ROOT} |
   Where-Object { $_.LastWriteTime -gt $lastHarvest.LastWriteTime } | Sort-Object Name | Select-Object -ExpandProperty FullName
 ```
 
@@ -92,7 +95,7 @@ For each scanned file, look for:
 | **Normative in archive** | File in `decisions/`, `adr/` or `archive/` — content with `must / never / always / required` or names a file/function/flag binding the future | Classify as `normative \| historical \| mixed`. Migrate the normative slice. See Phase C. |
 | **Duplicate** | Same rule described in 2+ auto-loaded files | Merge into the most appropriate file |
 | **Contradiction** | Two files prescribe opposite behaviors | Keep the most recent or specific, annotate the choice |
-| **Recurring pattern** | Same constraint type in ≥ `rule_elevation_threshold` files in `memory/`, absent from rules | Elevate to a rule under `.claude/rules/<category>/` |
+| **Recurring pattern** | Same constraint type in ≥ `rule_elevation_threshold` files in `memory/`, absent from host instructions | Elevate under `${PROJECT_RULES_ROOT}/<category>/` and index it from `AGENTS.md` on Codex |
 | **Obsolete decision** | References a lib, function or pattern that no longer exists | Flag to user |
 
 The `rule_elevation_threshold` only applies to patterns observed in `memory/`. For archive files, **a single normative occurrence is enough** to trigger migration.
@@ -104,7 +107,7 @@ The `rule_elevation_threshold` only applies to patterns observed in `memory/`. F
 Apply Phase B actions. For each change:
 
 - **Migrate a normative entry from archive**:
-  0. **Verify no existing rule already covers the topic**: `rg` with **≥ 2 terms** in `.claude/rules/` — functional topic AND named technical symbol (file, flag, function, constant). Read the matched passage and check **normative force**, not just term presence:
+  0. **Verify no existing rule already covers the topic**: `rg` with **≥ 2 terms** in `${PROJECT_RULES_ROOT}/` — functional topic AND named technical symbol (file, flag, function, constant). Read the matched passage and check **normative force**, not just term presence:
      - **Full coverage** → matched passage uses `must` / `always` / `never` / `required` to enforce the same constraint. Do not duplicate, skip to next entry (count under "rule already covers")
      - **Partial coverage** → matched passage mentions the term but is descriptive (table, example, narrative) without imperative enforcement, OR rule's `paths:` does not cover the surface where the constraint applies. Enrich the **existing** rule (not memory), keep its `paths:` or extend it
      - **No coverage** → no match or matched passage is unrelated. Continue to step 1
@@ -112,11 +115,11 @@ Apply Phase B actions. For each change:
 A keyword grep that finds the term inside an example block or descriptive table is **not coverage** — the rule must impose the constraint, not merely mention it.
   1. Split normative slice / historical slice
   2. **Choose target — rule or memory** per the criterion below
-  3. If **rule**: create/enrich a path-scoped rule
+  3. If **rule**: create/enrich a path-scoped rule; on Codex, also update the bounded normative index in `AGENTS.md` so the reference is discoverable
   4. If **memory**: pick the target file via the mapping below, read the template `aidd_docs/templates/aidd/memory/<file>.md` for the expected section
   5. Insert in the section's format (table row, 3-15 word bullet, H3 subtitle, mermaid block) — prefer existing sections; create a new section only if the file's spirit justifies it.
 
-     **Content shaping rules** (apply to memory inserts only; for the rule branch at step 3, follow `.claude/rules/01-standards/1-rule-writing.md` — 3-7 word imperatives, no inline rationale):
+     **Content shaping rules** (apply to memory inserts only; for the rule branch at step 3, follow `${PROJECT_RULES_ROOT}/01-standards/1-rule-writing.md` — 3-7 word imperatives, no inline rationale):
 
      - **Imperative phrasing required**: write `Always X` / `Never Y` / `Must Z`. A descriptive bullet ("X is preferred", "we use Y") is read as a suggestion, not a constraint.
      - **Why-line when the rule isn't self-evident**: place rationale on a separate indented line below the bullet (`  **Why:** <reason>`), so the bullet itself keeps its 3-15 word cap. Skip the why-line when (a) the rule is already encoded in its section header (e.g. under `## Critical Patterns`, the imperative is implied) or (b) the constraint is universally known in the ecosystem (e.g. Firestore `limit()` quota cost). Without rationale, a rule is more easily downweighted when conflicting signals appear.
@@ -125,7 +128,7 @@ A keyword grep that finds the term inside an example block or descriptive table 
   6. Preserve frontmatter, ordering and style **of the target file** (informed by its template, not slavishly copied)
   7. Show the user the content to insert + propose **full deletion of the source** as default. Memory load is paid 100 % of the time; an archive (or even a stub) is consulted ~1 % of the time and weighs against every future read — git history is the revert path, not a kept file. Stub only if the user explicitly asks. **Distinct confirmation** per decision (or per grouped chain). **Batch mode**: if > 5 entries of the same nature, present a sample of 3 full decisions; if the user validates, apply the rest in bulk with a single final confirmation
 - **Merge duplicate**: target file is the most recent; on tie, the most complete. Show both files and the proposed merge → **distinct confirmation**: "Merge and delete source?" Rewrite the target, delete the source only after agreement.
-- **Elevate to rule**: create `.claude/rules/<category>/<n>-<topic>.md` (category 00-09 per `1-rule-structure.md`) following the template `aidd_docs/templates/aidd/rule.md` and the convention `1-rule-writing.md` (3-7 word bullets, `paths:` scoped to the affected files). Show the created rule and the source file list → **distinct confirmation**: "Does the rule fully cover these files? Delete sources?"
+- **Elevate to rule**: create `${PROJECT_RULES_ROOT}/<category>/<n>-<topic>.md` (category 00-09 per `1-rule-structure.md`) following the template and rule-writing convention. On Codex, add a concise `AGENTS.md` instruction naming when to read that file; preserve unrelated sections. Show the created rule and source list → **distinct confirmation**: "Does the rule fully cover these files? Delete sources?"
 
   **After creating any rule with a forbidden pattern**: grep the codebase scoped by the new rule's `paths:` to count violations. Forbidden patterns are bullets formed with `never`, `forbidden`, `must not`, `do not use`, etc.
 
@@ -138,11 +141,11 @@ A keyword grep that finds the term inside an example block or descriptive table 
 
 ### Target criterion — rule vs memory
 
-| Pick a **rule** (`.claude/rules/...`) if | Pick **memory** (`aidd_docs/memory/...`) if |
+| Pick a **rule** (`${PROJECT_RULES_ROOT}/...`) if | Pick **memory** (`aidd_docs/memory/...`) if |
 |---|---|
 | Topic is **path-scopable on a narrow surface** (glob isolating < ~30 % of code: `firebase.json`, `nuxt.config.ts`, `server/api/**`, `models/*.js`) | Topic is **transverse** or conceptual, or the natural glob is too broad (`**/*.vue`, `**/*.ts` alone — cover almost all app code) |
 | Rule is **verifiable at write-time** (concrete convention, named anti-pattern, constant, required value) | Content is **explanatory**: why, context, principle, learning, runbook |
-| Agent should see it **only** when touching the affected files | Agent should see it **always** (auto-loaded via `@aidd_project_memory`) |
+| Agent should see it **only** when touching the affected files; on Codex, `AGENTS.md` points to the scoped reference | Agent should see it **always** through the active host's auto-loaded project instructions |
 
 On ambiguity: if the decision can be expressed as a testable code convention **and** scoped to a narrow surface, prefer **rule**. Otherwise **memory**.
 
@@ -190,7 +193,7 @@ When several archive entries form a chain (supersession, shared topic), propose 
 
 ### Goal
 
-Detect rules in `.claude/rules/` whose content may have been invalidated by a more recent decision or memory entry. This is the **inverse** of Phase C step 0: instead of asking "does a rule cover this new input?", ask "is this rule still consistent with recent inputs?"
+Detect rules in `${PROJECT_RULES_ROOT}/` and normative `AGENTS.md` sections whose content may have been invalidated by a more recent decision or memory entry. This is the **inverse** of Phase C step 0: instead of asking "does a rule cover this new input?", ask "is this rule still consistent with recent inputs?"
 
 ### Candidate rule selection
 
@@ -198,10 +201,10 @@ List rules unmodified for `rule_freshness_days` days:
 
 ```bash
 # macOS / Linux
-find .claude/rules -type f -name "*.md" -mtime +90 | sort
+find ${PROJECT_RULES_ROOT} -type f -name "*.md" -mtime +90 | sort
 
 # Windows (PowerShell)
-Get-ChildItem -Recurse -Filter "*.md" .claude\rules |
+Get-ChildItem -Recurse -Filter "*.md" ${PROJECT_RULES_ROOT} |
   Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-90) } |
   Sort-Object Name | Select-Object -ExpandProperty FullName
 ```

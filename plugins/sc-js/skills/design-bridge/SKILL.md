@@ -7,11 +7,9 @@ description: >-
   tokens CSS, dérivant strictement du spec + wiring pre-commit ; (2) diffuse → élément neutre
   rendu en composant Vue 3 SFC ou React idiomatique. Jamais invoqué directement — uniquement
   appelé via le pivot de design:enforce/04-pivot ou design:diffuse/03-pivot.
-triggers:
-  - "sc-js:design-bridge"
-  - invoqué par design:enforce quand la stack est JavaScript/TypeScript
-  - invoqué par design:diffuse quand la cible est Vue ou React
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-js:design-bridge
 
@@ -63,12 +61,12 @@ Après exécution, renvoyer au contexte appelant (enforce ou diffuse) :
 
 ## Workflow de plateforme (application à composants / SPA)
 
-Ce pivot **possède** le workflow de plateforme SPA : `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/workflow-spa.md`. Il instancie les classes de cas agnostiques de `design:detail` sur une application à composants, sous le squelette figé par `sc-pivot-contract.md § Workflow de plateforme`. `design:detail/02-route` l'étend à la classe quand ce pivot est installé et la stack correspond.
+Ce pivot **possède** le workflow de plateforme SPA : `${SC_JS_PLUGIN_ROOT}/skills/design-bridge/references/workflow-spa.md`. Il instancie les classes de cas agnostiques de `design:detail` sur une application à composants, sous le squelette figé par `sc-pivot-contract.md § Workflow de plateforme`. `design:detail/02-route` l'étend à la classe quand ce pivot est installé et la stack correspond.
 
 ## Références
 
 - `plugins/design/references/sc-pivot-contract.md` — format des specs reçus et squelette de workflow de plateforme
-- `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/workflow-spa.md` — workflow de plateforme SPA (classes de cas instanciées sur application à composants)
+- `${SC_JS_PLUGIN_ROOT}/skills/design-bridge/references/workflow-spa.md` — workflow de plateforme SPA (classes de cas instanciées sur application à composants)
 - `plugins/design/references/token-schema.md` — structure tokens.json
 - `plugins/design/skills/adjust/references/manifest-schema.md` — structure components.json
 - Références ESLint/Biome du plugin sc-js (si présentes dans `skills/sniff/references/`)

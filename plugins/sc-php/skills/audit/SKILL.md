@@ -1,6 +1,5 @@
 ---
 name: audit
-model: sonnet
 description: >-
   PHP code quality auditor. Detects the project stack via sniff (01-scan),
   loads the applicable PHP knowledge pivots from the plugin, and delegates
@@ -8,9 +7,11 @@ description: >-
   acceptance criteria. Use when the user asks to: audit PHP code, check PHP
   best practices, review code quality, check my PHP, audit Laravel/Symfony
   conventions, check SOLID compliance, review Bruno test quality, or invokes
-  /sc-php:audit.
+  sc-php:audit.
   Does not install any files to .claude/rules/.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-php Audit
 

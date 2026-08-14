@@ -1,0 +1,16 @@
+{
+  "name": "sc-php",
+  "version": "0.11.1+codex.20260814",
+  "description": "PHP ecosystem skills: sniff, audit, improve, legacy, teach, log-analysis (tail/parse-errors/search/summarize sur logs PHP/Apache/Nginx local, Docker ou SSH prod), bruno (tests API Bruno en CLI, itère jusqu'au vert). design-bridge: réceptacle du pivot design (enforce → linter PHP/WP natif + pre-commit ; diffuse → block pattern WP + theme.json) ; possède le workflow de plateforme FSE (design:detail), phase modèle de contenu comprise (CPT/taxonomies dérivés de la référence, templates de vue). builder-coverage: gate WYSIWYG FSE — couverture (chaque composant de page a une pattern éditable) + organisation (patterns rangées par rôle de section, sans fourre-tout). setup: scaffold-from-zero WordPress FSE/Laravel/Symfony + Docker Compose, garde-fou COMPOSE_PROJECT_NAME, pipeline de déploiement SSH optionnel (rsync + export DB conditionnel).",
+  "author": { "name": "François-Xavier Guillois" },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "SC PHP",
+    "shortDescription": "Build, audit, and modernize PHP stacks",
+    "longDescription": "Work with PHP, WordPress FSE, Laravel, Symfony, Bruno API tests, logs, design pivots, and builder coverage.",
+    "developerName": "François-Xavier Guillois",
+    "category": "Developer Tools",
+    "capabilities": ["Interactive", "Write"],
+    "defaultPrompt": ["Detect this PHP stack", "Audit this PHP codebase", "Set up a WordPress FSE project"]
+  }
+}

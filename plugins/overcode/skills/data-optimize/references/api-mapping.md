@@ -1,15 +1,15 @@
 # API / data-layer mapping — perf pivots
 
 > **Generic file**: this file contains ONLY the 12-section schema, the universal REST vanilla pivots, and the fallback procedure.
-> Stack-specific pivots are NOT embedded here — they are installed as project-level rules by `sc-*` plugins. **Which plugin supplies which pivot, and by which command, is read in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` — never guessed, never derived from a plugin's name.** The command is carried per plugin, not per family: `sc-tiers` installs by `setup`, the four `sc-<language>` by `sniff`.
+> Stack-specific pivots are NOT embedded here — they are installed as project-level rules by `sc-*` plugins. **Which plugin supplies which pivot, and by which command, is read in `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md` — never guessed, never derived from a plugin's name.** The command is carried per plugin, not per family: `sc-tiers` installs by `setup`, the four `sc-<language>` by `sniff`.
 >
 > **Dispatch order** when running an audit on a detected data stack:
 >
-> 1. Look for `.claude/rules/07-quality/data-pivots-<stack>.md` — installed by the matching `sc-*` plugin
+> 1. Look for `${PROJECT_RULES_ROOT}/07-quality/data-pivots-<stack>.md` — installed by the matching `sc-*` plugin
 > 2. If found → use it as the primary checklist source for §1–§10
 > 3. If not found → fall back to the generic schema below + REST vanilla pivots + fallback procedure
 >
-> Always check `.claude/rules/07-quality/` for ALL `data-pivots-*.md` files (hybrid stacks aggregate pivots from multiple plugins, e.g. Firestore + Prisma).
+> Always check `${PROJECT_RULES_ROOT}/07-quality/` for ALL `data-pivots-*.md` files (hybrid stacks aggregate pivots from multiple plugins, e.g. Firestore + Prisma).
 
 ## Generic 12-section schema
 
@@ -32,7 +32,7 @@ Les pivots installés par `sc-*` plugins remplacent les items section-par-sectio
 
 ## Plugin → stack mapping
 
-**Read it in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` › `data-pivots-*`.** That table is the sole source, and it is not duplicated here: a second copy drifts from the installers silently, which is exactly how this file came to advertise a `sc-rust` Sea-ORM pivot that has never existed, to omit `rusqlite` which does, and to keep listing Supabase / DynamoDB / Hasura after `sc-tiers` withdrew those three declarations.
+**Read it in `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md` › `data-pivots-*`.** That table is the sole source, and it is not duplicated here: a second copy drifts from the installers silently, which is exactly how this file came to advertise a `sc-rust` Sea-ORM pivot that has never existed, to omit `rusqlite` which does, and to keep listing Supabase / DynamoDB / Hasura after `sc-tiers` withdrew those three declarations.
 
 If a stack you detect has no line in that table, the state is `no provider` — follow the fallback procedure below, and say so in the receipt.
 

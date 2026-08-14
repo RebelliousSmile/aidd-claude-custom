@@ -17,7 +17,7 @@ A run spawns one or more **judge subagents**. Each:
 3. **Scores each scenario** PASS / FAIL / N/A against its pass criteria, citing the instruction (file + section) that maps or is missing, and the concrete fixture element it acted on.
 4. **Returns a verdict table + frictions + tally.** No file written by the judge.
 
-The orchestrator then appends a dated run to the suite's **Results log**. (Spawn judges with the Agent/Task tooling; for many scenarios across dimensions, fan out and judge in parallel.)
+The orchestrator then appends a dated run to the suite's **Results log**. Use the host's native subagent primitive for judges; for many scenarios across dimensions, fan out with bounded available concurrency. If subagents are unavailable, judge sequentially.
 
 > Why dry-run: behavioural fixes must be provable **without** mutating the user's real campaign/repo/notes. Intended-writes reasoning captures the decisive observable (e.g. "would write to `_univers/<u>/mj/`, `canon/` untouched") at zero risk.
 

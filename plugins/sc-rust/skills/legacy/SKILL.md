@@ -12,6 +12,8 @@ description: >-
   or general refactoring unrelated to Rust edition/API compatibility.
 ---
 
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
+
 # sc-rust Legacy
 
 Detects edition-specific patterns and deprecated APIs in the Rust codebase, then produces a migration plan and applies changes file by file — migrating to a newer edition or updating breaking crate API changes.

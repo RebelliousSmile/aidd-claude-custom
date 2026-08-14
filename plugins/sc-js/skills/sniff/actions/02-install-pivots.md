@@ -10,24 +10,24 @@ Read the pivot manifeste emitted by `01-scan`. For each perf or data pivot liste
 
 | Source (in plugin) | Target (in project) |
 |---|---|
-| `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/nuxt.md` | `.claude/rules/07-quality/perf-pivots-nuxt.md` |
-| `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/vue-spa.md` | `.claude/rules/07-quality/perf-pivots-vue-spa.md` |
-| `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/vite.md` | `.claude/rules/07-quality/perf-pivots-vite.md` |
-| `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/alpine.md` | `.claude/rules/07-quality/perf-pivots-alpine.md` |
-| `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/static.md` | `.claude/rules/07-quality/perf-pivots-static.md` |
-| `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/sveltekit.md` | `.claude/rules/07-quality/perf-pivots-sveltekit.md` |
-| `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/vanilla.md` | `.claude/rules/07-quality/perf-pivots-vanilla.md` |
+| `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/nuxt.md` | `.claude/rules/07-quality/perf-pivots-nuxt.md` |
+| `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/vue-spa.md` | `.claude/rules/07-quality/perf-pivots-vue-spa.md` |
+| `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/vite.md` | `.claude/rules/07-quality/perf-pivots-vite.md` |
+| `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/alpine.md` | `.claude/rules/07-quality/perf-pivots-alpine.md` |
+| `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/static.md` | `.claude/rules/07-quality/perf-pivots-static.md` |
+| `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/sveltekit.md` | `.claude/rules/07-quality/perf-pivots-sveltekit.md` |
+| `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/vanilla.md` | `.claude/rules/07-quality/perf-pivots-vanilla.md` |
 
 ### Data pivots — install to `.claude/rules/07-quality/`
 
 | Source (in plugin) | Target (in project) |
 |---|---|
-| `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/prisma.md` | `.claude/rules/07-quality/data-pivots-prisma.md` |
-| `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/drizzle.md` | `.claude/rules/07-quality/data-pivots-drizzle.md` |
-| `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/typeorm.md` | `.claude/rules/07-quality/data-pivots-typeorm.md` |
-| `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/mongoose.md` | `.claude/rules/07-quality/data-pivots-mongoose.md` |
-| `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/graphql.md` | `.claude/rules/07-quality/data-pivots-graphql.md` |
-| `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/trpc.md` | `.claude/rules/07-quality/data-pivots-trpc.md` |
+| `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/prisma.md` | `.claude/rules/07-quality/data-pivots-prisma.md` |
+| `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/drizzle.md` | `.claude/rules/07-quality/data-pivots-drizzle.md` |
+| `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/typeorm.md` | `.claude/rules/07-quality/data-pivots-typeorm.md` |
+| `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/mongoose.md` | `.claude/rules/07-quality/data-pivots-mongoose.md` |
+| `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/graphql.md` | `.claude/rules/07-quality/data-pivots-graphql.md` |
+| `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/trpc.md` | `.claude/rules/07-quality/data-pivots-trpc.md` |
 
 ### Install rules
 

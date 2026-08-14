@@ -1,6 +1,5 @@
 ---
 name: legacy
-model: sonnet
 description: >-
   Scans JavaScript/TypeScript code for outdated patterns and deprecated APIs,
   then proposes a migration plan. Handles ES5 remnants (var, callbacks, prototype
@@ -14,6 +13,8 @@ description: >-
   Do NOT use for dependency management (npm/pnpm), performance optimization
   (web-optimize), or general refactoring unrelated to version compatibility.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-js Legacy
 

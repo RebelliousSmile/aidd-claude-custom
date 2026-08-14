@@ -69,11 +69,11 @@ Include the adapter in the framework output line: `SvelteKit (adapter-static —
 
 ### Step 5 — Map capabilities to knowledge pivots
 
-For each capability, evaluate the detection condition **against `package.json` only** and record the applicable pivot path (under `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/`). These paths are **not installed** — they are loaded on demand by `/sc-js:audit`.
+For each capability, evaluate the detection condition **against `package.json` only** and record the applicable pivot path (under `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/`). These paths are **not installed** — they are loaded on demand by `/sc-js:audit`.
 
 **Never inspect source files to decide whether to include a pivot.** If the `package.json` condition matches, the pivot goes in the manifeste — even if the pattern is not yet used in the codebase. It is `/sc-js:audit`'s job to check whether the pattern is missing, misused, or correct. The sniff only maps what is available.
 
-**Only list pivots that physically exist in the plugin.** Before including a pivot, verify it exists at `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/<path>`. Do NOT invent a pivot path because it would be useful — if no file exists at that path, the capability goes in **Gaps**, not in the manifeste. Listing a non-existent pivot as available misleads `/sc-js:audit` into trying to load a file that isn't there.
+**Only list pivots that physically exist in the plugin.** Before including a pivot, verify it exists at `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/<path>`. Do NOT invent a pivot path because it would be useful — if no file exists at that path, the capability goes in **Gaps**, not in the manifeste. Listing a non-existent pivot as available misleads `/sc-js:audit` into trying to load a file that isn't there.
 
 #### Component patterns
 
@@ -156,24 +156,24 @@ These pivots are installed to `.claude/rules/07-quality/` by `02-install-pivots`
 
 | Condition | Source | Target |
 |---|---|---|
-| Nuxt detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/nuxt.md` | `.claude/rules/07-quality/perf-pivots-nuxt.md` |
-| Vue SPA detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/vue-spa.md` | `.claude/rules/07-quality/perf-pivots-vue-spa.md` |
-| Vite hybrid detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/vite.md` | `.claude/rules/07-quality/perf-pivots-vite.md` |
-| Alpine.js detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/alpine.md` | `.claude/rules/07-quality/perf-pivots-alpine.md` |
-| Astro or 11ty detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/static.md` | `.claude/rules/07-quality/perf-pivots-static.md` |
-| SvelteKit detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/sveltekit.md` | `.claude/rules/07-quality/perf-pivots-sveltekit.md` |
-| Vanilla web (`runtime = "web"`, no framework matched) | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/vanilla.md` | `.claude/rules/07-quality/perf-pivots-vanilla.md` |
+| Nuxt detected | `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/nuxt.md` | `.claude/rules/07-quality/perf-pivots-nuxt.md` |
+| Vue SPA detected | `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/vue-spa.md` | `.claude/rules/07-quality/perf-pivots-vue-spa.md` |
+| Vite hybrid detected | `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/vite.md` | `.claude/rules/07-quality/perf-pivots-vite.md` |
+| Alpine.js detected | `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/alpine.md` | `.claude/rules/07-quality/perf-pivots-alpine.md` |
+| Astro or 11ty detected | `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/static.md` | `.claude/rules/07-quality/perf-pivots-static.md` |
+| SvelteKit detected | `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/sveltekit.md` | `.claude/rules/07-quality/perf-pivots-sveltekit.md` |
+| Vanilla web (`runtime = "web"`, no framework matched) | `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/vanilla.md` | `.claude/rules/07-quality/perf-pivots-vanilla.md` |
 
 #### Data pivots — install targets (consumed by `data-optimize`)
 
 | Condition | Source | Target |
 |---|---|---|
-| Prisma detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/prisma.md` | `.claude/rules/07-quality/data-pivots-prisma.md` |
-| Drizzle detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/drizzle.md` | `.claude/rules/07-quality/data-pivots-drizzle.md` |
-| TypeORM / Sequelize detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/typeorm.md` | `.claude/rules/07-quality/data-pivots-typeorm.md` |
-| Mongoose detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/mongoose.md` | `.claude/rules/07-quality/data-pivots-mongoose.md` |
-| GraphQL detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/graphql.md` | `.claude/rules/07-quality/data-pivots-graphql.md` |
-| tRPC detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/trpc.md` | `.claude/rules/07-quality/data-pivots-trpc.md` |
+| Prisma detected | `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/prisma.md` | `.claude/rules/07-quality/data-pivots-prisma.md` |
+| Drizzle detected | `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/drizzle.md` | `.claude/rules/07-quality/data-pivots-drizzle.md` |
+| TypeORM / Sequelize detected | `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/typeorm.md` | `.claude/rules/07-quality/data-pivots-typeorm.md` |
+| Mongoose detected | `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/mongoose.md` | `.claude/rules/07-quality/data-pivots-mongoose.md` |
+| GraphQL detected | `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/graphql.md` | `.claude/rules/07-quality/data-pivots-graphql.md` |
+| tRPC detected | `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/trpc.md` | `.claude/rules/07-quality/data-pivots-trpc.md` |
 
 ### Step 6 — Detect gaps
 
@@ -233,7 +233,7 @@ ORM / data layer:
 Pivot manifeste — applicable capability references:
   ⚠️  READ-ONLY — do NOT install these to .claude/rules/capabilities/ or anywhere else
   ⚠️  These paths are loaded at audit time from the plugin; they are never written to disk
-  (load via ${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/<path>)
+  (load via ${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/<path>)
   state/svelte-stores.md
   ssr/storage-guards.md
   code-splitting/dynamic-import.md

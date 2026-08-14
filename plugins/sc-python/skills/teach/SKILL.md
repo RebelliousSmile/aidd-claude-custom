@@ -13,6 +13,8 @@ description: >-
   generating new features, or version migrations (legacy).
 ---
 
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
+
 # sc-python Teach
 
 Contextual teaching for Python. Finds examples of the requested concept in the current project, explains the theory with those examples as anchors, then offers a short practice exercise to consolidate understanding.

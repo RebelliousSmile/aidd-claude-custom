@@ -13,7 +13,7 @@ description: Memory files audit report template
 | 1 | Broken refs | 🟢/🟡/🔴 | N |
 | 2 | Drifted counts | 🟢/🟡/🔴 | N |
 | 3 | Drifted versions | 🟢/🟡/🔴 | N |
-| 4 | CLAUDE.md sync | 🟢/🟡/🔴 | N |
+| 4 | Host instruction sync | 🟢/🟡/🔴 | N |
 ### P2 — manual fix
 | # | Criterion | Status | Findings |
 |---|-----------|--------|----------|
