@@ -1,5 +1,18 @@
 # Changelog — design
 
+## [2.13.0] — 2026-08-14
+
+### Added
+
+- Routage composite des rendus FSE vers `sc-php` (markup/runtime) et `sc-css` (feuilles), avec sorties disjointes et refus d'intégrer un retour partiel.
+- Preuve optionnelle de propriété de cascade dans `measure.py`, incluse dans le verdict de fidélité sur chaque surface et breakpoint.
+- Dérivation des propriétés gouvernées depuis les déclarations CSS effectives, session éditeur fournie uniquement par l'environnement et cas `unrealized` bloquants.
+
+### Changed
+
+- Le gate distingue désormais une valeur calculée correcte d'une valeur réellement gouvernée par la feuille et la classe DS attendues.
+- Copycat exige une re-mesure d'ownership après suppression d'un override WordPress.
+
 ## [2.12.1] — 2026-08-12
 
 ### Added

@@ -8,6 +8,7 @@ from playwright.sync_api import sync_playwright
 
 
 ROOT = Path(__file__).resolve().parents[1]
+FSE_FIXTURE = ROOT.parents[2] / "sc-php" / "skills" / "design-bridge" / "evals" / "fixtures" / "fse-cascade"
 
 
 def _load(name: str, filename: str):
@@ -88,7 +89,7 @@ def test_browser_probe_handles_layers_important_inline_and_nested_selectors():
     <nav><div class="site-nav__lien"><a id="nested">Link</a></div></nav>
     """
     with sync_playwright() as pw:
-        browser = pw.chromium.launch()
+        browser = pw.chromium.launch(args=["--allow-file-access-from-files"])
         try:
             page = browser.new_page()
             page.set_content(markup)
@@ -98,5 +99,25 @@ def test_browser_probe_handles_layers_important_inline_and_nested_selectors():
             assert probe("#important") == ".ds-important"
             assert probe("#inline") == "<inline>"
             assert probe("#nested") == ".site-nav__lien > a"
+        finally:
+            browser.close()
+
+
+def test_fse_front_fixtures_flip_ownership_even_with_equal_values():
+    button = {"name": "Button", "selector": ".btn-pinceau > .wp-block-button__link",
+              "class": "btn-pinceau", "prop": "background-color", "sources": ["design.css"]}
+    nav = {"name": "Navigation", "selector": ".site-nav__lien > .wp-block-navigation-item__content",
+           "class": "site-nav__lien", "prop": "color", "sources": ["design.css"]}
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(args=["--allow-file-access-from-files"])
+        try:
+            page = browser.new_page()
+            page.goto(FSE_FIXTURE.joinpath("front-pass.html").as_uri(), wait_until="networkidle")
+            assert measure._classify_ownership(page.evaluate(measure._OWNERSHIP, button), button)["status"] == "pass"
+            assert measure._classify_ownership(page.evaluate(measure._OWNERSHIP, nav), nav)["status"] == "pass"
+
+            page.goto(FSE_FIXTURE.joinpath("front-fail.html").as_uri(), wait_until="networkidle")
+            assert measure._classify_ownership(page.evaluate(measure._OWNERSHIP, button), button)["status"] == "fail"
+            assert measure._classify_ownership(page.evaluate(measure._OWNERSHIP, nav), nav)["status"] == "fail"
         finally:
             browser.close()

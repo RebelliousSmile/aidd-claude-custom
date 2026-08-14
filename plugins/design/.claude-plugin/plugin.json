@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "design",
-  "version": "2.12.1",
-  "description": "Builds, critiques, freezes, enforces, and diffuses design systems from briefs, visual references, or existing code through standalone skills or an optional end-to-end workflow.",
+  "version": "2.13.0",
+  "description": "Builds, critiques, freezes, enforces, and diffuses design systems, including composite platform routing and rendered cascade-ownership proof.",
   "author": {
     "name": "François-Xavier Guillois"
   }

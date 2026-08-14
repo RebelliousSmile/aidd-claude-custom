@@ -70,7 +70,12 @@ connaissance de plateforme et maintient `<theme>/assets/css/design/fse-bindings.
 | Bloc core | Porteur de `className` | Élément peint | Sélecteur dérivé |
 |---|---|---|---|
 | `core/button` | `.wp-block-button.<classe-ds>` | `.wp-block-button__link` | `.<classe-ds> > .wp-block-button__link` |
-| `core/navigation-link` | `.wp-block-navigation-item.<classe-ds>` | `.wp-block-navigation-item__content` | `.<classe-ds> > .wp-block-navigation-item__content` |
+| `core/navigation-link` | `.wp-block-navigation-item.<classe-ds>` (front) ou ancre `<classe-ds>` (éditeur) | `.wp-block-navigation-item__content` | `.wp-block-navigation .<classe-ds> .wp-block-navigation-item__content, .wp-block-navigation .<classe-ds>.wp-block-navigation-item__content` |
+
+L'ancêtre `.wp-block-navigation` du lien n'est pas décoratif : le core émet lui-même un sélecteur à
+trois classes sur l'ancre, et le canvas peut intercaler un wrapper de bloc. Le binding mesuré doit au
+minimum atteindre cette spécificité, tolérer les deux porteurs, puis être chargé après le core ;
+`.<classe-ds> > …` seul perd réellement malgré la présence de la classe DS.
 
 Pour chaque binding utilisé :
 

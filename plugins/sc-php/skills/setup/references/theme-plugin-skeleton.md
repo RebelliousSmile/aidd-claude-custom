@@ -172,7 +172,7 @@ add_action('after_setup_theme', function () {
     add_editor_style('assets/css/design/index.css');
 });
 
-add_action('wp_enqueue_scripts', function () {
+$enqueue_design = static function () {
     $relative = 'assets/css/design/index.css';
     $path = get_theme_file_path($relative);
     $version = defined('WP_DEBUG') && WP_DEBUG && file_exists($path)
@@ -185,7 +185,12 @@ add_action('wp_enqueue_scripts', function () {
         [],
         $version
     );
-});
+};
+
+add_action('wp_enqueue_scripts', $enqueue_design);
+// Le canvas iframe ne matérialise pas toujours add_editor_style() seul. Ce hook charge la même
+// entrée dans le contexte des blocs, front et éditeur ; le handle commun évite tout doublon.
+add_action('enqueue_block_assets', $enqueue_design);
 ```
 
 ## `assets/css/design/index.css`
@@ -197,7 +202,9 @@ add_action('wp_enqueue_scripts', function () {
 Ce fichier vide est volontaire au scaffold : le contrat design n'existe pas encore. Il fournit un
 chemin public stable que `sc-css:design-bridge` remplira dans l'ordre `tokens.css`, composants, puis
 `fse-bindings.css`. Ne jamais créer deux entrées distinctes pour le front et l'éditeur : leur divergence
-rendrait le WYSIWYG invérifiable.
+rendrait le WYSIWYG invérifiable. `add_editor_style()` déclare la feuille au thème ; le hook
+`enqueue_block_assets` prouve son chargement effectif dans le canvas iframe des versions WordPress
+actuelles. Conserver les deux jusqu'à preuve navigateur contraire.
 
 ## `{{PLUGIN_SLUG}}.php` (en-tête plugin, obligatoire)
 

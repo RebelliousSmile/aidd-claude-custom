@@ -1,5 +1,19 @@
 # Changelog — sc-php
 
+## [0.12.0] — 2026-08-14
+
+### Added
+
+- Patterns FSE natifs `patterns/*.php` avec en-têtes auto-enregistrés complets et validation de la grammaire de blocs.
+- Entrée CSS design partagée entre front et éditeur, plus `fse-bindings.css` pour les éléments peints internes de `core/button` et `core/navigation-link`.
+- Enrôlement effectif du même handle par `enqueue_block_assets` dans le canvas iframe et binding navigation compatible avec le porteur front comme éditeur.
+- Gate de propriété de cascade front/canvas éditeur, fixtures adversariales et intégration wp-env explicite.
+
+### Changed
+
+- `pnpm wp` est l'unique accès WP-CLI documenté dans la chaîne sc-php.
+- Les attributs de présentation Gutenberg concurrents sont retirés lorsque le contrat DS possède la propriété ; la fermeture exige ensuite la provenance gagnante, pas seulement la valeur calculée.
+
 ## [0.11.1] — 2026-08-06
 
 ### Fixed — la table `## Phases` du workflow FSE ne disait pas où ses phases s'insèrent

@@ -257,13 +257,28 @@ def _derive_ownership_targets(components: dict, oracle_hints: dict,
                         source = Path(stylesheet).name
                         if source not in row["sources"]:
                             row["sources"].append(source)
+    # One property can require alternative selectors across platform surfaces (notably a
+    # navigation-link class on the li in front and on the anchor in the editor). Aggregate those
+    # alternatives into one query-selector list so an absent variant does not become a false gap.
+    merged: dict[tuple[str, str], dict] = {}
+    for row in found.values():
+        if not row.get("prop"):
+            continue
+        key = (row["class"], row["prop"])
+        target = merged.setdefault(key, {**row, "selector": "", "sources": []})
+        selectors = [part.strip() for part in target["selector"].split(",") if part.strip()]
+        if row["selector"] not in selectors:
+            selectors.append(row["selector"])
+        target["selector"] = ", ".join(selectors)
+        target["sources"] = list(dict.fromkeys(target["sources"] + row["sources"]))
+
     for cls, (label, _) in classes.items():
         if cls not in seen_classes:
-            found[(cls, f".{cls}", "")] = {
+            merged[(cls, "")] = {
                 "name": label, "selector": f".{cls}", "class": cls, "prop": None,
                 "sources": sources, "unrealized_reason": "DS class has no inspectable declaration",
             }
-    return list(found.values())
+    return list(merged.values())
 
 
 def generate(

@@ -194,16 +194,47 @@ _COLLECT = """(args) => {
 # classified in Python so the same provenance rule is unit-testable without Chromium.
 _OWNERSHIP = """(target) => {
   const el = document.querySelector(target.selector);
-  if (!el) return {unrealized: `missing element: ${target.selector}`};
+  if (!el) {
+    const nearby = target.diagnostic_selector ? Array.from(document.querySelectorAll(target.diagnostic_selector))
+      .slice(0, 5).map(node => {
+        const chain = []; let current = node;
+        for (let i = 0; current && i < 5; i++, current = current.parentElement)
+          chain.push({tag: current.tagName.toLowerCase(), classes: Array.from(current.classList || [])});
+        return chain;
+      }) : undefined;
+    return {unrealized: `missing element: ${target.selector}`, nearby};
+  }
   const prop = target.prop;
   const candidates = [];
   let order = 0;
   let layerOrder = 0;
 
+  function splitSelectors(value) {
+    const out = []; let start = 0, depth = 0;
+    for (let i = 0; i < value.length; i++) {
+      if (value[i] === '(' || value[i] === '[') depth += 1;
+      else if (value[i] === ')' || value[i] === ']') depth -= 1;
+      else if (value[i] === ',' && depth === 0) { out.push(value.slice(start, i).trim()); start = i + 1; }
+    }
+    out.push(value.slice(start).trim());
+    return out.filter(Boolean);
+  }
+
+  function withoutWhere(value) {
+    let out = '';
+    for (let i = 0; i < value.length;) {
+      if (value.startsWith(':where(', i)) {
+        let depth = 1; i += 7;
+        while (i < value.length && depth) { depth += (value[i] === '(') - (value[i] === ')'); i += 1; }
+      } else { out += value[i]; i += 1; }
+    }
+    return out;
+  }
+
   function specificity(selector) {
-    const clean = selector.replace(/:where\\([^)]*\\)/g, '');
+    const clean = withoutWhere(selector);
     const ids = (clean.match(/#[\\w-]+/g) || []).length;
-    const classes = (clean.match(/\\.[\\w-]+|\\[[^\\]]+\\]|:(?!:)[\\w-]+(?:\\([^)]*\\))?/g) || []).length;
+    const classes = (clean.match(/\\.[\\w-]+|\\[[^\\]]+\\]|(?<!:):(?!:)[\\w-]+(?:\\([^)]*\\))?/g) || []).length;
     const types = (clean.replace(/#[\\w-]+|\\.[\\w-]+|\\[[^\\]]+\\]|::?[\\w-]+(?:\\([^)]*\\))?|[>+~*]/g, ' ')
       .match(/(?:^|\\s)[a-zA-Z][\\w-]*/g) || []).length;
     const pseudoElements = (clean.match(/::[\\w-]+/g) || []).length;
@@ -214,7 +245,7 @@ _OWNERSHIP = """(target) => {
     for (const rule of Array.from(rules || [])) {
       order += 1;
       if (rule.type === 1 && rule.selectorText) {
-        const matched = rule.selectorText.split(',').map(s => s.trim()).filter(s => {
+        const matched = splitSelectors(rule.selectorText).filter(s => {
           try { return el.matches(s); } catch (_) { return false; }
         });
         const value = rule.style.getPropertyValue(prop);
@@ -228,10 +259,13 @@ _OWNERSHIP = """(target) => {
             important: rule.style.getPropertyPriority(prop) === 'important',
             specificity: specificity(matched[0]), order, layer});
         }
+      } else if (rule.styleSheet && rule.styleSheet.cssRules) {
+        visit(rule.styleSheet.cssRules, rule.styleSheet.href || source, layer);
       } else if (rule.cssRules) {
         if (rule.media && !matchMedia(rule.media.mediaText).matches) continue;
         const isLayer = String(rule.constructor && rule.constructor.name).includes('Layer');
-        visit(rule.cssRules, source, isLayer ? ++layerOrder : layer);
+        const nestedSource = rule.styleSheet && rule.styleSheet.href ? rule.styleSheet.href : source;
+        visit(rule.cssRules, nestedSource, isLayer ? ++layerOrder : layer);
       }
     }
   }
@@ -546,6 +580,8 @@ def _classify_ownership(result: dict, target: dict) -> dict:
            "selector": target.get("selector"), "prop": target.get("prop")}
     if result.get("unrealized"):
         row.update({"status": "unrealized", "reason": result["unrealized"]})
+        if result.get("nearby") is not None:
+            row["nearby"] = result["nearby"]
         if "computed" in result:
             row["computed"] = result["computed"]
         return row
@@ -597,11 +633,19 @@ def _measure_ownership(browser, cfg: dict, base_dir: Path) -> dict:
                 page = ctx.new_page()
                 page.goto(_resolve_url(surface["url"], base_dir), wait_until="networkidle", timeout=20000)
                 if hook:
+                    was_login = "wp-login.php" in page.url
                     page.evaluate(hook)
+                    page.wait_for_timeout(750)
+                    if was_login:
+                        page.wait_for_url(re.compile(r"^(?!.*wp-login\.php).*$"),
+                                          wait_until="load", timeout=20000)
+                    else:
+                        page.wait_for_load_state("load", timeout=20000)
                     page.wait_for_timeout(300)
                 scope = page
                 frame_selector = surface.get("frame_selector")
                 if frame_selector:
+                    page.wait_for_selector(frame_selector, state="attached", timeout=20000)
                     handle = page.query_selector(frame_selector)
                     scope = handle.content_frame() if handle else None
                 if scope is None:

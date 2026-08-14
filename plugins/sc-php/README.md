@@ -20,6 +20,21 @@ Détecte la stack du projet et charge à la demande les pivots de capacité appl
 
 > `bruno`, `design-bridge` et `builder-coverage` sont spécifiques à PHP/WordPress et ne sont pas propagés aux autres plugins `sc-*`.
 
+## Garanties FSE du design bridge
+
+Trois preuves distinctes évitent un faux vert lorsqu'une classe DS est simplement posée sur un bloc core :
+
+1. Le gate de **vocabulaire** vérifie que les classes et tokens du markup appartiennent au contrat. Il ne lit pas le rendu.
+2. Le gate **stylesheet** vérifie statiquement que les feuilles composants et `fse-bindings.css` sont chargées et conformes. Il ne sait pas laquelle gagne.
+3. Le gate de **propriété rendue** ouvre Chromium sur le front et dans le canvas éditeur, à chaque breakpoint. Pour chaque propriété déclarée, il exige que la règle gagnante provienne d'une feuille attendue et d'un sélecteur portant la classe DS.
+
+Une valeur calculée identique ne compense donc pas un preset core, un style inline, un `!important`, une layer hôte ou un ordre de chargement gagnant. Sans session éditeur fournie par `WP_EDITOR_STORAGE_STATE` ou `WP_EDITOR_AUTH_HOOK`, cette surface reste `unrealized` et le verdict de fidélité reste `OPEN`. Les identifiants ne sont jamais écrits dans le config.
+
+Le scaffold charge une entrée `assets/css/design/index.css` commune via `wp_enqueue_style()`,
+`add_editor_style()` et `enqueue_block_assets` (chargement effectif dans le canvas iframe). Les patterns
+auto-enregistrées sont des fichiers `patterns/*.php`, et toutes les commandes WP-CLI passent par
+`pnpm wp` afin de conserver le garde-fou `COMPOSE_PROJECT_NAME`.
+
 ## Licence
 
 MIT — voir [LICENSE](../../LICENSE).

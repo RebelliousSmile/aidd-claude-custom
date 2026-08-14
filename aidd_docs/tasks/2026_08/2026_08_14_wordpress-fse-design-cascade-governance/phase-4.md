@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Instruction: Verrouiller les régressions et publier les contrats alignés
