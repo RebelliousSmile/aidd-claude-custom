@@ -1,6 +1,6 @@
 ---
 objective: "Moderniser foresee et taste en déléguant leurs capacités redondantes aux skills AIDD actuelles, sans casser leurs points d’entrée Overcode ni perdre leurs apports propres."
-status: in-progress
+status: implemented
 ---
 
 # Plan: Moderniser foresee et taste par délégation AIDD
