@@ -11,7 +11,7 @@
       "name": "overcode",
       "version": "4.5.1",
       "source": "./plugins/overcode",
-      "description": "Extends the AIDD framework with project-agnostic workflows: memory maintenance (harvest, reconcile-normative), obsolescence detection (taste), prospective analysis (foresee), behavioural-test harness for prompts (behave), test-suite governance by density and declared phase (control, user-invoked only), performance audits (data-optimize, web-optimize, ap-optimize), SEO/GEO audits (seo-optimize), project health reporting (status), plain-language explanations (baby), documentation (readme, changelog), and planning utilities (decompose, journey). Stack knowledge is never hardcoded: audits load pivots dropped by the sc-* plugins under .claude/rules/07-quality/. Alias chains: rechallenge, endtask, bump-plugin, previously, smarten, skillconf, weeklyemail, gitit, mirror, codex-vision.",
+      "description": "Extends AIDD with project-agnostic workflows: research; memory maintenance; repository-backed Markdown freshness with AIDD-routed code checks (taste); AIDD-routed document/code foresight plus dependency abandonment and migration horizon (foresee); behavioural testing; test governance; performance, data, ActivityPub, and SEO/GEO audits; project health; plain-language explanations; documentation; and planning utilities. Stack knowledge remains pivot-driven through sc-* plugins, and AIDD delegation fails explicitly when a required capability is unavailable. Alias chains: rechallenge, endtask, bump-plugin, previously, smarten, skillconf, weeklyemail, gitit, mirror, codex-vision.",
       "recommended": true
     },
     {
@@ -19,20 +19,6 @@
       "version": "2.12.1",
       "source": "./plugins/design",
       "description": "Builds, critiques, freezes, enforces, and diffuses design systems from briefs, visual references, or existing code through standalone skills or an optional end-to-end workflow.",
-      "recommended": false
-    },
-    {
-      "name": "game-writer",
-      "version": "1.0.1",
-      "source": "./plugins/game-writer",
-      "description": "Écriture de contenu narratif pour le jeu vidéo (projet 8-MINE) : bank d'assets narrative, écriture et revue de timelines Dialogic/Godot. La partie technique GDScript/moteur vit dans sc-godot. (ex-gamedesign)",
-      "recommended": false
-    },
-    {
-      "name": "sc-godot",
-      "version": "0.1.0",
-      "source": "./plugins/sc-godot",
-      "description": "Godot/GDScript ecosystem (squelette) : sniff, audit, improve, legacy, teach — partie technique du jeu vidéo, pendant de game-writer. Skills à porter (template sc-*).",
       "recommended": false
     },
     {
@@ -60,7 +46,7 @@
       "name": "sc-tiers",
       "version": "0.3.2",
       "source": "./plugins/sc-tiers",
-      "description": "Third-party SaaS consumption rules, installed into a project's .claude/rules/ by the setup skill: Firebase Firestore query limits, security rules, quota awareness, Auth listener cleanup, Hosting trailing slash and cache headers. Klaviyo API patterns: 2-step subscribe, 409→PATCH, lists, lazy loading. GTM Consent Mode v2: gtag() vs Array format, ensureGtag(), Meta Pixel consent, event taxonomy. Microsoft Clarity: best-effort model, consent-gated loading, queue init, dual push. PageSpeed Insights / Lighthouse: PSI variance, deterministic metrics, Nuxt 3 perf checklist (LCP/CLS/INP/TBT/bundle/cache).",
+      "description": "Third-party SaaS consumption guidance installed through host-native project instructions: Firebase Firestore limits, security, quotas, Auth listener cleanup, Hosting headers; Klaviyo API patterns; GTM Consent Mode v2 and Meta Pixel consent; Microsoft Clarity; PageSpeed Insights and Lighthouse.",
       "recommended": false
     },
     {
@@ -81,7 +67,7 @@
       "name": "obs",
       "version": "0.37.2",
       "source": "./plugins/obs",
-      "description": "Personal Obsidian notes management — project lifecycle, sessions, meetings, invoices, RAG export; email triage; the Documents/ organiser tree (cache-based: index, check, fix, sort, judge, destinations); filler skill (survey, sort, digest, index, merge, clean, condense, synthesize); research (documentary research and terminology extraction); extract-pdf (raw source ingestion).",
+      "description": "Personal Obsidian notes management — project lifecycle, sessions, meetings, invoices, RAG export; email triage; the Documents/ organiser tree (cache-based: index, check, fix, sort, judge, destinations); filler skill (survey, sort, digest, index, merge, clean, condense, synthesize); extract-pdf (raw source ingestion).",
       "recommended": false
     }
   ]

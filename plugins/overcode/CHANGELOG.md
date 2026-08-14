@@ -2,6 +2,23 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/overcode plugins/aidd-overlay` (le plugin s'appelait `aidd-overlay` avant la 3.0.0).
 
+## [Unreleased]
+
+### Added
+
+- `research`, déplacée depuis `obs`, fournit la recherche documentaire cross-référencée et l'extraction de terminologie sous le namespace `overcode:research`. Sa référence de domaine est embarquée dans la skill pour éviter une dépendance d'installation vers `obs`.
+- Contrat partagé `references/aidd-delegation.md`, quittance de routage et garde exécutable `tools/eval/aidd-delegation.mjs`, avec validation optionnelle obligatoire en release contre un catalogue AIDD live.
+- Suites comportementales de délégation pour `foresee` et `taste`.
+
+### Changed
+
+- `foresee` délègue désormais documents et code aux skills AIDD actuelles. Son analyse locale est limitée à l'horizon de dépendances après audit : continuité, isolation, alternatives et coût de migration, avec cinq cibles par défaut et métriques `unknown` hors score.
+- `taste` conserve la fraîcheur documentaire contre le dépôt avec claims pondérés, veto critique, couverture bornée et fact-check externe séparé. Les cibles code sont routées vers audit ou assert AIDD.
+
+### Removed
+
+- Moteurs locaux génériques de `foresee` pour documents/code, détecteurs regex de `taste assess-code`, catalogue `improvement-patterns.md` et références de langage devenues sans consommateur.
+
 ## [4.5.1] — 2026-08-07
 
 ### Fixed — deux skills AIDD référencées par un numéro qui a bougé, dont une qui n'existe plus du tout

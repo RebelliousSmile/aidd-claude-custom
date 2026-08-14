@@ -6,10 +6,11 @@ Ce qu'`overcode` est, et pourquoi il est construit ainsi. Pour savoir **quelle s
 
 Un **socle transversal**, pas une stack. C'est le seul plugin de la marketplace marqué `recommended` : il s'installe globalement et s'applique à tous les projets, quel que soit leur langage.
 
-Il étend le framework [AIDD](https://github.com/ai-driven-dev/aidd-framework) sur quatre axes qu'AIDD ne couvre pas :
+Il étend le framework [AIDD](https://github.com/ai-driven-dev/aidd-framework) sur cinq axes, en déléguant à AIDD les audits génériques qu'il couvre désormais :
 
 | Axe | Question à laquelle il répond |
 |---|---|
+| **Recherche** | quelles sources fiables documentent ce sujet, et où se contredisent-elles ? |
 | **Maintenance** | l'état du projet enregistré correspond-il encore à ce qu'il est ? |
 | **Analyse** | qu'est-ce qui va casser, mal vieillir, ou coûter cher plus tard ? |
 | **Documentation** | ce qui est écrit dit-il encore la vérité ? |
@@ -62,9 +63,13 @@ Plusieurs skills se ressemblent de loin. Les frontières sont explicites, parce 
 
 **`behave` vs `control`** — `behave` teste des **prompts** : skills, agents, workflows pilotés par le langage. `control` gouverne les tests de **code** d'un projet. Un scénario `behave` juge un comportement de LLM ; `control` décide si un test unitaire mérite d'exister.
 
-**`taste` vs `foresee`** — `taste` regarde le **présent** : cette affirmation est-elle encore vraie aujourd'hui, cet import pointe-t-il encore quelque part. `foresee` regarde le **moyen terme** : qu'est-ce qui va devenir un problème, sans être détectable par un test ou un linter aujourd'hui.
+**`taste` vs `foresee`** — `taste` garde une seule autorité locale : la fraîcheur pondérée des affirmations Markdown contre le dépôt. Une cible code part vers `aidd-dev:04-audit` ou `aidd-dev:03-assert`. `foresee` route de même les documents et le code vers `shadow-areas`, `challenge` ou `audit`; sa valeur locale commence après l'audit `dependencies`, sur la continuité des mainteneurs, l'isolation et le coût de sortie.
+
+**Contrat de délégation AIDD** — les deux routeurs résolvent une skill depuis le catalogue de l'hôte, vérifient la baseline compatible et rendent une quittance (`capability`, `delegated_to`, `pillar`, `artifact`, `local_follow_up`). Package absent, skill absente ou version trop ancienne arrêtent la branche concernée : aucun ancien détecteur local ne revient en fallback. Le contrat versionné vit dans `references/aidd-delegation.md`.
 
 **`harvest` vs `reconcile-normative`** — `harvest` est un cycle de maintenance large (tracker, décisions, purge de l'éphémère). `reconcile-normative` ne traite qu'une question : le normatif est-il cohérent entre les archives, la mémoire et les règles actives.
+
+**`research` vs `taste`** — `research` cherche et croise des sources externes pour construire de la connaissance documentaire. `taste` vérifie qu'un document existant correspond encore au codebase local. L'un produit des faits sourcés ; l'autre détecte l'obsolescence d'affirmations déjà écrites.
 
 ## La densité, pas le nombre — le modèle de `control`
 
