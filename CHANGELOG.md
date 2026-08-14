@@ -4,6 +4,31 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [3.16.0] - 2026-08-14
+
+### Added
+
+- Support Codex portable pour `design`, `obs`, `overcode`, `sc-css`, `sc-js`, `sc-php`, `sc-python`, `sc-rust` et `sc-tiers`, avec manifestes natifs, règles de résolution de racine et agents OpenAI pour les workflows concernés.
+- Contrat de délégation AIDD partagé par `foresee` et `taste`, scénarios comportementaux dédiés et garde structurelle/live contre les routes périmées ou les moteurs locaux réintroduits.
+- Générateur autonome du plugin `design`, livré avec ses routes Codex et ses preuves de validation.
+
+### Changed
+
+- `foresee` se concentre sur le risque prospectif des dépendances et délègue les audits génériques aux skills AIDD maintenues.
+- `taste` se concentre sur la fraîcheur documentaire vérifiable contre le dépôt et délègue l'analyse de code ainsi que les faits externes aux capacités AIDD propriétaires.
+- Les plugins et la documentation du marketplace utilisent désormais des pivots de portabilité communs au lieu de chemins ou de syntaxes propres à un seul hôte.
+- La skill `research` rejoint `overcode`, propriétaire de la recherche transverse, au lieu de rester rattachée à `obs`.
+
+### Removed
+
+- Les plugins `game-writer` et `sc-godot`, ainsi que les anciens moteurs locaux et références de langage devenus redondants dans `foresee` et `taste`.
+
+### Fixed
+
+- Les échecs de résolution AIDD nomment désormais la skill canonique, son package et sa version minimale sans fallback silencieux.
+- Les recommandations de réécriture de `taste` distinguent le seuil de trois claims dans un fichier du regroupement inter-fichiers.
+- Les écarts relevés par la revue du plugin `design` sont corrigés sans régression de ses routes autonomes.
+
 ## [3.11.0] - 2026-08-03
 
 `overcode` 4.2.0 → 4.3.0 · `design` 2.7.1 → 2.8.0 · `sc-tiers` 0.2.2 → 0.3.0 · `sc-css` 0.3.3 → 0.4.0 · `sc-python` 0.6.1 → 0.6.2 · `sc-php` 0.10.0 → 0.10.1 · `sc-rust` 0.5.0 → 0.5.1 · `sc-js` 0.15.1 → 0.15.2. Huit plugins sur onze : c'est le premier lot qui traverse la marketplace au lieu d'en approfondir un morceau.
