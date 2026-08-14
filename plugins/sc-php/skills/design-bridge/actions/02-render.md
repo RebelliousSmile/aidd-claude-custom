@@ -165,6 +165,11 @@ peut les produire (pièges 8 et 9) :
    Le contrôle couvre notamment les sélecteurs descendants, presets `has-*`, styles inline,
    `!important`, ordre de chargement et layers. Le protocole exécutable est celui de
    `design:enforce/05-fidelity-gate`; une simple comparaison de spécificité ne constitue pas la preuve.
+   Générer le config avec une option `--ownership-stylesheet` par feuille composant et pour
+   `fse-bindings.css`. Les deux surfaces (`front`, `editor`) sont obligatoires ; l'éditeur reçoit sa
+   session via `WP_EDITOR_STORAGE_STATE` ou `WP_EDITOR_AUTH_HOOK`. Sans session, la preuve est
+   `unrealized` et le verdict reste `OPEN`. Un gagnant n'est accepté que si sa feuille est attendue et
+   si son sélecteur porte la classe DS mesurée.
 
 Un échec ici n'est **jamais** absorbable par le registre de déviations : le ledger sert à acter un écart
 *au contrat*, pas un défaut d'accessibilité. Si la maquette est la source du défaut, corriger des deux

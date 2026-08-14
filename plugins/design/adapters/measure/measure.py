@@ -74,7 +74,22 @@ Config (JSON):
       # id (DEV-xxx) is REQUIRED — unsigned entries are surfaced in ledger_ids for human review.
       # Each id is validated against --ledger-registry (deviations.json): an id that is not an
       # active entry carrying an expected value, or one past its expiry, forces verdict=OPEN.
-    ]
+    ],
+    "ownership": {                                       # optional; required for FSE DS closure
+      "surfaces": [
+        {"name":"front","url":"http://localhost:8888"},
+        {"name":"editor","url":"http://localhost:8888/wp-admin/site-editor.php",
+         "frame_selector":"iframe[name=editor-canvas]","requires_auth":true,
+         "storage_state_env":"WP_EDITOR_STORAGE_STATE"}
+      ],
+      "targets": [
+        {"name":"Button · link","selector":".btn-pinceau > .wp-block-button__link",
+         "class":"btn-pinceau","prop":"background-color",
+         "sources":["button.css","fse-bindings.css"]}
+      ]
+      # Authentication is environment-only: storage_state_env (Playwright JSON/path) or
+      # auth_hook_env (JavaScript). Missing editor authentication is ownership_unrealized.
+    }
   }
 
 Report shape (per breakpoint):
@@ -116,9 +131,11 @@ Top-level (Mode B) — STRUCTURAL GATES, computed by the script, not claimed by 
               "collection_failures": N,   # P13: only unacked failures
               "collection_acked": N,      # P13: present only if > 0 (acked sanctions applied)
               "ledger_ids": [...],        # P13: includes collection ack ids
-              "ledger_unused_count": N}
+              "ledger_unused_count": N,
+              "ownership_failures": N, "ownership_unrealized": N}
       -> CLOSED iff D==0 AND K==0 AND no missing section AND coverage ok
-         AND collection_failures==0 (unacked only) AND all ledger ids validated.
+         AND collection_failures==0 (unacked only) AND all ledger ids validated
+         AND every configured ownership row passes on every surface and breakpoint.
          The CALLER MUST cite summary.verdict — closure is asserted from THIS, never from
          inspecting one's own edit. "verified by grep of source" is not closure.
 """
@@ -126,6 +143,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from datetime import date, datetime, timezone
@@ -168,6 +186,79 @@ _COLLECT = """(args) => {
     out[c.name] = els.map(e => (e.textContent || '').replace(/\\s+/g, ' ').trim());
   }
   return out;
+}"""
+
+# Runtime cascade ownership probe. It walks the active author rules, retains declarations that
+# match the measured node, and applies the author-cascade dimensions relevant to a DS/platform
+# conflict (importance, inline style, specificity, then source order). The returned winner is
+# classified in Python so the same provenance rule is unit-testable without Chromium.
+_OWNERSHIP = """(target) => {
+  const el = document.querySelector(target.selector);
+  if (!el) return {unrealized: `missing element: ${target.selector}`};
+  const prop = target.prop;
+  const candidates = [];
+  let order = 0;
+  let layerOrder = 0;
+
+  function specificity(selector) {
+    const clean = selector.replace(/:where\\([^)]*\\)/g, '');
+    const ids = (clean.match(/#[\\w-]+/g) || []).length;
+    const classes = (clean.match(/\\.[\\w-]+|\\[[^\\]]+\\]|:(?!:)[\\w-]+(?:\\([^)]*\\))?/g) || []).length;
+    const types = (clean.replace(/#[\\w-]+|\\.[\\w-]+|\\[[^\\]]+\\]|::?[\\w-]+(?:\\([^)]*\\))?|[>+~*]/g, ' ')
+      .match(/(?:^|\\s)[a-zA-Z][\\w-]*/g) || []).length;
+    const pseudoElements = (clean.match(/::[\\w-]+/g) || []).length;
+    return [0, ids, classes, types + pseudoElements];
+  }
+
+  function visit(rules, source, layer = null) {
+    for (const rule of Array.from(rules || [])) {
+      order += 1;
+      if (rule.type === 1 && rule.selectorText) {
+        const matched = rule.selectorText.split(',').map(s => s.trim()).filter(s => {
+          try { return el.matches(s); } catch (_) { return false; }
+        });
+        const value = rule.style.getPropertyValue(prop);
+        if (matched.length && value) {
+          matched.sort((a, b) => {
+            const sa = specificity(a), sb = specificity(b);
+            for (let i = 0; i < 4; i++) if (sa[i] !== sb[i]) return sb[i] - sa[i];
+            return 0;
+          });
+          candidates.push({source, selector: matched[0], value: value.trim(),
+            important: rule.style.getPropertyPriority(prop) === 'important',
+            specificity: specificity(matched[0]), order, layer});
+        }
+      } else if (rule.cssRules) {
+        if (rule.media && !matchMedia(rule.media.mediaText).matches) continue;
+        const isLayer = String(rule.constructor && rule.constructor.name).includes('Layer');
+        visit(rule.cssRules, source, isLayer ? ++layerOrder : layer);
+      }
+    }
+  }
+
+  for (const sheet of Array.from(document.styleSheets)) {
+    const source = sheet.href || `inline:${order}`;
+    try { visit(sheet.cssRules, source); } catch (_) { /* cross-origin sheet: not inspectable */ }
+  }
+  const inline = el.style.getPropertyValue(prop);
+  if (inline) candidates.push({source: 'inline-style', selector: '<inline>', value: inline.trim(),
+    important: el.style.getPropertyPriority(prop) === 'important', specificity: [1, 0, 0, 0],
+    order: ++order, layer: null, inline: true});
+  if (!candidates.length) return {unrealized: `no inspectable declaration for ${prop}`,
+    computed: getComputedStyle(el).getPropertyValue(prop).trim()};
+  candidates.sort((a, b) => {
+    if (a.important !== b.important) return a.important ? 1 : -1;
+    if (a.inline !== b.inline && (a.inline || b.inline)) return a.inline ? 1 : -1;
+    const aLayered = a.layer !== null, bLayered = b.layer !== null;
+    if (aLayered !== bLayered) {
+      if (a.important) return aLayered ? 1 : -1;
+      return aLayered ? -1 : 1;
+    }
+    if (aLayered && a.layer !== b.layer) return a.important ? b.layer - a.layer : a.layer - b.layer;
+    for (let i = 0; i < 4; i++) if (a.specificity[i] !== b.specificity[i]) return a.specificity[i] - b.specificity[i];
+    return a.order - b.order;
+  });
+  return {computed: getComputedStyle(el).getPropertyValue(prop).trim(), winner: candidates[candidates.length - 1]};
 }"""
 
 # JS injected to isolate the active .preview-frame by detaching non-active ones (P3).
@@ -435,6 +526,103 @@ def _color_match(prop: str, mockup, implementation) -> bool:
     return mockup == implementation
 
 
+def _owner_is_expected(winner: dict, target: dict) -> bool:
+    """True only when the winning declaration comes from an authorised DS sheet and selector."""
+    source = str(winner.get("source", "")).replace("\\", "/").split("?")[0]
+    expected_sources = [str(s).replace("\\", "/").split("?")[0]
+                        for s in target.get("sources", [])]
+    source_ok = any(source == s or source.endswith("/" + s) or source.endswith("/" + Path(s).name)
+                    for s in expected_sources)
+    expected_class = target.get("class", "").lstrip(".")
+    selector = str(winner.get("selector", ""))
+    class_ok = bool(expected_class and re.search(
+        rf"(?<![\w-])\.{re.escape(expected_class)}(?![\w-])", selector))
+    return source_ok and class_ok
+
+
+def _classify_ownership(result: dict, target: dict) -> dict:
+    """Attach a deterministic status to one browser observation (pure/testable boundary)."""
+    row = {"element": target.get("name", target.get("selector")),
+           "selector": target.get("selector"), "prop": target.get("prop")}
+    if result.get("unrealized"):
+        row.update({"status": "unrealized", "reason": result["unrealized"]})
+        if "computed" in result:
+            row["computed"] = result["computed"]
+        return row
+    row.update({"computed": result.get("computed"), "winner": result.get("winner")})
+    row["status"] = "pass" if _owner_is_expected(result.get("winner", {}), target) else "fail"
+    if row["status"] == "fail":
+        row["reason"] = "winning declaration is not owned by the expected DS class and stylesheet"
+    return row
+
+
+def _unrealized_ownership_rows(targets: list, reason: str) -> list[dict]:
+    return [_classify_ownership({"unrealized": target.get("unrealized_reason", reason)}, target)
+            for target in targets]
+
+
+def _measure_ownership(browser, cfg: dict, base_dir: Path) -> dict:
+    """Measure cascade provenance on every configured surface and breakpoint.
+
+    Editor authentication is supplied only through environment variables. `storage_state_env`
+    points to either a Playwright state file or JSON value; `auth_hook_env` points to JavaScript
+    evaluated after navigation. No credential or session material belongs in the config.
+    """
+    ownership = cfg.get("ownership")
+    if not ownership:
+        return {}
+    targets = ownership.get("targets", [])
+    measured: dict = {}
+    for surface in ownership.get("surfaces", []):
+        surface_name = surface["name"]
+        measured[surface_name] = {}
+        state_env = surface.get("storage_state_env")
+        hook_env = surface.get("auth_hook_env")
+        state_raw = os.environ.get(state_env, "") if state_env else ""
+        hook = os.environ.get(hook_env, "") if hook_env else ""
+        requires_auth = bool(surface.get("requires_auth"))
+        for bp in cfg["breakpoints"]:
+            if requires_auth and not state_raw and not hook:
+                measured[surface_name][bp["name"]] = _unrealized_ownership_rows(
+                    targets, f"authenticated surface unavailable; set {state_env or hook_env}")
+                continue
+            context_args = {"viewport": {"width": bp["width"], "height": bp["height"]}}
+            if state_raw:
+                try:
+                    context_args["storage_state"] = json.loads(state_raw)
+                except ValueError:
+                    context_args["storage_state"] = str(Path(state_raw).expanduser())
+            ctx = browser.new_context(**context_args)
+            try:
+                page = ctx.new_page()
+                page.goto(_resolve_url(surface["url"], base_dir), wait_until="networkidle", timeout=20000)
+                if hook:
+                    page.evaluate(hook)
+                    page.wait_for_timeout(300)
+                scope = page
+                frame_selector = surface.get("frame_selector")
+                if frame_selector:
+                    handle = page.query_selector(frame_selector)
+                    scope = handle.content_frame() if handle else None
+                if scope is None:
+                    measured[surface_name][bp["name"]] = _unrealized_ownership_rows(
+                        targets, f"editor canvas unavailable: {frame_selector}")
+                    continue
+                rows = []
+                for target in targets:
+                    if target.get("unrealized_reason") or not target.get("prop"):
+                        rows.extend(_unrealized_ownership_rows([target], "no declared DS property"))
+                        continue
+                    rows.append(_classify_ownership(scope.evaluate(_OWNERSHIP, target), target))
+                measured[surface_name][bp["name"]] = rows
+            except Exception as exc:  # browser/navigation failures are evidence gaps, not tracebacks
+                measured[surface_name][bp["name"]] = _unrealized_ownership_rows(
+                    targets, f"surface measurement failed: {exc}")
+            finally:
+                ctx.close()
+    return measured
+
+
 def measure(cfg: dict, mode: str, side: str, base_dir: Path) -> dict:
     report: dict = {"mode": mode, "mockup_page": cfg.get("reference_page"), "breakpoints": {}}
     props = cfg["props"]
@@ -503,6 +691,8 @@ def measure(cfg: dict, mode: str, side: str, base_dir: Path) -> dict:
                         rows.append({"element": name, "prop": "text",
                                      "mockup": mt, "implementation": it, "match": mt == it})
                 report["breakpoints"][bp["name"]] = rows
+            if mode == "B" and cfg.get("ownership"):
+                report["ownership"] = _measure_ownership(browser, cfg, base_dir)
         finally:
             browser.close()
 
@@ -700,6 +890,10 @@ def _verdict(report: dict) -> dict:
     failed_collections = [c for c in all_collections if not c.get("ok") and not c.get("acked")]
     acked_collections = [c for c in all_collections if c.get("acked")]
     unused_ack_collections = [c for c in all_collections if c.get("ack_unused")]
+    ownership_rows = [row for surface in report.get("ownership", {}).values()
+                      for rows in surface.values() for row in rows]
+    ownership_failures = sum(1 for row in ownership_rows if row.get("status") == "fail")
+    ownership_unrealized = sum(1 for row in ownership_rows if row.get("status") == "unrealized")
 
     reasons = []
     if total_diff:
@@ -720,12 +914,18 @@ def _verdict(report: dict) -> dict:
     if unsigned:
         reasons.append(f"{len(unsigned)} unsigned ledger entry(ies) — add 'id' (DEV-xxx) and "
                        "register it in deviations.json § active")
+    if ownership_failures:
+        reasons.append(f"{ownership_failures} cascade ownership failure(s)")
+    if ownership_unrealized:
+        reasons.append(f"{ownership_unrealized} cascade ownership check(s) unrealized")
 
     closed = not reasons
     summary: dict = {"verdict": "CLOSED" if closed else "OPEN", "closed": closed, "reasons": reasons,
                      "total_diff": total_diff, "ledgered_diff": ledgered, "total_missing": total_missing,
                      "missing_sections": len(missing_sections),
                      "collection_failures": len(failed_collections),
+                     "ownership_failures": ownership_failures,
+                     "ownership_unrealized": ownership_unrealized,
                      "ledger_ids": ledger_ids,
                      "ledger_unused_count": len(ledger_unused)}
     if acked_collections:
@@ -765,6 +965,13 @@ def _summarize(report: dict) -> str:
     if unused:
         ids = [e.get("id") or "(unsigned)" for e in unused]
         lines.append(f"  ! ledger_unused ({len(unused)}) — no matching diff: {ids}")
+    for surface, breakpoints in report.get("ownership", {}).items():
+        for bp, rows in breakpoints.items():
+            passed = sum(1 for row in rows if row.get("status") == "pass")
+            failed = sum(1 for row in rows if row.get("status") == "fail")
+            unrealized = sum(1 for row in rows if row.get("status") == "unrealized")
+            lines.append(f"  ownership {surface}/{bp}: {passed} pass · {failed} fail · "
+                         f"{unrealized} unrealized")
     s = report.get("summary")
     if s:
         lines.append(f"  VERDICT  : {s['verdict']}" + ("" if s["closed"] else f" — {'; '.join(s['reasons'])}"))

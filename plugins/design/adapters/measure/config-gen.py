@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 # Mapping groupe de tokens → propriétés CSS à mesurer.
@@ -186,6 +187,85 @@ def _derive_targets_and_collections(
     return targets, collections
 
 
+def _css_rules(text: str):
+    """Yield (selector, declaration-body), descending through media/layer/supports blocks."""
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+    cursor = 0
+    while cursor < len(text):
+        opening = text.find("{", cursor)
+        if opening < 0:
+            return
+        header = text[cursor:opening].strip()
+        depth, closing = 1, opening + 1
+        while closing < len(text) and depth:
+            depth += (text[closing] == "{") - (text[closing] == "}")
+            closing += 1
+        if depth:
+            return
+        body = text[opening + 1:closing - 1]
+        if header.startswith("@"):
+            yield from _css_rules(body)
+        elif header:
+            yield header, body
+        cursor = closing
+
+
+def _declarations(body: str) -> list[str]:
+    props = []
+    for declaration in body.split(";"):
+        name, separator, _ = declaration.partition(":")
+        name = name.strip().lower()
+        if separator and name and not name.startswith("--") and re.fullmatch(r"[a-z-]+", name):
+            props.append(name)
+    return props
+
+
+def _camel_to_kebab(value: str) -> str:
+    return re.sub(r"(?<!^)([A-Z])", r"-\1", value).lower()
+
+
+def _derive_ownership_targets(components: dict, oracle_hints: dict,
+                              stylesheets: list[str]) -> list[dict]:
+    """Derive proof targets from declarations actually present in DS/platform binding sheets."""
+    classes: dict[str, tuple[str, set[str]]] = {}
+    for comp_name, comp in components.get("components", {}).items():
+        base = comp.get("base", comp_name).lstrip(".")
+        root_props = {_camel_to_kebab(p) for p in oracle_hints.get(comp_name, {}).get("props", [])}
+        classes[base] = (comp_name, root_props)
+        hints = oracle_hints.get(comp_name, {}).get("elements", {})
+        for label, cls in comp.get("elements", {}).items():
+            hinted = {_camel_to_kebab(p) for p in hints.get(label, {}).get("props", [])}
+            classes[str(cls).lstrip(".")] = (f"{comp_name} · {label}", hinted)
+
+    found: dict[tuple[str, str, str], dict] = {}
+    seen_classes: set[str] = set()
+    sources = [Path(path).name for path in stylesheets]
+    for stylesheet in stylesheets:
+        text = Path(stylesheet).read_text(encoding="utf-8")
+        for selector_group, body in _css_rules(text):
+            declared = _declarations(body)
+            for selector in (part.strip() for part in selector_group.split(",")):
+                for cls, (label, hinted) in classes.items():
+                    if not re.search(rf"(?<![\w-])\.{re.escape(cls)}(?![\w-])", selector):
+                        continue
+                    seen_classes.add(cls)
+                    props = [prop for prop in declared if not hinted or prop in hinted]
+                    for prop in props:
+                        key = (cls, selector, prop)
+                        row = found.setdefault(key, {"name": label, "selector": selector,
+                                                     "class": cls, "prop": prop, "sources": []})
+                        source = Path(stylesheet).name
+                        if source not in row["sources"]:
+                            row["sources"].append(source)
+    for cls, (label, _) in classes.items():
+        if cls not in seen_classes:
+            found[(cls, f".{cls}", "")] = {
+                "name": label, "selector": f".{cls}", "class": cls, "prop": None,
+                "sources": sources, "unrealized_reason": "DS class has no inspectable declaration",
+            }
+    return list(found.values())
+
+
 def generate(
     components_path: str,
     tokens_path: str,
@@ -193,6 +273,8 @@ def generate(
     implementation_url: str,
     page: str | None = None,
     oracle_path: str | None = None,
+    ownership_stylesheets: list[str] | None = None,
+    editor_url: str | None = None,
 ) -> dict:
     components = json.loads(Path(components_path).read_text(encoding="utf-8"))
     tokens = json.loads(Path(tokens_path).read_text(encoding="utf-8"))
@@ -222,6 +304,17 @@ def generate(
         cfg["reference_page"] = page
     if collections:
         cfg["collections"] = collections
+    if ownership_stylesheets:
+        cfg["ownership"] = {
+            "surfaces": [
+                {"name": "front", "url": implementation_url},
+                {"name": "editor", "url": editor_url or implementation_url.rstrip("/") + "/wp-admin/site-editor.php",
+                 "frame_selector": "iframe[name=editor-canvas]", "requires_auth": True,
+                 "storage_state_env": "WP_EDITOR_STORAGE_STATE", "auth_hook_env": "WP_EDITOR_AUTH_HOOK"},
+            ],
+            "targets": _derive_ownership_targets(
+                components, oracle_hints, ownership_stylesheets),
+        }
     return cfg
 
 
@@ -243,12 +336,17 @@ def main():
                     help="URL de l'implémentation mesurée contre la référence")
     ap.add_argument("--page", default=None,
                     help="Clé setPage pour les mockups SPA (window.setPage)")
+    ap.add_argument("--ownership-stylesheet", action="append", default=[],
+                    help="Feuille DS ou fse-bindings.css à inspecter (répétable); active la preuve front+éditeur")
+    ap.add_argument("--editor-url", default=None,
+                    help="URL de l’éditeur FSE (défaut: <implementation-url>/wp-admin/site-editor.php)")
     ap.add_argument("--out", required=True,
                     help="Chemin de sortie du config JSON (ex. aidd_docs/qa/fidelity/accueil.config.json)")
     args = ap.parse_args()
 
     cfg = generate(args.components, args.tokens,
-                   args.reference_url, args.implementation_url, args.page, args.oracle)
+                   args.reference_url, args.implementation_url, args.page, args.oracle,
+                   args.ownership_stylesheet, args.editor_url)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

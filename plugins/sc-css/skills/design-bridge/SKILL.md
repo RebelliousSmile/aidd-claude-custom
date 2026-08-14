@@ -112,6 +112,10 @@ d'entrée charge, dans cet ordre, `tokens.css`, les feuilles composants, puis to
 nommé par le retour du réceptacle de plateforme. L'adapter reste produit par ce dernier ; sc-css ne le
 réécrit pas et le contrôle comme toute autre feuille réellement chargée.
 
+Sur FSE, transmettre au câblage de fidélité la liste exacte des feuilles composants contrôlées et de
+`fse-bindings.css`. Le linter prouve leurs déclarations ; `measure.py` prouve séparément qu'elles gagnent
+sur le front et dans l'éditeur à chaque breakpoint.
+
 ## Obligation de report
 
 Toute règle reçue en `Declared rules` est **rendue au gate**, réalisée ou non. Le rapport s'écrit au `Report path` du spec, au format `plugins/design/references/gate-config-schema.md § Rapport de pivot`.

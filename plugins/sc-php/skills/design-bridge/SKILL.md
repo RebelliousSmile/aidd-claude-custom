@@ -49,6 +49,8 @@ Le cas fréquent ici : les règles de type `stored-content`. Le vocabulaire vit 
 Après exécution, renvoyer au contexte appelant (enforce ou diffuse) :
 - `01-realize-lint` : confirmation linter installé + wiring pre-commit réalisé + rapport écrit, règles réalisées et non réalisées nommées
 - `02-render` : pattern + éventuel `fse-bindings.css` produits, chemins nommés sans chevauchement avec le spec CSS + instructions d'intégration + confirmation gate enforce exit 0
+- `02-render` : config de fidélité FSE armé pour la propriété de cascade sur front + éditeur ; toute
+  surface non mesurée ou toute déclaration gagnante WordPress maintient `summary.verdict` à `OPEN`
 
 ## Pièges WP
 

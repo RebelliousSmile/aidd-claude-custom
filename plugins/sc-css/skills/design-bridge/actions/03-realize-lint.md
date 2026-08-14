@@ -40,6 +40,10 @@ Un adapter de plateforme ne peut utiliser que des classes DS du spec et des clas
 documentées par son producteur. sc-css vérifie ses tokens et ses déclarations comme les autres feuilles,
 mais ne le régénère jamais.
 
+Cette étape reste une preuve **statique**. Elle inventorie les feuilles et déclarations qui alimentent
+`measure.py § ownership`, mais ne déclare jamais quelle règle gagne dans Chromium. La preuve runtime
+front/éditeur appartient au verdict de fidélité, sans nouvelle règle `pivotReports`.
+
 ## Étape 3 — Écrire le rapport et le brancher au gate
 
 Format : `plugins/design/references/gate-config-schema.md § Rapport de pivot`. Une entrée par règle de `Declared rules`.
