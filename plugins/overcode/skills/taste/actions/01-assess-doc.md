@@ -1,134 +1,72 @@
 # Assess-doc
 
-Reads one `.md` file or scans all `.md` files in the project, extracts verifiable claims, checks each against the live codebase, and returns a verdict table with suggested actions.
+Checks explicit Markdown claims against the repository, weights their impact, and reports evidence coverage. External factual claims are delegated separately; they never change the local freshness score.
 
 ## Inputs
 
-- `$ARGUMENTS` (optional) — string: path to the `.md` file to assess. If omitted, activates **scan mode**.
+- `$ARGUMENTS` (optional): `[path.md] [--limit N | --all]`
+- A path runs single-file mode. No path runs bounded scan mode.
+- Scan default: `--limit 25`. `--all` is explicit opt-in to every eligible Markdown file.
 
-## Outputs
+## Single-file output
 
-**Single-file mode:**
+```md
+Verdict: Current | Partial | Obsolete | Superseded | N/A
+Qualification: local evidence only — external verification pending | none
+Coverage: <verified local points>/<eligible local points> (<percentage or N/A>)
 
-```
-Verdict: Current | Partial | Obsolete | Superseded
+| Claim | Class | Weight | Evidence | Status | Points |
+|---|---|---:|---|---|---:|
+| <claim> | critical/structural/informative | 3/2/1 | <path:line or reason> | Current/Modified/Obsolete | <weight × 1/0.5/0> |
 
-| Claim | Found in code | Status |
-|-------|---------------|--------|
-| {claim} | {file:line or "not found"} | ✅ Current / ⚠️ Modified / ❌ Obsolete |
-
-Stale passages:
-- §{section title} — "{quoted passage}" → {reason it is stale}
-
-Suggested actions:
-- {delete | update | keep} — {reason, stale claims listed if update}
-```
-
-**Scan mode:**
-
-```
-Scan complete — {N} files assessed
-
-| File | Verdict | Stale claims | Stale passages | Suggested action |
-|------|---------|--------------|----------------|-----------------|
-| {path} | Current / Partial / Obsolete / Superseded / N/A | {N} | {list or —} | delete / update / keep / archive / — |
-
-Summary: {N} obsolete, {N} partial, {N} current, {N} superseded, {N} N/A
-
-Root causes (stale values shared across ≥2 files):
-
-| Root cause | Stale value | Correct value (if known) | Files impacted |
-|-----------|-------------|--------------------------|----------------|
-| {description} | {wrong value} | {right value or —} | {N} — {list} |
-
-Fix plan (ordered by impact, highest first):
-
-| # | Action | Reason | Files |
-|---|--------|--------|-------|
-| 1 | {delete/rewrite/update} | {root cause or local reason} | {file list} |
+External verification:
+| Claim | State | Fact-check artifact |
+|---|---|---|
 ```
 
-## Claim types reference
+The same fields and verdict algorithm apply to a scan worker and to aggregation.
 
-@../assets/claim-types.md
+## Ground rules
 
-## Decision document protocol
+- Verify repository claims against primary repository evidence, never another prose document.
+- Never modify the assessed document or any project source. Fact-check receives only the extracted external claim text or an ephemeral copy outside the project.
+- Git age is a prioritization signal, not proof that content is obsolete.
+- Extract explicit claims only. Do not turn rationale, opinion, or future intent into repository claims.
 
-@../assets/decision-doc.md
+## Single-file process
 
-## Ground rule
+1. Read the target and detect decision markers using `@../assets/decision-doc.md`.
+2. Extract claims with `@../assets/claim-types.md`, recording class, weight, local/external scope, and the exact passage.
+3. If there is no locally eligible claim and no external claim, return `N/A — no verifiable claims` without a percentage.
+4. Verify every local claim with its specified repository method. Relative Markdown links resolve from the assessed file. Classify evidence:
+   - `Current`: exact evidence, multiplier `1`;
+   - `Modified`: subject exists but differs materially, multiplier `0.5`;
+   - `Obsolete`: contradicted or absent, multiplier `0`.
+5. Compute `earned = Σ(weight × multiplier)` and `eligible = Σ(weight)` for local claims only. Coverage is `earned / eligible`:
+   - no eligible points → `N/A` and no percentage;
+   - `<20%` → `Obsolete`;
+   - `20–79%` → `Partial`;
+   - `≥80%` → `Current` unless a critical claim is `Obsolete`.
+6. A critical obsolete claim vetoes `Current` and `Superseded`; use `Partial` when the weighted score is at least 20%, otherwise `Obsolete`.
+7. For a decision document, apply `@../assets/decision-doc.md`. `Superseded` precedes `Current`, but requires score `≥80%`, no critical obsolete claim, and subject-matched replacement evidence.
+8. For each external factual claim, resolve `aidd-refine:05-fact-check` through `@../../../references/aidd-delegation.md` and invoke it on the extracted text or ephemeral copy. Keep its rewritten/cited artifact separate. If unavailable, mark `external-unverified` and stop that branch without a local fallback.
+9. External results never enter `earned` or `eligible`. If any external branch remains unverified, set qualification `local evidence only — external verification pending`; never present the local verdict as an unqualified global verdict.
+10. Report stale passages (at most two quoted sentences each), suggested actions, local evidence, external state, and the delegation receipt when fact-check ran.
 
-**Taste verifies claims against the live codebase only — never against other documents.**
-Cross-document coherence (does doc A agree with doc B?) is not in scope here; that belongs to `reconcile-normative` or `foresee`. Any finding that cannot be verified by reading a file, running a grep, or querying git must be skipped.
+## Scan process
 
-## Process
-
-### Single-file mode
-
-1. Read the target file at `$ARGUMENTS`.
-2. **Decision doc detection** — scan the first 20 lines for markers defined in `@../assets/decision-doc.md`. If found, set `decision_doc = true` and extract `decision_value`, `re_eval_conditions`, `issue_refs`.
-3. Extract all verifiable claims of the types listed in `@../assets/claim-types.md`.
-4. If no extractable claims are found, output `Verdict: N/A — conceptual document, no verifiable claims` and stop.
-5. For each claim, verify against the **live codebase** using the appropriate method:
-   - **File path**: read the referenced file — confirm it exists and the referenced element is present.
-   - **Directory path**: check the directory exists.
-   - **Markdown hyperlink** (relative only): resolve the link path relative to the file's directory; check the target exists. Skip anchor-only links (`#…`) and external URLs.
-   - **Function / class / component name**: grep the codebase for the identifier.
-   - **Branch name**: `git branch -a | grep <branch>`.
-   - **Issue / PR reference**: `gh issue view <n>` or `glab issue view <n>` (skip if no tracker CLI).
-   - **ADR / DEC reference**: check the file exists in `aidd_docs/internal/decisions/` or equivalent.
-   - **Version number**: compare with `package.json` / `composer.json` / `pyproject.toml`.
-   - **Command name**: check the command exists in `SKILL.md` router tables or shell PATH.
-6. Classify each claim:
-   - ✅ **Current** — exact match
-   - ⚠️ **Modified** — element exists but content differs from the claim
-   - ❌ **Obsolete** — not found
-7. Identify **stale passages**: for each ⚠️ or ❌ claim, locate the section or paragraph it belongs to. Quote the passage (≤ 2 sentences) and state why it is stale.
-8. **External source checks** — if `decision_doc = true`, run the checks defined in `@../assets/decision-doc.md` (issue status, release artifacts, codebase presence). Collect signals: `issues_closed`, `artifact_found`, `feature_implemented`.
-9. Compute verdict:
-   a. Match percentage = Current claims / total claims.
-   b. If `decision_doc = true` AND match ≥ 80% AND any of (`issues_closed`, `artifact_found`, `feature_implemented`) → **Superseded**.
-   c. Otherwise: ≥80% → **Current** | 20–79% → **Partial** | <20% → **Obsolete**.
-10. Output the verdict line, the full claim table, the stale passages block, the decision status block (if `decision_doc = true`), and the suggested actions block.
-
-### Scan mode (no argument)
-
-1. List all `.md` files in the project:
-   ```bash
-   # macOS / Linux
-   find . -type f -name "*.md" \
-     -not -path "*/node_modules/*" \
-     -not -path "*/.git/*" \
-     -not -path "*/vendor/*" | sort
-
-   # Windows (PowerShell)
-   Get-ChildItem -Recurse -Filter "*.md" |
-     Where-Object { $_.FullName -notmatch 'node_modules|\.git|vendor' } |
-     Sort-Object LastWriteTime | Select-Object -ExpandProperty FullName
-   ```
-2. Sort by modification date ascending (oldest first).
-3. **Spawn one haiku sub-agent per file in parallel** (background: true). Each agent receives the file path and runs the single-file process (steps 1–8 above). Each agent returns:
-   ```json
-   { "file": "<path>", "verdict": "Current|Partial|Obsolete|N/A", "stale_claims": N, "stale_passages": ["§Title", …], "suggested_action": "keep|update|delete|—" }
-   ```
-4. Wait for all agents to complete.
-5. Aggregate all returned results into the scan output table, sorted by verdict severity (Obsolete → Superseded → Partial → Current → N/A).
-6. **Root-cause grouping** — after all files are assessed:
-   a. Collect all ❌ Obsolete claims across every file.
-   b. Normalise each stale value (trim, lowercase). Group claims that share the same normalised stale value or the same wrong identifier.
-   c. For each group with ≥2 impacted files, emit one **Root cause** row: stale value, correct value if determinable from the verification step, list of impacted files.
-   d. Root causes with more impacted files rank first.
-7. **Fix plan** — produce an ordered action list:
-   a. `delete` entries first — files where every claim is ❌ Obsolete and no salvageable content exists.
-   b. `rewrite` entries — files driven by a root cause that touches ≥3 claims.
-   c. `update` entries — files with 1–2 localised stale claims.
-   d. Within each tier, order by number of stale claims descending.
-8. If invoked as a sub-phase of `harvest`, return the summary metrics to the orchestrator. Otherwise, display the full output (table + root causes + fix plan).
+1. Enumerate Markdown files excluding `.git`, dependencies, vendor, generated output, and build output.
+2. Build a read-only priority queue using, in order: decision marker; presence of critical claim shapes; immediately resolvable broken relative links; divergence between the document's last Git commit and newer commits touching named local targets; remaining files by oldest Git commit. Do not use filesystem mtime as evidence.
+3. Select at most 25 files by default, `N` with `--limit N`, or all with `--all`. Report selected, eligible, and unscanned paths before assessment.
+4. Run the single-file process for the selected set with native host concurrency when useful, or sequentially. Do not prescribe a model or one-agent-per-file fan-out.
+5. Aggregate the exact worker schema. Sort `Obsolete → Superseded → Partial → Current → N/A`, preserving qualifications and point totals.
+6. Group identical obsolete values affecting at least two files as root causes. Produce an ordered read-only recommendation list: delete only when every eligible claim is obsolete and no salvageable content exists; rewrite for a root cause affecting at least three claims; otherwise update.
+7. When invoked by `harvest`, return document verdict counts, total earned/eligible local points, external-pending count, and scan coverage.
 
 ## Test
 
-Invoke with a known `.md` file containing at least one file path reference; verify the output includes a Verdict line, a populated claim table with at least one row, and a Suggested actions block.
-
-Invoke with a `.md` file containing a relative Markdown link to a non-existent file; verify that link appears as ❌ Obsolete in the claim table.
-
-Invoke in scan mode; verify the output includes the scan table, the Summary line, a Root causes section (even if empty: `No shared root causes detected`), and a Fix plan section.
+- Threshold fixtures at 19/20/79/80 percent produce Obsolete/Partial/Partial/Current.
+- A critical obsolete claim vetoes Current and Superseded.
+- No local eligible claim returns N/A without division by zero.
+- A pending external claim qualifies the local verdict and never changes its score.
+- Default scan assesses no more than 25 documents and lists every unscanned path.

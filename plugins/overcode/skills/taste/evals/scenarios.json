@@ -21,19 +21,25 @@
   },
   {
     "prompt": "/taste src/composables/useAuth.ts",
-    "expect_action": "assess-code"
+    "expect_action": "assess-code",
+    "expect_question": "code-quality | dependencies | assert"
   },
   {
     "prompt": "check this component for obsolete patterns",
-    "expect_action": "assess-code"
+    "expect_action": "assess-code",
+    "expect_delegate": "aidd-dev:04-audit",
+    "expect_pillar": "code-quality"
   },
   {
     "prompt": "are there stale TODOs in src/api/?",
-    "expect_action": "assess-code"
+    "expect_action": "assess-code",
+    "expect_delegate": "aidd-dev:04-audit",
+    "expect_pillar": "code-quality"
   },
   {
     "prompt": "/taste app/Http/Controllers/",
-    "expect_action": "assess-code"
+    "expect_action": "assess-code",
+    "expect_question": "code-quality | dependencies | assert"
   },
   {
     "prompt": "create a new component",
@@ -42,12 +48,12 @@
   {
     "prompt": "are there broken imports in src/?",
     "expect_action": "assess-code",
-    "expect_detector": "E"
+    "expect_delegate": "aidd-dev:03-assert"
   },
   {
     "prompt": "/taste src/views/AddSongView.vue",
     "expect_action": "assess-code",
-    "expect_detector": "E"
+    "expect_question": "code-quality | dependencies | assert"
   },
   {
     "prompt": "check for broken links in this doc",
@@ -62,6 +68,7 @@
   {
     "prompt": "scan and give me a fix plan",
     "expect_action": "assess-doc",
-    "expect_output_sections": ["Root causes", "Fix plan"]
+    "expect_output_sections": ["Root causes", "Fix plan", "Coverage"],
+    "expect_default_limit": 25
   }
 ]

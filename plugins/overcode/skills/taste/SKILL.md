@@ -14,7 +14,7 @@ Keeps repository-backed document freshness native. Code targets delegate to the 
 
 | #  | Action        | Role                                                               | Input                              |
 |----|---------------|--------------------------------------------------------------------|------------------------------------|
-| 01 | `assess-doc`  | Verify claims in a .md file (incl. relative Markdown links); scan mode groups findings by root cause and produces an ordered fix plan | File path (optional — scan if omitted) |
+| 01 | `assess-doc`  | Weight and verify Markdown claims against repository evidence; delegate external facts separately | File path, or bounded scan if omitted |
 | 02 | `assess-code` | Route code freshness, dependency, or runnable-resolution concerns to AIDD | File or directory path (required) |
 
 ## Default flow
@@ -35,7 +35,7 @@ Read [the AIDD delegation contract](../../references/aidd-delegation.md) before 
 
 - Extract only claims that are explicitly stated — never infer.
 - Skip issue-status checks when no tracker CLI is detectable.
-- Never modify any file during assessment.
+- Never modify the assessed document or project source during assessment.
 - Resolve the active rule sources from host portability: `AGENTS.md` plus `.agents/rules/` on Codex, `.claude/rules/` on Claude Code, or their union in a dual-host project. Skip the rule-violation check silently only when none exists.
-- Verdicts for docs: **Current** (≥80% claims match), **Partial** (20–79%), **Obsolete** (<20%), **Superseded** (≥80% accurate but decision overtaken by events — see `@assets/decision-doc.md`).
-- In scan mode, process files oldest-first (modification date ascending).
+- Verdicts use weighted local evidence: **Current** (≥80%), **Partial** (20–79%), **Obsolete** (<20%), **Superseded** (subject-matched replacement after ≥80%), or **N/A** (no eligible local claim). A critical obsolete claim vetoes Current and Superseded.
+- Scan at most 25 documents by default and report unscanned coverage. Git history prioritizes work but never proves obsolescence.

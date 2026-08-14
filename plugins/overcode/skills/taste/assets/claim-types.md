@@ -1,80 +1,31 @@
-# Claim Types — assess-doc
+# Weighted claim types — taste
 
-Reference catalogue of verifiable claim types extracted from `.md` files.
+Classify by consequence, not Markdown syntax. When one statement contains several independently falsifiable claims, split it before assigning weights.
 
-## File and path claims
+## Local repository claims
 
-| Pattern | Example | Verification method |
-|---------|---------|---------------------|
-| Absolute or relative file path | `src/components/Auth.vue`, `./utils/format.ts` | File exists at path |
-| Directory path | `aidd_docs/memory/` | Directory exists |
-| Line number reference | `Auth.vue:42` | File exists AND line count ≥ 42 |
+| Class | Weight | Claim types | Primary verification |
+|---|---:|---|---|
+| Critical | 3 | Required file/directory exists; required command or skill exists; dependency/runtime version satisfies a stated requirement; decision re-evaluation condition; claimed replacement/implementation exists | Filesystem and content read; loaded skill catalogue or PATH; active manifest/toolchain file; subject-matched repository/tracker evidence |
+| Structural | 2 | Function, class, component, method, constant, export, CSS token, branch, commit, issue/PR state, ADR/DEC or memory/rule reference | Exact symbol search plus declaration context; Git/tracker query; active normative roots |
+| Informative | 1 | Line number, count, non-required path mention, relative Markdown link, release artifact mention | Target existence and relevant line/count; link resolved relative to the document; subject-matched release metadata |
 
-## Code symbol claims
+An absent critical claim has more influence than any two informative claims and vetoes `Current`/`Superseded` regardless of percentage.
 
-| Pattern | Example | Verification method |
-|---------|---------|---------------------|
-| Function name | `useAuth()`, `formatDate` | `rg -n "function\|const\|def" <codebase> \| grep <name>` |
-| Class name | `UserService`, `AuthController` | Same as function |
-| Component name (Vue/React) | `<AuthForm>`, `LoginButton` | Grep in component files |
-| Method name | `.signIn()`, `->create()` | Grep in codebase |
-| Constant / export name | `AUTH_COOKIE_NAME`, `DEFAULT_TIMEOUT` | Grep in codebase |
-| CSS class or variable | `.btn-primary`, `--color-primary` | Grep in style files |
+## External factual claims
 
-## Version and dependency claims
+Claims whose authority is outside the repository are tagged `external` and carry no local weight. Examples: market share, public product behavior, laws, standards, vendor promises, external dates, and factual comparisons. Delegate them to `aidd-refine:05-fact-check` as extracted text.
 
-| Pattern | Example | Verification method |
-|---------|---------|---------------------|
-| Package version | `firebase@10.x`, `vue 3.4` | Compare with `package.json` / `composer.json` |
-| Node / PHP / Python version | `Node 20`, `PHP 8.3` | Compare with `.nvmrc`, `composer.json`, `pyproject.toml` |
-
-## VCS and tracker claims
-
-| Pattern | Example | Verification method |
-|---------|---------|---------------------|
-| Branch name | `feature/auth-refactor` | `git branch -a \| grep <branch>` |
-| Issue / PR number | `#42`, `PR #108` | `gh issue view <n>` or `glab issue view <n>` (skip if CLI absent) |
-| Commit hash | `a3f9c12` | `git log --oneline \| grep <hash>` |
-
-## Normative document references
-
-| Pattern | Example | Verification method |
-|---------|---------|---------------------|
-| ADR / DEC reference | `DEC-042`, `ADR-007` | File exists in `aidd_docs/internal/decisions/` or equivalent |
-| Rule file reference | `1-normative-vs-archive.md` | File exists in `.claude/rules/` |
-| Memory file reference | `architecture.md` | File exists in `aidd_docs/memory/` |
-
-## Command and skill references
-
-| Pattern | Example | Verification method |
-|---------|---------|---------------------|
-| Slash command / skill name | `/harvest`, `/taste`, `/end-plan` | Skill exists in any loaded plugin's `skills/` directory |
-| CLI command | `gh`, `glab`, `bru` | Command available in PATH (`which <cmd>`) |
-
-## Markdown hyperlinks
-
-Applies to **relative** links only. External URLs (`http://`, `https://`, `ftp://`) are excluded.
-
-| Pattern | Example | Verification method |
-|---------|---------|---------------------|
-| Relative Markdown link | `[Guide](../docs/guide.md)` | Resolve path relative to the file's directory; check that the target file exists |
-| Relative link without extension | `[README](./README)` | Try appending `.md`, `.txt`, none; check that one of the candidates exists |
-| Anchor-only link | `[Section](#heading)` | Skip — heading anchors are not verified |
-
-## Release artifact references
-
-Applies only in decision document context (see `@decision-doc.md`).
-
-| Pattern | Example | Verification method |
-|---------|---------|---------------------|
-| Platform artifact | `.apk`, `.exe`, `.dmg`, `.AppImage` | `gh release list --json tagName,assets \| jq '.[].assets[].name'` |
-| Feature keyword in release | service name, module name | Same as above, keyword match |
+Project tracker state, release assets, and upstream repository facts used by the decision protocol remain eligible only when they are directly tied to this repository's decision subject and their primary source is accessible. Otherwise tag them external.
 
 ## Exclusions
 
-Do NOT attempt to verify:
-- Conceptual or explanatory statements ("Auth is handled via JWT")
-- Rationale and opinion ("We chose Prisma because…")
-- Future intent ("We will migrate to…") — phrased as `(nouveau)`, `(à créer)`, `TODO`, `will`, `à venir`
-- External URLs (`http://`, `https://`, `ftp://`) — too volatile; skip unless explicitly asked
-- Anchor-only Markdown links (`#heading`)
+Do not score:
+
+- rationale, preference, or opinion;
+- future intent clearly marked `TODO`, `will`, `à venir`, or equivalent;
+- conceptual explanation with no falsifiable repository referent;
+- anchor-only links;
+- a claim whose supposed evidence is only another prose document.
+
+Record an excluded passage only when it helps explain why coverage is limited; never convert it to `Obsolete`.
