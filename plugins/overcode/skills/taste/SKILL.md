@@ -1,19 +1,21 @@
 ---
 name: taste
-description: Detects obsolete content in documents and source code. assess-doc: extracts and verifies claims in .md files against the codebase (including relative Markdown links), scan mode groups findings by root cause and produces an ordered fix plan (/taste with no argument). assess-code: detects deprecated imports, broken relative imports (Detector E), removed function calls, rule violations, and stale TODO/FIXME comments in code files. Triggers on "is this doc outdated", "taste this file", "/taste <path>", "/taste" (scan mode), "check this code for obsolete patterns", "are there broken imports". Do NOT use for creating files, generating code, or running tests.
-model: haiku
+description: >-
+  Assess Markdown freshness against the repository and route code freshness, dependency, or runnable-resolution questions to installed AIDD skills. Use to check whether docs or code are outdated. Do NOT use to create files, generate code, or maintain a parallel code scanner.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # Taste
 
-Assesses documents and source code for obsolescence. Reads the target, extracts verifiable signals, cross-references them against the live codebase and active rules, and returns a verdict with concrete suggested actions.
+Keeps repository-backed document freshness native. Code targets delegate to the current AIDD audit or assertion authority.
 
 ## Available actions
 
 | #  | Action        | Role                                                               | Input                              |
 |----|---------------|--------------------------------------------------------------------|------------------------------------|
 | 01 | `assess-doc`  | Verify claims in a .md file (incl. relative Markdown links); scan mode groups findings by root cause and produces an ordered fix plan | File path (optional — scan if omitted) |
-| 02 | `assess-code` | Detect obsolete imports, broken relative imports (E), removed symbols, rule violations, stale TODOs | File or directory path (required)  |
+| 02 | `assess-code` | Route code freshness, dependency, or runnable-resolution concerns to AIDD | File or directory path (required) |
 
 ## Default flow
 
@@ -23,13 +25,17 @@ Dispatch on file extension (or absence of argument):
 
 ## Harvest integration
 
-`harvest` invokes taste as a dedicated phase via `@../taste/SKILL.md`. Taste returns aggregated metrics (N docs obsolètes, N docs partiels, N code findings, N stale TODOs) for inclusion in the harvest final report.
+`harvest` invokes taste as a dedicated phase via `@../taste/SKILL.md`. Taste returns aggregated document-verdict metrics; an explicitly requested code branch returns the delegated AIDD report and receipt instead of legacy detector counts.
+
+## Delegation
+
+Read [the AIDD delegation contract](../../references/aidd-delegation.md) before `assess-code` or external fact verification. Delegated reports remain authoritative; taste returns a receipt and never restores a local code detector when AIDD is unavailable.
 
 ## Transversal rules
 
 - Extract only claims that are explicitly stated — never infer.
 - Skip issue-status checks when no tracker CLI is detectable.
 - Never modify any file during assessment.
-- If `.claude/rules/` is absent in the project, skip the rule-violation check silently.
+- Resolve the active rule sources from host portability: `AGENTS.md` plus `.agents/rules/` on Codex, `.claude/rules/` on Claude Code, or their union in a dual-host project. Skip the rule-violation check silently only when none exists.
 - Verdicts for docs: **Current** (≥80% claims match), **Partial** (20–79%), **Obsolete** (<20%), **Superseded** (≥80% accurate but decision overtaken by events — see `@assets/decision-doc.md`).
 - In scan mode, process files oldest-first (modification date ascending).
