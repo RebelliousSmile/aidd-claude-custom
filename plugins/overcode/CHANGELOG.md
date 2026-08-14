@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Une skill canonique AIDD absente produit désormais une erreur complète — skill, package, version minimale compatible issue de la baseline et arrêt sans fallback — tenue par des fixtures structurelles positives et négatives.
+- Le scan documentaire de `taste` dissocie le regroupement d'une cause obsolète entre fichiers du seuil de réécriture propre à chaque fichier : trois claims d'une même cause déclenchent `rewrite` même sans second fichier, tandis qu'un ou deux restent en `update`.
+
 ### Added
 
 - `research`, déplacée depuis `obs`, fournit la recherche documentaire cross-référencée et l'extraction de terminologie sous le namespace `overcode:research`. Sa référence de domaine est embarquée dans la skill pour éviter une dépendance d'installation vers `obs`.

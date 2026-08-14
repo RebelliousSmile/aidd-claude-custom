@@ -60,7 +60,9 @@ The same fields and verdict algorithm apply to a scan worker and to aggregation.
 3. Select at most 25 files by default, `N` with `--limit N`, or all with `--all`. Report selected, eligible, and unscanned paths before assessment.
 4. Run the single-file process for the selected set with native host concurrency when useful, or sequentially. Do not prescribe a model or one-agent-per-file fan-out.
 5. Aggregate the exact worker schema. Sort `Obsolete → Superseded → Partial → Current → N/A`, preserving qualifications and point totals.
-6. Group identical obsolete values affecting at least two files as root causes. Produce an ordered read-only recommendation list: delete only when every eligible claim is obsolete and no salvageable content exists; rewrite for a root cause affecting at least three claims; otherwise update.
+6. Normalize obsolete values, then apply two independent rules:
+   - Group an identical obsolete value as a cross-file root cause only when it affects at least two distinct files.
+   - Choose each file's ordered read-only recommendation from its own claims. Recommend `delete` only when every eligible claim is obsolete and no salvageable content exists. Otherwise, recommend `rewrite` when one normalized obsolete cause affects at least three claims in that file, even if it has no cross-file group; recommend `update` for one or two localized claims and all remaining cases.
 7. When invoked by `harvest`, return document verdict counts, total earned/eligible local points, external-pending count, and scan coverage.
 
 ## Test

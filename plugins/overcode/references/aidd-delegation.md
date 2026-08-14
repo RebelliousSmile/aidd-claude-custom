@@ -38,7 +38,7 @@ The receipt records orchestration; it does not replace the delegated report.
 | Failure | Required response |
 |---|---|
 | Package absent | Name the package and minimum version, provide the host-native installation/update hint when known, and stop the affected branch. |
-| Canonical skill absent | Name the missing skill and package, report that the installed package is incompatible, and stop the affected branch. |
+| Canonical skill absent | Name the missing skill, its package, and the minimum compatible version from the baseline; report that the installed package is incompatible, and stop the affected branch without fallback. |
 | Version below minimum | Report installed and required versions, request an update, and stop the affected branch. |
 
 Never revive an Overcode checklist, regex detector, or model-specific fallback after a resolution failure. Independent local branches may continue only when their result does not pretend to cover the failed capability.

@@ -47,6 +47,21 @@ function parseContract(text) {
   return entries;
 }
 
+function canonicalSkillFailureProblems(text) {
+  const row = text.split(/\r?\n/).find((line) => /^\|\s*Canonical skill absent\s*\|/i.test(line));
+  if (!row) return ['failure contract missing Canonical skill absent row'];
+  const response = row.split('|')[2]?.trim() ?? '';
+  const requirements = [
+    ['missing skill', /\bskill\b/i],
+    ['package', /\bpackage\b/i],
+    ['minimum compatible version', /\bminimum\b[^|.]*\bversion\b/i],
+    ['stop without fallback', /\bstop\b[^|.]*\bwithout fallback\b/i],
+  ];
+  return requirements
+    .filter(([, pattern]) => !pattern.test(response))
+    .map(([requirement]) => `Canonical skill absent response missing ${requirement}`);
+}
+
 function versionAtLeast(actual, minimum) {
   const numeric = (value) => String(value).split(/[+-]/, 1)[0].split('.').map((part) => Number(part));
   const a = numeric(actual);
@@ -95,6 +110,22 @@ function validateFixtures() {
   if (unknownRoutes('Delegate to aidd-dev:04-audit.', fixtureKnown).length) {
     throw new Error('positive-known-route: false unknown route');
   }
+
+  const positiveFailure = '| Canonical skill absent | Name the missing skill, package, and minimum compatible version; stop without fallback. |';
+  if (canonicalSkillFailureProblems(positiveFailure).length) {
+    throw new Error('positive-canonical-skill-failure: false contract problem');
+  }
+  const negativeFailures = [
+    ['skill', '| Canonical skill absent | Name the package and minimum compatible version; stop without fallback. |'],
+    ['package', '| Canonical skill absent | Name the missing skill and minimum compatible version; stop without fallback. |'],
+    ['minimum version', '| Canonical skill absent | Name the missing skill and package; stop without fallback. |'],
+    ['stop', '| Canonical skill absent | Name the missing skill, package, and minimum compatible version. |'],
+  ];
+  for (const [omission, fixture] of negativeFailures) {
+    if (!canonicalSkillFailureProblems(fixture).length) {
+      throw new Error(`negative-canonical-skill-failure-${omission}: omission was accepted`);
+    }
+  }
 }
 
 function validateContract(entries, problems) {
@@ -137,8 +168,10 @@ function validateStatic() {
   validateFixtures();
   const problems = [];
   if (!existsSync(CONTRACT)) return ['delegation contract is absent'];
-  const entries = parseContract(readFileSync(CONTRACT, 'utf8'));
+  const contractText = readFileSync(CONTRACT, 'utf8');
+  const entries = parseContract(contractText);
   validateContract(entries, problems);
+  problems.push(...canonicalSkillFailureProblems(contractText));
   validateRoutes(problems);
   validateSuites(problems);
 
