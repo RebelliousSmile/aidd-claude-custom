@@ -2,7 +2,7 @@
 
 Decide where loose items belong and place them — **by arbitration**. `tree` proposes a destination from the cache (where similar things already live); the human arbitrates ambiguous cases; nothing moves without confirmation.
 
-> Read `${CLAUDE_PLUGIN_ROOT}/references/tree-convention.md` first. Local paths only — discovered anchor. Honor `delete-safety`.
+> Read `${OBS_PLUGIN_ROOT}/references/tree-convention.md` first. Local paths only — discovered anchor. Honor `delete-safety`.
 
 ## Inputs
 

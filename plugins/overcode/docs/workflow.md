@@ -22,6 +22,7 @@ Les skills s'invoquent sous la forme `/overcode:<skill>`.
 | « ce chantier est trop gros » | [`decompose`](#planification--decompose) |
 | « cette feature marche-t-elle de bout en bout ? » | [`journey`](#recette--journey) |
 | « je ne comprends rien à ce sujet » | [`baby`](#vulgarisation--baby) |
+| « il me faut une recherche documentaire sourcée » | [`research`](#recherche-documentaire--research) |
 | « je veux enchaîner plusieurs skills » | [`alias`](aliases.md) |
 
 ---
@@ -44,24 +45,26 @@ Pour une reprise de contexte rapide en début de session, l'alias `previously` e
 
 Deux actions selon la cible :
 
-- **`assess-doc`** — extrait les affirmations d'un `.md` et les vérifie contre le codebase, liens Markdown relatifs compris. Sans argument, `/overcode:taste` passe en **mode scan** : il groupe les trouvailles par cause racine et produit un plan de correction ordonné.
-- **`assess-code`** — imports dépréciés, imports relatifs cassés, appels à des symboles supprimés, violations de règles, TODO/FIXME périmés. Chemin requis.
+- **`assess-doc`** — classe les affirmations en critique (3), structurelle (2) ou informative (1), les vérifie contre le dépôt et rend score, couverture et veto critique. Sans argument, le scan traite 25 documents prioritaires par défaut et nomme les fichiers non couverts. Les faits externes partent séparément vers `aidd-refine:05-fact-check` et ne gonflent jamais le score local.
+- **`assess-code`** — route une intention explicite : fraîcheur générale vers audit `code-quality`, dépendances vers audit `dependencies`, imports/compilation/typage/exécution vers `aidd-dev:03-assert`. Un chemin nu déclenche une seule question de routage.
 
 C'est la skill à lancer avant de faire confiance à une doc qu'on n'a pas relue depuis longtemps.
 
 ## Prospective — `foresee`
 
-Analyse à moyen terme de documents, de code ou de dépendances. Elle cherche ce qu'aucun test ni linter ne signale : un couplage qui va coincer, une dépendance qui va devenir un problème, un plan dont une hypothèse ne tiendra pas.
+Le point d'entrée reste unique, mais l'autorité est distribuée : un document prospectif part vers `shadow-areas`, un travail terminé vers `challenge`, et le code vers un pilier explicite de `aidd-dev:04-audit`.
 
-Trois flags, valables pour toutes les actions :
+`analyze-dep` commence par l'audit AIDD `dependencies`, puis ajoute seulement les signaux de continuité, d'isolation et de sortie. En mode manifeste, cinq dépendances au maximum sont approfondies par défaut ; `--all` est l'opt-in explicite. Toute métrique indisponible reste `unknown` et sort du dénominateur.
+
+Les flags historiques restent valables :
 
 | Flag | Effet |
 |---|---|
-| *(aucun)* | sortie inline uniquement |
-| `--discuss` | présente chaque trouvaille et attend une réponse — **n'écrit aucun fichier** |
-| `--plan` | après la sortie inline, crée un plan de correction dans `aidd_docs/tasks/` |
+| *(aucun)* | rapport délégué et quittance |
+| `--discuss` | délègue puis discute le rapport ; le délégué peut persister son artefact contractuel |
+| `--plan` | délègue puis transmet le rapport à `aidd-dev:01-plan` |
 
-Sur un répertoire, l'analyse de code borne délibérément sa largeur : elle sélectionne les fichiers les plus déterminants (`--depth`, 10 par défaut) et les analyse en profondeur. Ce n'est pas un scanner exhaustif — la profondeur est la valeur.
+Si la capacité AIDD requise manque ou est incompatible, la branche s'arrête en nommant le package et la version minimale ; elle ne réactive jamais l'ancien moteur local.
 
 ## Audits de performance
 
@@ -150,6 +153,10 @@ Prérequis : une issue existante **et** un fichier de plan correspondant.
 ## Vulgarisation — `baby`
 
 Explique, réécrit ou compare un sujet en langage progressif et concret, sans jargon non défini. Utile pour un transfert de contexte vers un non-spécialiste, ou pour présenter un arbitrage technique et ses compromis à qui doit trancher sans être du métier.
+
+## Recherche documentaire — `research`
+
+Effectue une recherche documentaire cross-référencée avec au moins trois recherches et trois sources, signale les contradictions et compare les résultats aux documents existants. Son action `extract-terminology` extrait sans invention les termes présents dans les sources. La skill conserve le modèle documentaire local auparavant fourni par `obs:research`, mais vit désormais dans le socle transversal `overcode`.
 
 ## Voir aussi
 

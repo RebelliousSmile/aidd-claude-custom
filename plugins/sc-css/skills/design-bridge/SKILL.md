@@ -7,11 +7,9 @@ description: >-
   composants BEM (components.json → .block, .block__element, .block--modifier) avec
   cascade layers. Jamais invoqué directement — appelé via le pivot design:enforce/04-pivot
   ou design:diffuse/03-pivot quand la stack est CSS pure.
-triggers:
-  - "sc-css:design-bridge"
-  - invoqué par design:enforce quand la stack est CSS pure (pas de sc-php/sc-js)
-  - invoqué par design:diffuse quand la cible est CSS standalone
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-css:design-bridge
 
@@ -119,12 +117,12 @@ Le cas fréquent ici : les règles de type `stylesheet`. Elles portent sur les f
 
 ## Workflow de plateforme (feuilles de style seules / statique)
 
-Ce pivot **possède** le workflow de plateforme statique : `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/workflow-static.md`. Il instancie les classes de cas agnostiques de `design:detail` sur une cible sans runtime, sous le squelette figé par `sc-pivot-contract.md § Workflow de plateforme`. `design:detail/02-route` l'étend à la classe quand ce pivot est installé et la stack correspond.
+Ce pivot **possède** le workflow de plateforme statique : `${SC_CSS_PLUGIN_ROOT}/skills/design-bridge/references/workflow-static.md`. Il instancie les classes de cas agnostiques de `design:detail` sur une cible sans runtime, sous le squelette figé par `sc-pivot-contract.md § Workflow de plateforme`. `design:detail/02-route` l'étend à la classe quand ce pivot est installé et la stack correspond.
 
 ## Références
 
 - `plugins/design/references/sc-pivot-contract.md` — format des specs reçus et squelette de workflow de plateforme
-- `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/workflow-static.md` — workflow de plateforme statique (classes de cas instanciées sur feuilles de style seules)
+- `${SC_CSS_PLUGIN_ROOT}/skills/design-bridge/references/workflow-static.md` — workflow de plateforme statique (classes de cas instanciées sur feuilles de style seules)
 - `plugins/design/references/gate-config-schema.md` — format du rapport à écrire
 - `plugins/design/references/token-schema.md` — structure tokens.json
 - `plugins/design/skills/adjust/references/manifest-schema.md` — structure components.json

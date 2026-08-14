@@ -1,8 +1,8 @@
 ---
 name: setup
-model: sonnet
 description: >-
-  Installs third-party SaaS consumption rules to the current project's .claude/rules/.
+  Installs third-party SaaS consumption guidance in the host-native project surface:
+  AGENTS.md plus .agents/rules/ on Codex, or .claude/rules/ on Claude Code.
   Use when integrating Firebase, Klaviyo, GTM/Meta Pixel (or other SaaS) and the consumption rules are missing.
   Covers: Firestore query limits, security rules, quota awareness,
   Auth listener cleanup, Hosting trailing slash and cache headers,
@@ -13,15 +13,17 @@ description: >-
   Do NOT use to update a single rule — edit it directly instead.
 ---
 
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
+
 # sc-tiers Setup
 
-Installs the full set of third-party SaaS consumption rules to `.claude/rules/` in the current project. Each rule file is written verbatim from the plugin's references.
+Installs third-party SaaS consumption rules in the current project. On Codex, it writes the references under `.agents/rules/` and maintains a bounded `## SC Tiers` index in `AGENTS.md`; on Claude Code, it writes the corresponding `.claude/rules/` files.
 
 ## Available actions
 
 | # | Action | Role | Input |
 |---|--------|------|-------|
-| 01 | `install` | Write all SaaS consumption rule files to `.claude/rules/` | current project path |
+| 01 | `install` | Write SaaS rules to the host-native instruction surface | current project path |
 | 02 | `verify` | Audit the project code against installed SaaS rules | current project (auto-detected) |
 | 03 | `help` | Provide integration context for a specific service to a calling skill | service name |
 
@@ -52,6 +54,7 @@ Trigger-to-action mapping:
 
 ## Transversal rules
 
+- Detect the active host before choosing targets; never assume `.claude/rules/` is loaded by Codex.
 - Write files atomically — do not skip any rule.
 - Preserve frontmatter (paths: globs) verbatim from each reference file.
 - If a target file already exists, overwrite it without confirmation.

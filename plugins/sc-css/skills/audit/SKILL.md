@@ -1,6 +1,5 @@
 ---
 name: audit
-model: sonnet
 description: >-
   Audit CSS multi-dimensionnel : spécificité (guerres de cascade), code mort
   (sélecteurs inutilisés, règles inaccessibles), magic numbers (valeurs littérales
@@ -8,6 +7,8 @@ description: >-
   opportunités modernes (has(), container queries, nesting, subgrid). Read-only :
   identifie et classe les problèmes, n'édite jamais le code.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-css:audit
 
@@ -25,8 +26,8 @@ Audit CSS read-only — détecte, classe, priorise.
 
 ## Routing
 
-- Audit ciblé (`/sc-css:audit specificity`) → une seule dimension.
-- Audit complet (`/sc-css:audit`) → toutes les dimensions, un rapport fusionné.
+- Audit ciblé (`sc-css:audit specificity`) → une seule dimension.
+- Audit complet (`sc-css:audit`) → toutes les dimensions, un rapport fusionné.
 
 ## Format du rapport
 

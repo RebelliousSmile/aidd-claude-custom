@@ -1,14 +1,15 @@
 ---
 name: extract-pdf
-description: Multi-session pipeline for extracting content from large PDF files and distributing it into raw reference source documents under sources/. Use when importing an existing PDF (rulebook, novel, technical manual, source document) into a domain (R) across multiple sessions. Operates on the generic domain-layout convention; applies the JDR profile (lore/rules split, canon pipeline) only when the domain is JDR. Do NOT use for web research — use `research` instead; do NOT use for writing new content — use `writing:write` instead. Do NOT use to produce final synthesized reference (`reference/` generically, `canon/` under the JDR profile) — that is the role of the downstream ventilation skills (`ttrpg:lore-extract` / `ttrpg:rules-keeper` under the JDR profile).
-disable-model-invocation: true
+description: Multi-session pipeline for extracting content from large PDF files and distributing it into raw reference source documents under sources/. Use when importing an existing PDF (rulebook, novel, technical manual, source document) into a domain (R) across multiple sessions. Operates on the generic domain-layout convention; applies the JDR profile (lore/rules split, canon pipeline) only when the domain is JDR. Do NOT use for web research — use `overcode:research` instead; do NOT use for writing new content — use the available writing workflow instead. Do NOT use to produce final synthesized reference (`reference/` generically, `canon/` under the JDR profile) — that is a downstream ventilation role.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # Extract PDF
 
 Four-phase pipeline for large PDF extraction across multiple Claude Code sessions.
 
-> **Generic model, conditional profile.** `extract-pdf` operates on the **generic** working-directory convention `${CLAUDE_PLUGIN_ROOT}/references/domain-layout.md` (`R` = subcategory, working-dir buckets `R/_<bucket>/`, `bank.yml`, raw `sources/` + synthesized `reference/`, scopes `shared`/`project`). A **JDR game domain is one profile** of that model: the JDR profile (documented in `${CLAUDE_PLUGIN_ROOT}/references/domain-layout.md` § JDR profile) is applied **only when the domain is JDR** (see *Profile detection* below).
+> **Generic model, conditional profile.** `extract-pdf` operates on the **generic** working-directory convention `${OBS_PLUGIN_ROOT}/references/domain-layout.md` (`R` = subcategory, working-dir buckets `R/_<bucket>/`, `bank.yml`, raw `sources/` + synthesized `reference/`, scopes `shared`/`project`). A **JDR game domain is one profile** of that model: the JDR profile (documented in `${OBS_PLUGIN_ROOT}/references/domain-layout.md` § JDR profile) is applied **only when the domain is JDR** (see *Profile detection* below).
 
 > **Role in the pipeline**: `extract-pdf` produces **raw reference sources** under `<target>/sources/<source>/`. It **never** ventilates into the synthesized layer — `reference/` generically, or `canon/`/`mj/` under the JDR profile. Ventilation is a downstream role (under the JDR profile: `ttrpg:lore-extract` for lore, `ttrpg:rules-keeper` for rules).
 
@@ -37,7 +38,7 @@ In automated mode, the Python script handles session chaining, retries and the f
 | 03  | `distribute`    | Final session — merge into the reference sources         | `<project-dir>` + `<source-name>`            |
 | 04  | `debug`         | Any session — diagnose extraction anomalies              | `<project-dir>` + `<source-name>` [chunk-id] |
 
-> `<project-dir>` = the work-unit / writing project directory (`R/<AAAA>/<MM>/<projet>/`), or any directory located under an `R` domain. `R` is **discovered locally** (see *Transversal rules*); no global path. See `${CLAUDE_PLUGIN_ROOT}/references/domain-layout.md`.
+> `<project-dir>` = the work-unit / writing project directory (`R/<AAAA>/<MM>/<projet>/`), or any directory located under an `R` domain. `R` is **discovered locally** (see *Transversal rules*); no global path. See `${OBS_PLUGIN_ROOT}/references/domain-layout.md`.
 
 ## Default flow
 
@@ -76,7 +77,7 @@ python scripts/extract-pdf.py --status docs/extraction/<source>/progress.md
 - `R` (the domain root = a **subcategory** `(Perso|Pro)/<Category>/<Subcategory>/`) is **discovered locally**, never hardcoded:
   - **Generic core**: start from the reference directory (argument or CWD) and walk up to a `Perso`/`Pro` segment; the **subcategory** level is `R` (the `obs:tree` anchor mechanism). No domain marker required.
   - **JDR profile shortcut**: walk up the parents to the first folder containing one of the markers `_campagnes/`, `_univers/` or `_pjs/`; that folder is `R`. This is the JDR profile's fast path.
-  No global path, no per-machine config. See `${CLAUDE_PLUGIN_ROOT}/references/domain-layout.md` (§ JDR profile for the JDR-specific rules).
+  No global path, no per-machine config. See `${OBS_PLUGIN_ROOT}/references/domain-layout.md` (§ JDR profile for the JDR-specific rules).
 - The extracted reference sources land under **`<target>/sources/<source>/`** — never in the synthesized layer (`reference/` generically; `canon/`/`mj/` under the JDR profile):
   - **Generic core**: a single resolved `<target>` (a working-dir bucket `R/_<bucket>/` or the work-unit directory) → `<target>/sources/<source>/`.
   - **JDR profile**: split by provenance — lore/terminology → `<univers-root>/sources/<source>/` (`<univers-root> = R/_univers/<univers>/`), rules → `<systeme-root>/sources/<source>/` (`<systeme-root> = R/_systeme/`).
@@ -92,8 +93,8 @@ python scripts/extract-pdf.py --status docs/extraction/<source>/progress.md
 
 ## References
 
-- `${CLAUDE_PLUGIN_ROOT}/references/domain-layout.md` — **primary** generic convention of an `R` domain: `R` = subcategory (discovered via the `obs:tree` anchor), working-dir buckets `R/_<bucket>/`, `bank.yml`, raw `sources/` + synthesized `reference/`, scopes `shared`/`project`, profile detection.
-- **JDR profile** (documented in `${CLAUDE_PLUGIN_ROOT}/references/domain-layout.md` § JDR profile) — applied when the domain is JDR: bucket names `_univers`/`_systeme`, `canon/`+`mj/` provenance split, marker-based `R` shortcut, the `extract-pdf` / `ttrpg:lore-extract` / `ttrpg:rules-keeper` canon pipeline. (Full JDR game layout: the `ttrpg` plugin's `references/jdr-layout.md`.)
+- `${OBS_PLUGIN_ROOT}/references/domain-layout.md` — **primary** generic convention of an `R` domain: `R` = subcategory (discovered via the `obs:tree` anchor), working-dir buckets `R/_<bucket>/`, `bank.yml`, raw `sources/` + synthesized `reference/`, scopes `shared`/`project`, profile detection.
+- **JDR profile** (documented in `${OBS_PLUGIN_ROOT}/references/domain-layout.md` § JDR profile) — applied when the domain is JDR: bucket names `_univers`/`_systeme`, `canon/`+`mj/` provenance split, marker-based `R` shortcut, the `extract-pdf` / `ttrpg:lore-extract` / `ttrpg:rules-keeper` canon pipeline. (Full JDR game layout: the `ttrpg` plugin's `references/jdr-layout.md`.)
 
 ## External data
 

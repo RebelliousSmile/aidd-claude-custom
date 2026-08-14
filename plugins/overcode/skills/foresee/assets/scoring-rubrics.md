@@ -1,96 +1,43 @@
-# Scoring Rubrics — foresee
+# Dependency horizon scoring — foresee
 
-Used by all three analyze actions. Score each dimension 1–10. Assign the score that best matches the artifact against the anchor descriptions below.
+These local scores apply only after an AIDD dependency audit. High scores mean a safer medium-term exit horizon. Every score cites dated evidence; unavailable evidence is `unknown` and excluded from coverage.
 
----
+## Continuity
 
-## analyze-doc dimensions
-
-### Clarity (can an LLM parse this without ambiguity?)
+Combines maintainer concentration and activity trajectory without rescoring release age or version drift.
 
 | Score | Anchor |
-|---|---|
-| 10 | Every instruction is unambiguous. Terms are defined. No contradictions. No implicit assumptions. An LLM following it cold produces exactly the intended result. |
-| 7–9 | Minor ambiguities present but resolvable from context. One or two implicit assumptions. No contradictions. |
-| 4–6 | Several ambiguous instructions. Undefined terms used as if known. One contradiction or significant implicit assumption. |
-| 1–3 | Instructions contradict each other, use undefined jargon, or leave the reader unable to determine what to produce. |
+|---:|---|
+| 9–10 | At least three active maintainers across more than one organization; ownership and recent activity are distributed and stable. |
+| 7–8 | Two active maintainers or a credible organization succession path; activity shows no sustained decline. |
+| 4–6 | One effective maintainer, or contribution/review activity is declining for two comparable periods. |
+| 1–3 | Ownership is unclear, the sole maintainer is inactive, or upstream explicitly seeks an unfilled successor. |
 
-### Completeness (are all cases covered?)
+## Isolation
 
-| Score | Anchor |
-|---|---|
-| 10 | Happy path, edge cases, failure paths, and prerequisites all documented. No "obviously implied" steps left unstated. |
-| 7–9 | Happy path fully covered. One or two edge cases or failure paths omitted but minor. |
-| 4–6 | Happy path present but important edge cases absent. Failure handling absent or vague. |
-| 1–3 | Only the happy path is sketched. Critical preconditions, error cases, and alternatives are absent. |
-
-### Feasibility (achievable within current project constraints?)
+Measures how much product code must change to remove the dependency.
 
 | Score | Anchor |
-|---|---|
-| 10 | Fully achievable with current stack, team, and time. All dependencies in place. No undefined technical risk. |
-| 7–9 | Achievable with minor clarification or one small unknown. No fundamental constraint violated. |
-| 4–6 | One significant unknown or constraint issue. Partially feasible — requires scoping or tradeoff decision. |
-| 1–3 | Requires unavailable technology, violates a known project constraint, or has no clear implementation path. |
+|---:|---|
+| 9–10 | Product code uses one tested adapter or standard interface; replacement is localized. |
+| 7–8 | A small number of cohesive modules import the dependency; migration boundaries are evident. |
+| 4–6 | Direct imports span several domains and package-specific types cross boundaries. |
+| 1–3 | Framework-level or pervasive imports, generated schemas, or lifecycle hooks make removal repository-wide. |
 
----
+## Exit options
 
-## analyze-code dimensions
-
-### Maintainability (how easy is it to change this safely?)
+Combines credible alternatives with the estimated migration work.
 
 | Score | Anchor |
-|---|---|
-| 10 | Small, single-purpose units. Each function/class ≤ 30 lines. Clear naming. 0 hidden side effects. Fully covered by tests. |
-| 7–9 | Mostly clear. One or two oversized functions or minor naming issues. Tests cover main paths. |
-| 4–6 | Several large functions. Mixed responsibilities. Some hidden side effects. Partial test coverage. |
-| 1–3 | God functions/classes. No clear responsibility. Side effects everywhere. Virtually untestable. |
+|---:|---|
+| 9–10 | A maintained drop-in or standards-based alternative exists and a migration can be completed in hours. |
+| 7–8 | Multiple maintained alternatives exist; migration is bounded to days with known mapping. |
+| 4–6 | One imperfect alternative exists; migration needs architectural changes or weeks of work. |
+| 1–3 | No maintained alternative or export path exists; replacement implies a product or platform rewrite. |
 
-### Correctness Risk (how likely are undetected bugs?)
+## Coverage and horizon
 
-| Score | Anchor |
-|---|---|
-| 10 | All edge cases handled. Immutable data where possible. Concurrency managed. Errors always surfaced. Tests cover edge cases. |
-| 7–9 | Most edge cases handled. One or two potential null paths. No critical concurrency issue. |
-| 4–6 | Several unhandled null/undefined cases. Missing error propagation in at least one path. Possible race condition. |
-| 1–3 | Assumes happy path throughout. Crashes on trivial bad input. Shared mutable state. Errors silently swallowed. |
-
-### Coupling (how problematic are the dependencies?)
-
-| Score | Anchor |
-|---|---|
-| 10 | Only depends on stable, well-tested abstractions. No direct dependency on unstable externals or implementation details. Easily mocked. |
-| 7–9 | One or two non-critical direct dependencies on concrete implementations. Mostly decoupled. |
-| 4–6 | Directly imports and calls unstable or frequently-changing modules. Difficult to mock. Breaking change upstream likely to cascade. |
-| 1–3 | Tightly coupled to several volatile externals, global state, or framework internals. Any upstream change breaks this module. |
-
----
-
-## analyze-dep dimensions
-
-### Maintenance (is the package actively maintained?)
-
-| Score | Anchor |
-|---|---|
-| 10 | Release in last 3 months. ≥ 3 active maintainers. Issue response time < 2 weeks. Explicit roadmap. Backed by org or foundation. |
-| 7–9 | Release in last 9 months. 1–2 maintainers. Issues addressed. No clear abandonment signals. |
-| 4–6 | Last release 9–18 months ago. Solo maintainer. Issues piling up or unanswered. No roadmap. |
-| 1–3 | Last release > 18 months. Archived, "no longer maintained" notice, or maintainer has publicly abandoned project. |
-
-### Security Surface (how large is the attack surface?)
-
-| Score | Anchor |
-|---|---|
-| 10 | 0 known CVEs. Minimal transitive dependencies. No runtime network access or file system permissions required. Actively security-audited. |
-| 7–9 | 0 critical CVEs (may have low-severity patched). Low transitive depth. Permissions well-scoped. |
-| 4–6 | 1–2 moderate CVEs (patched but upgrade not yet applied). Mid transitive depth. Some broad permissions. |
-| 1–3 | Known unpatched critical CVE. Deep transitive chain with known vulnerable sub-deps. Requires broad file/network/exec permissions. |
-
-### Lock-in (how easy is it to migrate away?)
-
-| Score | Anchor |
-|---|---|
-| 10 | Thin wrapper around a standard API. 1:1 replacement alternatives exist. Usage isolated behind an abstraction layer. Migration documented. |
-| 7–9 | Alternative packages exist. Migration would take hours to days. No pervasive API surface spread across the codebase. |
-| 4–6 | Used directly in many files. Alternatives exist but require significant refactoring. No abstraction layer. |
-| 1–3 | Framework-level coupling (every file imports it). No real alternatives. Migration would require full rewrite of affected layer. |
+- Coverage is `<known dimensions>/3`; `unknown` never becomes a midpoint.
+- Compute an equal-weight mean only with at least two known dimensions.
+- Interpret mean `8–10` as resilient, `5–7.9` as watch, and `<5` as exit risk.
+- Always display the individual dimensions so the mean cannot hide low continuity or high lock-in.

@@ -1,19 +1,20 @@
 ---
 name: sniff
-model: sonnet
 description: >-
   Python stack detector. Reads requirements.txt, pyproject.toml, setup.py,
   Pipfile, and sentinel files (manage.py) to detect the framework (Django,
   FastAPI, Flask), ORM (Django ORM, SQLAlchemy), and capabilities including
   ActivityPub federation (activitypub/ module + httpx + cryptography). Uses a
   three-tier model: capability pivots (Python idioms) are loaded at audit time
-  by /sc-python:audit and never written to disk; perf pivots (for web-optimize),
+  by sc-python:audit and never written to disk; perf pivots (for web-optimize),
   data pivots (for data-optimize), and AP pivots (for ap-optimize) are installed
   selectively to .claude/rules/07-quality/. Emits a pivot manifeste for use by
-  /sc-python:audit. Reports gaps when a capability is detected but no matching
+  sc-python:audit. Reports gaps when a capability is detected but no matching
   plugin pivot exists.
   Do NOT use to update a single rule manually — edit it directly instead.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-python Sniff
 
@@ -34,7 +35,7 @@ Sequential: `scan` → `install-pivots`.
 
 - A **capability** is something the app does: serve HTTP via Django or FastAPI, query the database via an ORM, federate via ActivityPub, etc.
 - A **pivot** is the Python knowledge for the chosen solution (e.g. Django perf patterns, SQLAlchemy query conventions, AP delivery patterns)
-- Capability pivots live in the plugin (`skills/sniff/references/capabilities/`) — they are loaded at audit time by `/sc-python:audit`, not installed to the project
+- Capability pivots live in the plugin (`skills/sniff/references/capabilities/`) — they are loaded at audit time by `sc-python:audit`, not installed to the project
 - **Perf pivots**, **data pivots**, and **AP pivots** are the exception: they ARE written to `.claude/rules/07-quality/` because `web-optimize`, `data-optimize`, and `ap-optimize` read them from there
 
 ## Detection — ActivityPub

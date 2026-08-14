@@ -3,6 +3,8 @@ name: filler
 description: Manage content files in any directory — inventory, sort, summarize, merge, and clean. Use when the user points to a folder and wants to triage, reorganize, distill, or consolidate its files. Do NOT use for structured Obsidian project lifecycle (use project), email triage (use mail), or Documents/ tree management (use tree).
 ---
 
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
+
 # obs:filler — Gestion de fichiers de contenu
 
 Opère sur n'importe quel répertoire de fichiers de contenu : inventorier ce qui s'y trouve, le classer, produire des résumés, fusionner des fichiers sélectionnés en un seul, ou éliminer les entrées redondantes et obsolètes.

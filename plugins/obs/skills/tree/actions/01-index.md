@@ -2,7 +2,7 @@
 
 Scan the real arborescence and build/refresh the navigation cache `<anchor>/_tree/cache.json`. This is the foundation the other actions read.
 
-> Read `${CLAUDE_PLUGIN_ROOT}/references/tree-convention.md` first. Local paths only — discover the anchor, never hardcode it.
+> Read `${OBS_PLUGIN_ROOT}/references/tree-convention.md` first. Local paths only — discover the anchor, never hardcode it.
 
 ## Inputs
 
@@ -10,7 +10,7 @@ Scan the real arborescence and build/refresh the navigation cache `<anchor>/_tre
 
 ## Outputs (cache shape)
 
-See `${CLAUDE_PLUGIN_ROOT}/references/tree-convention.md` › "Le cache". Key fields: `root`, `scanned_at`, `default_pattern`, `domains[]` (`path`, `dated`, `convention`, `units`, `durable`, `notes`), `anomalies[]`, `unsorted[]`.
+See `${OBS_PLUGIN_ROOT}/references/tree-convention.md` › "Le cache". Key fields: `root`, `scanned_at`, `default_pattern`, `domains[]` (`path`, `dated`, `convention`, `units`, `durable`, `notes`), `anomalies[]`, `unsorted[]`.
 
 ## Process
 

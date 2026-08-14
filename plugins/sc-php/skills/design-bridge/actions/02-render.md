@@ -19,7 +19,7 @@ Vérifier que le spec est présent avant de continuer.
 
 ## Prérequis WP
 
-Lire `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md` intégralement avant de produire quoi que ce soit. Points critiques :
+Lire `${SC_PHP_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md` intégralement avant de produire quoi que ce soit. Points critiques :
 - CLI conteneur obligatoire pour toute opération DB
 - Classes appariées `has-*` → décider de les déclarer dans le manifeste ou les exclure du lint
 - `wp eval-file` deprecated → utiliser `wp eval` avec `file_get_contents`

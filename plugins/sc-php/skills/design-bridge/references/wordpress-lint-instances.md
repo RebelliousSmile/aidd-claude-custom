@@ -1,6 +1,6 @@
 # Adaptateur WordPress — lint instances DB
 
-Réalisation des règles de type `stored-content` sur un projet WordPress FSE : le vocabulaire du design system y vit en base, hors de tout fichier du dépôt, donc hors de portée du cœur portable. À lire avec `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md`.
+Réalisation des règles de type `stored-content` sur un projet WordPress FSE : le vocabulaire du design system y vit en base, hors de tout fichier du dépôt, donc hors de portée du cœur portable. À lire avec `${SC_PHP_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md`.
 
 Le contenu est extrait en fichiers, linté, puis le résultat est écrit dans le rapport de pivot (`design/references/gate-config-schema.md § Rapport de pivot`). L'extraction est la seule raison d'être de ce détour : sans elle, il n'y a rien à lire.
 
@@ -65,7 +65,7 @@ Si le manifeste ne déclare pas ces classes comme modifiers, le lint les signale
 1. Les déclarer comme modifiers dans `components.json` (si le projet utilise des blocs natifs WP).
 2. Les laisser hors du manifeste et assumer les violations comme un écart documenté.
 
-Voir `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md` pour la décision recommandée.
+Voir `${SC_PHP_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md` pour la décision recommandée.
 
 ## Piège : `wp eval-file` deprecated en PHP 8.2
 

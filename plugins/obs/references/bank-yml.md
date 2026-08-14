@@ -13,7 +13,7 @@ Catalogue des **ressources globales / durables** disponibles dans un domaine `R`
 
 ```yaml
 # R/bank.yml — ressources globales disponibles dans ce domaine.
-# profile: déclare le profil de layout (ex. jdr), lu par obs:research pour la détection de profil.
+# profile: déclare le profil de layout (ex. jdr), lu par overcode:research pour la détection de profil.
 domain: <slug>           # ex. zombiology
 
 resources:
@@ -36,4 +36,4 @@ resources:
 
 - **Maintenu par** `obs:tree` : `tree index` scanne `R/_univers/`, `R/_systeme/`, etc. et (re)génère `R/bank.yml` — entrées `id`/`kind`/`path` déduites du scan, `summary` au mieux depuis le titre/premières lignes de chaque fichier. **Régénérable** : c'est un cache dérivé des répertoires durables de `R`, pas une source de vérité.
 - **Fusion non destructive au re-scan** : un `summary` curé (édité à la main, ou enrichi plus tard par `research`) est **préservé** ; `tree` ajoute les nouvelles ressources et signale celles disparues, sans écraser les descriptions curées.
-- **Consommé par** `obs:research` : la clé `profile:` déclare le profil de layout (ex. `jdr`), lue pour la détection de profil.
+- **Consommé par** `overcode:research` : la clé `profile:` déclare le profil de layout (ex. `jdr`), lue pour la détection de profil.

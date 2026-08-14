@@ -1,8 +1,9 @@
 ---
 name: harvest
 description: Global maintenance skill — reconciles tracker items with processed plans, harvests non-obvious decisions into memory/rules, purges ephemeral task files, reviews all remaining files methodically
-model: opus
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # Harvest — global plan and tracker maintenance
 

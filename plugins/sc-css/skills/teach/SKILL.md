@@ -1,11 +1,12 @@
 ---
 name: teach
-model: sonnet
 description: >-
   Explique les concepts CSS en contexte du codebase courant — spécificité et cascade,
   custom properties, cascade layers, has()/is()/where(), container queries, nesting.
   Adapte les exemples au code existant plutôt qu'aux exemples génériques. Read-only.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-css:teach
 

@@ -13,12 +13,9 @@ description: >-
   builder-coverage VÉRIFIE la complétude ET l'organisation, et se chaîne après.
   Invoquer sur un thème FSE quand on veut garantir l'édition WYSIWYG de toutes
   les pages, comme un page-builder (Divi/Elementor).
-triggers:
-  - "sc-php:builder-coverage"
-  - "vérifier que toutes les pages sont éditables en WYSIWYG / au clic"
-  - "chaque élément de page a-t-il une pattern dans l'éditeur ?"
-  - après une intégration FSE, pour garantir la couverture builder
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-php Builder Coverage
 

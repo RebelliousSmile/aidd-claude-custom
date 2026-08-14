@@ -2,7 +2,7 @@
 
 Export the current tree as a `destinations.txt` routing map — the curated list consumed by the `email-to-markdown` router. `tree` derives the **durable** part of the arborescence (`(Perso|Pro)/category/subcategory`, i.e. the parent of the dated `AAAA/MM` levels) from the cache and emits one line per destination, grouped and ready for the user to add matching rules.
 
-> Read `${CLAUDE_PLUGIN_ROOT}/references/tree-convention.md` and `${CLAUDE_PLUGIN_ROOT}/references/destinations-template.md` first. Local paths only — discovered anchor, never hardcoded.
+> Read `${OBS_PLUGIN_ROOT}/references/tree-convention.md` and `${OBS_PLUGIN_ROOT}/references/destinations-template.md` first. Local paths only — discovered anchor, never hardcoded.
 
 ## Inputs
 
@@ -11,7 +11,7 @@ Export the current tree as a `destinations.txt` routing map — the curated list
 
 ## Outputs
 
-The generated file content (a `destinations.txt` per `${CLAUDE_PLUGIN_ROOT}/references/destinations-template.md`), preceded by a short report:
+The generated file content (a `destinations.txt` per `${OBS_PLUGIN_ROOT}/references/destinations-template.md`), preceded by a short report:
 
 ```markdown
 # Tree Destinations — <anchor>

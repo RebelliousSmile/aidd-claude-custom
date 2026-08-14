@@ -24,8 +24,8 @@ Le processus de chaque skill vit dans son `SKILL.md` et ses `actions/`.
 | `alias` | `/overcode:alias <nom>` | Enchaîne des workflows en une commande — dix chaînes pré-écrites |
 | `harvest` | `/overcode:harvest` | Maintenance globale — réconcilie le tracker, extrait les décisions, purge l'éphémère |
 | `reconcile-normative` | `/overcode:reconcile-normative` | Cohérence du normatif entre archives, mémoire et règles actives |
-| `taste` | `/overcode:taste [fichier]` | Détecte l'obsolescence — claims vs codebase (`assess-doc`) ou imports et symboles (`assess-code`). Sans argument : mode scan |
-| `foresee` | `/overcode:foresee <cible>` | Analyse prospective docs/code/dépendances — ce qui posera problème à moyen terme |
+| `taste` | `/overcode:taste [fichier]` | Pondère la fraîcheur d'un Markdown contre le dépôt ; route les questions code vers audit/assert AIDD. Sans argument : scan borné à 25 documents |
+| `foresee` | `/overcode:foresee <cible>` | Route docs/code vers AIDD ; complète l'audit de dépendances par l'horizon d'abandon, d'isolation et de migration |
 | `behave` | `/overcode:behave <action>` | Harness de tests comportementaux pour **prompts** — scaffold, run jugé, régression, review |
 | `control` | `/overcode:control <action>` | Gouvernance de la suite de tests d'un projet, bornée par une **densité** lue contre la médiane du projet et pondérée par sa **phase** déclarée. **Ne se déclenche jamais seule.** |
 | `web-optimize` | `/overcode:web-optimize` | Audit perf web (LCP, CLS, INP, bundle, N+1 au rendu) → roadmap priorisée |
@@ -38,6 +38,7 @@ Le processus de chaque skill vit dans son `SKILL.md` et ses `actions/`.
 | `journey` | `/overcode:journey` | Exécute un parcours utilisateur depuis une issue GitHub/GitLab (Playwright) |
 | `status` | `/overcode:status` | Santé projet — synthèse de la mémoire, rapport complet, audit de la mémoire elle-même |
 | `baby` | `/overcode:baby` | Explique, réécrit ou compare un sujet en langage simple, sans jargon non défini |
+| `research` | `/overcode:research` | Recherche documentaire cross-référencée et extraction de terminologie |
 
 Chaînes d'alias fournies : `rechallenge`, `endtask`, `bump-plugin`, `previously`, `smarten`, `skillconf`, `weeklyemail`, `gitit`, `mirror`, `codex-vision` — détail dans [`docs/aliases.md`](docs/aliases.md).
 

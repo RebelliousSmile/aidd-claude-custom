@@ -71,12 +71,12 @@ If both signals are found, enable the `wordpress/fse-patterns.md` capability piv
 
 #### 5a — Capability pivots (loaded at audit time by `/sc-php:audit`, NOT installed to disk)
 
-| Capability | Condition | Pivot path (via `${CLAUDE_PLUGIN_ROOT}`) |
+| Capability | Condition | Pivot path (via `${SC_PHP_PLUGIN_ROOT}`) |
 |---|---|---|
-| PHP SOLID violations | always (every PHP project) | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/php/solid.md` |
-| Bruno test conventions | `bruno/` folder or `*.bru` files detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/testing/bruno.md` |
-| WordPress SSR block authoring | WordPress detected (Step 2) | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/wordpress/ssr.md` |
-| WordPress FSE pattern authoring | block theme + `patterns/` dir detected (Step 4c) | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/wordpress/fse-patterns.md` |
+| PHP SOLID violations | always (every PHP project) | `${SC_PHP_PLUGIN_ROOT}/skills/sniff/references/capabilities/php/solid.md` |
+| Bruno test conventions | `bruno/` folder or `*.bru` files detected | `${SC_PHP_PLUGIN_ROOT}/skills/sniff/references/capabilities/testing/bruno.md` |
+| WordPress SSR block authoring | WordPress detected (Step 2) | `${SC_PHP_PLUGIN_ROOT}/skills/sniff/references/capabilities/wordpress/ssr.md` |
+| WordPress FSE pattern authoring | block theme + `patterns/` dir detected (Step 4c) | `${SC_PHP_PLUGIN_ROOT}/skills/sniff/references/capabilities/wordpress/fse-patterns.md` |
 
 After listing capability pivots, append the `/sc-php:audit` readiness line:
 - → `/sc-php:audit` : PRÊT (capability pivots: list the active ones)
@@ -85,10 +85,10 @@ After listing capability pivots, append the `/sc-php:audit` readiness line:
 
 | Condition | Source | Target |
 |---|---|---|
-| Laravel detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/laravel.md` | `.claude/rules/07-quality/perf-pivots-laravel.md` |
-| Symfony detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/symfony.md` | `.claude/rules/07-quality/perf-pivots-symfony.md` |
-| WordPress detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/wordpress.md` | `.claude/rules/07-quality/perf-pivots-wordpress.md` |
-| HTMX detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/htmx.md` | `.claude/rules/07-quality/perf-pivots-htmx.md` |
+| Laravel detected | `${SC_PHP_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/laravel.md` | `.claude/rules/07-quality/perf-pivots-laravel.md` |
+| Symfony detected | `${SC_PHP_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/symfony.md` | `.claude/rules/07-quality/perf-pivots-symfony.md` |
+| WordPress detected | `${SC_PHP_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/wordpress.md` | `.claude/rules/07-quality/perf-pivots-wordpress.md` |
+| HTMX detected | `${SC_PHP_PLUGIN_ROOT}/skills/sniff/references/capabilities/perf/htmx.md` | `.claude/rules/07-quality/perf-pivots-htmx.md` |
 
 After listing perf pivots, append the `/web-optimize` readiness line:
 - If ≥ 1 perf pivot applicable → `/web-optimize` : PRÊT (will be installed by 02-install-pivots)
@@ -98,8 +98,8 @@ After listing perf pivots, append the `/web-optimize` readiness line:
 
 | Condition | Source | Target |
 |---|---|---|
-| Eloquent detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/eloquent.md` | `.claude/rules/07-quality/data-pivots-eloquent.md` |
-| Doctrine detected | `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/doctrine.md` | `.claude/rules/07-quality/data-pivots-doctrine.md` |
+| Eloquent detected | `${SC_PHP_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/eloquent.md` | `.claude/rules/07-quality/data-pivots-eloquent.md` |
+| Doctrine detected | `${SC_PHP_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/doctrine.md` | `.claude/rules/07-quality/data-pivots-doctrine.md` |
 
 After listing data pivots, append the `/data-optimize` readiness line:
 - If ≥ 1 data pivot applicable → `/data-optimize` : PRÊT (will be installed by 02-install-pivots)

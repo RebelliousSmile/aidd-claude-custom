@@ -2,7 +2,7 @@
 
 Verify the tree against the **invariants** and against each domain's **learned convention** (from the cache). Report-only — zero writes (beyond refreshing the cache if stale).
 
-> Read `${CLAUDE_PLUGIN_ROOT}/references/tree-convention.md` first. Local paths only — discovered anchor.
+> Read `${OBS_PLUGIN_ROOT}/references/tree-convention.md` first. Local paths only — discovered anchor.
 
 ## Inputs
 

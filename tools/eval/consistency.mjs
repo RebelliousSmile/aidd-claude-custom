@@ -34,8 +34,10 @@ const dirs = (p) => existsSync(join(ROOT, p))
 // ─── Manifestes ────────────────────────────────────────────────────────────────
 
 const marketplace = readJson('.claude-plugin/marketplace.json');
+const codexMarketplace = readJson('.agents/plugins/marketplace.json');
 const index = readJson('index.json');
 const byName = new Map(marketplace.plugins.map((p) => [p.name, p]));
+const codexByName = new Map(codexMarketplace.plugins.map((p) => [p.name, p]));
 const plugins = dirs('plugins').filter((n) => existsSync(join(ROOT, 'plugins', n, '.claude-plugin/plugin.json')));
 
 for (const name of plugins) {
@@ -48,7 +50,9 @@ for (const name of plugins) {
     fail('M1', `${name} — description : plugin.json et marketplace.json divergent`);
 
   const codexPath = `plugins/${name}/.codex-plugin/plugin.json`;
-  if (existsSync(join(ROOT, codexPath))) {
+  if (!existsSync(join(ROOT, codexPath))) {
+    fail('M1', `${name} — manifeste Codex absent`);
+  } else {
     const codex = readJson(codexPath);
     for (const key of ['name', 'description'])
       if (codex[key] !== manifest[key])
@@ -56,10 +60,22 @@ for (const name of plugins) {
     if (codex.version !== manifest.version && !codex.version?.startsWith(`${manifest.version}+codex.`))
       fail('M1', `${name} — version : le manifeste Codex doit partager la version Claude, avec au plus un cachebuster +codex.*`);
   }
+
+  const codexEntry = codexByName.get(name);
+  if (!codexEntry) {
+    fail('M1', `${name} — absent de .agents/plugins/marketplace.json`);
+  } else {
+    if (codexEntry.source?.source !== 'local' || codexEntry.source?.path !== `./plugins/${name}`)
+      fail('M1', `${name} — source Codex invalide dans .agents/plugins/marketplace.json`);
+    if (!codexEntry.policy?.installation || !codexEntry.policy?.authentication || !codexEntry.category)
+      fail('M1', `${name} — politique ou catégorie Codex manquante`);
+  }
 }
 
 for (const entry of marketplace.plugins)
   if (!plugins.includes(entry.name)) fail('M2', `${entry.name} — déclaré dans marketplace.json, sans dossier plugin`);
+for (const entry of codexMarketplace.plugins)
+  if (!plugins.includes(entry.name)) fail('M2', `${entry.name} — déclaré dans la marketplace Codex, sans dossier plugin`);
 
 const indexed = new Set(index.plugins.map((p) => p.id));
 for (const name of plugins) if (!indexed.has(name)) fail('M3', `${name} — absent d'index.json`);
@@ -165,7 +181,8 @@ const titleIsClean = (h1) => !NUMBERED_TITLE.test(h1);
  *
  * Deux bases de résolution coexistent, et confondre les deux rendrait la garde
  * inopérante sur la moitié du parc :
- *   `${CLAUDE_PLUGIN_ROOT}/x`  → `plugins/<plugin>/x`             (les quatre `sc-*`)
+ *   `${<PLUGIN>_PLUGIN_ROOT}/x` → `plugins/<plugin>/x`            (portable Codex/Claude)
+ *   `${CLAUDE_PLUGIN_ROOT}/x`   → `plugins/<plugin>/x`            (compatibilité historique)
  *   `references/x` (relatif)   → `plugins/<plugin>/skills/<skill>/x`  (`sc-tiers`)
  *
  * Couverture volontairement partielle, à ne pas confondre avec une garantie :
@@ -184,12 +201,15 @@ const titleIsClean = (h1) => !NUMBERED_TITLE.test(h1);
  */
 function ruleInstallLine(line, plugin, skill) {
   const sources = [], targets = [];
+  const portableRoot = `${plugin.toUpperCase().replaceAll('-', '_')}_PLUGIN_ROOT`;
+  const rootPrefixes = [`\${${portableRoot}}/`, '${CLAUDE_PLUGIN_ROOT}/'];
   for (const token of line.match(/`[^`]+`/g) ?? []) {
     const raw = token.slice(1, -1).trim();
     if (!raw.endsWith('.md')) continue;
     if (raw.startsWith('.claude/rules/')) { targets.push(raw.split('/').pop()); continue; }
-    const path = raw.startsWith('${CLAUDE_PLUGIN_ROOT}/')
-      ? join('plugins', plugin, raw.slice('${CLAUDE_PLUGIN_ROOT}/'.length))
+    const rootPrefix = rootPrefixes.find((prefix) => raw.startsWith(prefix));
+    const path = rootPrefix
+      ? join('plugins', plugin, raw.slice(rootPrefix.length))
       : join('plugins', plugin, 'skills', skill, raw);
     sources.push({ raw, path, ok: existsSync(join(ROOT, path)) });
   }

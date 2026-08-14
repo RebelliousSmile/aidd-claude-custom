@@ -6,7 +6,7 @@ Orchestrate a PHP code quality review: detect applicable pivots, load them from 
 
 - Invoke `01-scan` only — never `02-install-pivots`. Audit is read-only.
 - Never install any file to `.claude/rules/` or any project path.
-- All knowledge is read from `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/` at runtime.
+- All knowledge is read from `${SC_PHP_PLUGIN_ROOT}/skills/sniff/references/capabilities/` at runtime.
 
 ## Process
 
@@ -28,10 +28,10 @@ If `composer.json` / `artisan` / `bin/console` / `wp-config.php` are all absent,
 For each capability pivot path in the manifeste, read the corresponding reference file:
 
 ```
-${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/<pivot-path>
+${SC_PHP_PLUGIN_ROOT}/skills/sniff/references/capabilities/<pivot-path>
 ```
 
-Example: for `data/eloquent.md` → read `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/eloquent.md`
+Example: for `data/eloquent.md` → read `${SC_PHP_PLUGIN_ROOT}/skills/sniff/references/capabilities/data/eloquent.md`
 
 Collect all loaded pivot contents into an acceptance criteria document. Structure it as:
 

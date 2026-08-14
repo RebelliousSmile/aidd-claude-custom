@@ -14,6 +14,8 @@ description: >-
   (web-optimize), or general refactoring unrelated to Python version compatibility.
 ---
 
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
+
 # sc-python Legacy
 
 Detects version-specific and deprecated patterns in the Python codebase, then produces a migration plan and applies changes file by file — either upgrading to modern Python or downgrading to a target version for compatibility.

@@ -11,6 +11,8 @@ description: >-
   (use data-optimize), or performance profiling.
 ---
 
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
+
 # Log Analysis
 
 Inspects Python application logs from any environment — local filesystem, Docker containers, or a remote server via SSH. Produces a raw tail, filtered error list, pattern search, or period summary. Handles Python tracebacks, Django request logs, uvicorn/gunicorn access logs, structlog JSON, and Celery task logs.

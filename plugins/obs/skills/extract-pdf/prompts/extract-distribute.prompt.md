@@ -7,7 +7,7 @@ argument-hint: <progress-file>
 # Distribute Extracted Content
 
 > **Frontière** : `extract-pdf` écrit uniquement dans `sources/` (jamais dans la couche synthétisée — `reference/` en générique, `canon/`/`mj/` en profil JDR).
-> Voir `${CLAUDE_PLUGIN_ROOT}/references/domain-layout.md` pour la convention générique (§ profil JDR pour les spécificités JDR).
+> Voir `${OBS_PLUGIN_ROOT}/references/domain-layout.md` pour la convention générique (§ profil JDR pour les spécificités JDR).
 
 ## Context
 
@@ -146,7 +146,7 @@ For each approved distribution:
    python -c "from pathlib import Path; Path('<dir>').mkdir(parents=True, exist_ok=True)"
    ```
 
-2. Write content using Write tool
+2. Write content using the host's file-editing capability
 
 3. Log action
 

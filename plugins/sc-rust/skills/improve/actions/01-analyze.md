@@ -20,7 +20,7 @@ Identify:
 
 ### Step 1.5 — Stack-specific anti-patterns from capability pivots
 
-Re-detect capabilities from `Cargo.toml` (same conditions as `sniff/01-scan`). For each condition met, load the pivot from `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/<path>` and use its anti-patterns, prescriptive rules, and violation patterns as **additional detection criteria** in Step 2. Report findings under a `Stack-specific` category.
+Re-detect capabilities from `Cargo.toml` (same conditions as `sniff/01-scan`). For each condition met, load the pivot from `${SC_RUST_PLUGIN_ROOT}/skills/sniff/references/capabilities/<path>` and use its anti-patterns, prescriptive rules, and violation patterns as **additional detection criteria** in Step 2. Report findings under a `Stack-specific` category.
 
 | Capability | Condition | Pivot |
 |---|---|---|

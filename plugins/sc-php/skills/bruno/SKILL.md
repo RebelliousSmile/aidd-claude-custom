@@ -1,8 +1,10 @@
 ---
 name: bruno
-model: haiku
-description: Runs Bruno API tests in CLI mode and iterates until all targeted tests pass. Use when a user wants to run or fix API tests written in Bruno: "run Bruno tests", "test the API with Bruno", "run bruno/", "fix the Bruno tests", "bru run". Do NOT use for writing new Bruno test files from scratch, running Playwright tests, unit tests, or any testing that does not use the bru CLI.
+description: >-
+  Run Bruno API tests in CLI mode and iterate until all targeted tests pass. Use to run or fix existing Bruno tests with the bru CLI. Do NOT use to write new Bruno files from scratch, run Playwright or unit tests, or handle non-Bruno testing.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # Bruno
 
@@ -26,4 +28,4 @@ Single action. Dispatch to `test` on any trigger.
 
 ## External data
 
-- `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/testing/bruno.md` — Bruno conventions (capability pivot, loaded at audit time by /sc-php:audit)
+- `${SC_PHP_PLUGIN_ROOT}/skills/sniff/references/capabilities/testing/bruno.md` — Bruno conventions (capability pivot, loaded at audit time by sc-php:audit)

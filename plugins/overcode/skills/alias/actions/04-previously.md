@@ -50,13 +50,13 @@ Spawn 3 haiku sub-agents in parallel (background: true). Default depth: 15 commi
 - Return: `{ branch, activity[], issues[], working_tree{ staged[], unstaged[], untracked[] } }`
 
 **Agent "tests"** — test & coverage:
-- Infer test command from `CLAUDE.md` or `package.json` (common: `pnpm test`, `vitest run`).
+- Infer the test command from applicable `AGENTS.md`, `CLAUDE.md`, or `package.json` (common: `pnpm test`, `vitest run`).
 - Extract: pass/fail, test count, duration, line/branch/function coverage %, below-threshold files.
 - If unavailable: return `{ test_status: "N/A" }`.
 - Return: `{ test_status, test_count, duration_s, lines_pct, branches_pct, functions_pct, below_threshold[] }`
 
 **Agent "lint"** — lint health:
-- Infer lint command from `CLAUDE.md` or `package.json` (common: `pnpm lint`).
+- Infer the lint command from applicable `AGENTS.md`, `CLAUDE.md`, or `package.json` (common: `pnpm lint`).
 - Run `<lint command> 2>&1 | tail -5`, extract pass/fail. If unavailable: `{ lint_status: "N/A" }`.
 - Return: `{ lint_status }`
 

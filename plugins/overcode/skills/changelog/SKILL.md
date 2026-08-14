@@ -1,8 +1,10 @@
 ---
 name: changelog
-model: haiku
-description: Generates or updates CHANGELOG.md from git history following the Keep a Changelog format, commits the changelog, and creates a signed annotated tag; also curates an existing changelog by filling undocumented versions and condensing older major cycles into bounded summaries. Use when a user wants to release or document changes: "generate changelog", "update CHANGELOG", "release v1.2.0", "tag this version", "what changed since last release", "combler les trous du changelog", "résumer les anciennes versions", "le CHANGELOG est trop long". Do NOT use for writing release notes in a format other than Keep a Changelog, managing GitHub Releases UI, or bumping version numbers in package.json or Cargo.toml — this skill only manages CHANGELOG.md and git tags.
+description: >-
+  Generate or update CHANGELOG.md from git history using Keep a Changelog, commit it, and create a signed annotated tag; or curate an existing changelog by filling undocumented versions and condensing old cycles. Use for changelog generation, releases, tagging, or changelog cleanup. Do NOT use for other release-note formats, GitHub Releases UI, or package version bumps.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # Changelog
 

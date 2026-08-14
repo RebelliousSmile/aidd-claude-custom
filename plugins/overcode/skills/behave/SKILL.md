@@ -1,8 +1,10 @@
 ---
 name: behave
-description: Behavioural-test harness for skills, agents, and prompt-driven workflows — scaffolds scenario suites (Situation → Expected behaviour → Pass criteria), runs a dry-run judge harness that scores each scenario against a populated fixture without mutating real data, re-runs suites for non-regression, and reviews an existing suite for behavioural coverage and per-scenario quality (7-axis grid). Triggers on "behave", "scaffold behavioural tests", "run the behavioural suite", "regression-test this skill/agent", "write a scenario suite for", "review/audit the behavioural suite", "does this suite cover the target", "is this test well-written", or "/behave <action>". Do NOT use for unit/integration tests of code (use the project's test runner), for code review against a style guide (use review/foresee), or for one-off manual checks.
-model: opus
+description: >-
+  Behavioural-test harness for skills, agents, and prompt-driven workflows. It scaffolds and runs scenario suites, checks regressions, and reviews behavioural coverage. Use for requests to behave, scaffold behavioural tests, run or audit a behavioural suite, or regression-test a skill or agent. Do NOT use for code unit/integration tests, style-guide code review, or one-off manual checks.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # Behave
 

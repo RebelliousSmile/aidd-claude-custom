@@ -7,11 +7,9 @@ description: >-
   + wiring pre-commit) dérivant strictement du spec ; (2) diffuse → élément neutre rendu en
   block pattern WordPress FSE + theme.json. Jamais invoqué directement — uniquement appelé
   via le pivot de design:enforce/04-pivot ou design:diffuse/03-pivot.
-triggers:
-  - "sc-php:design-bridge"
-  - invoqué par design:enforce quand la stack est PHP/WordPress
-  - invoqué par design:diffuse quand la cible est block pattern WP
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-php:design-bridge
 
@@ -54,7 +52,7 @@ Après exécution, renvoyer au contexte appelant (enforce ou diffuse) :
 
 ## Pièges WP
 
-Lire `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md` avant toute action WP :
+Lire `${SC_PHP_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md` avant toute action WP :
 - CLI conteneur obligatoire (`pnpm dlx @wordpress/env run cli wp`)
 - Classes appariées `has-background` / `has-text-color`
 - `wp eval-file` deprecated en PHP 8.2
@@ -80,11 +78,11 @@ Routes (par ordre de préférence) :
 
 ## Workflow de plateforme (block theme / FSE)
 
-Ce pivot **possède** le workflow de plateforme FSE : `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/workflow-fse.md`. Il instancie les classes de cas agnostiques de `design:detail` sur un thème de blocs, sous le squelette figé par `sc-pivot-contract.md § Workflow de plateforme`. `design:detail/02-route` l'étend à la classe quand ce pivot est installé et la stack correspond.
+Ce pivot **possède** le workflow de plateforme FSE : `${SC_PHP_PLUGIN_ROOT}/skills/design-bridge/references/workflow-fse.md`. Il instancie les classes de cas agnostiques de `design:detail` sur un thème de blocs, sous le squelette figé par `sc-pivot-contract.md § Workflow de plateforme`. `design:detail/02-route` l'étend à la classe quand ce pivot est installé et la stack correspond.
 
 ### Modèle de contenu — hors contrat, dans le workflow
 
-Aucun verbe design ne produit de types de contenu : le contrat porte le vocabulaire visuel, jamais le modèle de données. Sur block theme, la phase `off-funnel` *Établir le modèle de contenu* comble ce trou, avant le rendu natif et avant toute énumération du périmètre de mesure — `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/content-model-fse.md`.
+Aucun verbe design ne produit de types de contenu : le contrat porte le vocabulaire visuel, jamais le modèle de données. Sur block theme, la phase `off-funnel` *Établir le modèle de contenu* comble ce trou, avant le rendu natif et avant toute énumération du périmètre de mesure — `${SC_PHP_PLUGIN_ROOT}/skills/design-bridge/references/content-model-fse.md`.
 
 Symptôme quand elle est sautée : `02-render` pose ses patterns dans les templates génériques du scaffold, et le bilan de fidélité rend un vert complet sur un thème qui ne porte aucune vue des types que la référence implique.
 
@@ -92,9 +90,9 @@ Symptôme quand elle est sautée : `02-render` pose ses patterns dans les templa
 
 - `plugins/design/references/sc-pivot-contract.md` — format des specs reçus et squelette de workflow de plateforme
 - `plugins/design/references/gate-config-schema.md` — format du rapport à écrire
-- `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/workflow-fse.md` — workflow de plateforme FSE (classes de cas instanciées sur block theme)
-- `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/content-model-fse.md` — dérivation du modèle de contenu depuis la référence (phase `off-funnel`)
-- `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md` — pièges WP
-- `${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-lint-instances.md` — réalisation des règles `stored-content` (extraction du contenu en base)
+- `${SC_PHP_PLUGIN_ROOT}/skills/design-bridge/references/workflow-fse.md` — workflow de plateforme FSE (classes de cas instanciées sur block theme)
+- `${SC_PHP_PLUGIN_ROOT}/skills/design-bridge/references/content-model-fse.md` — dérivation du modèle de contenu depuis la référence (phase `off-funnel`)
+- `${SC_PHP_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md` — pièges WP
+- `${SC_PHP_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-lint-instances.md` — réalisation des règles `stored-content` (extraction du contenu en base)
 - `plugins/design/references/token-schema.md` — structure tokens.json
 - `plugins/design/skills/adjust/references/manifest-schema.md` — structure components.json

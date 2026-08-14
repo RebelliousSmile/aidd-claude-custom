@@ -1,6 +1,5 @@
 ---
 name: setup
-model: sonnet
 description: >-
   Scaffolds a brand-new PHP project from scratch (WordPress FSE, Laravel, or
   Symfony) with Docker Compose ready for local dev, and optionally wires an
@@ -16,6 +15,8 @@ description: >-
   use for generic PHP without one of these three frameworks (no scaffold path exists
   for that yet).
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-php Setup
 

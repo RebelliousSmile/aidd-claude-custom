@@ -7,14 +7,14 @@ description: >-
   applies the rules in mail-config.yaml, proposes validatable action
   batches, then executes classify / delete / merge / summarize /
   flag-phishing; detects duplicates, applies prune rules, identifies
-  phishing, logs each session. Reply direction: /obs:mail reply <source>
+  phishing, logs each session. Reply direction: explicit obs:mail reply with a source path
   composes an assisted Markdown reply draft (email frontmatter, Re: subject)
   in _drafts/ — prepared, never sent.
-  Use when the user invokes /obs:mail. Do NOT use for project management —
+  Use when the user invokes obs:mail. Do NOT use for project management —
   use obs:project instead.
-disable-model-invocation: true
-model: sonnet
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # Mail
 
@@ -46,14 +46,14 @@ The triage flow is always:
 01-scan → 02-analyze → 03-propose → [04-execute → 03-propose]* → 05-report
 ```
 
-The invocation `/obs:mail [branche]` always triggers the full triage pipeline.
+The invocation `obs:mail [branche]` always triggers the full triage pipeline.
 
 ## Reply flow
 
 `reply` is **independent** of the triage pipeline. It is entered directly:
 
 ```
-/obs:mail reply <source> [intention]   →   06-reply
+obs:mail reply <source> [intention]   →   06-reply
 ```
 
 It may also be **offered** after `05-report` (or a `03-propose` batch) on the emails
@@ -111,7 +111,7 @@ The reply direction reuses the email format above, oriented outbound. Design def
    (the source's `from`), `subject` = `Re: <normalized subject>` (single `Re:`),
    `date` = today, `in_reply_to` = source `subject_hash` if present, `draft: true`.
    **No `processed: true`** on a draft.
-5. **Interaction** — independent action `/obs:mail reply <source>`; may also be
+5. **Interaction** — independent action `obs:mail reply <source>`; may also be
    offered (opt-in) after `propose`/`report` on the remaining emails.
 
 Invariants: never send · never mutate the source email/thread · validate the draft

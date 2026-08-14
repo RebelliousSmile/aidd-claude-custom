@@ -1,0 +1,6 @@
+interface:
+  display_name: "Mail"
+  short_description: "Triage exported mail and draft replies"
+  default_prompt: "Use $obs:mail to triage these exported messages."
+policy:
+  allow_implicit_invocation: false

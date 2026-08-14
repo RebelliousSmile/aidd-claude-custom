@@ -1,68 +1,34 @@
-# Decision Document Protocol
+# Decision document protocol
 
-Reference for detecting and assessing decision/spike documents in `assess-doc`.
+## Detection
 
-## Detection markers
+Treat a document as a decision record when its first 20 lines contain a decision/status field, an explicit `GO`, `NO-GO`, `ACCEPTED`, `REJECTED`, or `DEFERRED` verdict, or a Spike/ADR/Decision Record heading. Extract the decision value, its subject, explicit re-evaluation conditions, and subject-linked issue references.
 
-A file is a **decision document** if its first 20 lines contain any of:
+## Subject-matched evidence
 
-| Marker | Examples |
-|--------|---------|
-| Frontmatter decision field | `> **Décision** :`, `> **Decision:**` |
-| Status field | `> **Statut** :`, `> **Status**:` |
-| Explicit verdict | `**NO-GO**`, `**GO**`, `**ACCEPTED**`, `**REJECTED**`, `**DEFERRED**` |
-| Document type | `# Spike :`, `# ADR`, `# Decision Record` |
+`Superseded` means events replaced the decision, not merely that time passed. Require all of the following:
 
-When a decision marker is found, set `decision_doc = true` and extract:
-- **decision_value** — the decision text (e.g. `NO-GO court terme`, `GO`)
-- **re_eval_conditions** — bullet list under headings like `Re-évaluer si`, `Conditions pour ré-évaluer`, `Reconsider when` (may be absent)
-- **issue_refs** — any issue numbers in the header block (e.g. `#26`, `#27`)
+1. Weighted local score is at least 80%.
+2. No critical local claim is obsolete.
+3. The replacement evidence names or implements the same decision subject.
+4. One of these complete conditions holds:
+   - a rejected/NO-GO feature now has a concrete implementation artifact in the repository;
+   - a replacement decision or artifact is implemented and its relationship to the old subject is explicit;
+   - every issue explicitly governing re-evaluation is closed with a resolution that satisfies the named condition;
+   - every explicit re-evaluation condition is demonstrably met by primary repository or subject-linked tracker evidence.
 
-## External source checks
+A closed issue, release asset, or keyword match unrelated to the decision subject is never sufficient. If only some conditions are met, retain the weighted Current/Partial/Obsolete result and report `re-evaluation: partial`.
 
-Run these after the standard claim verification, only when `decision_doc = true`:
+Apply `Superseded` before `Current` once all requirements hold. Suggested action is `archive` with the replacement evidence. Do not emit the former undocumented `Archived` sub-verdict.
 
-### 1. Issue status
-For each issue ref found:
-```bash
-gh issue view <N> --json state,title,closedAt 2>/dev/null
-# or: glab issue view <N>
-```
-- `state: closed` → flag issue as **resolved**
-- `state: open` → no flag
+## Output
 
-### 2. Release artifacts
-```bash
-gh release list --json tagName,assets 2>/dev/null | \
-  jq '.[].assets[].name'
-```
-Scan asset names for technology keywords from the doc (e.g. `.apk`, feature name, service name). Match = flag as **artifact exists**.
-
-### 3. Codebase presence check
-If the decision is **NO-GO** for a feature:
-- Extract the main implementation hint from the doc (file path, module name, service name mentioned as "would require").
-- Grep for it: `rg -l "<keyword>" src/ --type-add 'vue:*.vue'`
-- Found = the feature may have been implemented despite NO-GO → flag as **implemented**.
-
-## Superseded verdict rules
-
-Apply **Superseded** when accuracy ≥ 80% (claims still technically correct) AND any of:
-- A **NO-GO** decision has `implemented = true` (feature found in codebase)
-- Referenced issues are all `state: closed`
-- A release contains an artifact matching the decision's subject
-- All `re_eval_conditions` are demonstrably met (each condition resolvable via codebase grep or issue check)
-
-Apply **Archived** (sub-case of Superseded) when the decision is still valid but its subject is entirely absent from the codebase — the feature was never built and is no longer referenced anywhere.
-
-## Output block for decision docs
-
-Append after the standard claim table:
-
-```
-Decision status: NO-GO / GO / ACCEPTED / REJECTED / DEFERRED
-Re-evaluation conditions met: yes / no / partial / n/a
-External signals:
-  - Issues: #N state=closed | #N state=open
-  - Release artifacts: <name> found in <tag> | none matched
-  - Codebase: <keyword> found at <path> | not found
+```yaml
+decision: <value>
+subject: <normalized subject>
+re_evaluation: met | partial | unmet | n/a
+matched_evidence:
+  - <primary source and relationship>
+unmatched_signals:
+  - <signal rejected as unrelated or incomplete>
 ```

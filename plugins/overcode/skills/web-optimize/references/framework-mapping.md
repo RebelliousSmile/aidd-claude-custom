@@ -1,15 +1,15 @@
 # Framework mapping — perf pivots
 
 > **Generic file**: this file contains ONLY the 12-section schema and the fallback procedure.
-> Stack-specific pivots are NOT embedded here — they are installed as project-level rules by `sc-*` plugins. **Which plugin supplies which pivot, and by which command, is read in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` — never guessed, never derived from a plugin's name.** The command is carried per plugin, not per family: `sc-tiers` installs by `setup`, the four `sc-<language>` by `sniff`.
+> Stack-specific pivots are NOT embedded here — they are installed as project-level rules by `sc-*` plugins. **Which plugin supplies which pivot, and by which command, is read in `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md` — never guessed, never derived from a plugin's name.** The command is carried per plugin, not per family: `sc-tiers` installs by `setup`, the four `sc-<language>` by `sniff`.
 >
 > **Dispatch order** when running an audit on a detected stack:
 >
-> 1. Look for `.claude/rules/07-quality/perf-pivots-<stack>.md` (and any related `data-pivots-<stack>.md`) — installed by the matching `sc-*` plugin
+> 1. Look for `${PROJECT_RULES_ROOT}/07-quality/perf-pivots-<stack>.md` (and any related `data-pivots-<stack>.md`) — installed by the matching `sc-*` plugin
 > 2. If found → use it as the primary checklist source for §1–§11
 > 3. If not found → fall back to the generic schema below + the fallback procedure
 >
-> Always check `.claude/rules/07-quality/` for ALL `perf-pivots-*.md` and `data-pivots-*.md` files (hybrid stacks aggregate pivots from multiple plugins).
+> Always check `${PROJECT_RULES_ROOT}/07-quality/` for ALL `perf-pivots-*.md` and `data-pivots-*.md` files (hybrid stacks aggregate pivots from multiple plugins).
 
 ## Generic 12-section schema
 
@@ -32,7 +32,7 @@ Les pivots installés par `sc-*` plugins remplacent les items section-par-sectio
 
 ## Plugin → stack mapping
 
-**Read it in `${CLAUDE_PLUGIN_ROOT}/references/pivot-providers.md` › `perf-pivots-*`.** That table is the sole source, and it is not duplicated here: a second copy drifts from the installers silently, which is exactly how this file came to advertise `sc-tiers` perf pivots and `sc-rust` Actix/Rocket pivots that no installer has ever written.
+**Read it in `${OVERCODE_PLUGIN_ROOT}/references/pivot-providers.md` › `perf-pivots-*`.** That table is the sole source, and it is not duplicated here: a second copy drifts from the installers silently, which is exactly how this file came to advertise `sc-tiers` perf pivots and `sc-rust` Actix/Rocket pivots that no installer has ever written.
 
 If a stack you detect has no line in that table, the state is `no provider` — follow the fallback procedure below, and say so in the receipt.
 

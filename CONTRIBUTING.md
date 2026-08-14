@@ -1,17 +1,19 @@
 # Contribuer
 
-Marketplace personnelle de plugins Claude Code. Ce guide décrit comment ajouter ou modifier un plugin en respectant les conventions du dépôt. Tutoiement par convention.
+Marketplace personnelle de plugins Claude Code et Codex. Ce guide décrit comment ajouter ou modifier un plugin portable en respectant les conventions du dépôt. Tutoiement par convention.
 
 ## Structure du dépôt
 
 ```
 .claude-plugin/marketplace.json   # registre du marketplace (source de vérité installable)
+.agents/plugins/marketplace.json  # catalogue Codex natif (politique + catégorie)
 index.json                        # registre des plugins (id, nom) — ni version ni description
 plugins/<nom>/
   .claude-plugin/plugin.json      # manifeste du plugin
+  .codex-plugin/plugin.json       # manifeste Codex natif
   README.md                       # doc du plugin
   CHANGELOG.md                    # journal du plugin
-  references/                     # docs partagées entre skills (via ${CLAUDE_PLUGIN_ROOT})
+  references/                     # docs partagées + contrat host-portability
   skills/<skill>/
     SKILL.md                      # routeur du skill (frontmatter + actions + flow)
     actions/NN-<nom>.md           # une étape par fichier
@@ -30,12 +32,12 @@ Un `SKILL.md` est un **routeur**, pas une procédure. Frontmatter :
 ```yaml
 ---
 name: <skill>
-model: sonnet            # modèle conseillé
 description: >-          # déclencheurs + périmètre + "Do NOT use ... use X instead"
   ...
-# disable-model-invocation: true   # si le skill ne doit se lancer que sur /<plugin>:<skill>
 ---
 ```
+
+Le frontmatter portable ne porte que `name` et `description`. Pour une skill explicit-only dans Codex, ajouter `agents/openai.yaml` avec une `interface` valide et `policy.allow_implicit_invocation: false`; ne pas remettre `model`, `triggers` ou `disable-model-invocation` dans `SKILL.md`.
 
 Corps attendu :
 
@@ -50,11 +52,11 @@ Chaque `actions/NN-<nom>.md` suit : `Inputs` → `Process` → `Outputs` → `Te
 
 **Convention `evals/scenarios.json`** : liste de `{ "prompt", "expect_action" }`. `expect_action` vaut **soit l'id exact d'une action** de la table (préféré — la couverture est alors traçable), **soit `null`** (le prompt ne doit pas déclencher ce skill). Les **labels sémantiques** non-id (ex. `build+wire` pour un flux composite) sont tolérés mais non traçables automatiquement — à éviter pour les nouveaux skills. Idéalement, exposer le mapping *trigger → action* en prose (`"phrase" → \`action\``) plutôt qu'en seul frontmatter `triggers:`.
 
-Pour partager une procédure entre skills (DRY), la placer dans `plugins/<nom>/references/` et la référencer via `${CLAUDE_PLUGIN_ROOT}/references/<fichier>.md` — **référencer, ne pas redupliquer** (cf. `aidd_docs/internal/decisions/001-pivot-authoring-conventions.md`).
+Pour partager une procédure entre skills (DRY), la placer dans `plugins/<nom>/references/` et la référencer via la racine portable définie par `references/host-portability.md` (`${<PLUGIN>_PLUGIN_ROOT}`). Cette racine se dérive du `SKILL.md` chargé ; `CLAUDE_PLUGIN_ROOT` n'est qu'un hint optionnel — **référencer, ne pas redupliquer**.
 
-## Règles installées dans un projet (`.claude/rules/`)
+## Règles installées dans un projet
 
-Un skill `setup`/`sniff` peut installer des règles dans le projet cible. Chaque règle porte un frontmatter `paths:` (globs) : elle s'auto-charge quand un fichier touché correspond. Conséquences :
+Un skill `setup`/`sniff` route les instructions selon l'hôte : section bornée de `AGENTS.md` et références sous `.agents/rules/` sur Codex, fichiers sous `.claude/rules/` sur Claude Code. Codex ne charge pas automatiquement `.agents/rules/` : `AGENTS.md` doit dire quand lire chaque référence. Sur Claude Code, chaque règle porte un frontmatter `paths:` et s'auto-charge quand un fichier touché correspond.
 
 - `paths:` d'une **règle de codage** → globs de fichiers source pertinents (`**/*.vue`, `**/*.css`…).
 - `paths:` d'un **pivot perf** (consommé par `web-optimize`) → uniquement les fichiers de **config** (`vite.config.ts`…), pas les globs source — voir DEC-001.
@@ -62,19 +64,20 @@ Un skill `setup`/`sniff` peut installer des règles dans le projet cible. Chaque
 
 ## Ajouter un plugin
 
-1. Créer `plugins/<nom>/.claude-plugin/plugin.json` (`$schema`, `name`, `version`, `description`, `author`).
+1. Créer les deux manifests : `plugins/<nom>/.claude-plugin/plugin.json` et `plugins/<nom>/.codex-plugin/plugin.json` (`name`, `version`, `description`, `author`, `skills`, métadonnées d'interface Codex).
 2. Ajouter les skills sous `skills/`.
-3. **Enregistrer le plugin à deux endroits** :
+3. **Enregistrer le plugin à trois endroits** :
    - `.claude-plugin/marketplace.json` (bloc `plugins[]` : `name`, `version`, `source`, `description`, `recommended`).
+   - `.agents/plugins/marketplace.json` (bloc `plugins[]` : source locale, politiques `installation`/`authentication`, catégorie ; aucune version ni description dupliquée).
    - `index.json` (bloc `plugins[]` : `id`, `name` — **rien d'autre**, voir *Versionnement*).
 4. Documenter dans le `README.md` racine (tableau des plugins + section dédiée + tableau « par type de projet » si pertinent) et créer `plugins/<nom>/README.md`.
 5. Créer `plugins/<nom>/CHANGELOG.md`.
 
-Garder `marketplace.json` et les README **cohérents** avec `plugin.json` à chaque changement de version ou de description.
+Garder les deux manifests, les deux catalogues et les README cohérents à chaque changement.
 
 ## Versionnement
 
-- SemVer par plugin, dans **deux** fichiers : `plugin.json` (fait foi) + `marketplace.json` (ce que Claude Code lit à l'installation).
+- SemVer par plugin dans les deux manifests ; le manifest Claude porte la version sémantique de référence et le manifest Codex partage cette version, avec au plus un suffixe de cachebuster `+codex.*`. Le catalogue Claude duplique la version ; le catalogue Codex ne la duplique pas.
 - `index.json` ne porte **ni version ni description**. Il les a portées, et elles ont dérivé sur six plugins sans qu'aucun lecteur ne s'en aperçoive — parce qu'aucun lecteur ne s'en sert. Une copie que personne ne lit ne se maintient pas : elle se supprime. Les y remettre ferait revenir la dérive.
 - **Mineur** : ajout rétro-compatible (skill, action, règle).
 - **Majeur** : suppression/renommage cassant un usage existant.
@@ -95,14 +98,15 @@ Messages factuels, impératifs. Pas d'emoji dans les artefacts versionnés.
 
 ## Développement local
 
-Sur la machine de dev, enregistrer le marketplace avec `"source": "directory"` et le chemin local (clé distincte de l'install GitHub) : les modifications sont prises en compte sans push.
+Sur la machine de dev, enregistrer le marketplace Claude avec `"source": "directory"`. Pour Codex, enregistrer la marketplace locale contenant `.agents/plugins/marketplace.json` avec le CLI ou le navigateur de plugins.
 
-Après modification d'un skill déjà installé, recharger le cache (voir la section *Maintenance du cache* du `README.md`) puis `/reload-plugins`.
+Après modification d'un plugin déjà installé, utiliser le flux de cachebuster/réinstallation propre à l'hôte puis ouvrir une nouvelle session.
 
 ## Avant de pousser
 
-- JSON valides (`marketplace.json`, `index.json`, `plugin.json`, chaque `evals/scenarios.json`).
+- JSON valides (les deux marketplaces, `index.json`, les deux manifests, chaque `evals/scenarios.json`).
+- Chaque plugin passe `validate_plugin.py` et chaque skill passe `quick_validate.py`.
 - Chaque action a un `Test` vérifiable.
 - Les tests passent : `pnpm test`.
-- Les `references` croisées (`${CLAUDE_PLUGIN_ROOT}/...`) pointent vers des fichiers existants. `M4` couvre le cas le plus coûteux — une source citée en face d'une cible `.claude/rules/` — mais pas les autres : une référence citée dans un `SKILL.md` ou dans un bloc de code reste à vérifier à la main.
+- Les références croisées (`${<PLUGIN>_PLUGIN_ROOT}/...`) pointent vers des fichiers existants. `M4` couvre les racines portables et la compatibilité historique, mais une référence hors table déclarative reste à vérifier à la main.
 - README racine + README plugin + CHANGELOG cohérents avec la version.

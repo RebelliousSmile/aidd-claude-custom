@@ -1,8 +1,10 @@
 ---
 name: journey
-model: sonnet
-description: Executes a user journey from a GitHub or GitLab issue, logs step-by-step Playwright results to a <plan>.journey.md report, and posts Summary and Conclusion to the issue. Use when a user wants to validate a feature end-to-end against an issue: "run the journey for issue #N", "test issue #N", "execute journey", "validate this issue with Playwright". Do NOT use for unit tests, API tests, non-Playwright testing, creating issues, or any task not linked to an existing GitHub/GitLab issue with a matching plan file.
+description: >-
+  Execute a user journey from a GitHub or GitLab issue, log Playwright results to a PLAN.journey.md report, and post the summary and conclusion to the issue. Use to run or validate an issue-linked journey with Playwright. Do NOT use for unit/API tests, non-Playwright testing, issue creation, or work without a matching plan file.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # Journey
 
@@ -32,4 +34,4 @@ Single action. Dispatch to `run` on any trigger.
 
 ## External data
 
-- `.claude/rules/custom/05-playwright-patterns.md` — Playwright conventions for this project
+- `${PROJECT_RULES_ROOT}/custom/05-playwright-patterns.md`, when present — Playwright conventions for this project; on Codex also inspect the applicable `AGENTS.md`

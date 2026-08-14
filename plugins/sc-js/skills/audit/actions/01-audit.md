@@ -6,7 +6,7 @@ Orchestrate a JS code quality review: detect applicable pivots, load them from t
 
 - Invoke `01-scan` only — never `02-install-pivots` or `03-clean`. Audit is read-only.
 - Never install any file to `.claude/rules/` or any project path.
-- All knowledge is read from `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/` at runtime.
+- All knowledge is read from `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/` at runtime.
 
 ## Process
 
@@ -28,10 +28,10 @@ If `package.json` is not found, abort with:
 For each pivot path in the manifeste, read the corresponding reference file:
 
 ```
-${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/<pivot-path>
+${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/<pivot-path>
 ```
 
-Example: for `state/pinia.md` → read `${CLAUDE_PLUGIN_ROOT}/skills/sniff/references/capabilities/state/pinia.md`
+Example: for `state/pinia.md` → read `${SC_JS_PLUGIN_ROOT}/skills/sniff/references/capabilities/state/pinia.md`
 
 Collect all loaded pivot contents into an acceptance criteria document. Structure it as:
 

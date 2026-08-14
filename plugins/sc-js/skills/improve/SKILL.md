@@ -1,6 +1,5 @@
 ---
 name: improve
-model: sonnet
 description: >-
   Analyzes a JavaScript/TypeScript codebase for idiomatic JS gaps, Vue/Nuxt
   anti-patterns, and maintainability issues, then produces a prioritized improvement
@@ -12,6 +11,8 @@ description: >-
   Do NOT use for performance (web-optimize), data layer (data-optimize), version
   migrations (legacy), or line-by-line code review (aidd-dev:05-review).
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-js Improve
 

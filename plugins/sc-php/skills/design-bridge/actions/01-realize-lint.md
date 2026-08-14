@@ -25,7 +25,7 @@ WordPress FSE combine PHP (templates), JSON (block patterns, theme.json) et HTML
 | Type d'enforcement | Couche | Outil | Cible |
 |---|--------|-------|-------|
 | `source-graph` | classes dans les templates PHP | script PHP checker | fichiers `.php` portant des attributs `class="…"` |
-| `stored-content` | contenu HTML en base | `lint-core.mjs`, sur export | via `wp post get` (`${CLAUDE_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-lint-instances.md`) |
+| `stored-content` | contenu HTML en base | `lint-core.mjs`, sur export | via `wp post get` (`${SC_PHP_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-lint-instances.md`) |
 | `platform-config` | palette déclarée par la plateforme | vérification JSON | cohérence `theme.json` ↔ `tokens.json` |
 
 ## Étape 1 — Générer le PHP class checker

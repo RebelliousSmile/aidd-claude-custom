@@ -1,12 +1,13 @@
 ---
 name: legacy
-model: sonnet
 description: >-
   Migration CSS legacy vers standards modernes : float/clearfix → flex/grid,
   px → rem/em, préfixes vendor (-webkit-/-moz-) → standard, variables SCSS/Less ($var/@var)
   → custom properties CSS natives, hack IE/Edge classiques → standards. Propose un plan
   de migration par fichier, n'édite qu'après validation.
 ---
+
+Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
 
 # sc-css:legacy
 

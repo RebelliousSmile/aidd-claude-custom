@@ -2,7 +2,7 @@
 
 Arbitrate the content of `R` node by node in an **interactive session**. For each node, Claude analyses, proposes a verdict with motivation, and waits for confirmation before acting. Nothing changes without explicit human approval.
 
-> Read `${CLAUDE_PLUGIN_ROOT}/references/tree-convention.md` first. Local paths only — discovered anchor. Honor `delete-safety`.
+> Read `${OBS_PLUGIN_ROOT}/references/tree-convention.md` first. Local paths only — discovered anchor. Honor `delete-safety`.
 
 ## Inputs
 
