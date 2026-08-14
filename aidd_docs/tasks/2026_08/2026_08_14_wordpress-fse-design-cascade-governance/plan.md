@@ -1,6 +1,6 @@
 ---
 objective: "Un thème WordPress FSE produit par sc-php doit charger les styles issus du contrat design et prouver que chaque propriété déclarée par les feuilles de composant DS est effectivement gouvernée par ce composant sur le front et dans l’éditeur."
-status: in-progress
+status: implemented
 ---
 
 # Plan: Gouvernance de cascade design dans WordPress FSE
