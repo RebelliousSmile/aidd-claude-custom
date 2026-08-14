@@ -2,13 +2,13 @@
 
 ## Rôle
 
-Générer un fichier CSS BEM par composant depuis `design/components.json`, organisés en `@layer design.components`.
+Générer un fichier CSS BEM par composant depuis `design/components.json`, sous l'`Output dir` du spec et organisés en `@layer design.components` lorsque la topologie de l'hôte le permet.
 
 ## Procédure
 
 1. Lire `design/components.json`.
 2. Pour chaque composant du manifeste :
-   a. Créer `design/css/<canonical-name>.css`.
+   a. Créer `<Output dir>/<canonical-name>.css` (`design/css/` reste le fallback standalone).
    b. Déclarer `@layer design.components { ... }`.
    c. Générer le bloc racine (`.base`) avec les props de layout/fond dérivées du contrat :
       - `backgrounds` du manifeste → `background-color: var(--token-path)` si un seul fond, sinon pas de règle (fond piloté par modificateur).
@@ -16,6 +16,8 @@ Générer un fichier CSS BEM par composant depuis `design/components.json`, orga
    e. Générer un bloc par `modifiers.*` avec les overrides attendus (fond alternatif si background token présent dans le modificateur).
    f. Générer les règles a11y minimales : si `a11y.role` présent → ajouter un commentaire `/* role: <role> */` ; si `a11y.requires` non vide → ajouter un commentaire `/* required: <attrs> */`.
 3. Si un fichier composant existe déjà, comparer les sélecteurs et signaler les sélecteurs orphelins (présents dans le CSS mais absents du manifeste → candidats à supprimer) et les sélecteurs manquants (présents dans le manifeste mais absents du CSS → ajoutés).
+4. Produire `<Output dir>/index.css` : tokens d'abord, composants ensuite, puis adapter de plateforme nommé par le retour du pivot hôte. Ne jamais produire ni réécrire cet adapter.
+5. Refuser deux sorties qui résolvent vers le même chemin.
 
 ## Format produit
 

@@ -21,6 +21,7 @@ Le périmètre est celui des **feuilles chargées**, pas celui des feuilles prod
 |---|---|
 | feuilles produites depuis le contrat (`01-realize-tokens`, `02-realize-components`) | oui — dérivées, donc conformes par construction, mais vérifiées quand même |
 | feuilles applicatives déclarées dans `Enforcement target` | oui |
+| adapter de plateforme chargé et déclaré (ex. `fse-bindings.css`) | oui — contrôlé ici, produit par le pivot de plateforme |
 | feuille applicative non déclarée | non — la règle est `unrealized` sur cette surface |
 | style injecté à l'exécution | non — la preuve n'existe pas avant l'exécution |
 
@@ -34,6 +35,10 @@ Deux vérifications reviennent systématiquement, et se dérivent du spec sans l
 - Tout `var(--…)` référencé résout un chemin de `Token paths`. Une custom property inconnue est un token fantôme, pas une valeur.
 
 Un second `:root` redéclarant une custom property du contrat est le cas le plus destructeur : la cascade rend la dérive invisible dans le markup, qui reste littéralement conforme.
+
+Un adapter de plateforme ne peut utiliser que des classes DS du spec et des classes hôtes explicitement
+documentées par son producteur. sc-css vérifie ses tokens et ses déclarations comme les autres feuilles,
+mais ne le régénère jamais.
 
 ## Étape 3 — Écrire le rapport et le brancher au gate
 

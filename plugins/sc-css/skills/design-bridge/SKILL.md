@@ -1,12 +1,12 @@
 ---
 name: design-bridge
 description: >-
-  Réceptacle du pivot design pour la couche CSS pure. Reçoit le contrat design
+  Réceptacle du pivot design pour la couche CSS, seule ou intégrée à une stack mixte. Reçoit le contrat design
   (tokens.json + components.json) émis par design:enforce ou design:diffuse, et produit :
   (1) un fichier de custom properties CSS (tokens → :root) ; (2) des stylesheets de
   composants BEM (components.json → .block, .block__element, .block--modifier) avec
   cascade layers. Jamais invoqué directement — appelé via le pivot design:enforce/04-pivot
-  ou design:diffuse/03-pivot quand la stack est CSS pure.
+  ou design:diffuse/03-pivot quand la cible demande des feuilles CSS.
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
@@ -29,8 +29,8 @@ Lire `plugins/design/references/sc-pivot-contract.md` pour le format attendu.
 
 | # | Action | Déclencheur | Output |
 |---|--------|-------------|--------|
-| 01 | `realize-tokens` | spec reçu de enforce ou diffuse, `tokens.json` présent | `design/css/tokens.css` (`:root { --token-path: value; }`) |
-| 02 | `realize-components` | spec reçu, `components.json` présent | `design/css/<component>.css` par composant |
+| 01 | `realize-tokens` | spec reçu de enforce ou diffuse, `tokens.json` présent | `<Output dir>/tokens.css` (`:root { --token-path: value; }`) |
+| 02 | `realize-components` | spec reçu, `components.json` présent | `<Output dir>/<component>.css` + point d'entrée |
 | 03 | `realize-lint` | spec d'enforcement portant des règles de type `stylesheet` | vérification native + rapport de pivot branché au gate |
 
 ## Règle de dérivation stricte
@@ -106,6 +106,11 @@ L'enveloppe `@layer design.tokens` / `@layer design.components` **suppose un hô
 - Les **tokens** (`:root { --… }`) sont saufs dans les deux cas tant que les noms ne collisionnent pas avec ceux de l'hôte (espaces de noms disjoints) : le risque porte sur les **règles composants**, pas sur la résolution `var()`.
 
 sc-css:design-bridge constate la topologie, émet selon la stratégie retenue, signale l'absence du fichier d'entrée et propose sa création.
+
+Dans une stack mixte, `Output dir` vient du spec et peut viser les assets publics d'un thème. Le point
+d'entrée charge, dans cet ordre, `tokens.css`, les feuilles composants, puis tout adapter de plateforme
+nommé par le retour du réceptacle de plateforme. L'adapter reste produit par ce dernier ; sc-css ne le
+réécrit pas et le contrôle comme toute autre feuille réellement chargée.
 
 ## Obligation de report
 

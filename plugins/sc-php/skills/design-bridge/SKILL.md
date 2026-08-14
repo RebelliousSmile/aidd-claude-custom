@@ -5,7 +5,7 @@ description: >-
   (plugins/design/references/sc-pivot-contract.md) émis par design:enforce ou design:diffuse,
   et réalise nativement : (1) enforce → linter PHP/WP idiomatique (PHPCS ruleset ou script PHP
   + wiring pre-commit) dérivant strictement du spec ; (2) diffuse → élément neutre rendu en
-  block pattern WordPress FSE + theme.json. Jamais invoqué directement — uniquement appelé
+  block pattern WordPress FSE + theme.json + adapter de bindings FSE lorsque le bloc peint un élément interne. Jamais invoqué directement — uniquement appelé
   via le pivot de design:enforce/04-pivot ou design:diffuse/03-pivot.
 ---
 
@@ -48,7 +48,7 @@ Le cas fréquent ici : les règles de type `stored-content`. Le vocabulaire vit 
 
 Après exécution, renvoyer au contexte appelant (enforce ou diffuse) :
 - `01-realize-lint` : confirmation linter installé + wiring pre-commit réalisé + rapport écrit, règles réalisées et non réalisées nommées
-- `02-render` : fichier(s) produit(s) + instructions d'intégration + confirmation gate enforce exit 0
+- `02-render` : pattern + éventuel `fse-bindings.css` produits, chemins nommés sans chevauchement avec le spec CSS + instructions d'intégration + confirmation gate enforce exit 0
 
 ## Pièges WP
 
