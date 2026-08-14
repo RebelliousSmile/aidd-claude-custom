@@ -55,8 +55,8 @@ nommage cohérent). Une bibliothèque complète mais mal rangée reste inutilisa
 ## Prérequis
 
 - Thème **bloc** FSE avec des patterns en `patterns/*.php` (auto-enregistrées par en-tête).
-- wp-env (ou WP accessible en CLI). **Toujours** `pnpm dlx @wordpress/env run cli wp` —
-  jamais `php wp-cli.phar` (cible une autre DB).
+- wp-env (ou WP accessible en CLI). **Toujours** `pnpm wp` via `scripts/wp.ps1` —
+  jamais `php wp-cli.phar` (autre DB) ni une commande wp-env nue (garde Compose perdue).
 
 ## Scripts fournis
 

@@ -16,6 +16,10 @@ wp-content/
     parts/
       header.html
       footer.html
+    assets/
+      css/
+        design/
+          index.css
     functions.php
   plugins/{{PLUGIN_SLUG}}/
     {{PLUGIN_SLUG}}.php
@@ -165,8 +169,35 @@ if (!defined('ABSPATH')) {
 add_action('after_setup_theme', function () {
     add_theme_support('wp-block-styles');
     add_theme_support('editor-styles');
+    add_editor_style('assets/css/design/index.css');
+});
+
+add_action('wp_enqueue_scripts', function () {
+    $relative = 'assets/css/design/index.css';
+    $path = get_theme_file_path($relative);
+    $version = defined('WP_DEBUG') && WP_DEBUG && file_exists($path)
+        ? (string) filemtime($path)
+        : wp_get_theme()->get('Version');
+
+    wp_enqueue_style(
+        '{{THEME_SLUG}}-design',
+        get_theme_file_uri($relative),
+        [],
+        $version
+    );
 });
 ```
+
+## `assets/css/design/index.css`
+
+```css
+/* Point d'entrée partagé front + éditeur. sc-css:design-bridge maintient les imports. */
+```
+
+Ce fichier vide est volontaire au scaffold : le contrat design n'existe pas encore. Il fournit un
+chemin public stable que `sc-css:design-bridge` remplira dans l'ordre `tokens.css`, composants, puis
+`fse-bindings.css`. Ne jamais créer deux entrées distinctes pour le front et l'éditeur : leur divergence
+rendrait le WYSIWYG invérifiable.
 
 ## `{{PLUGIN_SLUG}}.php` (en-tête plugin, obligatoire)
 
@@ -188,4 +219,6 @@ if (!defined('ABSPATH')) {
 
 - Le thème contient uniquement le rendu/templates (FSE). Toute la logique métier (formulaires, blocs SSR, intégrations tierces) va dans le plugin — jamais dans `functions.php` du thème au-delà du setup de base. C'est la séparation observée sur les projets WP FSE matures : le thème reste remplaçable, le plugin porte les fonctionnalités.
 - Les cinq fichiers `.html` ci-dessus sont un **plancher navigable**, pas une maquette : le contenu FSE réel se construit ensuite avec l'éditeur, ou via `design:enforce`/`design:diffuse` si le pivot design est utilisé.
+- Le point d'entrée CSS est chargé sur le front et dans l'éditeur dès le scaffold. Son absence sur l'une
+  des surfaces est un échec de vérification, même s'il ne contient encore aucune règle.
 - **Le squelette ne porte aucun type de contenu, et ne peut pas en porter** : ce scaffold s'exécute sur un dossier vide, avant que la référence n'existe. `includes/` est vide par construction, et les trois templates sont génériques. Dès qu'une référence implique des types répétés (une vue « fiche » plus sa liste), le modèle de contenu se dérive dans une étape distincte — `sc-php:design-bridge`, `references/content-model-fse.md`. Livrer le scaffold en tenant le modèle pour acquis produit un site qui répond 200 sur tout et ne rend que des vues génériques.

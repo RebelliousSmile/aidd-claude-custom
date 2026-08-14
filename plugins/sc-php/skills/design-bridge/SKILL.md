@@ -53,10 +53,12 @@ Après exécution, renvoyer au contexte appelant (enforce ou diffuse) :
 ## Pièges WP
 
 Lire `${SC_PHP_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md` avant toute action WP :
-- CLI conteneur obligatoire (`pnpm dlx @wordpress/env run cli wp`)
+- CLI conteneur obligatoire via le wrapper gardé (`pnpm wp`)
 - Classes appariées `has-background` / `has-text-color`
 - `wp eval-file` deprecated en PHP 8.2
 - Block patterns = copies en DB — réimporter après modification
+- Les patterns auto-enregistrées sont des fichiers `patterns/*.php`, jamais `*.html`
+- `core/button` et `core/navigation-link` exigent un binding vers leur élément peint interne
 
 ### Cascade CSS : presets `has-*-font-size` / `has-*-color` et `!important`
 

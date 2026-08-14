@@ -50,6 +50,11 @@ directory is detected.
   a native button on the **anchor** (`.<component>__x .wp-block-button__link`), not on the
   `.wp-block-button` wrapper where `className` lands — and raise specificity above the prose
   link rule.
+- The same host-binding rule applies to `core/navigation-link`: `className` lands on the
+  navigation item while `.wp-block-navigation-item__content` is the painted anchor. Both mappings
+  live in the generated `assets/css/design/fse-bindings.css`; sc-php produces it and sc-css lints it.
+- Presentation attributes that emit `has-*` classes or inline styles are removed when the DS
+  stylesheet already declares the same property. A retained override needs an explicit deviation.
 
 #### Pattern CSS must also be an editor style (WYSIWYG in Gutenberg)
 

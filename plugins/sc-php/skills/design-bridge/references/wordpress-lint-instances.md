@@ -6,14 +6,14 @@ Le contenu est extrait en fichiers, linté, puis le résultat est écrit dans le
 
 ## Règle absolue : CLI du conteneur
 
-**Toujours utiliser `pnpm dlx @wordpress/env run cli wp`.**
+**Toujours utiliser le wrapper gardé `pnpm wp`.**
 Jamais `php wp-cli.phar` ni `wp` local — ils ciblent une DB Windows distincte de la DB Docker visible par le navigateur.
 
 ## Exporter le contenu HTML d'un post/page
 
 ```bash
 # Export du post_content d'un post donné (remplacer <ID>)
-pnpm dlx @wordpress/env run cli wp post get <ID> \
+pnpm wp post get <ID> \
   --field=post_content \
   --format=json \
   > /tmp/post-<ID>.html
@@ -25,7 +25,7 @@ node design/lint/lint-core.mjs /tmp/post-<ID>.html --contract design --json
 ## Lister les pages publiées pour audit systématique
 
 ```bash
-pnpm dlx @wordpress/env run cli wp post list \
+pnpm wp post list \
   --post_type=page \
   --post_status=publish \
   --fields=ID,post_title \
@@ -40,13 +40,13 @@ Les block patterns sont stockés en DB (`wp_posts` avec `post_type=wp_block`). I
 
 ```bash
 # Lister les block patterns
-pnpm dlx @wordpress/env run cli wp post list \
+pnpm wp post list \
   --post_type=wp_block \
   --fields=ID,post_title \
   --format=csv
 
 # Exporter un pattern
-pnpm dlx @wordpress/env run cli wp post get <ID> \
+pnpm wp post get <ID> \
   --field=post_content > /tmp/pattern-<ID>.html
 
 # Linter

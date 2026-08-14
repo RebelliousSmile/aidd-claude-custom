@@ -8,12 +8,12 @@ Auditer la couverture builder : quels composants des pages n'ont **pas** de patt
 ### Step 1 — Vérifier l'environnement
 
 Confirmer que wp-env tourne et que le thème actif est un thème bloc avec
-`patterns/*.php`. Utiliser exclusivement `pnpm dlx @wordpress/env run cli wp`.
+`patterns/*.php`. Utiliser exclusivement le wrapper `pnpm wp`.
 
 ### Step 2 — Lancer le gate
 
 ```bash
-pnpm dlx @wordpress/env run cli wp eval-file <chemin>/builder-coverage.php
+pnpm wp eval '$c = file_get_contents("<chemin-conteneur>/builder-coverage.php"); eval($c);'
 ```
 
 Surcharges optionnelles (sinon auto) :
@@ -74,7 +74,7 @@ matérielle d'un travail commencé puis abandonné.
 
 ```bash
 # 1. Dumper le contenu stocké : une part du markup vit en base, pas dans les sources.
-pnpm dlx @wordpress/env run cli wp post list \
+pnpm wp post list \
   --post_type=page,post,<cpt> --post_status=any --field=post_content > /tmp/db-content.html
 
 # 2. Scanner, en incluant ce dump dans le markup

@@ -20,7 +20,7 @@ Vérifier que le spec est présent avant de continuer.
 ## Prérequis WP
 
 Lire `${SC_PHP_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md` intégralement avant de produire quoi que ce soit. Points critiques :
-- CLI conteneur obligatoire pour toute opération DB
+- CLI conteneur obligatoire pour toute opération DB, via `pnpm wp`
 - Classes appariées `has-*` → décider de les déclarer dans le manifeste ou les exclure du lint
 - `wp eval-file` deprecated → utiliser `wp eval` avec `file_get_contents`
 - Propagation block patterns : la source doit être réimportée après modification
@@ -62,6 +62,37 @@ Structure type :
 
 Règle : la classe design system (`card`, `card__body`, etc.) est sur l'élément HTML ; la classe WP (`wp-block-group`, etc.) est sur le même élément mais ne fait PAS partie du manifeste design — ne pas la linéter contre le manifeste.
 
+### Étape 1b — Lier les blocs core à leur élément peint
+
+`className` ne tombe pas toujours sur l'élément qui reçoit les styles visibles. Le renderer porte cette
+connaissance de plateforme et maintient `<theme>/assets/css/design/fse-bindings.css` :
+
+| Bloc core | Porteur de `className` | Élément peint | Sélecteur dérivé |
+|---|---|---|---|
+| `core/button` | `.wp-block-button.<classe-ds>` | `.wp-block-button__link` | `.<classe-ds> > .wp-block-button__link` |
+| `core/navigation-link` | `.wp-block-navigation-item.<classe-ds>` | `.wp-block-navigation-item__content` | `.<classe-ds> > .wp-block-navigation-item__content` |
+
+Pour chaque binding utilisé :
+
+1. lire les déclarations du sélecteur DS correspondant dans les feuilles composants produites par
+   `sc-css:design-bridge` ;
+2. recopier mécaniquement ces déclarations sous le sélecteur hôte dérivé, sans inventer de classe ni de
+   valeur ;
+3. annoter le bloc avec sa feuille source et son hash ;
+4. régénérer si la source change ; une source absente rend le binding `unrealized`, jamais vide et vert ;
+5. déclarer `fse-bindings.css` dans les sources de `sc-css:design-bridge/03-realize-lint`.
+
+`fse-bindings.css` est produit par sc-php, parce que le DOM core est une connaissance WordPress. sc-css
+le contrôle mais ne le réécrit pas. Le point d'entrée le charge après les composants génériques.
+
+### Étape 1c — Retirer les overrides de présentation concurrents
+
+Sur un bloc portant une classe DS, ne produire aucun attribut Gutenberg de présentation (`fontSize`,
+`textColor`, `backgroundColor`, `style.typography`, `style.color`) pour une propriété déjà déclarée par
+la feuille du composant. Retirer l'attribut à la source du pattern ou de l'import et re-sérialiser le bloc.
+Une conservation explicitement demandée devient une déviation documentée ; elle n'est jamais compensée
+silencieusement par un nouveau `!important`.
+
 ## Étape 2 — Mettre à jour theme.json
 
 Pour chaque fond autorisé (`.backgrounds`) du composant, vérifier que la couleur correspondante existe dans `theme.json § settings.color.palette` :
@@ -88,7 +119,7 @@ Pour chaque fond autorisé (`.backgrounds`) du composant, vérifier que la coule
 
 ## Étape 3 — Enregistrer le block pattern
 
-Créer le fichier du pattern dans l'output dir du spec (ex. `patterns/<canonical-name>.html`) avec une en-tête WordPress :
+Créer le fichier du pattern dans l'output dir du spec (ex. `patterns/<canonical-name>.php`) avec une en-tête WordPress :
 
 ```php
 <?php
@@ -96,13 +127,16 @@ Créer le fichier du pattern dans l'output dir du spec (ex. `patterns/<canonical
  * Title: <Nom du composant>
  * Slug: <plugin-ou-theme>/<canonical-name>
  * Categories: <categorie>
+ * Inserter: yes
  * Viewport Width: 1200
  */
 ?>
 <!-- Block pattern HTML ici -->
 ```
 
-Si le projet utilise un répertoire `patterns/` dans le thème, placer le fichier à cet endroit.
+Si le projet utilise un répertoire `patterns/` dans le thème, placer le fichier `.php` à cet endroit.
+Le dernier segment de `Slug` égale le nom du fichier, le slug est unique et la catégorie est enregistrée.
+Valider aussi l'équilibre/imbrication des délimiteurs et le JSON de chaque commentaire de bloc.
 
 ## Étape 4 — Gate enforce
 
@@ -126,9 +160,11 @@ peut les produire (pièges 8 et 9) :
    `background-color` **calculés** (`getComputedStyle`) sur une instance réellement rendue, pas les
    valeurs déclarées dans le CSS. Une paire déclarée conforme peut rendre 1,06:1 si un reset descendant
    l'écrase. Seuil : WCAG AA (4,5:1 texte courant, 3:1 texte large et éléments d'interface).
-2. **Spécificité.** Pour chaque propriété que le composant déclare sur un `<a>`, `<p>`, `<button>` ou
-   `<li>`, vérifier qu'aucune règle descendante d'élément du CSS global ne la domine. Voir piège 8,
-   règle 3, pour la forme exécutable du contrôle.
+2. **Cascade.** Pour chaque propriété que les feuilles composants et `fse-bindings.css` déclarent,
+   vérifier sur le front et dans l'éditeur que la déclaration gagnante vient de l'une de ces feuilles.
+   Le contrôle couvre notamment les sélecteurs descendants, presets `has-*`, styles inline,
+   `!important`, ordre de chargement et layers. Le protocole exécutable est celui de
+   `design:enforce/05-fidelity-gate`; une simple comparaison de spécificité ne constitue pas la preuve.
 
 Un échec ici n'est **jamais** absorbable par le registre de déviations : le ledger sert à acter un écart
 *au contrat*, pas un défaut d'accessibilité. Si la maquette est la source du défaut, corriger des deux
@@ -173,7 +209,7 @@ Vérification : charger la vue qui doit porter le pattern et y trouver un marque
 Si le pattern existait déjà en DB, relancer le script d'import du projet pour propager :
 
 ```bash
-pnpm dlx @wordpress/env run cli wp eval \
+pnpm wp eval \
   '$c = file_get_contents("/var/www/html/tools/import/<script>.php"); eval($c);'
 ```
 
@@ -181,9 +217,10 @@ Puis relancer `design:enforce/03-lint-instances` pour vérifier les instances en
 
 ## Sortie attendue
 
-> Block pattern WP produit : `patterns/<canonical-name>.html`
+> Block pattern WP produit : `patterns/<canonical-name>.php`
 > Variantes : <liste>
 > theme.json : <mis à jour / aucune modification>
+> Binding FSE : <fse-bindings.css + sélecteurs dérivés / non requis>
 > Posé dans : <template ou page, et le marqueur qui le prouve> · ou `non — brique d'auteur`
 > Gate enforce : vert (exit 0)
 > Gates absolus : contraste <ratio min> · spécificité <0 conflit / N conflits>
