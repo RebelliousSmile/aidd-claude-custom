@@ -1,6 +1,6 @@
 ---
 objective: "Faire passer les défauts comportementaux L7 et S11 sans régression des routes AIDD, des recommandations taste ni du contrôle négatif S17."
-status: in-progress
+status: implemented
 ---
 
 # Plan: Corriger les défauts behave de foresee et taste
