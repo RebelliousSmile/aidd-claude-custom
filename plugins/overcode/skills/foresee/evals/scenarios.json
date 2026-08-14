@@ -1,7 +1,8 @@
 [
   {
     "prompt": "foresee this plan: aidd_docs/tasks/2026_01/some-plan.md",
-    "expect_action": "analyze-doc"
+    "expect_action": "analyze-doc",
+    "expect_delegate": "aidd-refine:04-shadow-areas"
   },
   {
     "prompt": "prospective analysis of this skill",
@@ -21,11 +22,15 @@
   },
   {
     "prompt": "/foresee src/composables/useAuth.ts",
-    "expect_action": "analyze-code"
+    "expect_action": "analyze-code",
+    "expect_delegate": "aidd-dev:04-audit",
+    "expect_pillar": "architecture"
   },
   {
     "prompt": "/foresee src/api/ --discuss",
-    "expect_action": "analyze-code"
+    "expect_action": "analyze-code",
+    "expect_delegate": "aidd-dev:04-audit",
+    "expect_pillar": "architecture"
   },
   {
     "prompt": "analyze the auth module for future problems",
@@ -37,7 +42,10 @@
   },
   {
     "prompt": "analyze package.json dependencies",
-    "expect_action": "analyze-dep"
+    "expect_action": "analyze-dep",
+    "expect_delegate": "aidd-dev:04-audit",
+    "expect_pillar": "dependencies",
+    "expect_default_limit": 5
   },
   {
     "prompt": "what are the risks of using laravel/framework?",
