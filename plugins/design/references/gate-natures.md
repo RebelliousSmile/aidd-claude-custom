@@ -9,7 +9,7 @@ Leur poids suit `control-priorities.md` : la fidélité rendue et les comporteme
 | Gate | Oracle | Référence | Établit | N'établit pas |
 |---|---|---|---|---|
 | **Vocabulaire** | `lint-core.mjs` (Node, 5 règles dérivées du contrat) + import de la feuille de tokens | `tokens.json` · `components.json` · `policies.json` — **interne** | aucune classe ni référence de token hors contrat, **dans le markup effectivement passé au linter** | CSS, liaisons dynamiques, contenu stocké, fichiers de thème de plateforme, couverture des fichiers, rendu calculé |
-| **Fidélité** | `measure.py` (`getComputedStyle`, par breakpoint) | la référence visuelle résolue par `adjust` — **externe** | style calculé conforme **sur les éléments mappés**, par breakpoint | tout élément non mappé, tout breakpoint non mesuré |
+| **Fidélité** | `measure.py` (`getComputedStyle` + provenance de cascade, par breakpoint/surface) | la référence visuelle résolue par `adjust` — **externe** ; feuilles DS attendues pour la provenance | style calculé conforme **sur les éléments mappés** ; en FSE, déclaration gagnante issue d'une feuille DS/binding et d'un sélecteur portant la classe DS, sur front + éditeur | tout élément non mappé, tout breakpoint ou surface non mesuré |
 
 Le gate de vocabulaire est **aveugle au rendu calculé**. On peut être lint-vert et visuellement faux :
 
@@ -24,5 +24,10 @@ Symétriquement, un rendu fidèle peut reposer sur un vocabulaire hors contrat, 
 Le contraste mérite une précision, parce qu'il est le seul point a11y à être coupé en deux. Le contraste **des paires déclarées** est mesuré en amont, au figeage, par `adapters/a11y/contrast.py` sur les valeurs de tokens résolues par thème — il n'est donc pas un gap, il est enregistré dans `release.json § checks.contrast` et pèse sur la maturité (`maturity-status.md`). Ce qui reste hors de portée ici, c'est le contraste **tel qu'il est peint** : `opacity`, `color-mix`, un voile, un dégradé recomposent la couleur après le token, et aucun des deux gates ne les voit. Ce résidu-là est assigné à G6.
 
 Le gate de fidélité lit le registre d'écarts (`references/deviation-ledger-template.md`) pour distinguer un écart sanctionné d'une dérive.
+
+La provenance de cascade n'est pas sanctionnable par ce registre : deux règles peuvent produire la
+même valeur aujourd'hui tout en donnant des verdicts opposés. Si WordPress gagne, le composant n'est
+pas gouverné par le DS. Une surface authentifiée inaccessible ou une classe DS sans déclaration
+inspectable vaut `ownership_unrealized` et maintient le verdict `OPEN`.
 
 **Quand la fidélité ne s'applique pas.** Sans référence visuelle externe, l'oracle n'a rien à mesurer et le gate de vocabulaire s'applique seul : limite énoncée dans `skills/enforce/actions/05-fidelity-gate.md § Chemin construction-depuis-brief`.

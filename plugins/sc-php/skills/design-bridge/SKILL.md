@@ -1,12 +1,16 @@
 ---
 name: design-bridge
 description: >-
-  Réceptacle du pivot design pour PHP/WordPress. Reçoit le spec du contrat de pivot
-  (plugins/design/references/sc-pivot-contract.md) émis par design:enforce ou design:diffuse,
-  et réalise nativement : (1) enforce → linter PHP/WP idiomatique (PHPCS ruleset ou script PHP
-  + wiring pre-commit) dérivant strictement du spec ; (2) diffuse → élément neutre rendu en
-  block pattern WordPress FSE + theme.json. Jamais invoqué directement — uniquement appelé
-  via le pivot de design:enforce/04-pivot ou design:diffuse/03-pivot.
+author: François-Xavier Guillois
+version: 0.12.0
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - php
+  - audit
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
@@ -48,15 +52,19 @@ Le cas fréquent ici : les règles de type `stored-content`. Le vocabulaire vit 
 
 Après exécution, renvoyer au contexte appelant (enforce ou diffuse) :
 - `01-realize-lint` : confirmation linter installé + wiring pre-commit réalisé + rapport écrit, règles réalisées et non réalisées nommées
-- `02-render` : fichier(s) produit(s) + instructions d'intégration + confirmation gate enforce exit 0
+- `02-render` : pattern + éventuel `fse-bindings.css` produits, chemins nommés sans chevauchement avec le spec CSS + instructions d'intégration + confirmation gate enforce exit 0
+- `02-render` : config de fidélité FSE armé pour la propriété de cascade sur front + éditeur ; toute
+  surface non mesurée ou toute déclaration gagnante WordPress maintient `summary.verdict` à `OPEN`
 
 ## Pièges WP
 
 Lire `${SC_PHP_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-pitfalls.md` avant toute action WP :
-- CLI conteneur obligatoire (`pnpm dlx @wordpress/env run cli wp`)
+- CLI conteneur obligatoire via le wrapper gardé (`pnpm wp`)
 - Classes appariées `has-background` / `has-text-color`
 - `wp eval-file` deprecated en PHP 8.2
 - Block patterns = copies en DB — réimporter après modification
+- Les patterns auto-enregistrées sont des fichiers `patterns/*.php`, jamais `*.html`
+- `core/button` et `core/navigation-link` exigent un binding vers leur élément peint interne
 
 ### Cascade CSS : presets `has-*-font-size` / `has-*-color` et `!important`
 

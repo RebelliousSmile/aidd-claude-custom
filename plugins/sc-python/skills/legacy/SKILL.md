@@ -1,17 +1,16 @@
 ---
 name: legacy
 description: >-
-  Scans Python code for version-specific and deprecated patterns, then proposes an
-  upgrade (toward Python 3.12+) or a downgrade (for target Python version compatibility).
-  Handles Python 2 remnants (print statements, xrange, unicode, iteritems), typing
-  evolution (PEP 484 → 604 → 695, Optional → X|None, List → list), old-style string
-  formatting (% and .format() → f-strings), and framework version migrations
-  (Django, FastAPI).
-  Use when the user says "modernize", "upgrade to Python 3.12", "add type hints",
-  "this is Python 2 style", "downgrade for 3.8 compat", or when deprecated patterns
-  appear in the codebase.
-  Do NOT use for dependency management (pip/poetry), performance optimization
-  (web-optimize), or general refactoring unrelated to Python version compatibility.
+author: François-Xavier Guillois
+version: 0.6.3
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - python
+  - audit
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

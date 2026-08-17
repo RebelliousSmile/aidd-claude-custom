@@ -1,16 +1,16 @@
 ---
 name: setup
 description: >-
-  Installs third-party SaaS consumption guidance in the host-native project surface:
-  AGENTS.md plus .agents/rules/ on Codex, or .claude/rules/ on Claude Code.
-  Use when integrating Firebase, Klaviyo, GTM/Meta Pixel (or other SaaS) and the consumption rules are missing.
-  Covers: Firestore query limits, security rules, quota awareness,
-  Auth listener cleanup, Hosting trailing slash and cache headers,
-  Playwright Firebase auth patterns, Klaviyo API patterns,
-  GTM Consent Mode v2, Meta Pixel consent integration,
-  Microsoft Clarity (best-effort, consent-gated, E2E patterns),
-  PageSpeed Insights / Lighthouse (PSI variance, deterministic metrics, Nuxt checklist).
-  Do NOT use to update a single rule — edit it directly instead.
+author: François-Xavier Guillois
+version: 0.3.2
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - saas
+  - third-party
+  - integration
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

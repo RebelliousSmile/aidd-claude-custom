@@ -69,7 +69,7 @@ function run(cmd) {
 
 // 1. Base de données (WordPress uniquement, et seulement si la cible le déclare et --no-db absent)
 if (target.wpExportDb && !skipDb) {
-  run('pnpm dlx @wordpress/env run cli wp search-replace "http://localhost" "' + target.url + '" --export=./dump.sql');
+  run('pnpm wp search-replace "http://localhost" "' + target.url + '" --export=./dump.sql');
   run(`scp ./dump.sql ${target.user}@${target.host}:${target.remotePath}/dump.sql`);
   // L'import côté cible reste une étape manuelle documentée dans le README du projet —
   // ne jamais lancer une commande destructive (import qui écrase la prod) sans confirmation explicite.

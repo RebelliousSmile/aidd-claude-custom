@@ -1,16 +1,16 @@
 ---
 name: wp-blocks
 description: >-
-  Validation du markup de blocs WordPress/Gutenberg pour les projets où le
-  post_content ou les patterns sont générés HORS de l'éditeur (chaînes PHP,
-  scripts d'import, thème FSE). Le frontend recrache le HTML stocké tel quel —
-  donc un markup invalide passe inaperçu à l'affichage — mais l'éditeur
-  Gutenberg invalide tout bloc dont le HTML stocké ne correspond pas à ce que
-  régénère sa fonction `save()` JS (« Ce bloc contient un contenu inattendu ou
-  invalide »). La skill ouvre chaque page dans l'éditeur (Playwright) et asserte
-  que tous les blocs natifs survivent au round-trip parse → save() → compare.
-  Ni un linter de design system, ni un diff de texte ne détectent ça : seul
-  l'éditeur est juge.
+author: François-Xavier Guillois
+version: 0.15.4
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - frontend
+  - audit
+  - javascript
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

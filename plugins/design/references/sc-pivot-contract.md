@@ -68,7 +68,9 @@ Retourne : le linter installé dans le projet + les instructions de câblage dan
 
 ## Spec de rendu (diffuse → design-bridge)
 
-`skills/diffuse/actions/03-pivot.md` émet ce spec quand un `sc-<langage>` est détecté.
+`skills/diffuse/actions/03-pivot.md` émet ce spec quand un `sc-<langage>` est détecté. Une cible native
+peut demander plusieurs langages : l'action émet alors **une instance complète de ce même spec par
+réceptacle**. Il n'existe pas d'enveloppe composite distincte à interpréter.
 
 ```
 ## Design render spec
@@ -100,8 +102,21 @@ Produit le composant en code idiomatique <langage> :
 - Si Themes n'est pas vide, le composant natif doit rester compatible avec les blocs `.dark`/`[data-theme="…"]` émis par l'adaptateur (aucune valeur en dur qui court-circuiterait la cascade thème).
 - Passe le gate enforce : `python design/lint/run-gates.py --config design/lint/gates.config.json` = exit 0.
 
-Retourne : le fichier composant + les instructions d'intégration dans le projet.
+Retourne : le ou les fichiers produits pour ce target + les instructions d'intégration dans le projet.
 ```
+
+### Cardinalité du spec de rendu
+
+- Cible mono-langage : exactement un spec, comportement historique inchangé.
+- Cible native composite : un spec par réceptacle, avec `Language` et `Output dir` propres.
+- Deux specs d'une même cible ne peuvent jamais revendiquer le même fichier de sortie.
+- Le réceptacle de plateforme peut rendre un fichier compagnon indispensable à son markup (par exemple
+  un adapter de sélecteurs FSE), à condition de le nommer dans son retour. Une feuille ainsi produite par
+  la plateforme rejoint ensuite les `Enforcement target` du réceptacle CSS : producteur et contrôleur
+  restent distincts.
+- La livraison native n'est complète que lorsque chaque spec attendu a rendu ses fichiers et que le gate
+  final passe. L'absence d'un seul réceptacle est déclarée ; la baseline de cet artefact n'est jamais
+  présentée comme une intégration native complète.
 
 ---
 
@@ -145,7 +160,7 @@ Un `unrealized` reste une preuve manquante : P0/P1 rougit le gate, P2 avertit sa
 
 | Pour enforcement | Pour rendu |
 |-----------------|------------|
-| Linter installé dans l'outillage natif du projet | Fichier composant créé à l'Output dir |
+| Linter installé dans l'outillage natif du projet | Fichier(s) du target créé(s) à l'Output dir, tous nommés dans le retour |
 | Instructions de câblage dans le workflow existant (pre-commit, CI) | Instructions d'intégration (import, registration, usage) |
 | Confirmation que les règles dérivent du spec (pas de listes codées en dur) | Confirmation que le composant passe le gate (exit 0) |
 | Le rapport écrit à Report path, couvrant **toutes** les règles assignées | — |

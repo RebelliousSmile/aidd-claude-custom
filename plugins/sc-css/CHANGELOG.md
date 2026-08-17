@@ -1,5 +1,16 @@
 # Changelog — sc-css
 
+## [0.5.0] — 2026-08-14
+
+### Added
+
+- Support des stacks composites : `Output dir` peut viser les assets publics d'un thème et l'entrée charge tokens, composants puis adapter de plateforme.
+- Transmission des feuilles réellement contrôlées au gate runtime de propriété de cascade.
+
+### Changed
+
+- `fse-bindings.css` reste produit par le pivot WordPress et linté par sc-css ; le rapport stylesheet demeure une preuve statique et ne revendique plus le gagnant rendu.
+
 ## [0.4.1] — 2026-08-06
 
 ### Fixed — la table `## Phases` du workflow statique ne disait pas où ses phases s'insèrent

@@ -12,5 +12,27 @@
     { "name": "Header · title", "mockup": ".header__title", "implementation": ".header__title", "check_text": true },
     { "name": "Header · lede", "mockup": ".header__lede", "implementation": ".header__lede" }
   ],
-  "headings_sel": { "mockup": "h1, h2, h3", "implementation": "h1, h2, h3" }
+  "headings_sel": { "mockup": "h1, h2, h3", "implementation": "h1, h2, h3" },
+  "ownership": {
+    "surfaces": [
+      { "name": "front", "url": "http://localhost:8888" },
+      {
+        "name": "editor",
+        "url": "http://localhost:8888/wp-admin/site-editor.php",
+        "frame_selector": "iframe[name=editor-canvas]",
+        "requires_auth": true,
+        "storage_state_env": "WP_EDITOR_STORAGE_STATE",
+        "auth_hook_env": "WP_EDITOR_AUTH_HOOK"
+      }
+    ],
+    "targets": [
+      {
+        "name": "Header · title",
+        "selector": ".header__title",
+        "class": "header__title",
+        "prop": "color",
+        "sources": ["header.css", "fse-bindings.css"]
+      }
+    ]
+  }
 }

@@ -53,7 +53,7 @@ base ?
 wp eval-file tools/import/script.php
 
 # ✅
-pnpm dlx @wordpress/env run cli wp eval \
+pnpm wp eval \
   '$c = file_get_contents("/var/www/html/tools/import/script.php"); eval($c);'
 ```
 
@@ -63,7 +63,8 @@ pnpm dlx @wordpress/env run cli wp eval \
 
 **Symptôme** : `wp post get` retourne des données d'une DB distincte de ce que le navigateur affiche.
 
-**Règle absolue** : toujours utiliser `pnpm dlx @wordpress/env run cli wp`. Jamais `php wp-cli.phar` ni `wp` local — ils ciblent la DB Windows, pas la DB Docker.
+**Règle absolue** : toujours utiliser `pnpm wp`, le wrapper qui pose `COMPOSE_PROJECT_NAME` avant
+d'appeler wp-env. Jamais `php wp-cli.phar`, `wp` local ni une commande wp-env nue.
 
 ---
 

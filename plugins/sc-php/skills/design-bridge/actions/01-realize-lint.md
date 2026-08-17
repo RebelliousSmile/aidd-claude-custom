@@ -24,7 +24,7 @@ WordPress FSE combine PHP (templates), JSON (block patterns, theme.json) et HTML
 
 | Type d'enforcement | Couche | Outil | Cible |
 |---|--------|-------|-------|
-| `source-graph` | classes dans les templates PHP | script PHP checker | fichiers `.php` portant des attributs `class="…"` |
+| `source-graph` | classes et bindings dans les templates/patterns | script PHP checker | fichiers `.php` portant `class="…"` ou commentaires de blocs `className` |
 | `stored-content` | contenu HTML en base | `lint-core.mjs`, sur export | via `wp post get` (`${SC_PHP_PLUGIN_ROOT}/skills/design-bridge/references/wordpress-lint-instances.md`) |
 | `platform-config` | palette déclarée par la plateforme | vérification JSON | cohérence `theme.json` ↔ `tokens.json` |
 
@@ -92,14 +92,32 @@ $validClasses = [
 ];
 ```
 
-## Étape 2 — Vérifier theme.json
+Pour `patterns/*.php`, le checker porte aussi une passe structurelle :
 
-Si le projet a un `theme.json` (WP FSE), vérifier la cohérence entre les tokens de palette et `design/tokens.json` :
+- parser le JSON des commentaires `<!-- wp:* {...} -->` et extraire `className` ;
+- vérifier les délimiteurs équilibrés et correctement imbriqués ;
+- exiger `Title`, `Slug`, `Categories`, `Inserter`, un slug unique et son dernier segment égal au nom ;
+- pour `core/button` et `core/navigation-link` portant une classe DS, vérifier le sélecteur dérivé dans
+  `assets/css/design/fse-bindings.css` ;
+- signaler tout attribut de présentation Gutenberg qui gouverne une propriété déjà déclarée par le
+  composant comme conflit `remove-override`.
+
+Une classe valide mais posée sur un wrapper sans binding est une violation : le vocabulaire seul ne
+prouve pas que l'élément peint est gouverné.
+
+## Étape 2 — Vérifier le theme.json du thème actif
+
+Résoudre d'abord le stylesheet actif depuis la racine projet avec `pnpm wp eval 'echo get_stylesheet();'`,
+puis lire `wp-content/themes/<stylesheet-actif>/theme.json`. Ne jamais supposer un `theme.json` à la
+racine : le scaffold ne l'y crée pas et un fichier homonyme pourrait appartenir à un autre outil.
+Vérifier ensuite sa cohérence avec `design/tokens.json` :
 
 ```bash
 # Extraire les color slugs de theme.json
 node -e "
-const t = JSON.parse(require('fs').readFileSync('theme.json','utf8'));
+const theme = process.env.WP_ACTIVE_THEME;
+if (!theme) throw new Error('WP_ACTIVE_THEME missing: resolve it with pnpm wp eval first');
+const t = JSON.parse(require('fs').readFileSync(`wp-content/themes/${theme}/theme.json`,'utf8'));
 const slugs = (t.settings?.color?.palette || []).map(c => c.slug);
 console.log(JSON.stringify(slugs));
 "

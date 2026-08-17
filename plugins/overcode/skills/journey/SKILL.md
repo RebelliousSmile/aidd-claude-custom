@@ -1,7 +1,15 @@
 ---
 name: journey
 description: >-
-  Execute a user journey from a GitHub or GitLab issue, log Playwright results to a PLAN.journey.md report, and post the summary and conclusion to the issue. Use to run or validate an issue-linked journey with Playwright. Do NOT use for unit/API tests, non-Playwright testing, issue creation, or work without a matching plan file.
+author: François-Xavier Guillois
+version: 4.5.1
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+tags:
+  - productivity
+  - workflow
+  - automation
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

@@ -1,0 +1,9 @@
+.wp-block-button__link,
+.wp-block-navigation-item__content {
+  color: rgb(255, 255, 255);
+  background-color: rgb(20, 40, 80);
+}
+
+.has-base-color {
+  color: rgb(255, 255, 255) !important;
+}

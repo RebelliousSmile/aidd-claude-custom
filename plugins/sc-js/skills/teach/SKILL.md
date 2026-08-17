@@ -1,16 +1,16 @@
 ---
 name: teach
 description: >-
-  Teaches JavaScript and TypeScript language features, Vue/Nuxt patterns, and
-  async programming by pulling examples directly from the current project codebase.
-  Explains concepts with real code context — closures, the event loop, TypeScript
-  generics, Vue composables, Pinia stores, Nuxt middleware, reactivity — then offers
-  practice exercises modelled on project patterns.
-  Use when the user says "explain X", "how does X work", "teach me Y",
-  "I don't understand Z", "show me an example of X in this project",
-  "what is the difference between X and Y", "is this good JS/TS".
-  Do NOT use for code review (aidd-dev:05-review), debugging (aidd-dev:08-debug),
-  generating new features, or version migrations (legacy).
+author: François-Xavier Guillois
+version: 0.15.4
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - frontend
+  - audit
+  - javascript
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

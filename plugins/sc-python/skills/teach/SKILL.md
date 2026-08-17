@@ -1,16 +1,16 @@
 ---
 name: teach
 description: >-
-  Teaches Python language features, Pythonic idioms, async patterns, and framework
-  conventions (Django, FastAPI) by pulling examples directly from the current project
-  codebase. Explains concepts with real code context — type hints, generators,
-  context managers, dataclasses, decorators — then offers practice exercises modelled
-  on project patterns.
-  Use when the user says "explain X", "how does X work", "teach me Y",
-  "I don't understand Z", "show me an example of X in this project",
-  "what is the difference between X and Y", "is this Pythonic".
-  Do NOT use for code review (aidd-dev:05-review), debugging (aidd-dev:08-debug),
-  generating new features, or version migrations (legacy).
+author: François-Xavier Guillois
+version: 0.6.3
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - python
+  - audit
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

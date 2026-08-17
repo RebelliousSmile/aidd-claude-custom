@@ -8,7 +8,7 @@
  *   - signale les patterns multi-catégories (une primaire recommandée) ;
  *   - liste l'effectif par catégorie (pour repérer les déséquilibres).
  *
- * Lancer : pnpm dlx @wordpress/env run cli wp eval-file category-balance.php
+ * Lancer : pnpm wp eval '$c = file_get_contents("<chemin-conteneur>/category-balance.php"); eval($c);'
  * Config : BC_MAX (taille max d'une catégorie avant alerte, défaut 8).
  */
 

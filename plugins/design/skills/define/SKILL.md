@@ -1,6 +1,19 @@
 ---
 name: define
 description: Creates mutable design material from a brief, visual reference, stylesheet, or existing rendered code. Use when the user wants to extract tokens, establish a draft direction, or build a design-system draft without freezing it.
+author: François-Xavier Guillois
+version: 2.13.0
+vibe_version: ">=1.0.0"
+permissions:
+  - files
+  - bash
+tags:
+  - design-system
+  - ui
+  - contract
+  - extraction
+  - components
+  - tokens
 ---
 
 # Define

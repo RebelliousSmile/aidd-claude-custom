@@ -1,15 +1,16 @@
 ---
 name: improve
 description: >-
-  Analyzes a JavaScript/TypeScript codebase for idiomatic JS gaps, Vue/Nuxt
-  anti-patterns, and maintainability issues, then produces a prioritized improvement
-  plan. Covers proper async/await usage, TypeScript type coverage, Vue Composition
-  API adoption, Pinia state patterns, component decomposition, and framework idioms
-  (Nuxt, Vue SPA, Alpine, Vite).
-  Use when the user says "how can I improve this", "find anti-patterns", "code quality",
-  "refactoring suggestions", "how to better structure this", "is this good JS/TS".
-  Do NOT use for performance (web-optimize), data layer (data-optimize), version
-  migrations (legacy), or line-by-line code review (aidd-dev:05-review).
+author: François-Xavier Guillois
+version: 0.15.4
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - frontend
+  - audit
+  - javascript
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

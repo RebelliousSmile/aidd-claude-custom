@@ -1,6 +1,15 @@
 ---
 name: tree
 description: Keeps the Documents/ tree navigable as it evolves — maintains a cache (map of the real arborescence), verifies it against a small set of portability invariants, fixes drift safely, and helps sort loose items into place by arbitration. Use to check whether a directory is well-organised, to tidy it, or to decide where something belongs.
+author: fxgui
+version: 0.37.2
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+tags:
+  - documentation
+  - obsidian
+  - notes
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

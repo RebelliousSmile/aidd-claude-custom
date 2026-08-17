@@ -1,0 +1,8 @@
+[
+  {"prompt":"Realize this PHP/WordPress enforcement spec and report every rule.","expect_action":"01-realize-lint"},
+  {"prompt":"Lint the stored WordPress block content against this design pivot spec.","expect_action":"01-realize-lint"},
+  {"prompt":"Render this composite FSE component through the PHP receptor.","expect_action":"02-render"},
+  {"prompt":"Produce a native WordPress block pattern and its platform bindings.","expect_action":"02-render"},
+  {"prompt":"Ensure core/button and core/navigation-link are governed by the DS on front and editor.","expect_action":"02-render"},
+  {"prompt":"Build a generic Vue component.","expect_action":null,"note":"belongs to sc-js, not sc-php"}
+]

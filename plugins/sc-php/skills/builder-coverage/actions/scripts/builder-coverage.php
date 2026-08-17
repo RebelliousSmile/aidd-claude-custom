@@ -8,7 +8,7 @@
  * tout élément de page est un bloc réutilisable et éditable.
  *
  * Lancer via le conteneur wp-env (jamais php wp-cli.phar) :
- *   pnpm dlx @wordpress/env run cli wp eval-file builder-coverage.php
+ *   pnpm wp eval '$c = file_get_contents("<chemin-conteneur>/builder-coverage.php"); eval($c);'
  *
  * Configuration (variables d'environnement, toutes optionnelles) :
  *   BC_PREFIX      préfixe de classe des composants (ex. "mau-").

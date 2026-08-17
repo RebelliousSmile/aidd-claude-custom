@@ -10,7 +10,7 @@
  *
  * Usage :
  *   BC_DUMP_POST=181 BC_DUMP_CLASS=mau-contact-card \
- *     pnpm dlx @wordpress/env run cli wp eval-file dump-section.php
+ *     pnpm wp eval '$c = file_get_contents("<chemin-conteneur>/dump-section.php"); eval($c);'
  */
 
 $pid    = (int) getenv('BC_DUMP_POST');

@@ -1,15 +1,16 @@
 ---
 name: improve
 description: >-
-  Analyzes the Python codebase for Pythonic idiom gaps, design pattern opportunities,
-  and maintainability issues, then produces a prioritized improvement plan. Covers
-  EAFP/LBYL patterns, proper type hints, async best practices, dependency injection,
-  dataclasses vs NamedTuple, mutable default arguments, context managers, and
-  framework idioms (Django, FastAPI).
-  Use when the user says "how can I improve this", "is this Pythonic", "find anti-patterns",
-  "code quality", "refactoring suggestions", "how to better structure this".
-  Do NOT use for performance (web-optimize), data layer (data-optimize), version
-  migrations (legacy), or line-by-line code review (aidd-dev:05-review).
+author: François-Xavier Guillois
+version: 0.6.3
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - python
+  - audit
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

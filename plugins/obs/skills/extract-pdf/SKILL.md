@@ -1,6 +1,20 @@
 ---
 name: extract-pdf
 description: Multi-session pipeline for extracting content from large PDF files and distributing it into raw reference source documents under sources/. Use when importing an existing PDF (rulebook, novel, technical manual, source document) into a domain (R) across multiple sessions. Operates on the generic domain-layout convention; applies the JDR profile (lore/rules split, canon pipeline) only when the domain is JDR. Do NOT use for web research — use `overcode:research` instead; do NOT use for writing new content — use the available writing workflow instead. Do NOT use to produce final synthesized reference (`reference/` generically, `canon/` under the JDR profile) — that is a downstream ventilation role.
+author: fxgui
+version: 0.37.2
+vibe_version: ">=1.0.0"
+permissions:
+  - files
+  - bash
+  - network
+tags:
+  - obsidian
+  - parsing
+  - notes
+  - documentation
+  - pdf
+  - ingestion
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

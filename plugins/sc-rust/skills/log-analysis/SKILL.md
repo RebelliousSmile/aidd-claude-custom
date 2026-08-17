@@ -1,15 +1,16 @@
 ---
 name: log-analysis
 description: >-
-  Analyzes Rust application logs across three environments: host filesystem (local),
-  Docker containers (docker), and remote production server (prod via SSH).
-  Works with tracing subscriber output (compact, pretty, JSON), env_logger output,
-  actix-web/axum/tower-http request logs, and panic! backtraces. Auto-discovers
-  Docker containers running the Rust binary.
-  Use when the user says "check logs", "Rust errors", "find in logs", "log summary",
-  "panics in prod", "analyze logs", "what's wrong in prod", "tracing output".
-  Do NOT use for application debugging (use aidd-dev:08-debug), cargo build errors
-  (run cargo check/clippy directly), or performance profiling.
+author: François-Xavier Guillois
+version: 0.5.2
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - audit
+  - rust
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

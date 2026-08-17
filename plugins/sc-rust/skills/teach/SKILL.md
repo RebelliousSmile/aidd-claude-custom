@@ -1,16 +1,16 @@
 ---
 name: teach
 description: >-
-  Teaches Rust language features, ownership and borrowing, async patterns, and
-  idiomatic Rust by pulling examples directly from the current project codebase.
-  Explains the borrow checker, lifetimes, traits, iterators, error handling with
-  ?-operator, and async/await with real code context, then offers practice exercises
-  modelled on project patterns.
-  Use when the user says "explain X", "how does X work", "teach me Y",
-  "I don't understand the borrow checker", "why does the compiler reject this",
-  "show me an example of X in this project", "what is the difference between X and Y".
-  Do NOT use for code review (aidd-dev:05-review), debugging (aidd-dev:08-debug),
-  generating new features, or edition migration (legacy).
+author: François-Xavier Guillois
+version: 0.5.2
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - audit
+  - rust
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
