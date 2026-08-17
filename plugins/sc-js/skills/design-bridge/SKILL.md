@@ -1,12 +1,16 @@
 ---
 name: design-bridge
 description: >-
-  Réceptacle du pivot design pour JavaScript/TypeScript. Reçoit le spec du contrat de pivot
-  (plugins/design/references/sc-pivot-contract.md) émis par design:enforce ou design:diffuse,
-  et réalise nativement : (1) enforce → règle ESLint ou script Node.js validant les classes et
-  tokens CSS, dérivant strictement du spec + wiring pre-commit ; (2) diffuse → élément neutre
-  rendu en composant Vue 3 SFC ou React idiomatique. Jamais invoqué directement — uniquement
-  appelé via le pivot de design:enforce/04-pivot ou design:diffuse/03-pivot.
+author: François-Xavier Guillois
+version: 0.15.4
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - frontend
+  - audit
+  - javascript
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

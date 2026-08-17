@@ -1,13 +1,16 @@
 ---
 name: log-analysis
 description: >-
-  Analyzes server and PHP logs across three environments: host filesystem (local),
-  Docker containers (docker), and remote production server (prod via SSH).
-  Works with any PHP project — auto-discovers Docker containers and standard log paths.
-  Use when the user says "check logs", "PHP errors", "find in logs", "log summary",
-  "500 errors", "server logs", "analyze logs", "what's wrong in prod".
-  Do NOT use for application debugging (use aidd-dev:08-debug), DB queries
-  (use data-optimize), or performance profiling.
+author: François-Xavier Guillois
+version: 0.12.0
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - php
+  - audit
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

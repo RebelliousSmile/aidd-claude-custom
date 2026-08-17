@@ -1,12 +1,16 @@
 ---
 name: design-bridge
 description: >-
-  Réceptacle du pivot design pour PHP/WordPress. Reçoit le spec du contrat de pivot
-  (plugins/design/references/sc-pivot-contract.md) émis par design:enforce ou design:diffuse,
-  et réalise nativement : (1) enforce → linter PHP/WP idiomatique (PHPCS ruleset ou script PHP
-  + wiring pre-commit) dérivant strictement du spec ; (2) diffuse → élément neutre rendu en
-  block pattern WordPress FSE + theme.json + adapter de bindings FSE lorsque le bloc peint un élément interne. Jamais invoqué directement — uniquement appelé
-  via le pivot de design:enforce/04-pivot ou design:diffuse/03-pivot.
+author: François-Xavier Guillois
+version: 0.12.0
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - php
+  - audit
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

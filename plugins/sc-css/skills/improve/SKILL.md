@@ -1,10 +1,16 @@
 ---
 name: improve
 description: >-
-  Amélioration ciblée de l'architecture CSS existante : extraction vers custom properties,
-  organisation en cascade layers, réduction de spécificité, modernisation syntaxique
-  (nesting, :is()/:where()/has(), container queries). Travaille sur les findings d'audit
-  ou sur une demande directe. Propose un plan avant d'éditer.
+author: François-Xavier Guillois
+version: 0.5.0
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - frontend
+  - audit
+  - css
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

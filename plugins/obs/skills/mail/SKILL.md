@@ -1,17 +1,15 @@
 ---
 name: mail
 description: >-
-  Sorts, summarizes, merges, and files emails exported as Markdown in
-  C:/Users/fxgui/Public/Notes/Thunderbird/, AND drafts replies to them.
-  Triage direction: scans a scope (all of Thunderbird/ or a sub-branch),
-  applies the rules in mail-config.yaml, proposes validatable action
-  batches, then executes classify / delete / merge / summarize /
-  flag-phishing; detects duplicates, applies prune rules, identifies
-  phishing, logs each session. Reply direction: explicit obs:mail reply with a source path
-  composes an assisted Markdown reply draft (email frontmatter, Re: subject)
-  in _drafts/ — prepared, never sent.
-  Use when the user invokes obs:mail. Do NOT use for project management —
-  use obs:project instead.
+author: fxgui
+version: 0.37.2
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+tags:
+  - documentation
+  - obsidian
+  - notes
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

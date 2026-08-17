@@ -1,14 +1,16 @@
 ---
 name: improve
 description: >-
-  Analyzes the PHP codebase for design pattern opportunities, language-specific
-  anti-patterns, and maintainability issues, then produces a prioritized improvement
-  plan. Covers SOLID principles, Repository/Service layer patterns, value objects,
-  PHP type system usage, and framework best practices (Laravel, Symfony).
-  Use when the user says "how can I improve this", "find anti-patterns", "code quality",
-  "refactoring suggestions", "how to better structure this", "is this good PHP".
-  Do NOT use for performance (web-optimize), data layer (data-optimize), version
-  migrations (legacy), or line-by-line code review (aidd-dev:05-review).
+author: François-Xavier Guillois
+version: 0.12.0
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - php
+  - audit
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

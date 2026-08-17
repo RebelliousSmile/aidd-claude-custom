@@ -1,14 +1,16 @@
 ---
 name: sniff
 description: >-
-  Rust stack detector. Reads Cargo.toml (or workspace members) to detect the
-  web framework (Axum, Actix-web) and data crates (SQLx, Diesel). Uses a
-  two-tier model: capability pivots (Rust idioms) are loaded at audit time
-  by sc-rust:audit and never written to disk; perf pivots (for web-optimize)
-  and data pivots (for data-optimize) are installed selectively to
-  .claude/rules/07-quality/. Emits a pivot manifeste for use by sc-rust:audit.
-  Reports gaps when a capability is detected but no matching plugin pivot exists.
-  Do NOT use to update a single rule manually — edit it directly instead.
+author: François-Xavier Guillois
+version: 0.5.2
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - audit
+  - rust
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

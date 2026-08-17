@@ -1,17 +1,16 @@
 ---
 name: legacy
 description: >-
-  Scans JavaScript/TypeScript code for outdated patterns and deprecated APIs,
-  then proposes a migration plan. Handles ES5 remnants (var, callbacks, prototype
-  patterns), CommonJS→ESM migration, Vue 2→3 (Options API → Composition API,
-  Vuex → Pinia), Svelte 4→5 (runes: $state/$derived/$effect/$props, slots→snippets,
-  on: directives → DOM attributes), SvelteKit 1→2 (redirect throws, $app/state),
-  TypeScript strictness evolution, and framework version migrations (Nuxt 2→3).
-  Use when the user says "modernize", "upgrade to Vue 3", "migrate to ESM",
-  "this uses old JS", "remove Vuex", "this is Vue 2 code", "migrate to runes",
-  "upgrade to Svelte 5", or when deprecated patterns appear in the codebase.
-  Do NOT use for dependency management (npm/pnpm), performance optimization
-  (web-optimize), or general refactoring unrelated to version compatibility.
+author: François-Xavier Guillois
+version: 0.15.4
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - frontend
+  - audit
+  - javascript
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

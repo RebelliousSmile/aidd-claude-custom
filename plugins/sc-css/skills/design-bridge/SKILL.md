@@ -1,12 +1,16 @@
 ---
 name: design-bridge
 description: >-
-  Réceptacle du pivot design pour la couche CSS, seule ou intégrée à une stack mixte. Reçoit le contrat design
-  (tokens.json + components.json) émis par design:enforce ou design:diffuse, et produit :
-  (1) un fichier de custom properties CSS (tokens → :root) ; (2) des stylesheets de
-  composants BEM (components.json → .block, .block__element, .block--modifier) avec
-  cascade layers. Jamais invoqué directement — appelé via le pivot design:enforce/04-pivot
-  ou design:diffuse/03-pivot quand la cible demande des feuilles CSS.
+author: François-Xavier Guillois
+version: 0.5.0
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - frontend
+  - audit
+  - css
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

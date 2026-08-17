@@ -1,18 +1,15 @@
 ---
 name: builder-coverage
 description: >-
-  Gate de couverture « page-builder » pour un thème bloc WordPress FSE. Prouve —
-  par un parcours exhaustif du contenu réel, pas par un mapping mental — que
-  CHAQUE composant présent sur les pages dispose d'une block pattern enregistrée,
-  donc insérable et éditable dans l'éditeur. C'est la promesse d'un builder
-  (Divi/Elementor) portée nativement par FSE : tout élément de page est un bloc
-  réutilisable. Deux actions : 01-scan (audit → liste des composants non couverts)
-  02-close-gaps (créer les patterns manquantes, natives et lint-propres) et
-  03-organize (ranger les patterns par rôle de section + lint d'équilibre).
-  Sibling de design-bridge (qui PRODUIT une pattern depuis le pivot design) :
-  builder-coverage VÉRIFIE la complétude ET l'organisation, et se chaîne après.
-  Invoquer sur un thème FSE quand on veut garantir l'édition WYSIWYG de toutes
-  les pages, comme un page-builder (Divi/Elementor).
+author: François-Xavier Guillois
+version: 0.12.0
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+tags:
+  - backend
+  - php
+  - audit
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

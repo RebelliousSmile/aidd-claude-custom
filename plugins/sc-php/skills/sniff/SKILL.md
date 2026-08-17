@@ -1,16 +1,16 @@
 ---
 name: sniff
 description: >-
-  PHP stack detector for PHP projects. Reads composer.json and sentinel files
-  (artisan, bin/console, wp-config.php) to detect the framework (Laravel,
-  Symfony, WordPress), data layer (Eloquent, Doctrine), frontend bridge (HTMX),
-  and testing harness (Bruno). Uses a two-tier model: capability pivots (SOLID,
-  Bruno) are loaded at audit time by sc-php:audit and never written to disk;
-  perf pivots (for web-optimize) and data pivots (for data-optimize) are
-  installed selectively to .claude/rules/07-quality/. Emits a pivot manifeste
-  for use by sc-php:audit. Reports gaps when a capability is detected but no
-  matching plugin pivot exists. Prefer sniff over setup on already-configured
-  projects.
+author: François-Xavier Guillois
+version: 0.12.0
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - php
+  - audit
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

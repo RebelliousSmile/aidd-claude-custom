@@ -1,13 +1,16 @@
 ---
 name: audit
 description: >-
-  JS code quality auditor. Detects the project stack via sniff (01-scan),
-  loads the applicable JS knowledge pivots from the plugin, and delegates
-  a structured code review to aidd-dev:reviewer using the pivots as
-  acceptance criteria. Use when the user asks to: audit JS code, check JS
-  best practices, review code quality, check my JS, audit Vue components,
-  check Pinia usage, review code against JS standards, or invokes sc-js:audit.
-  Does not install any files to .claude/rules/.
+author: François-Xavier Guillois
+version: 0.15.4
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - frontend
+  - audit
+  - javascript
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

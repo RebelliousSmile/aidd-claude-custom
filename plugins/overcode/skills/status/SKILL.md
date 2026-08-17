@@ -1,7 +1,15 @@
 ---
 name: status
 description: >-
-  Provide three project-health actions: synthesize and export project memory, generate a status report with audit and a 7-day plan, or audit memory quality and freshness. Use for project memory, status, health, or memory-audit requests. Do NOT use to implement features, write application code, run tests, or modify non-memory project files.
+author: François-Xavier Guillois
+version: 4.5.1
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+tags:
+  - productivity
+  - workflow
+  - automation
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

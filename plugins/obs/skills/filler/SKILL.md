@@ -1,6 +1,19 @@
 ---
 name: filler
 description: Manage content files in any directory — inventory, sort, summarize, merge, and clean. Use when the user points to a folder and wants to triage, reorganize, distill, or consolidate its files. Do NOT use for structured Obsidian project lifecycle (use project), email triage (use mail), or Documents/ tree management (use tree).
+author: fxgui
+version: 0.37.2
+vibe_version: ">=1.0.0"
+permissions:
+  - files
+  - bash
+tags:
+  - obsidian
+  - organization
+  - notes
+  - documentation
+  - synthesis
+  - sorting
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

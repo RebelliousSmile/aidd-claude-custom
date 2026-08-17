@@ -1,10 +1,16 @@
 ---
 name: legacy
 description: >-
-  Migration CSS legacy vers standards modernes : float/clearfix → flex/grid,
-  px → rem/em, préfixes vendor (-webkit-/-moz-) → standard, variables SCSS/Less ($var/@var)
-  → custom properties CSS natives, hack IE/Edge classiques → standards. Propose un plan
-  de migration par fichier, n'édite qu'après validation.
+author: François-Xavier Guillois
+version: 0.5.0
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - frontend
+  - audit
+  - css
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

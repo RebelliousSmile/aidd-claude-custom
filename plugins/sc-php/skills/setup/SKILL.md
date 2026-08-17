@@ -1,19 +1,16 @@
 ---
 name: setup
 description: >-
-  Scaffolds a brand-new PHP project from scratch (WordPress FSE, Laravel, or
-  Symfony) with Docker Compose ready for local dev, and optionally wires an
-  SSH-based deploy pipeline (rsync + optional DB export, shared SSH hosting).
-  Detects/asks the target framework first — mirrors the three frameworks
-  sc-php:sniff already knows how to detect (composer.json + wp-config.php / artisan /
-  bin/console). Use when the user asks to: scaffold a new PHP project, set up
-  WordPress/Laravel/Symfony with Docker, init wp-env, create a fresh project with
-  local dev + deploy. The WordPress flow is the most complete (born from a real
-  production deployment); Laravel/Symfony flows wrap the official installers
-  (composer create-project) with a standard Docker Compose. Do NOT use on an
-  already-configured project — prefer sc-php:sniff then sc-php:audit there. Do NOT
-  use for generic PHP without one of these three frameworks (no scaffold path exists
-  for that yet).
+author: François-Xavier Guillois
+version: 0.12.0
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - php
+  - audit
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.
