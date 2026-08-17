@@ -11,6 +11,9 @@ dépend d'aucune plateforme. **Sans référence externe** (construction depuis u
 Vérifier la **fidélité du rendu** à la référence visuelle résolue (l'intention figée par
 `adjust`), pas seulement la conformité au vocabulaire. La preuve de conformité vient de l'oracle
 **par propriété** (`adapters/measure/measure.py`, styles calculés par breakpoint) et de lui seul.
+Pour une cible FSE, cette même preuve inclut la **propriété de cascade** : valeur calculée, feuille et
+sélecteur gagnants sur le front et dans le canvas éditeur. Elle étend le verdict de fidélité ; ce n'est
+pas une règle `pivotReports` supplémentaire.
 Il lit `deviations.json` pour distinguer un écart sanctionné d'une dérive, puis on déroule la
 boucle **mesurer → corriger à la source → re-mesurer** jusqu'à delta 0 (ou écart couvert).
 
@@ -27,6 +30,9 @@ n'établit pas est énoncé une seule fois dans `${DESIGN_PLUGIN_ROOT}/reference
 - **L'oracle par propriété câblé** : un config de mesure (cibles, propriétés, breakpoints — via
   `config-gen.py`) *et* le registre `deviations.json`, passé en argument requis `--ledger-registry`.
   Schéma du registre : `${DESIGN_PLUGIN_ROOT}/references/deviations-schema.md`.
+- Pour FSE, `config-gen.py --ownership-stylesheet <component.css> --ownership-stylesheet
+  <fse-bindings.css>` dérive les propriétés des déclarations réelles. La session éditeur vient de
+  `WP_EDITOR_STORAGE_STATE` ou du hook `WP_EDITOR_AUTH_HOOK`, jamais du config ni du dépôt.
 
 ## Refus d'affirmer la conformité
 
@@ -68,7 +74,8 @@ rouge : rien n'est prouvé tant que l'oracle n'est pas câblé.
    lieu de le confirmer. Mettre à jour les sélecteurs (ou cibler des classes DS stables) dans le même geste.
 6. **Re-mesurer pour clore** : la clôture est le **verdict par propriété du script**
    `summary.verdict == "CLOSED"` (calculé : 0 diff ET 0 missing ET aucune section absente de la cible
-   ET `coverage.ok` ET toute exception validée contre `deviations.json`), **pas** une affirmation de
+   ET `coverage.ok` ET toute exception validée contre `deviations.json` ET, lorsqu'elle est configurée,
+   `ownership_failures == 0` ET `ownership_unrealized == 0`), **pas** une affirmation de
    l'opérateur ni un diff pixel vert. Coller le bloc `summary`/`completeness`/`coverage` comme preuve.
    Un `coverage.ok=false` = sous-mesure (tunnel vision hero-only) → ajouter une cible par section. Un
    écart toléré n'est exclu que par une entrée `active` référencée, jamais par omission. « Vérifié en

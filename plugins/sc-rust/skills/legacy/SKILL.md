@@ -1,15 +1,16 @@
 ---
 name: legacy
 description: >-
-  Scans Rust code for edition-specific patterns and deprecated APIs, then migrates
-  to a target edition (2015 → 2018 → 2021 → 2024) or updates breaking crate API
-  changes (tokio 0.x → 1.x, diesel 1.x → 2.x, failure → anyhow/thiserror,
-  futures 0.1 → async/await). Detects extern crate declarations, old module syntax
-  (mod.rs), try!() macro, pre-NLL borrow patterns, and deprecated std APIs.
-  Use when the user says "migrate to Rust 2021", "upgrade edition", "this is old Rust",
-  "update tokio", "replace failure crate", or when rustc produces edition warnings.
-  Do NOT use for dependency management (Cargo), performance optimization (web-optimize),
-  or general refactoring unrelated to Rust edition/API compatibility.
+author: François-Xavier Guillois
+version: 0.5.2
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - audit
+  - rust
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

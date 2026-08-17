@@ -2,7 +2,7 @@
 
 ## Rôle
 
-Générer `design/css/tokens.css` depuis `design/tokens.json` — un fichier de custom properties CSS organisées en `@layer design.tokens`.
+Générer `<Output dir>/tokens.css` depuis `design/tokens.json` — un fichier de custom properties CSS organisées en `@layer design.tokens`. `Output dir` vient du spec de rendu ; pour une cible standalone seulement, le fallback historique est `design/css/`.
 
 ## Procédure
 
@@ -14,8 +14,9 @@ Générer `design/css/tokens.css` depuis `design/tokens.json` — un fichier de 
    - `font.size.sm` → `--font-size-sm`
    - `space.4` → `--space-4`
 5. Grouper par catégorie dans le fichier produit (commentaires de section : `/* color.brand */`, `/* font.size */`, etc.).
-6. Écrire dans `@layer design.tokens { :root { ... } }`.
-7. Si `design/css/tokens.css` existe déjà, comparer et signaler les tokens ajoutés/supprimés/modifiés avant d'écrire.
+6. Résoudre le chemin sous l'`Output dir` reçu, sans écrire hors de cette cible.
+7. Écrire dans `@layer design.tokens { :root { ... } }`.
+8. Si `<Output dir>/tokens.css` existe déjà, comparer et signaler les tokens ajoutés/supprimés/modifiés avant d'écrire.
 
 ## Gestion des types DTCG
 

@@ -57,7 +57,7 @@ scripté est plus sûr que 50 éditions manuelles.
 ### Step 3 — Lint d'équilibre
 
 ```bash
-pnpm dlx @wordpress/env run cli wp eval-file <chemin>/category-balance.php
+pnpm wp eval '$c = file_get_contents("<chemin-conteneur>/category-balance.php"); eval($c);'
 ```
 
 Objectif `ISSUES: 0` : aucune catégorie > `BC_MAX` (défaut 8), aucune pattern

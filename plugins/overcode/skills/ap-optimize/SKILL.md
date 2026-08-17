@@ -1,19 +1,15 @@
 ---
 name: ap-optimize
 description: >-
-  Audits an ActivityPub federation implementation against a stack-aware
-  checklist (inbox idempotency, HTTP signature verification, fan-out delivery,
-  actor/key caching, outbox pagination conformance, rate limiting, circuit
-  breaker, AS2 conformance, security, observability) and produces a ranked
-  roadmap. Detects the AP stack and loads stack-specific pivots from installed
-  sc-* plugins (${PROJECT_RULES_ROOT}/07-quality/ap-pivots-*.md); falls back to a
-  generic 11-section schema otherwise. Every report states where its checklist
-  came from and whether a pivot was installed, missing, or unavailable. On a
-  project that implements no federation, reports that the family does not apply
-  instead of proposing an install.
-  Use when the user mentions federation, ActivityPub, fediverse, AP delivery,
-  inbox, outbox, HTTP signatures, WebFinger, actor, fan-out, "AP lent",
-  "inbox lent", "delivery fail", "signature invalid", or invokes ap-optimize.
+author: François-Xavier Guillois
+version: 4.5.1
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+tags:
+  - productivity
+  - workflow
+  - automation
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

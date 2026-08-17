@@ -1,6 +1,18 @@
 ---
 name: harvest
 description: Global maintenance skill — reconciles tracker items with processed plans, harvests non-obvious decisions into memory/rules, purges ephemeral task files, reviews all remaining files methodically
+author: François-Xavier Guillois
+version: 4.5.1
+vibe_version: ">=1.0.0"
+permissions:
+  - files
+  - bash
+tags:
+  - collection
+  - workflow
+  - automation
+  - productivity
+  - data-mining
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

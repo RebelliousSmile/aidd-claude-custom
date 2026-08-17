@@ -261,6 +261,10 @@ is always the consumer's path; it is never plugin-relative.
       verdict is. If `coverage.ok` is false, you under-measured (hero-only tunnel vision): add a
       target per section, or set `coverage_ack: {"sections":[...],"reason":"..."}` listing sections
       deliberately skipped (non-empty sections list required — a bare `true` is rejected).
+- [ ] Après chaque `action_detail: remove-override`, la re-mesure prouve aussi la **propriété de
+      cascade** : `summary.ownership_failures == 0` et `summary.ownership_unrealized == 0` sur front
+      et éditeur, à chaque breakpoint. Une valeur calculée identique ne suffit pas si une règle core
+      WordPress reste gagnante ; aucune règle `pivotReports` ad hoc ne remplace cette preuve runtime.
 - [ ] **Every `ledger` entry in the config has an `id` (DEV-xxx) AND that id appears in the
       project's `ds-deviation-ledger.md` canonical registry.** A config-ledger entry without a
       matching registry entry is an unsigned deviation — it does NOT constitute closure. The oracle

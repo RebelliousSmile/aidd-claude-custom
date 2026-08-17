@@ -1,7 +1,15 @@
 ---
 name: bruno
 description: >-
-  Run Bruno API tests in CLI mode and iterate until all targeted tests pass. Use to run or fix existing Bruno tests with the bru CLI. Do NOT use to write new Bruno files from scratch, run Playwright or unit tests, or handle non-Bruno testing.
+author: François-Xavier Guillois
+version: 0.12.0
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+tags:
+  - backend
+  - php
+  - audit
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

@@ -1,0 +1,6 @@
+.btn-pinceau > .wp-block-button__link,
+.wp-block-navigation .site-nav__lien .wp-block-navigation-item__content,
+.wp-block-navigation .site-nav__lien.wp-block-navigation-item__content {
+  color: rgb(255, 255, 255);
+  background-color: rgb(20, 40, 80);
+}

@@ -1,11 +1,16 @@
 ---
 name: audit
 description: >-
-  Audit CSS multi-dimensionnel : spécificité (guerres de cascade), code mort
-  (sélecteurs inutilisés, règles inaccessibles), magic numbers (valeurs littérales
-  hors tokens), couverture a11y (contrastes, focus visible, réduction de mouvement),
-  opportunités modernes (has(), container queries, nesting, subgrid). Read-only :
-  identifie et classe les problèmes, n'édite jamais le code.
+author: François-Xavier Guillois
+version: 0.5.0
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - frontend
+  - audit
+  - css
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

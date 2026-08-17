@@ -1,7 +1,15 @@
 ---
 name: behave
 description: >-
-  Behavioural-test harness for skills, agents, and prompt-driven workflows. It scaffolds and runs scenario suites, checks regressions, and reviews behavioural coverage. Use for requests to behave, scaffold behavioural tests, run or audit a behavioural suite, or regression-test a skill or agent. Do NOT use for code unit/integration tests, style-guide code review, or one-off manual checks.
+author: François-Xavier Guillois
+version: 4.5.1
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+tags:
+  - productivity
+  - workflow
+  - automation
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

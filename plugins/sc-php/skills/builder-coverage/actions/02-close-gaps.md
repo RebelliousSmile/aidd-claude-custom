@@ -19,7 +19,7 @@ Extraire depuis une page qui l'utilise (repérée par `01-scan`) :
 
 ```bash
 BC_DUMP_POST=181 BC_DUMP_CLASS=mau-contact-card \
-  pnpm dlx @wordpress/env run cli wp eval-file <chemin>/dump-section.php
+  pnpm wp eval '$c = file_get_contents("<chemin-conteneur>/dump-section.php"); eval($c);'
 ```
 
 C'est la **source de vérité** : le markup déjà en DB rend correctement et passe
@@ -70,7 +70,7 @@ existante pour porter la classe du composant, plutôt que d'en créer une second
 Bumper `Version:` dans `style.css` (durable, invalide au déploiement) puis :
 
 ```bash
-pnpm dlx @wordpress/env run cli wp eval 'wp_clean_themes_cache();'
+pnpm wp eval 'wp_clean_themes_cache();'
 ```
 
 ### Step 4 — Vérifier

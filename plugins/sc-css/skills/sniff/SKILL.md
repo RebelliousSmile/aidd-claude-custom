@@ -1,11 +1,16 @@
 ---
 name: sniff
 description: >-
-  CSS stack detector. Analyse les fichiers de style présents pour détecter l'architecture
-  CSS (BEM, utility-first, CSS Modules, ITCSS), le préprocesseur (PostCSS, Sass/SCSS, Less,
-  vanilla), les outils de lint (Stylelint, Biome), l'usage des couches de cascade (cascade
-  layers), et le degré d'adoption des custom properties. Émet un pivot manifeste JSON décrivant
-  l'état détecté, à lire avant de lancer audit, improve ou legacy. N'installe aucun fichier.
+author: François-Xavier Guillois
+version: 0.5.0
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - frontend
+  - audit
+  - css
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

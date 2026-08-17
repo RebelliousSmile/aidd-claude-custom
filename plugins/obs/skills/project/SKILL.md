@@ -1,6 +1,16 @@
 ---
 name: project
 description: Manages Obsidian project notes stored in Pro/Projets — create, fill, reorganize, log sessions and meetings, add invoices, distill dated communication into structured information, and export RAG context. Use when the user invokes obs:project with a project management intent. Do NOT use for code project scaffolding — use `aidd-context:project-init` instead.
+author: fxgui
+version: 0.37.2
+vibe_version: ">=1.0.0"
+permissions:
+  - files
+  - bash
+tags:
+  - documentation
+  - obsidian
+  - notes
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

@@ -1,7 +1,15 @@
 ---
 name: taste
 description: >-
-  Assess Markdown freshness against the repository and route code freshness, dependency, or runnable-resolution questions to installed AIDD skills. Use to check whether docs or code are outdated. Do NOT use to create files, generate code, or maintain a parallel code scanner.
+author: François-Xavier Guillois
+version: 4.5.1
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+tags:
+  - productivity
+  - workflow
+  - automation
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

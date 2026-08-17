@@ -14,12 +14,13 @@ Behavioural tests for **design:diffuse**. Authority: `SKILL.md` §Routing and §
 | S4 | Render a component name absent from `retrofit/components.json`. | Refuse invention. | No component, variant, token or preview write is intended; output names the undeclared component. |
 | S5 | Ask to audit an existing page without producing a component. | Do not activate `diffuse`. | No diffuse action, component write or preview write is planned. |
 | S6 | Render declared `card` natively for installed provider `sc-css`. | Select `pivot`, hand off the render spec, then gate the returned native output before delivery. | Per `actions/03-pivot.md` §Étape 2a–3, hand-off names `sc-css`, component `card` and native target; provider return precedes gate 0 and only then final native delivery; no baseline is called integrated. |
+| S7 | Render declared `card` for a WordPress FSE target with sc-php and sc-css installed. | Emit two ordinary render specs, collect non-overlapping platform and stylesheet outputs, then gate them together. | sc-php alone owns the pattern and `fse-bindings.css`; sc-css owns tokens/components/index and later lints the binding; delivery waits for both returns and gate 0. |
 
 ## How to run
 
 Agent-as-diffuse, dry-run. Record selected sequence, fixture, gate exit, delivery decision, governance label and intended paths.
 
-**Decisive observables:** autonomous prototype; governed delivery is gate-dependent; baseline is never called integrated; unknown declarations are not invented; audit entry excluded.
+**Decisive observables:** autonomous prototype; governed delivery is gate-dependent; baseline is never called integrated; unknown declarations are not invented; audit entry excluded; a compound native target repeats the simple spec and has one producer per output path.
 
 ## Results log
 
@@ -66,3 +67,20 @@ Fixture state: card declared; clean gate=0, dirty gate=1, and sc-css provider re
 
 **Frictions / gaps:** no concrete target-app promotion path or returned provider artifact in the dry-run fixture; routing logic remains fully applicable.
 **Tally:** 6/6 PASS (0 N/A) — no PASS→FAIL regression.
+
+### 2026-08-14 — run 4 (generality, dry-run, target=diffuse, fixture=brief+retrofit+fse) — **7/7 PASS**
+
+Fixture state: prior fixtures unchanged; FSE target has sc-php and sc-css installed with disjoint output paths.
+
+| # | Behaviour | Verdict | Δ vs prior | Note (instruction cited) |
+|---|---|---|---|---|
+| S1 | autonomous prototype | PASS | = | `actions/00-prototype.md §Output,Process` |
+| S2 | clean baseline delivery | PASS | = | `actions/02-render.md §Étape 0–3,5` |
+| S3 | dirty candidate not delivered | PASS | = | `actions/02-render.md §Étape 3` |
+| S4 | unknown component refused | PASS | = | `actions/01-define-element.md §Entrée` |
+| S5 | audit excluded | PASS | = | `SKILL.md §Routing` |
+| S6 | single-provider pivot sequence | PASS | = | `actions/03-pivot.md §Étape 1–3` |
+| S7 | two simple specs → disjoint returns → one final gate | PASS | ▲ | `actions/03-pivot.md §Étape 1–3`; `references/sc-pivot-contract.md § Cardinalité du spec de rendu` |
+
+**Frictions / gaps:** none.
+**Tally:** 7/7 PASS (0 N/A) — mixed FSE routing is explicit without a second composite schema.

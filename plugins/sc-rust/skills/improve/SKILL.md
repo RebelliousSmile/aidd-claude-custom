@@ -1,15 +1,16 @@
 ---
 name: improve
 description: >-
-  Analyzes the Rust codebase for idiomatic Rust gaps, ownership pattern issues,
-  and design opportunities, then produces a prioritized improvement plan. Covers
-  proper error handling (anyhow/thiserror, ? operator), iterator chaining over
-  manual loops, trait-based design, builder pattern, newtype pattern, excessive
-  cloning, unwrap() in non-test code, and async correctness.
-  Use when the user says "how can I improve this", "is this idiomatic Rust",
-  "find anti-patterns", "code quality", "refactoring suggestions", "too many clones".
-  Do NOT use for performance (web-optimize), data layer (data-optimize), edition
-  migration (legacy), or line-by-line code review (aidd-dev:05-review).
+author: François-Xavier Guillois
+version: 0.5.2
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - audit
+  - rust
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

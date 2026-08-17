@@ -1,13 +1,16 @@
 ---
 name: audit
 description: >-
-  Python code quality auditor. Detects the project stack via sniff (01-scan),
-  loads the applicable Python knowledge pivots from the plugin, and delegates
-  a structured code review to aidd-dev:reviewer using the pivots as
-  acceptance criteria. Use when the user asks to: audit Python code, check Python
-  best practices, review code quality, check my Python, audit Django/FastAPI
-  conventions, check Pythonic compliance, or invokes sc-python:audit.
-  Does not install any files to .claude/rules/.
+author: François-Xavier Guillois
+version: 0.6.3
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - python
+  - audit
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

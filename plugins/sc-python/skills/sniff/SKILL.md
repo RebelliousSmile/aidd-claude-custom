@@ -1,17 +1,16 @@
 ---
 name: sniff
 description: >-
-  Python stack detector. Reads requirements.txt, pyproject.toml, setup.py,
-  Pipfile, and sentinel files (manage.py) to detect the framework (Django,
-  FastAPI, Flask), ORM (Django ORM, SQLAlchemy), and capabilities including
-  ActivityPub federation (activitypub/ module + httpx + cryptography). Uses a
-  three-tier model: capability pivots (Python idioms) are loaded at audit time
-  by sc-python:audit and never written to disk; perf pivots (for web-optimize),
-  data pivots (for data-optimize), and AP pivots (for ap-optimize) are installed
-  selectively to .claude/rules/07-quality/. Emits a pivot manifeste for use by
-  sc-python:audit. Reports gaps when a capability is detected but no matching
-  plugin pivot exists.
-  Do NOT use to update a single rule manually — edit it directly instead.
+author: François-Xavier Guillois
+version: 0.6.3
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - python
+  - audit
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

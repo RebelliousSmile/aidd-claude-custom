@@ -1,16 +1,16 @@
 ---
 name: legacy
 description: >-
-  Scans PHP code for version-specific and deprecated patterns, then proposes an
-  upgrade (toward PHP 8+) or a downgrade (to a target PHP version for hosting
-  compatibility). Handles deprecated functions (mysql_*, ereg_*, create_function,
-  each), missing PHP 8+ features (enums, readonly, match, named args, null safe),
-  and framework version migrations (Laravel, Symfony).
-  Use when the user says "modernize", "upgrade to PHP 8", "this is old PHP",
-  "downgrade for PHP 7.4", "migrate to Laravel 11", or when deprecated functions
-  appear in the codebase.
-  Do NOT use for dependency management (Composer), performance optimization
-  (web-optimize), or general refactoring unrelated to PHP version compatibility.
+author: François-Xavier Guillois
+version: 0.12.0
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - php
+  - audit
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

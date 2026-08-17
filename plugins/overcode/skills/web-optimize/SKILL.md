@@ -1,17 +1,18 @@
 ---
 name: web-optimize
 description: >-
-  Audits a web application's performance against a stack-aware checklist
-  (LCP, CLS, INP, TBT, TTFB, bundle size, render-blocking resources, N+1
-  queries) and produces a ranked roadmap. Detects the stack and loads
-  stack-specific pivots from installed `sc-*` plugins
-  (`${PROJECT_RULES_ROOT}/07-quality/perf-pivots-*.md`); falls back to a generic
-  12-section schema otherwise. Every report states where its checklist came
-  from and whether a pivot was installed, missing, or unavailable.
-  Use when the user mentions perf, PSI, PageSpeed, Lighthouse, Core Web
-  Vitals, LCP, CLS, INP, TBT, TTFB, bundle size, chunks, code-split,
-  render-blocking, N+1, "site lent", "page lente", "Lighthouse 50",
-  "optimise", "audit perf", or invokes web-optimize.
+author: François-Xavier Guillois
+version: 4.5.1
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - network
+tags:
+  - performance
+  - workflow
+  - automation
+  - productivity
+  - web
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

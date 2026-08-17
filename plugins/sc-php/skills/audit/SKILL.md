@@ -1,14 +1,16 @@
 ---
 name: audit
 description: >-
-  PHP code quality auditor. Detects the project stack via sniff (01-scan),
-  loads the applicable PHP knowledge pivots from the plugin, and delegates
-  a structured code review to aidd-dev:reviewer using the pivots as
-  acceptance criteria. Use when the user asks to: audit PHP code, check PHP
-  best practices, review code quality, check my PHP, audit Laravel/Symfony
-  conventions, check SOLID compliance, review Bruno test quality, or invokes
-  sc-php:audit.
-  Does not install any files to .claude/rules/.
+author: François-Xavier Guillois
+version: 0.12.0
+vibe_version: ">=1.0.0"
+permissions:
+  - bash
+  - files
+tags:
+  - backend
+  - php
+  - audit
 ---
 
 Read [host portability](../../references/host-portability.md) before resolving plugin files, invoking sibling skills, or persisting project guidance.

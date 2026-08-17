@@ -1,6 +1,17 @@
 ---
 name: destructure
 description: Critiques a draft, component, page, or existing design system through visual, accessibility, interaction, and hierarchy lenses. Use when the user wants actionable alternatives without changing the contract or source.
+author: François-Xavier Guillois
+version: 2.13.0
+vibe_version: ">=1.0.0"
+permissions:
+  - files
+tags:
+  - design-system
+  - ui
+  - contract
+  - challenge
+  - critique
 ---
 
 # Destructure

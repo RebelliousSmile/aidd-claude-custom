@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "sc-php",
-  "version": "0.11.1",
-  "description": "PHP ecosystem skills: sniff, audit, improve, legacy, teach, log-analysis (tail/parse-errors/search/summarize sur logs PHP/Apache/Nginx local, Docker ou SSH prod), bruno (tests API Bruno en CLI, itère jusqu'au vert). design-bridge: réceptacle du pivot design (enforce → linter PHP/WP natif + pre-commit ; diffuse → block pattern WP + theme.json) ; possède le workflow de plateforme FSE (design:detail), phase modèle de contenu comprise (CPT/taxonomies dérivés de la référence, templates de vue). builder-coverage: gate WYSIWYG FSE — couverture (chaque composant de page a une pattern éditable) + organisation (patterns rangées par rôle de section, sans fourre-tout). setup: scaffold-from-zero WordPress FSE/Laravel/Symfony + Docker Compose, garde-fou COMPOSE_PROJECT_NAME, pipeline de déploiement SSH optionnel (rsync + export DB conditionnel).",
+  "version": "0.12.0",
+  "description": "PHP and WordPress skills with native FSE patterns, shared front/editor design assets, core-block bindings, guarded WP-CLI, builder coverage, and rendered cascade-ownership proof.",
   "author": {
     "name": "François-Xavier Guillois"
   }
