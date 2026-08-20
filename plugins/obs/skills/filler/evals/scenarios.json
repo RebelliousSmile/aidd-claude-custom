@@ -1,15 +1,15 @@
 [
   { "prompt": "qu'est-ce qu'il y a dans C:/Users/fxgui/Documents/Notes/inbox", "expect_action": "survey" },
   { "prompt": "C:/Users/fxgui/Documents/Notes/drafts", "expect_action": "survey" },
-  { "prompt": "rassemble les notes de janvier 2024 dans /Notes/inbox", "expect_action": "merge" },
-  { "prompt": "nettoie les fichiers vides dans /Notes/drafts", "expect_action": "clean" },
-  { "prompt": "fais un digest de /Pro/Projets/smartlockers/2026/06", "expect_action": "digest" },
+  { "prompt": "inventorie /Pro/Clients/acme/2026/06", "expect_action": "survey" },
   { "prompt": "trie les fichiers de /Notes/inbox", "expect_action": "sort" },
-  { "prompt": "fais un digest des messages de Julie dans /Pro/Clients/acme/2026/06", "expect_action": "digest" },
+  { "prompt": "classe /Pro/Clients/acme/2026/06 par expéditeur", "expect_action": "sort" },
   { "prompt": "crée un MOC pour /Notes/veille avec les wikilinks groupés par thème", "expect_action": "index" },
   { "prompt": "build an index of the files in /Pro/Clients/acme", "expect_action": "index" },
-  { "prompt": "ce compte-rendu fait 4000 mots pour trois idées, allège-le", "expect_action": "condense" },
-  { "prompt": "distille /Notes/drafts/reunion-2026-06.md en gardant le code", "expect_action": "condense" },
-  { "prompt": "transforme ces échanges avec la banque en une note d'information", "expect_action": "synthesize" },
-  { "prompt": "extract the information from the acme thread into one document", "expect_action": "synthesize" }
+  { "prompt": "rassemble les notes de janvier 2024 dans /Notes/inbox", "expect_action": "merge" },
+  { "prompt": "fusionne les six notifications de /Pro/Projets/smartlockers/2026/06", "expect_action": "merge" },
+  { "prompt": "nettoie les fichiers vides dans /Notes/drafts", "expect_action": "clean" },
+  { "prompt": "archive les doublons de /Notes/inbox", "expect_action": "clean" },
+  { "prompt": "ce compte-rendu fait 4000 mots pour trois idées, allège-le", "expect_action": null },
+  { "prompt": "transforme ces échanges avec la banque en une note d'information", "expect_action": null }
 ]

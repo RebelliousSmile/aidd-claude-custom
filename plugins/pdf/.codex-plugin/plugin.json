@@ -1,0 +1,23 @@
+{
+  "name": "pdf",
+  "version": "0.1.0",
+  "description": "PDF source ingestion — multi-session extraction of large PDFs into raw Markdown sources under a domain's working directories (extract-pdf).",
+  "author": {
+    "name": "fxgui"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "PDF Ingestion",
+    "shortDescription": "Extract large PDFs into source notes",
+    "longDescription": "Split a large PDF into chunks and extract each one into raw Markdown sources under a domain's working directories, resumable across sessions.",
+    "developerName": "fxgui",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Extract this PDF into source notes"
+    ]
+  }
+}

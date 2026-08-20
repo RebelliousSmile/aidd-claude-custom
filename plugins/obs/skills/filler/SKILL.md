@@ -1,8 +1,8 @@
 ---
 name: filler
-description: Manage content files in any directory — inventory, sort, summarize, merge, and clean. Use when the user points to a folder and wants to triage, reorganize, distill, or consolidate its files. Do NOT use for structured Obsidian project lifecycle (use project), email triage (use mail), or Documents/ tree management (use tree).
+description: Manage content files in any directory — inventory, sort, index, merge, and clean. Runs as a deterministic script, no model call. Use when the user points to a folder and wants to triage, reorganize or consolidate its files. Do NOT use for structured Obsidian project lifecycle (use project), email triage (use mail), or Documents/ tree management (use tree).
 author: fxgui
-version: 0.37.2
+version: 0.38.0
 vibe_version: ">=1.0.0"
 permissions:
   - files
@@ -12,7 +12,6 @@ tags:
   - organization
   - notes
   - documentation
-  - synthesis
   - sorting
 ---
 
@@ -20,63 +19,56 @@ Read [host portability](../../references/host-portability.md) before resolving p
 
 # obs:filler — Gestion de fichiers de contenu
 
-Opère sur n'importe quel répertoire de fichiers de contenu : inventorier ce qui s'y trouve, le classer, produire des résumés, fusionner des fichiers sélectionnés en un seul, ou éliminer les entrées redondantes et obsolètes.
+Opère sur n'importe quel répertoire de fichiers de contenu : inventorier ce qui s'y trouve, le classer par entité, produire un index, fusionner une sélection, éliminer les entrées vides, redondantes ou obsolètes.
+
+Tout passe par `${OBS_PLUGIN_ROOT}/scripts/filler.py`. Lancer la commande, lire sa sortie, la relayer. Ne pas refaire son travail à la main ni le doubler d'un tri manuel.
 
 ## Philosophie
 
-L'objectif n'est pas l'organisation — c'est la **réduction continue**.
+L'objectif n'est pas l'organisation — c'est la **réduction continue**. Le contenu a un cycle de vie : ce qui est essentiel aujourd'hui devient superflu demain. Il n'existe pas d'état final « rangé ». Chaque passage doit laisser moins de fichiers et plus de signal ; un fichier qui survit à plusieurs passes a prouvé sa valeur.
 
-Le contenu a un cycle de vie : ce qui est essentiel aujourd'hui devient superflu demain. `filler` accompagne ce cycle sans chercher à le figer :
+Ce que la réduction demande de comprendre — résumer, distiller, synthétiser un fil humain — n'est pas scriptable et ne vit plus dans cette skill. Ce qui reste est le socle mécanique : inventorier, regrouper, indexer, concaténer, écarter.
 
-1. **Arrivée** — fichiers bruts, hétérogènes, bruités
-2. **Tri** — regrouper par entité pour rendre le volume lisible
-3. **Digest** — N fichiers homogènes de contenu identifié (notifications, logs) → 1 fichier de données (suppression des sources) ; jamais sur des messages humains, voir `synthesize`
-4. **Condense** — 1 fichier verbeux → son essence (suppression du bruit)
-5. **Déclin** — l'essence elle-même vieillit et peut être supprimée
+## Commands
 
-Il n'existe pas d'état final "rangé". Chaque passage de `filler` sur un répertoire doit laisser moins de fichiers, moins de mots, et plus de signal. Un fichier qui survit à plusieurs passes a prouvé sa valeur.
-
-## Available actions
-
-| # | Action | Rôle | Entrée |
-|---|--------|------|--------|
-| 01 | `survey` | Inventorier le répertoire : nb fichiers, types, plage de dates, word count, flags | `<path>` |
-| 02 | `sort` | Regrouper par entité/date/type/topic — scheme `entity` produit aussi un triage par répertoire | `<path>` [scheme] |
-| 03 | `digest` | Consolidation destructive : N fichiers homogènes de contenu identifié (notifications/logs) → 1 fichier de données, sources supprimées — jamais sur des messages humains | `<path>` `<filter>` |
-| 04 | `index` | Créer un fichier d'index/MOC au niveau `<Subcategory>` avec wikilinks groupés | `<path>` [group-by] |
-| 05 | `merge` | Concaténer les fichiers sélectionnés en un document consolidé avec TOC | `<path>` [glob\|list] |
-| 06 | `clean` | Identifier et supprimer ou archiver les fichiers selon des critères (vide, doublon, vieux, orphelin) | `<path>` [criteria] |
-| 07 | `condense` | Distiller un fichier en place : préserver code/data/images, résumer les idées, éliminer le verbiage | `<path>` [filter] [--dry-run] |
-| 08 | `synthesize` | N emails/communications → 1 document d'information, sources supprimées — la forme email disparaît | `<path>` `<filter>` [--keep-sources] |
+| Commande | Rôle | Invocation |
+| --- | --- | --- |
+| `survey` | Inventorier : nombre de fichiers, types, plage de dates, volume, signalements, triage recommandé | `python filler.py survey <répertoire> [--recursive]` |
+| `sort` | Regrouper en sous-répertoires par entité, date, type ou sujet — assets co-déplacés | `python filler.py sort <répertoire> [--scheme entity\|date\|type\|topic] [--owner <email>] [--apply]` |
+| `index` | Écrire un index de navigation (wikilinks groupés) au niveau `<Subcategory>` | `python filler.py index <répertoire> [--group-by thread\|sender\|date\|type] [--out <nom>] [--apply]` |
+| `merge` | Concaténer une sélection en un document unique avec sommaire, sources intactes | `python filler.py merge <répertoire> [--glob <motif>] [--order date\|alpha] [--out <nom>] [--apply]` |
+| `clean` | Écarter vides, doublons, périmés et orphelins — archivage par défaut | `python filler.py clean <répertoire> [--criteria empty,duplicate,old:AAAA-MM-JJ,orphan] [--delete] [--apply]` |
 
 ## Default flow
 
-Point d'entrée par défaut : `survey`, sauf si l'utilisateur nomme explicitement une action.
+Point d'entrée par défaut : `survey`, sauf si l'utilisateur nomme explicitement une commande. `survey` termine par le triage recommandé (`clean`, `merge`, `keep`) pour chaque groupe qu'il a détecté.
 
-| L'utilisateur dit | Action |
-|-------------------|--------|
-| "inventorie / liste / qu'est-ce qu'il y a" | `survey` |
-| "trie / classe / organise / range / par expéditeur / par entité" | `sort` |
-| "consolide / agrège / groupe en un fichier de données" | `digest` |
-| "indexe / crée un index / MOC / liste les liens" | `index` |
-| "rassemble / fusionne / merge / consolide" | `merge` |
-| "nettoie / supprime / archive / purge" | `clean` |
-| "condense / distille / résume / allège / réduis" | `condense` |
-| "synthétise / regroupe en un document / transforme en note / extrait l'information" | `synthesize` |
+| L'utilisateur dit | Commande |
+|-------------------|----------|
+| « inventorie / liste / qu'est-ce qu'il y a » | `survey` |
+| « trie / classe / organise / range / par expéditeur » | `sort` |
+| « indexe / crée un index / MOC / liste les liens » | `index` |
+| « rassemble / fusionne / merge / consolide » | `merge` |
+| « nettoie / supprime / archive / purge » | `clean` |
 | (chemin seul, sans verbe) | `survey` |
 
-Pipeline recommandé pour un nouveau répertoire : `survey → sort entity → digest (groupes homogènes) → synthesize (threads/topics) → condense (fichiers verbeux résiduels) → clean`
+Enchaînement usuel sur un répertoire neuf : `survey → sort entity → merge (groupes homogènes) → clean`.
 
-## Transversal rules
+Toujours lancer sans `--apply` d'abord et montrer le plan. Ne relancer avec `--apply` qu'une fois le plan vu et accepté.
 
-1. **Résolution de chemin** — Accepter les chemins absolus, relatifs au vault root, ou `~/…`. Résoudre et confirmer avant d'opérer.
-2. **Dry run obligatoire** — Pour les actions destructives (`sort`, `clean`), toujours afficher un plan et attendre une confirmation avant de déplacer ou supprimer quoi que ce soit.
-3. **Pas d'écrasement silencieux** — Si un fichier cible existe déjà, ajouter un suffixe numérique déterministe plutôt qu'écraser.
-4. **Portée limitée** — N'opérer que sur les fichiers directement dans le répertoire donné, sauf si l'utilisateur dit explicitement "récursivement" ou "sous-dossiers inclus".
-5. **Langue** — Produire les résumés et en-têtes de digest dans la langue du contenu des fichiers.
-6. **Frontmatter aware** — Lire le frontmatter YAML quand il est présent ; utiliser ses champs `date`, `title`, `tags` pour informer le tri et le digest.
-7. **Préserver vs consolider** — `merge` et `index` ne touchent jamais les sources. `digest` est l'unique action qui supprime des fichiers sources : c'est son but — remplacer N fichiers homogènes par 1 fichier de données. `index` ne duplique aucun contenu — il contient uniquement des wikilinks et des descriptions courtes.
-8. **Répertoire de travail** — Les fichiers produits par la skill (digest, merged, archive) sont placés au niveau `<Subcategory>` du tree `Perso|Pro/<Category>/<Subcategory>/` et préfixés par `_`. Si `path` est un sous-répertoire `YYYY/MM`, remonter de 2 niveaux. Si la structure ne correspond pas au tree, écrire dans `path/` avec préfixe `_`. Créer le répertoire cible si nécessaire.
-9. **Minimalisme des artefacts** — Ne jamais produire de fichier de sortie sans que l'utilisateur l'ait explicitement demandé. `survey` est toujours console-only. `clean` supprime par défaut (pas d'archivage automatique). Tout fichier produit est soit un fichier de contenu réel (`digest`, `merge`), soit un fichier de navigation (`index`) — jamais une couche de résumé posée par-dessus des sources inchangées. L'objectif est de ne pas générer de nouveaux fichiers à nettoyer ensuite.
-10. **Format de rapport** — Terminer chaque action par un bloc rapport compact : ce qui a été trouvé / déplacé / écrit / supprimé, et les ambiguïtés laissées en suspens.
-11. **Intégrité des liens au déplacement** — Ne jamais déplacer, renommer ou supprimer un fichier en laissant un lien cassé. Lors d'un déplacement (`sort`) ou d'une consolidation (`merge`), mettre à jour tout wikilink (`[[…]]`), embed (`![[…]]`) et chemin relatif de pièce jointe (images, PDF, autres assets) qui pointe vers le fichier ou qu'il référence — co-déplacer les assets si nécessaire — et vérifier qu'aucune référence pendante ne subsiste. Une action destructive (`digest`/`synthesize`/`clean`) doit rediriger ou signaler les références vers une source supprimée, jamais les laisser pointer dans le vide.
+## Ce que le script garantit
+
+- **Portée limitée.** Seuls les fichiers directement dans le répertoire sont traités, sauf `--recursive` sur `survey`. Les fichiers et répertoires préfixés `_` sont du matériel de travail, jamais de la matière première.
+- **Rien sans `--apply`.** Le plan est affiché, l'écriture attend le drapeau.
+- **`clean` archive, il ne supprime pas.** Les fichiers écartés vont dans `<Subcategory>/_archive/` ; `--delete` est nécessaire pour détruire, et le script signale d'abord les fichiers qui pointaient vers la cible.
+- **Pas d'écrasement silencieux.** Une cible occupée reçoit un suffixe numérique déterministe.
+- **`merge` et `index` ne touchent jamais les sources.** `index` ne duplique aucun contenu : wikilinks et titres seulement.
+- **Intégrité des liens.** Un déplacement réécrit les liens relatifs sortants, co-déplace l'asset référencé par un seul groupe, et laisse en place — en le signalant — celui que plusieurs groupes réclament.
+- **Identifiants jamais lus.** Un fichier au nom de type `.env`, `credentials.*`, `*.key` voit son chemin signalé, jamais son contenu.
+- **Médias jamais lus.** Images, audio et vidéo sont exclus de toute lecture de contenu.
+- **Répertoire de travail.** Les fichiers produits (`index`, `merge`, `_archive/`) sont déposés au niveau `<Subcategory>` du tree quand il est reconnaissable, sinon dans le répertoire cible lui-même.
+
+## External data
+
+- `${OBS_PLUGIN_ROOT}/scripts/filler.py` — l'implémentation. `--help` sur chaque sous-commande.
+- `${OBS_PLUGIN_ROOT}/references/email-md-format.md` — convention de nommage et frontmatter des emails convertis, exploitée par `sort`, `index` et `merge`.

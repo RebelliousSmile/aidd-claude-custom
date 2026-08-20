@@ -2,11 +2,85 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/obs`.
 
-## [Unreleased]
+## [0.38.0] — 2026-08-20
 
-### Removed
+### Changed — les actions deviennent des scripts
 
-- `research` a été déplacée vers `overcode:research`. `obs` conserve sa copie de `domain-layout.md` pour `extract-pdf`, tandis que la skill déplacée embarque sa propre référence afin que les deux plugins restent installables indépendamment.
+Les 32 actions en prose Markdown (~2600 lignes) sont remplacées par cinq
+scripts Python de la bibliothèque standard. Les `SKILL.md` ne décrivent plus
+une procédure à dérouler : ils nomment la commande à lancer et énoncent ce
+qu'elle garantit. Un tri d'arborescence, un inventaire de répertoire, une
+ligne de facture ne demandent plus d'appel au modèle — ils s'exécutent, se
+rejouent à l'identique et se testent.
+
+- `scripts/obslib.py` — socle commun : découverte de l'ancre, lecture de
+  frontmatter, plan dry-run avec exécution et rapport, réécriture des liens
+  après déplacement (utilisée par `filler`, voir plus bas), garde-fous
+  identifiants/médias/dotfiles.
+- `scripts/tree.py` — `index`, `check`, `fix`, `sort`, `destinations`.
+- `scripts/filler.py` — `survey`, `sort`, `index`, `merge`, `clean`.
+- `scripts/project.py` — `create`, `invoice`, `export-rag`.
+- `scripts/mail.py` — `triage`, `init-config`.
+- `scripts/tests/test_obs_scripts.py` — suite `unittest` sur fixtures
+  temporaires, couvrant les invariants qui ne doivent jamais céder.
+
+Chaque commande est en dry-run par défaut ; `--apply` est nécessaire pour
+écrire. Aucune commande ne supprime : `filler clean` et `mail triage`
+déplacent vers une archive datée, et `clean --delete` prévient d'abord des
+liens entrants.
+
+### Removed — ce qui demandait un jugement de lecture
+
+Retiré plutôt que simulé : `tree judge` ; `filler digest`, `condense`,
+`synthesize` ; `project fill`, `reorganize`, `log-session`, `log-meeting`,
+`distill` ; `mail analyze`, `propose`, `reply`. Résumer un fil humain,
+décider du sens d'un contenu ou rédiger une réponse n'est pas mécanisable, et
+un script qui prétendrait le faire mentirait sur sa garantie.
+
+Conséquences : suppression des répertoires `skills/*/actions/`, de
+`skills/project/references/redistribution-rules.md` (consommé par
+`reorganize` et `distill` seuls) et de `skills/filler/references/digest-matrix.md`
+(format produit par `digest`). `references/email-md-format.md` remonte à la
+racine du plugin, désormais partagé par `filler` et `mail`.
+
+Les suites `*-scenarios.md` spécifiaient le comportement des actions
+supprimées ; elles cèdent la place à des tests exécutables. Les
+`evals/scenarios.json` sont réalignés sur les commandes qui existent.
+
+### Removed — `tree` ne réécrit plus les liens au déplacement
+
+Les actions `03-fix` et `04-sort` imposaient une passe d'intégrité des liens
+après chaque move/rename : réécrire les `[[…]]` entrants, co-déplacer ou
+repointer les `![[…]]` et les pièces jointes, puis vérifier qu'aucune
+référence ne pende. `tree.py` ne la fait pas. La perte est actée plutôt que
+masquée : `skills/tree/SKILL.md` annonce désormais l'inverse — *« Links are
+not rewritten »* — et renvoie sur le dry-run, seul endroit où l'utilisateur
+voit ce qui va bouger avant que ses liens cassent.
+
+Ce n'est pas un manque de mécanisme : `obslib.relink_moved()` existe et
+`filler sort` s'en sert. C'est un choix de périmètre. Réécrire les liens
+suppose de balayer le coffre entier à la recherche des référents d'un
+fichier qu'on renomme, sur une commande — `tree fix` — dont le cas nominal
+est de renommer par lots ; le faire correctement, et sous dry-run fidèle,
+dépasse la conversion. `filler sort` opère sur un répertoire délimité, d'où
+la différence.
+
+Conséquence pratique : après un `tree fix --apply` ou un `tree sort --apply`
+dans un coffre Obsidian, les liens vers les notes déplacées sont à reprendre
+à la main. Le rapport du plan liste les chemins avant/après, qui donnent de
+quoi rechercher.
+
+### Removed — `extract-pdf` devient le plugin `pdf`
+
+L'extraction de PDF ne dépend d'aucun coffre Obsidian. Elle part dans
+`plugins/pdf/` avec ses scripts, ses références et ses evals, et son entrée
+propre au marketplace. `references/domain-layout.md` est dupliqué pour que
+les deux plugins restent installables indépendamment.
+
+### Fixed
+
+- `mail` n'a plus de chemin de coffre codé en dur : la branche à traiter est
+  un argument, conformément à la règle d'ancre découverte de `tree`.
 
 ## [0.37.2] — 2026-07-28
 

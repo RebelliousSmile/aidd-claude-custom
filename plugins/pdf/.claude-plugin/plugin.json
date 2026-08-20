@@ -1,0 +1,7 @@
+{
+  "$schema": "https://www.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "pdf",
+  "version": "0.1.0",
+  "description": "PDF source ingestion — multi-session extraction of large PDFs into raw Markdown sources under a domain's working directories (extract-pdf).",
+  "author": { "name": "fxgui" }
+}
