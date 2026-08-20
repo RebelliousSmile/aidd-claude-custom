@@ -1,13 +1,44 @@
 {
   "plugins": [
-    { "id": "overcode", "name": "overcode" },
-    { "id": "design", "name": "design" },
-    { "id": "sc-php", "name": "sc-php" },
-    { "id": "sc-js", "name": "sc-js" },
-    { "id": "sc-css", "name": "sc-css" },
-    { "id": "sc-tiers", "name": "sc-tiers" },
-    { "id": "sc-python", "name": "sc-python" },
-    { "id": "sc-rust", "name": "sc-rust" },
-    { "id": "obs", "name": "obs" }
+    {
+      "id": "overcode",
+      "name": "overcode"
+    },
+    {
+      "id": "design",
+      "name": "design"
+    },
+    {
+      "id": "sc-php",
+      "name": "sc-php"
+    },
+    {
+      "id": "sc-js",
+      "name": "sc-js"
+    },
+    {
+      "id": "sc-css",
+      "name": "sc-css"
+    },
+    {
+      "id": "sc-tiers",
+      "name": "sc-tiers"
+    },
+    {
+      "id": "sc-python",
+      "name": "sc-python"
+    },
+    {
+      "id": "sc-rust",
+      "name": "sc-rust"
+    },
+    {
+      "id": "obs",
+      "name": "obs"
+    },
+    {
+      "id": "pdf",
+      "name": "pdf"
+    }
   ]
 }

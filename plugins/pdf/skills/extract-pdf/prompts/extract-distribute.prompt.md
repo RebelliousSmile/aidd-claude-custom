@@ -7,7 +7,7 @@ argument-hint: <progress-file>
 # Distribute Extracted Content
 
 > **Frontière** : `extract-pdf` écrit uniquement dans `sources/` (jamais dans la couche synthétisée — `reference/` en générique, `canon/`/`mj/` en profil JDR).
-> Voir `${OBS_PLUGIN_ROOT}/references/domain-layout.md` pour la convention générique (§ profil JDR pour les spécificités JDR).
+> Voir `${PDF_PLUGIN_ROOT}/references/domain-layout.md` pour la convention générique (§ profil JDR pour les spécificités JDR).
 
 ## Context
 

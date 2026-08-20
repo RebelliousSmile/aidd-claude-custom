@@ -1,12 +1,12 @@
 # Domain layout — generic working-directory convention
 
-The generic model the `obs:extract-pdf` skill operates on. It is **domain-agnostic**: a JDR game domain (previously a **profile** of this model, documented in the now-removed `ttrpg` plugin's `references/jdr-layout.md`) is not the base. A novel, a technical-doc knowledge base, or any other subject area is just as valid a domain. `overcode:research` carries its own copy so the two plugins remain independently installable.
+The generic model the `pdf:extract-pdf` skill operates on. It is **domain-agnostic**: a JDR game domain (previously a **profile** of this model, documented in the now-removed `ttrpg` plugin's `references/jdr-layout.md`) is not the base. A novel, a technical-doc knowledge base, or any other subject area is just as valid a domain. `overcode:research` carries its own copy so the two plugins remain independently installable.
 
 > **Local paths, discovered anchor — no global hardcoding.** A domain is a self-contained directory in `Documents/`; everything it needs lives beneath it in **relative** paths. Move it anywhere and the skills still work.
 
 ## Domain `R`
 
-`R` = a **subcategory** directory in the tree: `(Perso|Pro)/<Category>/<Subcategory>/`. There are **many `R` per category** (e.g. `Perso/RPG/engrenages/`, `Perso/RPG/archipels/`, or `Perso/Creative/mon-roman/`). `R` is located by the `obs:tree` anchor — walk up to a `Perso`/`Pro` segment; the subcategory level is `R`. **No domain marker is required** to locate `R`. (A profile may add a marker-based shortcut — see JDR profile.)
+`R` = a **subcategory** directory in the tree: `(Perso|Pro)/<Category>/<Subcategory>/`. There are **many `R` per category** (e.g. `Perso/RPG/engrenages/`, `Perso/RPG/archipels/`, or `Perso/Creative/mon-roman/`). `R` is located by the `Perso`/`Pro` anchor — walk up to a `Perso`/`Pro` segment; the subcategory level is `R`. **No domain marker is required** to locate `R`. (A profile may add a marker-based shortcut — see JDR profile.)
 
 ## Working-dir buckets
 

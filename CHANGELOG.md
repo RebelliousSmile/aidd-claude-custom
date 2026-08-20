@@ -4,6 +4,16 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [3.17.0] - 2026-08-20
+
+### Added
+
+- Plugin `pdf` : l'extraction multi-sessions de gros PDF quitte `obs`, dont elle n'utilisait ni le coffre ni les conventions, et devient un plugin installable seul.
+
+### Changed
+
+- `obs` (0.38.0) exécute son travail par scripts Python déterministes au lieu d'actions en prose : l'arborescence `Documents/`, les répertoires de contenu, les notes de projet et le tri du courrier ne demandent plus d'appel au modèle. Les commandes qui exigeaient un jugement de lecture — résumer, distiller, synthétiser, répondre — sont retirées plutôt que simulées.
+
 ## [3.16.0] - 2026-08-14
 
 ### Added

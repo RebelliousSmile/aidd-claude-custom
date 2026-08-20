@@ -9,7 +9,7 @@ argument-hint: <project-dir> <source-pdf> <target>
 Arguments reçus : `<project_dir> <source_pdf> <target>`
 
 > **Rôle** : prépare l'espace de travail pour l'extraction. Les sources de référence brutes seront écrites sous `<target>/sources/` lors de la phase Distribute (profil JDR : `<univers-root>/sources/` + `<systeme-root>/sources/`). Jamais dans la couche synthétisée (`reference/` en générique, `canon/`/`mj/` en profil JDR).
-> Voir `${OBS_PLUGIN_ROOT}/references/domain-layout.md` pour la convention générique des chemins (§ profil JDR pour les spécificités JDR).
+> Voir `${PDF_PLUGIN_ROOT}/references/domain-layout.md` pour la convention générique des chemins (§ profil JDR pour les spécificités JDR).
 
 ---
 
@@ -23,7 +23,7 @@ Valider l'environnement, découper le PDF en chunks, écrire `progress.md`. Ne p
 
 ### 0.1 Discover R (domain root) & detect profile
 
-`R` = une **sous-catégorie** `(Perso|Pro)/<Catégorie>/<Sous-catégorie>/`. Partir du répertoire de référence (`<project_dir>` ou CWD). **Générique** : remonter jusqu'à un segment `Perso`/`Pro`, le niveau sous-catégorie est `R` (ancre `obs:tree`). **Raccourci profil JDR** : remonter jusqu'au premier dossier contenant l'un des marqueurs `_campagnes/`, `_univers/` ou `_pjs/`.
+`R` = une **sous-catégorie** `(Perso|Pro)/<Catégorie>/<Sous-catégorie>/`. Partir du répertoire de référence (`<project_dir>` ou CWD). **Générique** : remonter jusqu'à un segment `Perso`/`Pro`, le niveau sous-catégorie est `R` (ancre `Perso`/`Pro`). **Raccourci profil JDR** : remonter jusqu'au premier dossier contenant l'un des marqueurs `_campagnes/`, `_univers/` ou `_pjs/`.
 
 ```bash
 python -c "
