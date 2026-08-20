@@ -4,7 +4,7 @@ Référence de `obs:tree`. Décrit **comment `tree` se repère** dans `Documents
 
 > **L'arborescence bouge régulièrement.** On ne fige donc **pas** un layout de référence à faire respecter au caractère près. À la place, `tree` **maintient un cache** (carte de l'arbo réelle) et s'en sert pour naviguer, vérifier la dérive et arbitrer le tri. Le cache est descriptif (ce qui *est*), les invariants sont prescriptifs (ce qui doit *toujours* tenir).
 
-> **Statut vis-à-vis des autres skills.** Cette convention est une vue d'ensemble **pour l'humain et pour `tree`**, **pas une dépendance d'exécution** des skills de production (`writing`, `brief`…). Ceux-ci opèrent relativement à un **répertoire de référence local** (argument ou CWD) et ignorent ce schéma global. On peut donc **déplacer** une unité de travail n'importe où sans rien casser — le contexte vit dans l'unité (`_brief/summary.md` autosuffisant), pas dans le chemin.
+> **Statut vis-à-vis des autres skills.** Cette convention est une vue d'ensemble **pour l'humain et pour `tree`**, **pas une dépendance d'exécution**. Les autres commandes opèrent relativement à un **répertoire local** (argument ou CWD) et ignorent ce schéma global. On peut donc **déplacer** une unité de travail n'importe où sans rien casser — le contexte vit dans l'unité, pas dans le chemin.
 
 ---
 
@@ -14,8 +14,8 @@ Ces règles servent la **portabilité** ; elles ne dépendent pas de l'organisat
 
 | # | Invariant | Détail |
 |---|-----------|--------|
-| I1 | **Préfixe `_` des répertoires de travail** | Tout répertoire **de travail** (produit/consommé par un skill : `_brief`, `_output`, `_research`, `_univers`, `_systeme`, `_subsystems`…) commence par `_`. |
-| I2 | **Contenu interne non préfixé** | À l'intérieur d'un répertoire de travail, fichiers et sous-dossiers **ne** sont **pas** préfixés (`_brief/summary.md`, pas `_brief/_summary.md`). |
+| I1 | **Préfixe `_` des répertoires de travail** | Tout répertoire **de travail** (produit ou consommé par un outil : `_tree`, `_archive`, `_code`, `_univers`, `_systeme`, `_subsystems`…) commence par `_`. |
+| I2 | **Contenu interne non préfixé** | À l'intérieur d'un répertoire de travail, fichiers et sous-dossiers **ne** sont **pas** préfixés (`_archive/note.md`, pas `_archive/_note.md`). |
 | I3 | **Slugs portables** | Noms de dossiers « libres » en `kebab-case` : minuscules, tirets, **sans espace ni accent** (portabilité cross-OS). Exemptés : les niveaux à format imposé (`Perso`/`Pro`, années `AAAA`, mois `MM`). |
 | I4 | **Mois/année bien formés** | Quand un niveau daté est utilisé : année = 4 chiffres, mois = 2 chiffres `01`–`12`. |
 
@@ -50,17 +50,16 @@ La notion de **bucket entité** (niveau 6, regroupement par source expéditrice 
 Le pattern recommandé, enregistré dans le cache comme défaut du domaine :
 
 ```
-<Perso|Pro>/<category>/<R = subcategory>/<AAAA>/<MM>/<projet>/
-            │                            │             ├── _brief/
-            │                            │             └── _output/
+<Perso|Pro>/<category>/<R = subcategory>/<AAAA>/<MM>/<unité>/
+            │                            │
             │                            └── _univers/, _systeme/, _subsystems/…   ← ressources globales du domaine (non daté)
 ```
 
 - **`R` = le domaine** (niveau `subcategory`) : c'est le **répertoire de travail** qui héberge les **ressources globales / savoir durable** du domaine (`R/_univers/`, `R/_systeme/`, `R/_subsystems/`…).
-- **`<projet>` = l'unité de travail** : le projet d'écriture, typiquement `R/<AAAA>/<MM>/<projet>/`, qui **porte les `_brief/`/`_output/`**. C'est ce que `brief` cible et ce que `writing` consomme.
-- **Frontière de portabilité** : `brief` lit les globales de `R` et les **consolide inline** dans `<projet>/_brief/summary.md` ; au runtime, `writing` ne touche que `<projet>/`, jamais `R`. Déplacer `<projet>/` seul ne casse rien.
+- **`<unité>` = l'unité de travail** : ce sur quoi on travaille à une date donnée, typiquement `R/<AAAA>/<MM>/<unité>/`, avec ses répertoires de travail préfixés `_`.
+- **Frontière de portabilité** : une unité doit rester autosuffisante — déplacer `<unité>/` seul ne casse rien, parce que son contexte vit dedans et non dans `R`.
 - **Savoir durable** = `R/_univers/`, `R/_systeme/`, `R/_subsystems/`… (hors axe daté). Forme interne **non figée** (point ouvert) — `tree` la reconnaît sans imposer de structure.
-- **`R/bank.yml`** = manifeste (cache) des ressources globales du domaine. **Maintenu par `tree`** (`index` le régénère en scannant `R/_univers/`, `R/_systeme/`, etc., fusion non destructive des `summary` curés), **lu par `obs:brief`** à l'assemblage (jamais par `writing`). Format : voir `obs:brief › references/bank-yml.md`.
+- **`R/bank.yml`** = manifeste (cache) des ressources globales du domaine. **Maintenu par `tree index`** (régénéré en scannant `R/_univers/`, `R/_systeme/`, etc., fusion non destructive des `summary` curés). Format : voir `references/bank-yml.md`.
 
 Un domaine peut diverger de ce défaut (axe non daté, niveaux en plus/en moins). `tree` ne le sanctionne pas : il **apprend** la convention effective du domaine et la consigne dans le cache.
 

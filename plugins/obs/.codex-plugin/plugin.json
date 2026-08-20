@@ -1,7 +1,7 @@
 {
   "name": "obs",
-  "version": "0.37.2+codex.20260814082642",
-  "description": "Personal Obsidian notes management \u2014 project lifecycle, sessions, meetings, invoices, RAG export; email triage; the Documents/ organiser tree (cache-based: index, check, fix, sort, judge, destinations); filler skill (survey, sort, digest, index, merge, clean, condense, synthesize); extract-pdf (raw source ingestion).",
+  "version": "0.38.0+codex.20260820",
+  "description": "Personal Obsidian notes management, driven by deterministic Python scripts (no model call): the Documents/ organiser tree (cache-based index, check, fix, sort, destinations); filler (survey, sort, index, merge, clean); project (create, invoice, export-rag); mail (rules-based triage of exported mail).",
   "author": {
     "name": "fxgui"
   },
@@ -9,7 +9,7 @@
   "interface": {
     "displayName": "Obsidian Workflows",
     "shortDescription": "Manage notes, mail, and projects",
-    "longDescription": "Manage an Obsidian vault through focused workflows for projects, documents, exported mail, and PDF source extraction.",
+    "longDescription": "Manage an Obsidian vault through deterministic scripts for the Documents/ tree, content directories, project notes, and exported mail.",
     "developerName": "fxgui",
     "category": "Productivity",
     "capabilities": [
@@ -17,9 +17,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Organize these notes safely",
-      "Audit this Obsidian project",
-      "Extract this PDF into source notes"
+      "Check whether this directory is well organised",
+      "Inventory this folder and tell me what to reduce",
+      "Triage this mail branch against its rules"
     ]
   }
 }

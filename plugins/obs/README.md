@@ -1,20 +1,42 @@
 # obs
 
-*Gestion personnelle de notes Obsidian : projets Pro, tri des emails, organisation de l'arborescence `Documents/` et ingestion de sources.*
+*Gestion personnelle de notes Obsidian : arborescence `Documents/`, répertoires de contenu, projets Pro, tri des emails exportés.*
 
-Plugin personnel orienté coffre Obsidian (chemins et conventions propres à l'auteur).
+Plugin personnel orienté coffre Obsidian (conventions propres à l'auteur). Depuis la version 0.38.0, **tout le travail est fait par des scripts Python déterministes** : les skills ne décrivent plus une procédure à exécuter par le modèle, elles disent quelle commande lancer et ce qu'elle garantit. Aucun appel LLM n'est nécessaire pour trier, classer, indexer, fusionner ou archiver.
 
 ## Skills
 
-| Skill | Déclencheur | Description |
+| Skill | Déclencheur | Commandes |
 |---|---|---|
-| `project` | `/obs:project` | Gestion des projets Pro (**communication → information**) : create, fill, reorganize, log-session, log-meeting, add-invoice, **distill**, export-rag |
-| `mail` | `/obs:mail` | Trie, résume, fusionne et classe les emails exportés en Markdown dans le coffre — plus `reply` (information → communication) : rédige un brouillon de réponse assisté, jamais envoyé |
-| `tree` | `/obs:tree` | Organiseur de l'arborescence `Documents/`, piloté par un **cache** (pas de layout figé) : index, check, fix, sort (tri par arbitrage), judge (arbitrage interactif nœud par nœud), destinations (export de la carte de routage pour `email-to-markdown`) |
-| `filler` | `/obs:filler` | Gestion de fichiers de contenu dans n'importe quel répertoire — réduction continue : survey, sort, digest, index (fichier de navigation par wikilinks), merge, condense, synthesize (N communications → 1 document d'information, la forme email disparaît), clean |
-| `extract-pdf` | `/obs:extract-pdf` | Pipeline multi-sessions d'extraction de gros PDF vers les sources |
+| `tree` | `/obs:tree` | Organiseur de l'arborescence `Documents/`, piloté par un cache : `index`, `check`, `fix`, `sort`, `destinations` |
+| `filler` | `/obs:filler` | Réduction continue d'un répertoire de contenu : `survey`, `sort`, `index`, `merge`, `clean` |
+| `project` | `/obs:project` | Notes de projet de `Pro/Projets/` : `create`, `invoice`, `export-rag` |
+| `mail` | `/obs:mail` | Tri des emails exportés selon `mail-config.yaml` : `triage`, `init-config` |
 
-> `extract-pdf` opère sur le modèle générique `references/domain-layout.md`. La recherche documentaire vit désormais dans `overcode:research`.
+## Scripts
+
+| Script | Rôle |
+|---|---|
+| `scripts/tree.py` | Cache d'arborescence, invariants I1–I4, dérive, placement, carte de routage |
+| `scripts/filler.py` | Inventaire, regroupement, index de navigation, fusion, archivage |
+| `scripts/project.py` | Création depuis gabarits, ligne de facture, export de contexte RAG |
+| `scripts/mail.py` | Moteur de règles de tri du courrier, archivage daté |
+| `scripts/obslib.py` | Socle commun : ancre, frontmatter, plan dry-run, intégrité des liens (utilisée par `filler`), garde-fous |
+| `scripts/tests/test_obs_scripts.py` | Suite `unittest` (stdlib) sur fixtures temporaires |
+
+Bibliothèque standard uniquement, Windows / Linux / macOS. Chaque commande est en **dry-run par défaut** : rien n'est écrit sans `--apply`.
+
+```bash
+python3 scripts/tree.py check ~/Documents/Perso/Finance
+python3 scripts/filler.py survey ~/Documents/Pro/Projets/acme/2026/06
+python3 -m unittest discover -s scripts/tests -v
+```
+
+## Ce que le plugin ne fait plus
+
+Résumer, distiller, synthétiser un fil humain, rédiger une réponse, arbitrer le sens d'un contenu : ces opérations demandaient un jugement de lecture. Elles ont été retirées plutôt que simulées. Le socle mécanique reste, et il est vérifiable.
+
+L'extraction de PDF est partie dans le plugin [`pdf`](../pdf/README.md).
 
 ## Licence
 

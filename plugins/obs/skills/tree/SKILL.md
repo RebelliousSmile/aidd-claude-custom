@@ -1,8 +1,8 @@
 ---
 name: tree
-description: Keeps the Documents/ tree navigable as it evolves — maintains a cache (map of the real arborescence), verifies it against a small set of portability invariants, fixes drift safely, and helps sort loose items into place by arbitration. Use to check whether a directory is well-organised, to tidy it, or to decide where something belongs.
+description: Keeps the Documents/ tree navigable as it evolves — maintains a cache (map of the real arborescence), verifies it against a small set of portability invariants, fixes drift safely, and exports a routing map. Runs as a deterministic script, no model call. Use to check whether a directory is well-organised, to tidy it, or to place loose files.
 author: fxgui
-version: 0.37.2
+version: 0.38.0
 vibe_version: ">=1.0.0"
 permissions:
   - bash
@@ -16,59 +16,52 @@ Read [host portability](../../references/host-portability.md) before resolving p
 
 # Tree
 
-Keeps `Documents/` **navigable while it keeps changing**. Rather than enforcing a frozen layout, `tree` maintains a **cache** (a map of the *actual* arborescence) and uses it to verify drift, fix it, and arbitrate where loose items go.
+Keeps `Documents/` **navigable while it keeps changing**. Rather than enforcing a frozen layout, `tree` maintains a **cache** (a map of the *actual* arborescence) and uses it to verify drift, fix it, and place loose items.
 
-**Local paths, discovered anchor — no global hardcoding.** `tree` works relative to a **target directory** (the CWD by default, or a path passed as argument). It finds the schema **anchor** by walking up to a `Perso`/`Pro` segment; it never hardcodes `C:\Users\…\Documents`. The cache lives at the anchor (`<anchor>/_tree/cache.json`) and is fully regenerable.
+Everything this skill does is done by `${OBS_PLUGIN_ROOT}/scripts/tree.py`. Run the command, read its output, relay it. Do not re-implement its behaviour in prose, and do not move or rename files by hand alongside it.
 
-> The convention — invariants, the observed default pattern, the cache format, anchor resolution — lives in `${OBS_PLUGIN_ROOT}/references/tree-convention.md`. Read it before acting.
+**Local paths, discovered anchor — no global hardcoding.** The script works relative to a **target directory** (the CWD by default, or a path passed as argument). It finds the schema **anchor** by walking up to a `Perso`/`Pro` segment; it never hardcodes `C:\Users\…\Documents`. The cache lives at `<anchor>/_tree/cache.json` and is fully regenerable.
 
-## What stays fixed vs what is learned
+## Commands
 
-- **Invariants (fixed, enforced):** `_` prefix on working dirs, content inside not prefixed, portable kebab-case slugs, well-formed dates. These serve portability and never change.
-- **Convention (learned, soft):** the `(Perso|Pro)/category/subcategory/AAAA/MM/unit` pattern is a *default*, not a law. `tree` learns each domain's effective convention from what already exists and records it in the cache. Divergence is reported as drift, not punished as a violation.
-
-## Available actions
-
-| #   | Action  | Role                                                                          | Input                              |
-| --- | ------- | ----------------------------------------------------------------------------- | ---------------------------------- |
-| 01  | `index` | Scan the real tree → refresh `<anchor>/_tree/cache.json` + each domain's `R/bank.yml` | `[<target>]` (default: CWD)        |
-| 02  | `check` | Verify invariants + drift vs the cached convention; report only                | `[<target>]` (default: CWD)        |
-| 03  | `fix`   | Apply safe corrections for confirmed anomalies/drift (rename, move; never delete) | `[<target>]` (default: CWD)        |
-| 04  | `sort`  | Arbitrate placement of loose/unsorted items into the tree, using the cache     | `<items…>` `[--into <target>]`     |
-| 05  | `judge` | Interactive session: arbitrate content in `R` node by node — delete/summarise/merge/keep+advance | `[<target R>]` (default: CWD → R) |
-| 06  | `destinations` | Export the durable tree (`(Perso\|Pro)/category/subcategory`) as a `destinations.txt` routing map for `email-to-markdown` | `[<target>]` `[--out <path>]` |
+| Command | Role | Invocation |
+| --- | --- | --- |
+| `index` | Scan the real tree → refresh `<anchor>/_tree/cache.json` + each domain's `R/bank.yml` | `python tree.py index [<target>] [--managed-root] [--apply]` |
+| `check` | Verify invariants + drift vs the cached convention; report only | `python tree.py check [<target>] [--managed-root]` |
+| `fix` | Rename/move to correct confirmed anomalies; `--drift` also realigns on the learned convention | `python tree.py fix [<target>] [--drift] [--apply]` |
+| `sort` | Place loose items into the tree, using the cache | `python tree.py sort <items…> [--into <target>] [--apply]` |
+| `destinations` | Export the durable tree as a `destinations.txt` routing map | `python tree.py destinations [<target>] [--out <path>] [--apply]` |
 
 ## Default flow
 
-Trigger-to-action mapping:
 - "index the tree", "scan", "refresh the map", "rebuild cache" → `index`
 - "check organisation", "is this tidy", "vérifier l'arbo", "what's out of place" → `check`
 - "fix the tree", "tidy", "ranger", "corriger l'arbo" → `fix`
 - "where does this go", "sort these files", "trier", "classe ça" → `sort`
-- "judge R", "arbitrer le contenu", "trier R", "nettoyer R", "juger les fichiers" → `judge`
-- "export destinations", "génère le destinations.txt", "routing map email", "exporter le répertoire en destinations" → `destinations`
+- "export destinations", "routing map email" → `destinations`
 
-`check`/`fix`/`sort`/`destinations` auto-refresh the cache if it is missing or stale (the target changed since `scanned_at`).
+`check`/`fix`/`sort`/`destinations` refresh the cache themselves when it is missing or stale.
 
-## Transversal rules
+Always run without `--apply` first and show the plan. Only re-run with `--apply` once the user has seen it and agreed.
 
-- **Discovered anchor only**: resolve the anchor by walking up to `Perso`/`Pro`. No hardcoded absolute path. No anchor found → report it and offer to treat the target as a managed root.
-- **Target scope is strict, not anchor-wide**: `check`/`fix` bound their report/plan to `<target>` only. Resolving the anchor locates the shared `_tree/cache.json` (for convention lookup and cross-domain consistency) — it does not widen what gets reported or fixed to sibling domains elsewhere under the anchor. To act on the whole anchor, pass the anchor itself as `<target>`.
-- **Cache is regenerable**: it accelerates navigation; the disk is the source of truth. Never trust the cache over the actual files — re-scan on doubt.
-- **Invariants vs drift**: enforce I1–I4 (see reference); treat everything else as soft drift judged against the domain's learned convention.
-- **Never destructive** (`fix`/`sort`): only rename/move, always after a dry-run preview and explicit confirmation. Never delete user content; never overwrite an existing destination — flag the collision instead. (See `delete-safety`.)
-- **Link integrity on move:** never move or rename a file in a way that leaves a broken link. When a file moves, update every wikilink (`[[…]]`), embed (`![[…]]`), and relative attachment path (images, PDFs, other assets) that points to it or that it references — co-moving assets when needed — and verify no dangling reference remains. Applies to `fix`/`sort` and to `judge` when it relocates content.
-- **Credentials — never read, always signal:** if a file's name matches a credential pattern (`.env`, `*.env`, `credentials.*`, `secrets.*`, `token.*`, `*.key`, `*.pem`, `*.p12`, `*.pfx`, `*.secret`, `*password*`, `*passwd*`, `*apikey*`), do **not** read its content under any circumstances. Signal its path to the user instead. **Exception:** files inside a `_code/` directory at any depth are silently skipped (developer tooling — expected).
-- **`.git` and dotfiles — never move directly:** a `.git/` directory or any file/dir whose name starts with `.` must never be moved or renamed as a standalone operation by any action. They can only travel with their parent directory (whole-directory move). Actions that need to move content near a dotfile must move only the non-dot items individually.
-- **Media files — skip, never judge or read:** images (`.jpg` `.jpeg` `.png` `.gif` `.bmp` `.webp` `.heic` `.raw` `.psd` `.svg`), audio (`.mp3` `.wav` `.flac` `.m4a` `.ogg` `.aac`), and video (`.mp4` `.mov` `.avi` `.mkv` `.wmv` `.webm`) are always excluded from content-reading operations. Note their presence when they block a directory operation.
-- **Learn, don't impose**: when a domain diverges from the default pattern, record its effective convention in the cache rather than forcing it back.
-- `index` and `check` never modify user content; `index` only writes derived caches (`_tree/cache.json` and per-domain `R/bank.yml`).
-- `judge` manages `R/_trash/` (a working dir, `_` prefix — I1 compliant) as the destination for content marked for deletion. The user empties `_trash/` manually. `judge` never performs a real `rm`.
-- **`R/bank.yml` is a cache, not curation.** `index` derives `id`/`kind`/`path` from scanning `R/_univers/`, `R/_systeme/`, `R/_subsystems/` and other `_`-prefixed working dirs, and a best-effort `summary` from each file's heading. It is **merge, not clobber**: existing curated `summary` text is preserved; new resources are added; vanished ones are flagged.
+## What the script guarantees
+
+- **Discovered anchor only.** No hardcoded absolute path. No anchor found → the script says so and offers `--managed-root` to treat the target as its own root.
+- **Target scope is strict, not anchor-wide.** `check`/`fix` bound their report to `<target>`. Resolving the anchor locates the shared cache; it does not widen the blast radius to sibling domains.
+- **Cache is regenerable.** It accelerates navigation; the disk is the source of truth.
+- **Invariants vs drift.** I1–I4 are enforced (see reference); everything else is soft drift judged against the domain's learned convention, and only touched under `--drift`.
+- **Never destructive.** Rename and move only, after a dry-run, never a delete, never an overwrite — a collision is reported, not resolved.
+- **Links are not rewritten.** `fix` and `sort` rename and move, nothing more: incoming `[[…]]` wikilinks, `![[…]]` embeds and relative attachment paths keep their old target, and assets are not co-moved. Read the dry-run before applying — renaming a note breaks every link pointing at it. `filler sort` does rewrite them; `tree` does not.
+- **Credentials are never read.** A file matching a credential pattern (`.env`, `credentials.*`, `*.key`, `*.pem`, `*password*`, …) has its path signalled, never its content. Files under a `_code/` directory are silently skipped.
+- **`.git` and dotfiles never move alone.** They travel only with their parent directory.
+- **Media are never read.** Images, audio and video are excluded from every content-reading operation.
+- **Learn, don't impose.** A domain that diverges has its effective convention recorded in the cache.
+- `index` and `check` never modify user content; `index` only writes derived caches (`_tree/cache.json`, per-domain `R/bank.yml`), and `bank.yml` is merged, never clobbered — curated summaries survive.
 
 ## External data
 
+- `${OBS_PLUGIN_ROOT}/scripts/tree.py` — the implementation. `--help` on any subcommand.
 - `${OBS_PLUGIN_ROOT}/references/tree-convention.md` — invariants, default pattern, cache format, anchor resolution.
-- `${OBS_PLUGIN_ROOT}/references/destinations-template.md` — `destinations.txt` format + fillable template for the `email-to-markdown` router; how to derive it from a scanned tree.
-- `<anchor>/_tree/cache.json` — the navigation cache `tree` maintains.
-- `R/bank.yml` — per-domain resource manifest `tree` maintains; format in `${OBS_PLUGIN_ROOT}/references/bank-yml.md`.
+- `${OBS_PLUGIN_ROOT}/references/destinations-template.md` — `destinations.txt` format for the `email-to-markdown` router.
+- `<anchor>/_tree/cache.json` — the navigation cache.
+- `R/bank.yml` — per-domain resource manifest; format in `${OBS_PLUGIN_ROOT}/references/bank-yml.md`.

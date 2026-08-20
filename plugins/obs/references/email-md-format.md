@@ -60,7 +60,7 @@ Le propriétaire est identifié par heuristique : les adresses email qui apparai
 
 L'objectif de convertir les emails en markdown est de **limiter le bruit**. La principale source de bruit est le **chaînage des citations** : chaque réponse inclut la réponse précédente, qui inclut celle d'avant, etc. Un fil de 5 échanges peut ainsi contenir 4 copies du premier message.
 
-Dans `condense`, les blocs de citation (lignes commençant par `>`, ou sections introduites par `> On ... wrote:`, `---------- Forwarded message ---------`) sont des cibles **prioritaires** de suppression, à condition que le contenu cité soit déjà présent dans un autre fichier du même thread (`subject_hash`). S'il n'existe qu'un seul fichier du thread, conserver un résumé de la citation plutôt que de la supprimer.
+Aucune commande n'élague ces citations : les retirer sans perte demande de vérifier que le contenu cité survit ailleurs dans le fil, ce qui relève de la lecture. Le bruit est donc compté, jamais coupé — `survey` mesure le volume, `merge` reconstitue le fil dans l'ordre, et c'est au lecteur de trancher.
 
 ## Corps du document
 
@@ -71,53 +71,37 @@ Structure typique (ordre variable) :
 3. **Message transféré** — introduit par `---------- Forwarded message ---------`
 4. **Pièces jointes** — section `### Pieces jointes :` avec liens markdown vers les fichiers
 
-## Actions filler adaptées aux emails MD
+## Commandes adaptées aux emails MD
 
-### survey
-- Grouper par `email_type` (direct vs mailing_list)
-- Grouper par `tags` (dossier IMAP)
-- Détecter les threads : fichiers partageant le même `subject_hash`
-- Flaguer `empty` : corps < 30 mots hors signature et pièces jointes
-- Flaguer `duplicate` : deux fichiers avec le même `subject_hash` et le même `from`
+### `filler survey`
+- Détecte les threads : fichiers partageant le même `subject_hash`
+- Flag `empty` : corps sous le seuil de mots, hors signature et pièces jointes
+- Flag `duplicate` : titre **et** premier paragraphe identiques — six alertes d'un même système partagent leur sujet sans être des doublons
+- Groupe homogène : même expéditeur, même forme, au moins cinq fichiers → candidat `merge`
 
-### sort
-Schémas recommandés pour des emails :
-- **Par tag** : reproduire la hiérarchie IMAP en sous-dossiers (`INBOX/smartlockers/clients/onet` → `smartlockers/clients/onet/`)
-- **Par expéditeur** : un sous-dossier par domaine `from`
-- **Par date** : sous-dossiers `YYYY-MM/`
+### `filler sort`
+- `--scheme entity` : un sous-répertoire par domaine enregistrable du `from:` (`onet.fr` → `onet`, `marie@smartlockers.io` → `smartlockers`), le nom affiché ne servant que pour les domaines génériques (gmail, outlook…)
+- `--owner <adresse>` : sur un message envoyé par le propriétaire du coffre, l'entité est le `to:`
+- `--scheme date` : sous-répertoires `AAAA-MM/` ; `--scheme type` : par extension
 
-### digest
-Cas d'usage principal : notifications automatiques système (depuis `noreply@…`, sujet répétitif, corps d'une seule ligne).
+### `filler index`
+- `--group-by thread` : une section par `subject_hash`, titrée par le sujet du plus ancien message
+- Chaque entrée : `- [[nom-de-fichier]] — expéditeur, date`
 
-**Exemple — ONET CDG MatérielSmar** :
-- Filtre : `from: ONET CDG <noreply@smartlockers.io>` + sujet contenant "n'a pas été remis"
-- Schéma extrait :
-  - `date` et `heure` → champ frontmatter `date` (ISO 8601)
-  - `machine` → `(ONET1)` en fin de sujet
-  - `equipment_id` → `CDG-SMAR-XXXXX` dans le sujet et le corps
-  - `agent_name` → `PRÉNOM NOM` avant la parenthèse dans le corps
-  - `badge_id` → code hexadécimal entre parenthèses dans le corps
-- Sortie : tableau markdown dans `<Subcategory>/YYYY/MM/onet/ONET CDG - Matériel non rendu - YYYY-MM.md` (reste dans le bucket mensuel, pas remonté à `<Subcategory>`)
-- Sources supprimées après confirmation
+### `filler merge`
+- Trie par `date` croissante, une section par message
+- Sources intactes ; sortie au niveau `<Subcategory>`, nommée d'après le répertoire d'origine
 
-**Distinction emails client ONET vs notifications** : les vrais emails client (NouveauCompt, demandes) restent en fichiers individuels et passent par `sort`.
+### `filler clean`
+- `empty` — corps sous le seuil, hors signature
+- `duplicate` — titre et premier paragraphe identiques
+- `old:AAAA-MM-JJ` — antérieur à la date donnée
+- `orphan` — ni titre ni lien entrant
+- Les pièces jointes référencées par le fichier écarté partent avec lui dans `_archive/`
 
-### index
-- `group-by: thread` recommandé : grouper par `subject_hash`, une section H2 par fil de conversation
-- Chaque entrée : `- [[nom-de-fichier]] — expéditeur, date, résumé en 1 ligne`
-- Ignorer les signatures et messages transférés pour la description courte
-
-### merge
-- Regrouper par thread (`subject_hash`) pour reconstituer des conversations complètes
-- Trier par `date` ASC dans le fichier fusionné
-- En-tête H2 = sujet du thread
-
-### clean
-Critères pertinents pour des emails :
-- `empty` — corps < 30 mots (notifications automatiques sans contenu utile)
-- `mailing_list` — `email_type: mailing_list` après une date donnée
-- `duplicate` — même `subject_hash` + même `from` (doublon d'envoi)
-- Vérifier `attachments` avant suppression : ne pas supprimer si la pièce jointe n'existe que dans cet email
+### `mail triage`
+- La branche et les règles priment sur le contenu : `mail-config.yaml` décide, rien n'est inféré du corps
+- Un email sans date lisible échappe aux règles d'âge et part au rapport
 
 ## Fichiers associés dans le répertoire
 
