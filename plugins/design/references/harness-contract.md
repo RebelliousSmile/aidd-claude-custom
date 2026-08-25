@@ -8,7 +8,13 @@ Le harness scaffolde une maquette de référence sans rien savoir d'un contrat. 
 
 L'ordre est un non-conflit : `emit_css` n'émet que des propriétés personnalisées `:root`, aucune règle d'élément, et le chrome du harness utilise ses propres littéraux. Placer la feuille en premier garantit seulement que les vars existent avant usage ; il n'y a pas de bataille de cascade.
 
-Quand la feuille est inline, le cadrage LLM du fichier généré (bloc d'en-tête `<!-- … -->` et règles `//` au-dessus du registre `pages`) instruit l'auteur : **consommer les tokens via `var(--…)`, ne jamais coder en dur couleur / espacement / typographie** — sinon l'auteur contourne la source unique de vérité que le couplage existe pour imposer.
+Quand la feuille est inline, le cadrage LLM du fichier généré (bloc d'en-tête `<!-- … -->` et règles `//` au-dessus du registre `pages`) instruit l'auteur : **consommer les tokens via `var(--…)`, ne jamais coder en dur couleur / espacement / typographie** — sinon l'auteur contourne la source unique de vérité que le couplage existe pour imposer. Le cadrage copie aussi, sans les reformuler, `policies.json § mode` et chaque règle valide de `usage.rules[]` (`id` + `description`). Cette copie rend le fichier autonome pour l'auteur sans créer un second producteur normatif : le contrat reste l'autorité et le harness ne dérive aucune règle.
+
+## Grounding des pages et zones auteur
+
+Les objets de `--pages-json` acceptent, en plus de `key`, `label` et `group`, trois champs chaîne optionnels : `route`, `source` et `theme`. Le bloc `CONTEXTE DES PAGES` les copie dans le commentaire LLM afin que l'auteur inspecte une preuve nommée au lieu d'inventer le contenu. Le registre `pageMetadata` conserve les mêmes valeurs au runtime ; avant chaque rendu, `theme` est appliqué comme `data-theme` sur `#page-container`, ou retiré si la page n'en déclare pas.
+
+Le LLM ne reçoit plus l'instruction contradictoire de modifier « uniquement » une fonction tout en écrivant ailleurs dans le `<head>`. Deux zones auteur sont explicites : le corps de la fonction de page pour le HTML, et le bloc `AUTHOR PAGE STYLES` pour le CSS. Le registre, les métadonnées, le chrome et les scripts de contrôle restent hors édition.
 
 ## Espace de codes de sortie (tout le programme)
 
@@ -34,6 +40,7 @@ Le harness participe à l'espace fixe du plugin (`master § Exit-code space`) su
 | `--pages-json` syntaxiquement invalide | 2 | nomme le chemin et l'erreur du parseur |
 | `--pages-json` ni liste ni objet, ou objet sans liste `pages` | 2 | nomme le chemin |
 | Entrée `--pages-json` qui n'est pas un objet, ou sans `key` de type chaîne | 2 | nomme l'**index** fautif |
+| `group`, `route`, `source` ou `theme` présent mais non chaîne | 2 | nomme l'index et le champ fautif |
 | Clé de page vide ou blanche | 2 | nomme l'index |
 | Clé de page dupliquée | 2 | nomme la clé et les deux index |
 | Deux clés dérivant le même nom de fonction (`my-page`/`my_page`, `A-b`/`a-b`) | 2 | nomme les deux clés et le nom dérivé |

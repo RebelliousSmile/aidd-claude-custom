@@ -40,5 +40,6 @@ Read only the action selected by the presence of a contract.
 - Resolve the plugin root using [host-portability.md](../../references/host-portability.md) before invoking the generator or runtime checker.
 - Stay outside the design-system lifecycle and change no contract artifact.
 - Require an explicit output path and validate page keys before writing.
+- When page sources, routes, or contract themes are known, preserve them in `--pages-json` so the generated LLM framing remains grounded and applies the right theme at runtime.
 - Preserve the public exit space 0 success, 2 invalid input, and 3 legacy contract.
 - Read [harness-contract.md](../../references/harness-contract.md) for the generated runtime interface and safety constraints.
