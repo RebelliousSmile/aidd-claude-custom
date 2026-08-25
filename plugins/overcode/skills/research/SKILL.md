@@ -2,7 +2,7 @@
 name: research
 description: Performs cross-referenced documentary research for content projects — web research on historical, cultural, technical, or world-building topics, plus terminology extraction from a domain's source files. Use when a topic lacks documentation in the domain's reference docs, when a content workflow identifies a knowledge gap, or when extracting terminology from source material such as a PDF extraction result. Do NOT use for general software research or for reviewing prose.
 author: François-Xavier Guillois
-version: 4.6.1
+version: 4.7.0
 vibe_version: ">=1.0.0"
 permissions:
   - network

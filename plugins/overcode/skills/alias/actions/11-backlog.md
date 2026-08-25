@@ -64,10 +64,10 @@ Construire le lien canonique à partir de l'URL HTTPS normalisée du dépôt :
 Une issue par ligne :
 
 ```markdown
-- [#123](https://host/path/issues/123) — Titre de l'issue (open)
+- [#123](https://host/path/issues/123) — Titre de l'issue
 ```
 
-Le texte affiché commence toujours par `[#Numéro]`. Ne jamais répéter l'URL en clair ou en fin de ligne. Afficher l'état en minuscules. Si aucune issue ouverte n'est renvoyée, produire la ligne unique :
+Le texte affiché commence toujours par `[#Numéro]`. Ne jamais répéter l'URL en clair ou en fin de ligne. Ne pas suffixer l'état : le Step 3 ne retient que les issues ouvertes, un suffixe constant n'informe de rien. Si aucune issue ouverte n'est renvoyée, produire la ligne unique :
 
 ```markdown
 _Aucune issue ouverte._
@@ -79,7 +79,7 @@ Ce Step produit le **bloc** seul : les lignes d'issues, ou cette ligne d'état v
 
 **Bloc généré.** Dans une section `## Backlog`, titre exclu, le bloc généré est la première plage contiguë de lignes dont chacune est :
 
-- une **ligne d'issue générée** : `- [#<numéro>](<url>) — <titre> (<état>)` où `<url>` est le lien canonique construit au Step 4 pour le dépôt résolu au Step 2, et où le numéro terminal de `<url>` est identique au `<numéro>` affiché ;
+- une **ligne d'issue générée** : `- [#<numéro>](<url>) — <titre>`, suivi facultativement d'un suffixe d'état parenthésé — où `<url>` est le lien canonique construit au Step 4 pour le dépôt résolu au Step 2, et où le numéro terminal de `<url>` est identique au `<numéro>` affiché. La reconnaissance tolère le suffixe, l'écriture ne le produit plus : sans cette tolérance, les blocs écrits par les versions antérieures cesseraient d'être reconnus et se dupliqueraient à la resynchronisation ;
 - la ligne `_Aucune issue ouverte._` ;
 - une ligne vide encadrée des deux côtés par des lignes conformes.
 
@@ -109,7 +109,7 @@ Relire le fichier et vérifier :
 
 - frontmatter identique à l'original ;
 - une seule section `## Backlog` ;
-- une ligne par issue ouverte, sans URL redondante ;
+- une ligne par issue ouverte, sans URL redondante ni suffixe d'état ;
 - tout contenu non généré de la section `## Backlog` identique à l'original ;
 - toutes les autres sections inchangées.
 

@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [4.7.0] — 2026-08-25
+
+### Changed
+
+- `alias backlog` n'écrit plus le suffixe d'état des lignes d'issues. Le Step 3 ne retient que les issues ouvertes : `(open)` était constant, donc sans information. La reconnaissance du bloc généré tolère toujours un suffixe d'état parenthésé, sans quoi les blocs écrits par les versions antérieures cesseraient d'être reconnus et se dupliqueraient à la première resynchronisation.
+
 ## [4.6.1] — 2026-08-25
 
 ### Fixed

@@ -2,7 +2,7 @@
 name: web-optimize
 description: >-
 author: François-Xavier Guillois
-version: 4.6.1
+version: 4.7.0
 vibe_version: ">=1.0.0"
 permissions:
   - bash
