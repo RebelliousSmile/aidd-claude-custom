@@ -2,7 +2,7 @@
 name: reconcile-normative
 description: Reconcile normative content across decision archives, project memory, and host-native project instructions. Use to detect redundancy, contradictions, uncodified patterns, or stale rules across AGENTS.md/.agents rules on Codex and .claude/rules on Claude Code.
 author: François-Xavier Guillois
-version: 4.6.0
+version: 4.6.1
 vibe_version: ">=1.0.0"
 permissions:
   - files

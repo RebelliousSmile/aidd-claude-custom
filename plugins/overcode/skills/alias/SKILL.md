@@ -2,7 +2,7 @@
 name: alias
 description: Fires a pre-crafted workflow prompt for recurring project operations. Use for plan/review chains, project snapshots, prompt compression, visual reconciliation, AI-code review, or syncing a Markdown project backlog from GitHub/GitLab issues. Do NOT use for custom workflows or when direct control over each step is required.
 author: François-Xavier Guillois
-version: 4.6.0
+version: 4.6.1
 vibe_version: ">=1.0.0"
 permissions:
   - bash
