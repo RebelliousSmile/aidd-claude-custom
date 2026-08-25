@@ -19,3 +19,11 @@ L'instruction de juger sans lire les verdicts antérieurs est **structurellement
 ## Les dénominateurs ne sont pas commensurables
 
 Une suite peut compter des **cellules** (une situation à deux fixtures en vaut deux) là où les autres comptent des lignes. Ne jamais additionner les tallies en un total unique : chaque suite porte le sien, et une somme masque la correction de dénominateur.
+
+## Une suite peut encoder le défaut qu'un correctif normatif retire
+
+Constaté le 2026-08-25 sur `overcode:alias/backlog`. La règle bornait un remplacement au « prochain titre » ; la suite exigeait, mot pour mot, ce remplacement jusqu'au titre suivant. Corriger la règle seule aurait laissé la suite **rouge à raison** et le dépôt en contradiction interne.
+
+Avant de modifier une règle, relire ce que sa suite exige d'elle : une ligne d'éval n'est pas un contrôle indépendant de la règle, elle en est la transcription. Là où elle cite l'observable en termes de mécanisme (« remplace jusqu'à `X` ») plutôt que d'effet (« ne détruit rien hors du bloc généré »), elle fige le mécanisme et devient un obstacle au correctif.
+
+Corollaire de rédaction : viser l'**effet préservé**, pas le geste. Un observable écrit en effet survit au changement de mécanisme ; écrit en geste, il doit être réécrit à chaque correctif — et cette réécriture ressemble à un ajustement de la mesure pour faire passer la cible.
