@@ -24,6 +24,7 @@ Le nom peut aussi être formulé en langage naturel : « clôture la tâche » a
 | [`gitit`](#gitit) | init → remote privé → commit → pull → push → tag | dossier cible (défaut : CWD) |
 | [`mirror`](#mirror) | image deux navigateurs → diff → corrections via `design:copycat` | une image |
 | [`codex-vision`](#codex-vision) | audit critique et non mutant du code généré par un autre LLM | diff, branche, commit ou chemin |
+| [`backlog`](#backlog) | issues ouvertes du dépôt déclaré → section `## Backlog` du document | un chemin `.md` |
 
 ---
 
@@ -100,6 +101,14 @@ Audite du code généré ou modifié par un autre LLM : défauts réels, simplif
 L'action est **non mutante vis-à-vis du code audité** — elle analyse et rapporte, elle ne corrige pas, ne reformate pas, ne commit pas, ne pousse pas. Les commandes de validation susceptibles d'écrire des artefacts ou des données persistantes sont écartées du périmètre.
 
 Par défaut, la cible est l'ensemble des changements suivis et non suivis du working tree, comparés à `HEAD`. Fournir le contrat fonctionnel (issue, plan, critères d'acceptation) est optionnel mais change la qualité de l'audit : sans lui, l'action juge la cohérence interne du code ; avec lui, elle juge la conformité à ce qui était demandé.
+
+## `backlog`
+
+Synchronise la section `## Backlog` d'un document Markdown avec les issues ouvertes du dépôt déclaré dans son frontmatter (`git_repo`). GitHub et GitLab.
+
+L'écriture est bornée au **bloc généré** : la première plage contiguë de lignes conformes au motif — lignes d'issues dont le lien pointe vers le dépôt résolu, ligne d'état vide, lignes vides internes — la reconnaissance s'arrêtant à la première ligne non conforme. Rien d'autre n'est touché : ni le contenu manuel de la section, ni ce qui la suit, ni une ligne de même forme pointant vers un autre dépôt. Une section dépourvue de bloc le reçoit en tête, son contenu manuel restant en place.
+
+Trois limites tiennent au motif et sont écrites dans l'action : une ligne manuelle **identique** à une sortie de la skill est indiscernable, donc remplacée ; placée avant le vrai bloc, elle capture la reconnaissance et duplique le vrai bloc à chaque synchronisation ; la ligne d'état vide est le seul motif non ancré au dépôt.
 
 ## Voir aussi
 

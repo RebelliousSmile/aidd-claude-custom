@@ -12,7 +12,7 @@ Aucune skill ne code en dur la connaissance d'une stack : les audits détectent 
 |---|---|
 | [`docs/concepts.md`](docs/concepts.md) | Le modèle mental — le socle, les pivots, les frontières entre skills voisines, la densité de `control` |
 | [`docs/workflow.md`](docs/workflow.md) | Quelle skill pour quelle situation — table de routage et détail par skill |
-| [`docs/aliases.md`](docs/aliases.md) | Les dix chaînes d'alias, ce qu'elles enchaînent et leurs garanties |
+| [`docs/aliases.md`](docs/aliases.md) | Les onze chaînes d'alias, ce qu'elles enchaînent et leurs garanties |
 | [`docs/control.md`](docs/control.md) | Le modèle de `control` — les quatre autorités, les phases, les domaines, le chaînage |
 
 Le processus de chaque skill vit dans son `SKILL.md` et ses `actions/`.
@@ -21,7 +21,7 @@ Le processus de chaque skill vit dans son `SKILL.md` et ses `actions/`.
 
 | Skill | Invocation | Description |
 |---|---|---|
-| `alias` | `/overcode:alias <nom>` | Enchaîne des workflows en une commande — dix chaînes pré-écrites |
+| `alias` | `/overcode:alias <nom>` | Enchaîne des workflows en une commande — onze chaînes pré-écrites |
 | `harvest` | `/overcode:harvest` | Maintenance globale — réconcilie le tracker, extrait les décisions, purge l'éphémère |
 | `reconcile-normative` | `/overcode:reconcile-normative` | Cohérence du normatif entre archives, mémoire et règles actives |
 | `taste` | `/overcode:taste [fichier]` | Pondère la fraîcheur d'un Markdown contre le dépôt ; route les questions code vers audit/assert AIDD. Sans argument : scan borné à 25 documents |
@@ -40,7 +40,7 @@ Le processus de chaque skill vit dans son `SKILL.md` et ses `actions/`.
 | `baby` | `/overcode:baby` | Explique, réécrit ou compare un sujet en langage simple, sans jargon non défini |
 | `research` | `/overcode:research` | Recherche documentaire cross-référencée et extraction de terminologie |
 
-Chaînes d'alias fournies : `rechallenge`, `endtask`, `bump-plugin`, `previously`, `smarten`, `skillconf`, `weeklyemail`, `gitit`, `mirror`, `codex-vision` — détail dans [`docs/aliases.md`](docs/aliases.md).
+Chaînes d'alias fournies : `rechallenge`, `endtask`, `bump-plugin`, `previously`, `smarten`, `skillconf`, `weeklyemail`, `gitit`, `mirror`, `codex-vision`, `backlog` — détail dans [`docs/aliases.md`](docs/aliases.md).
 
 ## Licence
 
