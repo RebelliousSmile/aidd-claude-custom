@@ -67,22 +67,40 @@ Une issue par ligne :
 - [#123](https://host/path/issues/123) — Titre de l'issue (open)
 ```
 
-Le texte affiché commence toujours par `[#Numéro]`. Ne jamais répéter l'URL en clair ou en fin de ligne. Afficher l'état en minuscules. Si aucune issue ouverte n'est renvoyée, produire :
+Le texte affiché commence toujours par `[#Numéro]`. Ne jamais répéter l'URL en clair ou en fin de ligne. Afficher l'état en minuscules. Si aucune issue ouverte n'est renvoyée, produire la ligne unique :
 
 ```markdown
-## Backlog
-
 _Aucune issue ouverte._
 ```
 
+Ce Step produit le **bloc** seul : les lignes d'issues, ou cette ligne d'état vide. Le titre `## Backlog` et son placement relèvent exclusivement du Step 5.
+
 ### Step 5 — Replace or insert the section
 
-- Si une section `## Backlog` existe (casse et espaces périphériques ignorés), remplacer tout son contenu jusqu'au prochain titre de niveau `#` ou `##`, sans toucher à ce titre suivant.
-- S'il en existe plusieurs, arrêter sans écrire et signaler l'ambiguïté.
-- Si elle n'existe pas :
+**Bloc généré.** Dans une section `## Backlog`, titre exclu, le bloc généré est la première plage contiguë de lignes dont chacune est :
+
+- une **ligne d'issue générée** : `- [#<numéro>](<url>) — <titre> (<état>)` où `<url>` est le lien canonique construit au Step 4 pour le dépôt résolu au Step 2, et où le numéro terminal de `<url>` est identique au `<numéro>` affiché ;
+- la ligne `_Aucune issue ouverte._` ;
+- une ligne vide encadrée des deux côtés par des lignes conformes.
+
+La reconnaissance s'arrête à la première ligne non conforme. Les lignes vides de queue n'appartiennent pas au bloc. Une ligne de même forme pointant vers un autre dépôt n'est pas générée et n'est jamais remplacée. La reconnaissance est indépendante du style de fins de ligne et du BOM : une ligne CRLF conforme est reconnue comme telle.
+
+Limites assumées de cette reconnaissance par motif, à ne pas présenter comme une garantie totale :
+
+- une ligne manuelle strictement identique à une sortie de la skill pour ce dépôt est indiscernable et sera remplacée ;
+- si une telle ligne manuelle précède le bloc réel dans la section, c'est elle qui est reconnue : le bloc réel devient orphelin et se duplique à chaque synchronisation ;
+- `_Aucune issue ouverte._` est le seul motif non ancré au dépôt ; une note manuelle portant exactement cette phrase est donc remplaçable.
+
+**Placement.**
+
+- Si une section `## Backlog` existe (casse et espaces périphériques ignorés) et contient un bloc généré, remplacer cette seule plage. Aucune autre ligne de la section n'entre dans la zone de remplacement, qu'un titre suivant existe ou non.
+- Si la section existe sans bloc généré, insérer le bloc en tête de section, avant tout contenu existant.
+- S'il existe plusieurs sections `## Backlog`, arrêter sans écrire et signaler l'ambiguïté.
+- Si la section n'existe pas :
   - lorsqu'un titre `# ...` ouvre le corps, insérer `## Backlog` après ce titre et son bloc introductif, juste avant le premier titre `##` ;
   - sinon, l'insérer immédiatement après le frontmatter.
-- Préserver byte-for-byte le frontmatter et tout contenu extérieur à la section remplacée, hormis les sauts de ligne strictement nécessaires autour de `## Backlog`.
+- Espacement : exactement une ligne vide entre le titre `## Backlog` et le bloc, et exactement une ligne vide entre le bloc et la première ligne de contenu qui suit dans la section. Une resynchronisation ne doit jamais accumuler de lignes vides supplémentaires.
+- Préserver byte-for-byte le frontmatter, tout contenu de la section extérieur au bloc généré, et tout contenu hors section, hormis les sauts de ligne imposés par la règle d'espacement ci-dessus.
 - Effectuer une seule écriture atomique après construction et validation du document final.
 
 ### Step 6 — Verify and report
@@ -92,7 +110,10 @@ Relire le fichier et vérifier :
 - frontmatter identique à l'original ;
 - une seule section `## Backlog` ;
 - une ligne par issue ouverte, sans URL redondante ;
+- tout contenu non généré de la section `## Backlog` identique à l'original ;
 - toutes les autres sections inchangées.
+
+La ligne `Section:` du rapport vaut `replaced` lorsqu'un bloc généré préexistant a été remplacé, et `inserted` dans les deux autres cas : section créée, ou bloc posé en tête d'une section existante qui n'en avait pas.
 
 Rapport final :
 
