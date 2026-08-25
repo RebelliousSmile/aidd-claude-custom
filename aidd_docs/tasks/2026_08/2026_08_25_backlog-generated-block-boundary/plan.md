@@ -1,6 +1,6 @@
 ---
 objective: "L'alias backlog ne remplace que les lignes qu'il a lui-même produites pour le dépôt déclaré et préserve byte-for-byte tout autre contenu de la section `## Backlog`."
-status: in-progress
+status: implemented
 ---
 
 <!-- Fill or omit these sections; never add, rename, or reorder one. -->
