@@ -16,9 +16,9 @@
     },
     {
       "name": "design",
-      "version": "2.13.0",
+      "version": "2.13.1",
       "source": "./plugins/design",
-      "description": "Builds, critiques, freezes, enforces, and diffuses design systems, including composite platform routing and rendered cascade-ownership proof.",
+      "description": "Builds, critiques, freezes, enforces, diffuses, and scaffolds grounded measurable design systems, including contract-aware LLM guidance and rendered cascade-ownership proof.",
       "recommended": false
     },
     {
