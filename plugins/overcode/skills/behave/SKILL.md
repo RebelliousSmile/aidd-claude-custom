@@ -2,7 +2,7 @@
 name: behave
 description: >-
 author: François-Xavier Guillois
-version: 4.5.1
+version: 4.6.0
 vibe_version: ">=1.0.0"
 permissions:
   - bash
