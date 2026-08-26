@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+## [4.8.0] — 2026-08-26
+
+### Added
+
+- `alias backlog` reconnaît les instances GitLab auto-hébergées. Le Step 2 n'acceptait que `github.com`, `gitlab.com` et `*.gitlab.io`, ce qui refusait tout GitLab d'entreprise alors que `glab` sait l'interroger. Un hôte inconnu est désormais accepté comme GitLab uniquement si `glab auth status --hostname <hôte>` en sort avec le code 0 : la reconnaissance repose sur un compte authentifié localement, jamais sur la forme de l'URL, et un hôte non prouvé arrête l'action sans écrire.
+
+### Fixed
+
+- `alias backlog` passe désormais l'hôte dans l'argument `--repo` de `glab`, y compris sur `gitlab.com`. Sans ce préfixe, `glab` retombait sur l'hôte par défaut de la configuration locale et pouvait lister les issues d'une instance autre que celle déclarée par le document.
+- Le Step 2 valide la forme de l'hôte — labels DNS, ni port ni identifiants d'authentification — avant de le transmettre à un CLI.
+
 ## [4.7.0] — 2026-08-25
 
 ### Changed
