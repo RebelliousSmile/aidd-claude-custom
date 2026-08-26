@@ -15,7 +15,9 @@ Usage:
 Default (no --pages / --pages-json): single placeholder page "page-1" / "Page 1".
 
 pages.json format — list of objects (or {"pages": [...]}):
-  [{"key": "home", "label": "Accueil"}, {"key": "about", "label": "À propos", "group": "Info"}]
+  [{"key": "home", "label": "Accueil", "route": "/", "source": "pages/index.vue"},
+   {"key": "companies", "label": "Entreprises", "route": "/entreprises",
+    "source": "pages/entreprises/index.vue", "theme": "entreprise", "group": "Public"}]
 
 --contract (opt-in): inline the contract's already-generated stylesheet adapter — the
   policies.json § adapters[] entry whose consumer is "stylesheet" — into the maquette, so
@@ -109,9 +111,13 @@ def load_pages_json(path):
         label = entry.get("label")
         # label is optional — fall back to the key, as parse_pages_str already does.
         page = {"key": key, "label": label if isinstance(label, str) and label.strip() else key}
-        group = entry.get("group")
-        if isinstance(group, str) and group.strip():
-            page["group"] = group
+        for field in ("group", "route", "source", "theme"):
+            value = entry.get(field)
+            if value is not None and not isinstance(value, str):
+                return None, _fail(
+                    f'--pages-json entry {i} has a non-string "{field}": {src}')
+            if isinstance(value, str) and value.strip():
+                page[field] = value.strip()
         pages.append(page)
     return pages, None
 
@@ -150,7 +156,18 @@ def validate_pages(pages):
 
 def js_literal(s):
     """A JS string literal for `s` — quotes, backslashes and newlines all covered."""
-    return json.dumps(s, ensure_ascii=False)
+    # HTML parses </script> before JavaScript does, even inside a JS string. Escaping
+    # angle brackets and ampersands keeps page metadata inert in the first script.
+    return (json.dumps(s, ensure_ascii=False)
+            .replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026"))
+
+
+def comment_text(value):
+    """Single-line text safe inside the generated HTML framing comment."""
+    flat = " ".join(str(value).splitlines()).strip()
+    # Escape markup as well as the comment terminator: the framing is inert, but copied
+    # user metadata must never look like authored HTML to downstream tools or humans.
+    return re.sub(r"-(?=-)", "- ", html.escape(flat, quote=False))
 
 def build_options(pages):
     """<option> / <optgroup> HTML for the page selector."""
@@ -184,6 +201,35 @@ def build_functions(pages):
         # <option>, so the selector and the page show one and the same text.
         lbl = js_literal(html.escape(p["label"]))
         lines.append(f"  function {fn}() {{ return placeholder({k}, {lbl}); }}")
+    return "\n".join(lines)
+
+
+def build_page_context(pages):
+    """Human/LLM mapping from harness keys to the supplied real sources."""
+    lines = []
+    for page in pages:
+        details = []
+        if page.get("route"):
+            details.append(f"route: {comment_text(page['route'])}")
+        if page.get("source"):
+            details.append(f"source: {comment_text(page['source'])}")
+        if page.get("theme"):
+            details.append(f"theme: {comment_text(page['theme'])}")
+        suffix = " | ".join(details) if details else "source non fournie"
+        lines.append(
+            f"    • {comment_text(page['key'])} — {comment_text(page['label'])} | {suffix}")
+    return "\n".join(lines)
+
+
+def build_metadata(pages):
+    """JS page metadata used to apply the frozen contract theme at runtime."""
+    lines = []
+    for page in pages:
+        fields = []
+        for field in ("route", "source", "theme"):
+            if page.get(field):
+                fields.append(f"{field}: {js_literal(page[field])}")
+        lines.append(f"    {js_literal(page['key'])}: {{{', '.join(fields)}}},")
     return "\n".join(lines)
 
 
@@ -267,6 +313,9 @@ TEMPLATE = r"""<!DOCTYPE html>
      toggles the same class via window.setViewport. Class-based only — no media queries.
      The three frames are device samples (desktop fluid · tablet 834 · mobile 390),
      not contract breakpoints: nothing here is derived from tokens.json § breakpoint.*. */
+
+  /* ===== AUTHOR PAGE STYLES — LLM MAY EDIT BETWEEN THESE MARKERS ===== */
+  /* ===== END AUTHOR PAGE STYLES ===== */
 </style>
 </head>
 <body>
@@ -306,6 +355,12 @@ TEMPLATE = r"""<!DOCTYPE html>
     • NE PAS modifier .preview-bar ni les <script> de contrôle.
     • URLs absolues ou data: pour images / fonts (fichier servi en statique).
 
+  CONTEXTE DES PAGES (clé → route/source/thème)
+%%PAGE_CONTEXT%%
+    Inspecter la source exacte de la page avant de l'écrire. Ne pas inventer un
+    contenu absent de la source. Le runtime applique automatiquement `theme` sur
+    #page-container via data-theme avant chaque rendu.
+
   RESPONSIVE
     Écrire les variations device en CLASSE dans le <style> du <head> :
         .preview-frame.mobile .hero__title { font-size: 28px; }
@@ -316,16 +371,19 @@ TEMPLATE = r"""<!DOCTYPE html>
     du contrat : rien ici ne dérive de tokens.json § breakpoint.*.
 
   ============================================================================
-  PROMPT LLM (à copier pour faire remplir une page depuis un visuel/brief)
+  PROMPT LLM (à copier pour faire remplir une page depuis sa source)
   ============================================================================
     « Voici une maquette de référence "%%TITLE_COMMENT%%" (harness HTML auto-contenu avec
       .preview-bar, registre `pages` de fonctions, responsive par classe
-      .preview-frame.mobile|tablet). À partir du visuel/brief que je te donne
-      pour la page "<CLÉ>", remplis UNIQUEMENT le corps de la fonction `pageXxx()` :
-      retourne le HTML (sans <html>/<head>/<body>), classes STABLES BEM,
-      hiérarchie de titres (un seul h1), styles dans le <style> du <head> —
-      variations device en .preview-frame.mobile / .preview-frame.tablet,
-      jamais de media query. Ne modifie pas .preview-bar ni les scripts. »%%TOKENS_NOTE_HEADER%%
+      .preview-bar, registre `pages`, responsive par classe
+      .preview-frame.mobile|tablet). Pour la page "<CLÉ>", consulte sa route,
+      sa source et son thème dans CONTEXTE DES PAGES. Reproduis fidèlement la
+      source sans inventer de contenu. Modifie uniquement les deux zones auteur :
+      le corps de `pageXxx()` pour le HTML, et AUTHOR PAGE STYLES pour son CSS.
+      Retourne du HTML sans <html>/<head>/<body>, avec classes STABLES BEM et un
+      seul h1. Écris les variations device avec .preview-frame.mobile / .tablet,
+      jamais avec des media queries. Ne modifie ni .preview-bar, ni le registre,
+      ni les métadonnées, ni les scripts de contrôle. »%%CONTRACT_NOTE_HEADER%%
   ============================================================================
 -->
   <div class="preview-bar">
@@ -358,7 +416,8 @@ TEMPLATE = r"""<!DOCTYPE html>
     //   • return ONLY the page content (no <html>/<head>/<body>); global styles go in <head>.
     //   • stable, semantic class names (BEM) — the fidelity oracle measures by CSS selector.
     //   • device variations as `.preview-frame.mobile|tablet <sel>` in <head>, no media queries.
-    //   • never edit .preview-bar or the control scripts below.%%TOKENS_NOTE_RULES%%
+    //   • edit CSS only between the AUTHOR PAGE STYLES markers in <head>.
+    //   • never edit .preview-bar, the registries, metadata, or control scripts below.%%CONTRACT_NOTE_RULES%%
     function placeholder(key, label) {
       return '<div class="ph"><h1>' + label + '</h1>'
         + '<p>Page <code>' + key + '</code> — remplacez le corps de la fonction '
@@ -369,6 +428,10 @@ TEMPLATE = r"""<!DOCTYPE html>
 
     const pages = {
 %%PAGE_REGISTRY%%
+    };
+
+    const pageMetadata = {
+%%PAGE_METADATA%%
     };
   </script>
 
@@ -397,6 +460,9 @@ TEMPLATE = r"""<!DOCTYPE html>
     function render() {
       let markup;
       try {
+        const meta = pageMetadata[currentPage] || {};
+        if (meta.theme) container.setAttribute('data-theme', meta.theme);
+        else container.removeAttribute('data-theme');
         // The lookup is inside the try: when the first <script> died, `pages` is not
         // defined and THIS line throws — before any page function is even called.
         const fn = pages[currentPage];
@@ -466,21 +532,47 @@ TEMPLATE = r"""<!DOCTYPE html>
 RELEASE = "release.json"
 POLICIES = "policies.json"
 
-TOKENS_NOTE_HEADER = (
-    "\n\n  CONTRAT INLINE (--contract)\n"
-    "    La feuille de tokens du contrat est inline dans le <head>, avant le chrome.\n"
-    "    Consomme ces tokens via var(--…) ; ne code jamais en dur couleur/espacement/typo."
+CONTRACT_NOTE_RULES = (
+    "\n    //   • when a contract is supplied, consume inline tokens via var(--…) and obey"
+    "\n    //     every frozen policy copied into the framing comment above."
 )
-TOKENS_NOTE_RULES = (
-    "\n    //   • when the contract stylesheet is inlined, consume its tokens via "
-    "var(--…); never hardcode color/spacing/type values."
-)
+
+
+def build_contract_note(policies, stylesheet_inlined):
+    """Copy frozen policy guidance into the LLM framing; never derive new rules."""
+    lines = ["\n\n  CONTRAT FOURNI (--contract)"]
+    if stylesheet_inlined:
+        lines.extend([
+            "    La feuille de tokens générée est inline dans le <head>, avant le chrome.",
+            "    Consomme ces tokens via var(--…) ; ne code jamais en dur couleur/espacement/typo.",
+        ])
+    else:
+        lines.append("    Aucune feuille de tokens stylesheet n'est inline ; ne prétends pas la conformité visuelle.")
+    mode = policies.get("mode")
+    if isinstance(mode, str) and mode.strip():
+        lines.append(f"    Mode gelé : {comment_text(mode)}")
+    rules = policies.get("usage", {}).get("rules") if isinstance(policies.get("usage"), dict) else None
+    copied = []
+    if isinstance(rules, list):
+        for rule in rules:
+            if not isinstance(rule, dict):
+                continue
+            rule_id = rule.get("id")
+            description = rule.get("description")
+            if isinstance(rule_id, str) and isinstance(description, str):
+                copied.append(f"      • [{comment_text(rule_id)}] {comment_text(description)}")
+    if copied:
+        lines.append("    Règles gelées copiées de policies.json § usage.rules :")
+        lines.extend(copied)
+    else:
+        lines.append("    policies.json ne déclare aucune usage.rules à recopier.")
+    return "\n".join(lines)
 
 
 def resolve_tokens_style(contract):
     """Resolve the contract's stylesheet adapter into an inline <style> block.
 
-    Returns (style, code). code is None on success; style is the <style> block, or ""
+    Returns (style, note, code). code is None on success; style is the <style> block, or ""
     when the contract declares no stylesheet adapter (scaffold, one stderr warning).
     A non-None code (3 = 1.x contract, 2 = missing/unreadable/invalid artifact) means
     the caller stops with that code — the file is not written.
@@ -492,24 +584,24 @@ def resolve_tokens_style(contract):
         print(f"1.x contract: no {RELEASE} in {cdir.resolve()}\n"
               f"  Migrate it first: python tools/migrate-contract.py --contract {contract}",
               file=sys.stderr)
-        return None, 3
+        return None, None, 3
     try:
         json.loads(release.read_text(encoding="utf-8"))
     except (ValueError, OSError) as exc:
         # Present but corrupt is a broken contract, not a 1.x one: exit 2, not 3.
-        return None, _fail(f"Unreadable {RELEASE}: {exc}\n  {release.resolve()}\n"
+        return None, None, _fail(f"Unreadable {RELEASE}: {exc}\n  {release.resolve()}\n"
                            "  A present but invalid release.json is a broken contract, "
                            "not 1.x — fix the artifact or re-freeze the contract.")
 
     policies_path = cdir / POLICIES
     if not policies_path.is_file():
-        return None, _fail(f"Missing artifact: {policies_path.resolve()}")
+        return None, None, _fail(f"Missing artifact: {policies_path.resolve()}")
     try:
         policies = json.loads(policies_path.read_text(encoding="utf-8"))
     except (ValueError, OSError) as exc:
-        return None, _fail(f"Unreadable {POLICIES}: {exc}\n  {policies_path.resolve()}")
+        return None, None, _fail(f"Unreadable {POLICIES}: {exc}\n  {policies_path.resolve()}")
     if not isinstance(policies, dict):
-        return None, _fail(f"{POLICIES} is not an object: {policies_path.resolve()}")
+        return None, None, _fail(f"{POLICIES} is not an object: {policies_path.resolve()}")
 
     adapters = policies.get("adapters")
     entry = None
@@ -521,11 +613,11 @@ def resolve_tokens_style(contract):
     if entry is None:
         print(f"Warning: no adapters[] entry declares consumer \"stylesheet\" in {POLICIES}; "
               "continuing in scaffold mode (no tokens inlined).", file=sys.stderr)
-        return "", None
+        return "", build_contract_note(policies, False), None
 
     artifact = entry.get("artifact")
     if not isinstance(artifact, str) or not artifact:
-        return None, _fail(f"{POLICIES} adapters[].artifact is not a non-empty string: "
+        return None, None, _fail(f"{POLICIES} adapters[].artifact is not a non-empty string: "
                            f"{policies_path.resolve()}")
     # The artifact path is confined BEFORE the file is opened: a refused path is never
     # read. `cdir / artifact` protects nothing on its own — pathlib lets an absolute
@@ -536,7 +628,7 @@ def resolve_tokens_style(contract):
     try:
         css_path.relative_to(root)
     except ValueError:
-        return None, _fail(f"Declared stylesheet adapter resolves outside the contract "
+        return None, None, _fail(f"Declared stylesheet adapter resolves outside the contract "
                            f"directory: {css_path}\n"
                            f"  Contract directory: {root}\n"
                            f"  Declared in: {policies_path.resolve()}\n"
@@ -547,7 +639,7 @@ def resolve_tokens_style(contract):
         css = css_path.read_text(encoding="utf-8")
     except (OSError, ValueError):
         # Option C: the harness never derives the stylesheet — generate.py owns it.
-        return None, _fail(f"Declared stylesheet adapter is absent or unreadable: "
+        return None, None, _fail(f"Declared stylesheet adapter is absent or unreadable: "
                            f"{css_path}\n"
                            f"  Generate it first: python tools/generate.py --contract {contract}")
     # The stylesheet is inlined verbatim inside <style>…</style>. A closing style tag is
@@ -556,14 +648,14 @@ def resolve_tokens_style(contract):
     # positive, and escaping would ship an artifact nobody understands.
     breakout = re.search(r"</\s*style", css, re.I)
     if breakout:
-        return None, _fail(f"Structurally invalid stylesheet adapter: it closes the "
+        return None, None, _fail(f"Structurally invalid stylesheet adapter: it closes the "
                            f"<style> context ({breakout.group(0)!r} at offset "
                            f"{breakout.start()}).\n"
                            f"  {css_path}\n"
                            f"  A generated stylesheet never contains that sequence.\n"
                            f"  Re-generate it: python tools/generate.py --contract {contract}")
     style = "<style>\n" + css.rstrip("\n") + "\n</style>"
-    return style, None
+    return style, build_contract_note(policies, True), None
 
 
 # ─── Template substitution ───────────────────────────────────────────────────
@@ -620,8 +712,9 @@ def main():
 
     # Opt-in contract coupling. Absent, style stays "" and the scaffold path is unchanged.
     style = ""
+    contract_note = ""
     if args.contract is not None:
-        style, code = resolve_tokens_style(args.contract)
+        style, contract_note, code = resolve_tokens_style(args.contract)
         if code is not None:
             return code
 
@@ -645,15 +738,17 @@ def main():
 
     values = {
         "TOKENS_STYLE": style,
-        "TOKENS_NOTE_HEADER": TOKENS_NOTE_HEADER if style else "",
-        "TOKENS_NOTE_RULES": TOKENS_NOTE_RULES if style else "",
+        "CONTRACT_NOTE_HEADER": contract_note,
+        "CONTRACT_NOTE_RULES": CONTRACT_NOTE_RULES if args.contract is not None else "",
         "LANG": html.escape(args.lang),
         "TITLE": html.escape(args.title),
         # An HTML comment ends at "-->": break every "--" run so a title cannot close it.
-        "TITLE_COMMENT": re.sub(r"-(?=-)", "- ", args.title),
+        "TITLE_COMMENT": comment_text(args.title),
+        "PAGE_CONTEXT": build_page_context(pages),
         "PAGE_OPTIONS": build_options(pages),
         "PAGE_FUNCTIONS": build_functions(pages),
         "PAGE_REGISTRY": build_registry(pages),
+        "PAGE_METADATA": build_metadata(pages),
         "FIRST_PAGE_KEY": js_literal(pages[0]["key"]),
     }
 

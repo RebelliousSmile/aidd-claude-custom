@@ -4,6 +4,20 @@
 
 ## [Unreleased]
 
+## [4.7.0] — 2026-08-25
+
+### Changed
+
+- `alias backlog` n'écrit plus le suffixe d'état des lignes d'issues. Le Step 3 ne retient que les issues ouvertes : `(open)` était constant, donc sans information. La reconnaissance du bloc généré tolère toujours un suffixe d'état parenthésé, sans quoi les blocs écrits par les versions antérieures cesseraient d'être reconnus et se dupliqueraient à la première resynchronisation.
+
+## [4.6.1] — 2026-08-25
+
+### Fixed
+
+- `alias backlog` ne remplace plus que le bloc qu'il a lui-même produit. La borne « jusqu'au prochain titre `#` ou `##` » s'étendait jusqu'à la fin du fichier quand aucun titre ne suivait, et effaçait sans avertissement les notes manuelles placées sous `## Backlog`. Le bloc généré est désormais identifié par ses motifs — lignes d'issues dont le lien pointe vers le dépôt résolu, ligne d'état vide, lignes vides internes — et une section dépourvue de bloc le reçoit en tête sans perdre son contenu.
+
+## [4.6.0] — 2026-08-25
+
 ### Fixed
 
 - Une skill canonique AIDD absente produit désormais une erreur complète — skill, package, version minimale compatible issue de la baseline et arrêt sans fallback — tenue par des fixtures structurelles positives et négatives.

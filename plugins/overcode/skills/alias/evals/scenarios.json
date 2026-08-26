@@ -55,5 +55,11 @@
   { "prompt": "audit le code généré par un autre LLM", "expect_action": "codex-vision" },
   { "prompt": "fais une analyse critique de ce code IA", "expect_action": "codex-vision" },
   { "prompt": "vérifie ce diff sans perte de fonctionnalités", "expect_action": "codex-vision" },
-  { "prompt": "review AI-generated code for regressions", "expect_action": "codex-vision" }
+  { "prompt": "review AI-generated code for regressions", "expect_action": "codex-vision" },
+  { "prompt": "backlog docs/projet.md", "expect_action": "backlog" },
+  { "prompt": "alias backlog README-projet.md", "expect_action": "backlog" },
+  { "prompt": "synchronise le backlog documentaire avec les issues GitHub", "expect_action": "backlog" },
+  { "prompt": "mets à jour la section backlog de projet.md depuis GitLab", "expect_action": "backlog" },
+  { "prompt": "liste simplement les issues de ce dépôt", "expect_action": null },
+  { "prompt": "modifie ce fichier Markdown", "expect_action": null }
 ]

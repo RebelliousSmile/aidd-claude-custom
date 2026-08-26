@@ -2,7 +2,7 @@
 name: diffuse
 description: Produces a reusable component from a frozen contract or a clearly marked ungoverned prototype from a local brief. Use when the user wants a component, wireframe, preview, or stack-native rendering without rebuilding the whole system.
 author: François-Xavier Guillois
-version: 2.13.0
+version: 2.13.1
 vibe_version: ">=1.0.0"
 permissions:
   - files

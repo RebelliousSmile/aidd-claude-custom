@@ -2,7 +2,7 @@
 name: harness
 description: Generates a standalone, measurable HTML mockup with controllable pages and viewports. Use when the user wants to scaffold, export, or prepare a visual reference for manual review or fidelity measurement.
 author: François-Xavier Guillois
-version: 2.13.0
+version: 2.13.1
 vibe_version: ">=1.0.0"
 permissions:
   - files
@@ -40,5 +40,6 @@ Read only the action selected by the presence of a contract.
 - Resolve the plugin root using [host-portability.md](../../references/host-portability.md) before invoking the generator or runtime checker.
 - Stay outside the design-system lifecycle and change no contract artifact.
 - Require an explicit output path and validate page keys before writing.
+- When page sources, routes, or contract themes are known, preserve them in `--pages-json` so the generated LLM framing remains grounded and applies the right theme at runtime.
 - Preserve the public exit space 0 success, 2 invalid input, and 3 legacy contract.
 - Read [harness-contract.md](../../references/harness-contract.md) for the generated runtime interface and safety constraints.

@@ -73,9 +73,11 @@ check "1x"                  3 --contract "$FIX/1x"
 # ─── Pages path — every malformed input is a 2, never a traceback ────────────
 printf '%s' '{{{ not json' >"$OUT/bad.json"
 printf '%s' '["home","contact"]' >"$OUT/strings.json"
+printf '%s' '{"pages":[{"key":"home","label":"Accueil","theme":42}]}' >"$OUT/bad-meta.json"
 check "pages-json-absent"     2 --pages-json "$OUT/does-not-exist.json"
 check "pages-json-not-json"   2 --pages-json "$OUT/bad.json"
 check "pages-json-strings"    2 --pages-json "$OUT/strings.json"
+check "pages-json-bad-meta"   2 --pages-json "$OUT/bad-meta.json"
 check "pages-duplicate-key"   2 --pages "home:A,home:B"
 check "pages-fn-collision"    2 --pages "my-page:A,my_page:B"
 check "pages-url-path"        2 --pages "/contact/:C"
@@ -85,11 +87,32 @@ check "pages-url-path"        2 --pages "/contact/:C"
 "$PY" "$HARNESS" --out "$OUT/s.html" >/dev/null 2>&1
 "$PY" "$HARNESS" --out "$OUT/m.html" --pages "home:Accueil,contact:Contact" >/dev/null 2>&1
 "$PY" "$HARNESS" --out "$OUT/x.html" --pages "p1:Fiche <b>x</b>" >/dev/null 2>&1
+printf '%s' '{"pages":[{"key":"home","label":"Accueil","route":"/","source":"pages/index.vue"},{"key":"companies","label":"Entreprises","route":"/entreprises","source":"pages/entreprises/index.vue","theme":"entreprise"}]}' >"$OUT/meta.json"
+"$PY" "$HARNESS" --out "$OUT/meta.html" --contract "$FIX/2x" --pages-json "$OUT/meta.json" >/dev/null 2>&1
 
 if grep -q "GENERATED from tokens.json" "$OUT/c.html"; then
   echo "ok   2x: stylesheet inlined"
 else
   echo "FAIL 2x: stylesheet banner not inlined"; fail=1
+fi
+
+if grep -q "route: /entreprises" "$OUT/meta.html" &&
+   grep -q "source: pages/entreprises/index.vue" "$OUT/meta.html" &&
+   grep -q "theme: entreprise" "$OUT/meta.html"; then
+  echo "ok   page grounding copied into the LLM framing"
+else
+  echo "FAIL page route/source/theme missing from LLM framing"; fail=1
+fi
+if grep -q "\[fixture-icons\] Use the declared icon set" "$OUT/meta.html"; then
+  echo "ok   frozen usage rule copied into the LLM framing"
+else
+  echo "FAIL frozen usage rule missing from LLM framing"; fail=1
+fi
+if grep -q "AUTHOR PAGE STYLES" "$OUT/meta.html" &&
+   grep -q "Modifie uniquement les deux zones auteur" "$OUT/meta.html"; then
+  echo "ok   LLM edit scope names both author-owned regions"
+else
+  echo "FAIL LLM edit scope is missing or contradictory"; fail=1
 fi
 
 # The no-stylesheet contract must emit exactly one stderr warning.
@@ -217,9 +240,10 @@ fi
 # syntactically dead <script> satisfies all of it: measured on a copy with an unbalanced
 # brace in setViewport, this selftest printed ALL GREEN / exit 0 while the produced file
 # answered `typeof setPage === "undefined"` in a browser. The JS is now executed.
-for f in m.html c.html s.html; do
+for f in m.html c.html s.html meta.html; do
   case "$f" in
     m.html) args="--expect-pages home,contact" ;;
+    meta.html) args="--expect-pages home,companies" ;;
     *)      args="" ;;
   esac
   # shellcheck disable=SC2086

@@ -89,6 +89,7 @@ const el = (extra = {}) => ({
   attributes: {},
   setAttribute(n, v) { this.attributes[n] = v; },
   getAttribute(n) { return this.attributes[n]; },
+  removeAttribute(n) { delete this.attributes[n]; },
   addEventListener() {},
   ...extra,
 });
@@ -193,6 +194,38 @@ try {
   fail(`the pages registry is not readable: ${e.name}: ${e.message}`);
 }
 check('the pages registry is empty', registryKeys.length > 0);
+
+// Page grounding is a registry too: every rendered page must have exactly one metadata
+// entry so a renamed key cannot silently keep the source or theme of another page.
+let metadata;
+try {
+  metadata = vm.runInContext('pageMetadata', ctx);
+} catch (e) {
+  fail(`the pageMetadata registry is not readable: ${e.name}: ${e.message}`);
+}
+const metadataKeys = Object.keys(metadata);
+const missingMetadata = registryKeys.filter((k) => !metadataKeys.includes(k));
+const orphanMetadata = metadataKeys.filter((k) => !registryKeys.includes(k));
+check('page key(s) with no metadata entry', missingMetadata.length === 0, missingMetadata.join(', '));
+check('metadata key(s) with no page', orphanMetadata.length === 0, orphanMetadata.join(', '));
+
+const themedKey = registryKeys.find((k) => metadata[k] && metadata[k].theme);
+if (themedKey) {
+  sandbox.window.setPage(themedKey);
+  check(
+    `page "${themedKey}" did not apply its contract theme`,
+    container.getAttribute('data-theme') === metadata[themedKey].theme,
+    `data-theme = ${container.getAttribute('data-theme')}`,
+  );
+  const unthemedKey = registryKeys.find((k) => !metadata[k] || !metadata[k].theme);
+  if (unthemedKey) {
+    sandbox.window.setPage(unthemedKey);
+    check(
+      `page "${unthemedKey}" retained the prior page theme`,
+      container.getAttribute('data-theme') === undefined,
+    );
+  }
+}
 
 // Branch 2 — the <option value> set, taken from the page selector only, on the
 // comment-stripped HTML: the template's LLM framing quotes markup inside <!-- … -->,

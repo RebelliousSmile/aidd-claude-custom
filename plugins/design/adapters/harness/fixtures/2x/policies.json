@@ -1,6 +1,14 @@
 {
   "$schema": "design/references/contract-schema#policies",
   "mode": "bem",
+  "usage": {
+    "rules": [
+      {
+        "id": "fixture-icons",
+        "description": "Use the declared icon set; do not replace it with emoji."
+      }
+    ]
+  },
   "adapters": [
     { "artifact": "adapters/tokens.css", "consumer": "stylesheet" }
   ]

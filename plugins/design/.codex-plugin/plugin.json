@@ -1,7 +1,7 @@
 {
   "name": "design",
-  "version": "2.13.0+codex.20260814",
-  "description": "Builds, critiques, freezes, enforces, and diffuses design systems, including composite platform routing and rendered cascade-ownership proof.",
+  "version": "2.13.1+codex.20260825",
+  "description": "Builds, critiques, freezes, enforces, diffuses, and scaffolds grounded measurable design systems, including contract-aware LLM guidance and rendered cascade-ownership proof.",
   "author": {
     "name": "Fran\u00e7ois-Xavier Guillois"
   },
