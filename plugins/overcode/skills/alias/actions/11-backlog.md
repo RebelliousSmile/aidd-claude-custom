@@ -1,6 +1,6 @@
 # Backlog
 
-Synchronise la section `## Backlog` d'un document Markdown avec les issues ouvertes du dépôt GitHub ou GitLab déclaré par `git_repo` dans son frontmatter.
+Synchronise la section `## Backlog` d'un document Markdown avec les issues ouvertes du dépôt déclaré par `git_repo` dans son frontmatter — GitHub, GitLab.com, ou une instance GitLab auto-hébergée dont l'hôte est authentifié localement.
 
 ## Context required
 
@@ -22,9 +22,14 @@ Exécute ce workflow sans modifier le dépôt distant.
 
 Accepter les URL HTTPS, SSH et la forme SCP Git habituelle (`git@host:groupe/projet.git`).
 
+Séparer l'hôte de l'identifiant de projet avant toute résolution. L'hôte doit être un nom d'hôte DNS valide — labels alphanumériques ou tirets, séparés par des points, comparés en minuscules ; un port, des identifiants d'authentification ou tout autre caractère le rendent invalide. L'identifiant doit compter au moins deux segments non vides. Un hôte ou un identifiant invalide arrête l'action sans écrire.
+
 - Hôte `github.com` → provider `github`, outil `gh`, identifiant `owner/repo`.
 - Hôte `gitlab.com` ou sous-domaine `*.gitlab.io` → provider `gitlab`, outil `glab`, identifiant `group[/subgroup]/repo`.
-- Tout autre hôte, identifiant incomplet ou URL ambiguë → arrêter sans écrire et nommer la valeur `git_repo` refusée.
+- Tout autre hôte → instance GitLab auto-hébergée, mais **seulement une fois prouvée, jamais déduite** : exécuter `glab auth status --hostname <hôte>`, l'hôte passé en argument séparé. Code de sortie 0 → provider `gitlab`, outil `glab`, identifiant `group[/subgroup]/repo`. Code non nul, ou `glab` indisponible → arrêter sans écrire, en nommant l'hôte non reconnu et la valeur `git_repo` refusée.
+- Identifiant incomplet ou URL ambiguë → arrêter sans écrire et nommer la valeur `git_repo` refusée.
+
+Un hôte inconnu n'est jamais présumé GitLab sur la seule forme de son URL : la preuve est un compte authentifié localement pour cet hôte, et son absence arrête la synchronisation. Cette preuve vaut reconnaissance d'hôte, non garantie d'accès au projet ; un dépôt inaccessible reste traité comme un échec du Step 3.
 
 Vérifier que l'outil requis est disponible avant tout appel réseau. S'il manque, arrêter sans écrire avec l'installation attendue (`gh` ou `glab`).
 
@@ -41,8 +46,10 @@ gh issue list --repo <owner/repo> --state open --limit 1000 --json number,title,
 **GitLab**
 
 ```bash
-glab issue list --repo <group/project> --output json
+glab issue list --repo <hôte>/<group/project> --output json
 ```
+
+Préfixer l'identifiant par l'hôte résolu au Step 2, y compris sur `gitlab.com` : sans ce préfixe, `glab` retombe sur l'hôte par défaut de la configuration locale, qui peut désigner une instance autre que celle du document.
 
 Parser le JSON avant toute écriture :
 
@@ -59,7 +66,7 @@ Si le CLI échoue, si l'authentification ou l'accès au dépôt échoue, ou si l
 Construire le lien canonique à partir de l'URL HTTPS normalisée du dépôt :
 
 - GitHub : `https://github.com/<owner/repo>/issues/<number>`
-- GitLab : `https://<host>/<group/project>/-/issues/<iid>`
+- GitLab : `https://<hôte>/<group/project>/-/issues/<iid>`, avec l'hôte résolu au Step 2 — `gitlab.com`, un sous-domaine `*.gitlab.io` ou l'instance auto-hébergée prouvée.
 
 Une issue par ligne :
 
@@ -119,9 +126,11 @@ Rapport final :
 
 ```text
 Backlog updated: <fichier>
-Repository: <provider> <owner-or-group/repo>
+Repository: <provider> <dépôt>
 Open issues: <N>
 Section: replaced|inserted
 ```
+
+`<dépôt>` reprend l'identifiant passé au CLI du Step 3 : `owner/repo` sur GitHub, `<hôte>/<group/project>` sur GitLab, afin que l'instance interrogée soit lisible dans le rapport.
 
 En cas d'échec, ne jamais afficher ce rapport de succès et confirmer explicitement : `File unchanged.`

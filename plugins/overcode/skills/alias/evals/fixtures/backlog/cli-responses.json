@@ -1,13 +1,50 @@
 {
   "github_open": [
-    { "number": 12, "title": "Corriger   le formulaire\nd'inscription", "state": "OPEN" },
-    { "number": 9, "title": "Documenter le déploiement", "state": "OPEN" },
-    { "number": 4, "title": "Ancienne entrée", "state": "CLOSED" }
+    {
+      "number": 12,
+      "title": "Corriger   le formulaire\nd'inscription",
+      "state": "OPEN"
+    },
+    {
+      "number": 9,
+      "title": "Documenter le déploiement",
+      "state": "OPEN"
+    },
+    {
+      "number": 4,
+      "title": "Ancienne entrée",
+      "state": "CLOSED"
+    }
   ],
   "gitlab_open": [
-    { "iid": 31, "title": "Ajouter le suivi métier", "state": "opened" },
-    { "iid": 27, "title": "Retirer l'ancien pipeline", "state": "closed" }
+    {
+      "iid": 31,
+      "title": "Ajouter le suivi métier",
+      "state": "opened"
+    },
+    {
+      "iid": 27,
+      "title": "Retirer l'ancien pipeline",
+      "state": "closed"
+    }
   ],
   "empty": [],
-  "invalid": "not-a-list"
+  "invalid": "not-a-list",
+  "gitlab_selfhosted_open": [
+    {
+      "iid": 44,
+      "title": "Exposer les slugs traduits",
+      "state": "opened"
+    },
+    {
+      "iid": 41,
+      "title": "Retirer la bannière de maintenance",
+      "state": "opened"
+    },
+    {
+      "iid": 18,
+      "title": "Entrée obsolète",
+      "state": "closed"
+    }
+  ]
 }

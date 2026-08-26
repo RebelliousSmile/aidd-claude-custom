@@ -35,7 +35,7 @@ Expands a short command into a well-crafted, pre-authored prompt that chains aid
 | 08  | `gitit`       | Init git dans `R` + dépôt distant **privé** via gh (si absent) + commit + pull + push + tag SemVer si un push a eu lieu | dossier cible `R` (défaut CWD) `[--public]` |
 | 09  | `mirror`      | Image deux navigateurs côte à côte → diff texte + style → corrections via `design:copycat` | image (chemin ou collée) + optionnel `--ref right` |
 | 10  | `codex-vision` | Audit critique, prouvé et non-mutant du code généré par un autre LLM, avec contrôle explicite des régressions fonctionnelles | diff/branche/commit/chemin (défaut : changements locaux) + contrat optionnel |
-| 11  | `backlog`      | Synchronise la section `## Backlog` d'un document avec les issues ouvertes du dépôt déclaré dans son frontmatter | chemin d'un fichier Markdown |
+| 11  | `backlog`      | Synchronise la section `## Backlog` d'un document avec les issues ouvertes du dépôt déclaré dans son frontmatter — GitHub, GitLab.com ou instance GitLab auto-hébergée authentifiée | chemin d'un fichier Markdown |
 
 ## Default flow
 
