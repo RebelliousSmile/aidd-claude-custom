@@ -1,6 +1,6 @@
 ---
 name: alias
-description: Fires a pre-crafted workflow prompt for recurring project operations. Use for plan/review chains, project snapshots, prompt compression, visual reconciliation, AI-code review, or syncing a Markdown project backlog from GitHub/GitLab issues. Do NOT use for custom workflows or when direct control over each step is required.
+description: Fires a pre-crafted workflow prompt for recurring project operations. Use for plan/review chains, project snapshots, prompt compression, visual reconciliation, or AI-code review. Do NOT use for custom workflows or when direct control over each step is required.
 author: François-Xavier Guillois
 version: 4.7.0
 vibe_version: ">=1.0.0"
@@ -35,7 +35,6 @@ Expands a short command into a well-crafted, pre-authored prompt that chains aid
 | 08  | `gitit`       | Init git dans `R` + dépôt distant **privé** via gh (si absent) + commit + pull + push + tag SemVer si un push a eu lieu | dossier cible `R` (défaut CWD) `[--public]` |
 | 09  | `mirror`      | Image deux navigateurs côte à côte → diff texte + style → corrections via `design:copycat` | image (chemin ou collée) + optionnel `--ref right` |
 | 10  | `codex-vision` | Audit critique, prouvé et non-mutant du code généré par un autre LLM, avec contrôle explicite des régressions fonctionnelles | diff/branche/commit/chemin (défaut : changements locaux) + contrat optionnel |
-| 11  | `backlog`      | Synchronise la section `## Backlog` d'un document avec les issues ouvertes du dépôt déclaré dans son frontmatter — GitHub, GitLab.com ou instance GitLab auto-hébergée authentifiée | chemin d'un fichier Markdown |
 
 ## Default flow
 
@@ -51,7 +50,6 @@ Trigger-to-action mapping:
 - "gitit", "alias gitit", "git it", "init le dépôt git", "crée le dépôt git", "versionne ce dossier", "crée et pousse le dépôt", "git init + remote + push" → `gitit`
 - "mirror", "alias mirror", "comparer les deux navigateurs", "corriger les différences maquette", "aligner l'implémentation sur la maquette", "réconcilier mockup vs impl", "trouve les différences dans l'image", "corrige les écarts visuels" → `mirror`
 - "codex-vision", "alias codex-vision", "audit le code généré par un autre LLM", "review AI-generated code", "analyse critique du code IA", "vérifie ce code sans perte de fonctionnalités", "audit non-régression du code généré" → `codex-vision`
-- "backlog <fichier.md>", "alias backlog", "synchronise le backlog documentaire", "mets à jour le backlog depuis les issues GitHub ou GitLab" → `backlog`
 
 ## Transversal rules
 
