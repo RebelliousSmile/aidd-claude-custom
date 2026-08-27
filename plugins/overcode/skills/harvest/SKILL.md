@@ -1,6 +1,6 @@
 ---
 name: harvest
-description: Global maintenance skill — reconciles tracker items with processed plans, harvests non-obvious decisions into memory/rules, purges ephemeral task files, reviews all remaining files methodically
+description: Global maintenance skill — reconciles tracker items with implemented AIDD plan directories and legacy processed plans, harvests durable decisions, purges eligible task artifacts, and reviews what remains
 author: François-Xavier Guillois
 version: 4.7.0
 vibe_version: ">=1.0.0"
@@ -21,7 +21,7 @@ Read [host portability](../../references/host-portability.md) before resolving p
 
 ## Purpose
 
-Clean up the growing `aidd_docs/tasks/` directory, close orphan tracker items, reconcile memory and rules accumulated by `/learn`, then methodically review every remaining file.
+Clean up the growing `aidd_docs/tasks/` tree, close orphan tracker items, reconcile memory and rules accumulated by `/learn`, then methodically review every remaining task artifact. Modern AIDD work is owned by a feature directory containing `plan.md` and `phase-<n>.md`; plan lifecycle is read from `plan.md` frontmatter, never from a filename suffix.
 
 ## Processing order
 
@@ -71,20 +71,26 @@ find aidd_docs/tasks -type f -name "*.md" | sort
 Get-ChildItem -Recurse -Filter "*.md" aidd_docs/tasks | Sort-Object Name | Select-Object -ExpandProperty FullName
 ```
 
-Classify each file (priority decreasing on the compound extension, then on directory and name):
+Build **feature-directory records first** for every `aidd_docs/tasks/<yyyy_mm>/<feature>/plan.md`: read its frontmatter `status`, enumerate its sibling `phase-<n>.md` and optional `review.md`, and treat those files as one plan unit. Do not count files owned by a feature directory again as loose plans, checklists or reviews.
+
+Then classify feature directories and remaining loose legacy files in this order:
 
 | Priority | Type | Detection | Action |
 |---|---|---|---|
-| 1 | **Completed plan** | `*.processed.md` | Harvest → purge if eligible |
-| 2 | **Review** | `*.review*.md` (covers `.review.md`, `.review_code.md`, `.review_functional.md`, future variants) | Purge if eligible |
-| 3 | **Journey** | `*.journey.md` | Purge if eligible |
-| 4 | **Audit** | `aidd_docs/tasks/audits/**` (directory) | Review by age |
-| 5 | **User story** | frontmatter `type: user-story`, or `# User Story` / `## Acceptance Criteria` in content, or `story-` prefix | Purge if tracker item closed or `status: done` |
-| 6 | **Checklist / phase** | `*checklist*`, `*phase-[0-9]*` in name | Purge if tracker item closed |
-| 7 | **Sub-plan** | `-part-[0-9]` or `-master` in name **AND** a sibling `-master.md` or `-master.processed.md` exists | Purge if master plan `.processed.md` exists |
-| 8 | **Active plan** | `.md` without any of the above suffixes (including `-part-N` or `-master` with no detectable master — fallback) | Review: active or abandoned? |
+| 1 | **Completed feature directory** | direct `plan.md` has `status: implemented` or `status: reviewed` | Harvest the directory → purge its enumerated files if eligible |
+| 2 | **Active feature directory** | direct `plan.md` has `status: pending`, `in-progress`, or `blocked` | Review as active or abandoned; never infer completion from phase contents |
+| 3 | **Legacy completed plan** | loose `*.processed.md` | Harvest → purge if eligible |
+| 4 | **Loose review** | `*.review*.md` outside a feature directory | Purge if eligible |
+| 5 | **Journey** | `*.journey.md` outside a feature directory | Purge if eligible |
+| 6 | **Audit** | `aidd_docs/tasks/audits/**` (directory) | Review by age |
+| 7 | **User story** | frontmatter `type: user-story`, or `# User Story` / `## Acceptance Criteria` in content, or `story-` prefix | Purge if tracker item closed or `status: done` |
+| 8 | **Legacy checklist / phase** | loose `*checklist*` or `*phase-[0-9]*`; sibling phases inside a feature directory stay owned by it | Purge if tracker item closed |
+| 9 | **Legacy sub-plan** | `-part-[0-9]` or `-master` in name **AND** a sibling `-master.md` or `-master.processed.md` exists | Apply legacy master rules |
+| 10 | **Legacy active plan** | remaining loose `.md` file | Review as active or abandoned |
 
-Print the per-type summary: N processed, N reviews, N journeys, N audits, N user stories, N checklists, N sub-plans, N active plans.
+Any other `status` value or malformed/missing frontmatter on a feature `plan.md` is **invalid**, not active: report it and exclude the directory from closure and purge until corrected.
+
+Print the per-type summary: N completed feature directories, N active feature directories, N legacy processed plans, N loose reviews, N journeys, N audits, N user stories, N legacy checklists, N legacy sub-plans and N legacy active plans.
 
 ---
 
@@ -131,31 +137,32 @@ Read each user story. An item is considered **closed** if its frontmatter contai
 
 ### Tracker: None
 
-All `.processed.md` files are treated as group C — Phase 3 is skipped.
+All completed feature directories and legacy `.processed.md` files are treated as group C — Phase 3 is skipped.
 
 ---
 
 ### Extracting the associated tracker item
 
-For each `.processed.md`, extract the tracker identifier in this order:
+For each completed plan root — modern `<feature-directory>/plan.md` first, legacy `.processed.md` second — extract the tracker identifier in this order:
 1. Frontmatter `issue_number:` or `tracker_id:`
 2. Filename: `issue-42` prefix, `#42-` segment, or `story-slug`
 3. Content: `Fixes #42`, `Closes #42`, `**Issue:** #42`, `**Story:**`
 4. Fully-numeric isolated segment (`-42-` only if not preceded by a `YYYY_MM_DD` date)
 
-Build the association table: for each review variant, `.journey.md`, user story, checklist and sub-plan, find the `.processed.md` or plan with the same base and inherit its group.
+Build the association table. Files inside a modern feature directory inherit that directory's group directly. For every loose review variant, `.journey.md`, user story, checklist and legacy sub-plan, find a modern feature directory or legacy processed/active plan with the same slug and inherit its group.
 
-**Base matching** — slug post-date, not full filename. Reviews and processed plans often have different `YYYY_MM_DD` (review created the day reviewer ran, plan created earlier). Strip the leading date prefix before comparing:
+**Base matching for loose legacy artifacts** — use the modern feature-directory name or the legacy filename, then strip the leading date prefix and lifecycle suffix before comparing. Reviews and plans may have different `YYYY_MM_DD`:
 
 - `2026_05_07-#83-firebase-bundle-split.review_code.md` → slug `#83-firebase-bundle-split`
+- `2026_05/2026_05_06_#83-firebase-bundle-split/plan.md` → directory slug `#83-firebase-bundle-split`
 - `2026_05_06-#83-firebase-bundle-split.processed.md` → slug `#83-firebase-bundle-split`
-- → match (same slug, different date) — review inherits the processed group
+- → either plan form matches the loose review, which inherits its group
 
-Only fall back to "orphan" if no plan or processed shares the slug.
+Only fall back to "orphan" if no modern feature directory or legacy active/processed plan shares the slug.
 
 ### Groups
 
-- **A — Tracker item open with completed plan** → close in Phase 3, then purge in Phase 5
+- **A — Tracker item open with completed plan** → close in Phase 3, then purge the completed feature directory or legacy processed plan in Phase 5
 - **B — Tracker item closed** → purge directly in Phase 5
 - **C — No tracker item detected** → purge directly in Phase 5 (Phase 3 skipped — internal or direct task)
 
@@ -176,7 +183,7 @@ Fill the variables in this order:
 - `{PR}` / `{MR}`: search for a PR/MR associated with the branch — if none, set to `none`
 - `{Done}`: summary line from `## Summary` or `## Objectif` in the plan
 - `{Changelog}`: scope and type inferred from the plan
-- `{Plan}`: relative path of the `.processed.md`
+- `{Plan}`: relative path of the modern feature directory's `plan.md`, or of the legacy `.processed.md`
 - `{Notes}`: summary of the associated `.review.md` if present, otherwise omit the section
 
 Write the comment to a temporary file:
@@ -229,23 +236,24 @@ Invoke the skill, wait for its user confirmations, collect the returned metrics 
 
 ## Phase 5 — Purge of ephemeral files
 
-**Order constraint**: Phase 4 must complete before Phase 5. A `.processed.md` may contain a normative slice that Phase 4 needs to elevate — purging first destroys the source. Never reorder.
+**Order constraint**: Phase 4 must complete before Phase 5. A completed feature directory or legacy `.processed.md` may contain a normative slice that Phase 4 needs to elevate — purging first destroys the source. Never reorder.
 
-Since `/learn` already ran at `end_plan`, `.processed.md` files can be purged as soon as the tracker item is confirmed closed — no extra marker needed.
+Since `aidd-context:10-learn` already ran during `endtask`, a completed feature directory can be purged as soon as its tracker item is confirmed closed. `status: implemented|reviewed` in `plan.md` is the completion marker; no rename or extra suffix is expected. Legacy `.processed.md` remains eligible under the same rule.
 
 Eligibility criteria:
 
 | Type | Purge condition |
 |---|---|
-| `.processed.md` group A | Tracker item closed in Phase 3 |
-| `.processed.md` group B | Tracker item already closed |
-| `.processed.md` group C | No tracker item — purge directly |
-| `.review.md` | `.processed.md` of the same base (any group) — or orphan with no `.processed.md` **nor active plan** of the same base |
-| `.journey.md` | `.processed.md` of the same base (any group) — or orphan with no `.processed.md` **nor active plan** of the same base |
+| Completed feature directory group A | Tracker item closed in Phase 3; enumerate `plan.md`, declared phases, `review.md` and other files in the directory for the confirmation |
+| Completed feature directory group B | Tracker item already closed; enumerate the directory's files for the confirmation |
+| Completed feature directory group C | No tracker item — enumerate the directory's files for the confirmation |
+| Legacy `.processed.md` group A/B/C | Same group rules as before |
+| Loose `.review*.md` | completed plan root of the same slug (any group) — or orphan with no completed **nor active** plan root of the same slug |
+| `.journey.md` | completed plan root of the same slug (any group) — or orphan with no completed **nor active** plan root of the same slug |
 | Audits | **Never purged here** — handled in Phase 6 |
 | Other types | **Never purged here** — handled in Phase 6 |
 
-Build the eligible-files list. Display with relative path and modification date. Ask for a single confirmation:
+Build the eligible-files list. For a feature directory, list every file explicitly; never delete the directory recursively or include an unenumerated file. Display each relative path with its modification date. Ask for a single confirmation:
 
 > "Delete these N files? (irreversible)"
 
@@ -293,49 +301,52 @@ For each user story, check the associated tracker item (same extraction as Phase
 
 ### 6b — Checklists and intermediate phases
 
-For each checklist/phase file:
-- Its master plan (same base without `-phase-N` or `-checklist`) is **`.processed.md`** → collect: **delete**
-- Master plan **still active** → collect: **keep**
+For a `phase-<n>.md` inside a modern feature directory, inherit the directory decision; never classify or delete the phase independently. For each loose legacy checklist/phase file:
+
+- Its modern plan root is completed, or its legacy master is `.processed.md` → collect: **delete**
+- Its modern or legacy master plan is still active → collect: **keep**
 - **No master found** → collect: **orphan — needs clarification**
 
 ### 6c — Sub-plans (`-part-N`, `-master`)
 
-For each master (`-master.md`):
+These are legacy-only rules; modern phased work uses a feature directory and is handled as one unit. For each loose master (`-master.md`):
 - A `-master.processed.md` file **exists** → collect: **delete** all associated `-part-N`
-- No `.processed.md` yet but **associated tracker item closed** (same extraction as Phase 2) → collect: **delete** the master AND all its `-part-N` (work done, `end_plan` not run)
+- No `.processed.md` yet but **associated tracker item closed** (same extraction as Phase 2) → collect: **delete** the master AND all its `-part-N` (legacy work done, completion marker absent)
 - No `.processed.md` yet and tracker item **open or absent** → collect: **keep**
 
 For each `-part-N` with no detectable master → fall back to Active plan (Phase 6d).
 
 ### 6d — Active plans potentially abandoned
 
-For each `.md` plan with no suffix (not processed, not user story, not checklist, not sub-plan):
+For each active modern feature directory (`plan.md` status `pending`, `in-progress`, or `blocked`), compute age from the directory's leading `YYYY_MM_DD` or its `plan.md` modification date. Apply the same age table below to the directory as a unit. Never treat `phase-<n>.md` as separate active plans.
+
+Apply the same logic to each remaining loose legacy `.md` plan (not processed, user story, checklist, or sub-plan):
 
 Compute age from the date in the filename (`YYYY_MM_DD`) or from the modification date.
 
 | Age | Collected action |
 |---|---|
 | < 14 days | **keep** — probably in progress |
-| 14–60 days | **needs clarification** — still active, abandoned, or to archive? |
+| 14–60 days | **needs clarification** — still active, abandoned, or waiting for implementation? |
 | > 60 days | **delete** — abandoned plan |
 
 For plans whose associated tracker item is **closed** (regardless of age) → collect: **delete**. Apply the same extraction rules as Phase 2 (frontmatter, filename, content) to find the tracker identifier.
 
-For plans with a `.review*.md` of the same slug AND created the same day → collect: **needs clarification** (ask: "plan terminé — lancer end_plan ? ou en cours ?"). Never auto-keep — same-day review without `.processed.md` is a signal that `end_plan` was forgotten.
+For a modern feature directory with `review.md` but a plan still `pending`, `in-progress`, or `blocked` → collect: **needs clarification** (ask whether implementation must resume or the plan status/report is inconsistent). Never infer `implemented` from the review file.
 
-For plans with a `.review.md` of the same base → collect: **delete** the plan and its `.review.md` (work done, `end_plan` not run).
+For loose legacy plans with a `.review*.md` of the same slug and created the same day → collect: **needs clarification**. A review file alone does not prove completion and never justifies an automatic delete or a `.processed.md` rename.
 
 ### 6e — Active plans without tracker item nor sufficient age
 
-`.processed.md` group C files are purged in Phase 5 — this section no longer covers them.
+Completed feature directories and legacy `.processed.md` group C plans are purged in Phase 5 — this section no longer covers them.
 
-For active plans (raw `.md`) with no detected tracker item and within the 14–60 day band (Phase 6d "needs clarification"): ask whether the plan is still active, abandoned, or whether a tracker item should be created to track it.
+For active modern feature directories or loose legacy plans with no detected tracker item and within the 14–60 day band (Phase 6d "needs clarification"): ask whether the plan is still active, abandoned, or whether a tracker item should be created to track it.
 
 ### 6e-bis — Group C cluster signal
 
-If Phase 5 purged ≥ 5 `.processed.md` group C files sharing a thematic prefix (same feature area, same `perf-*`, `psi-*`, etc. slug fragment), surface to the user:
+If Phase 5 purged ≥ 5 completed feature directories and/or legacy `.processed.md` group C plans sharing a thematic prefix (same feature area, same `perf-*`, `psi-*`, etc. slug fragment), surface to the user:
 
-> "N plans groupe C purgés sur le thème `<slug>`. Workflow drift possible : `end_plan` exécuté sans tracker associé. Créer une issue de tracking rétroactif ?"
+> "N plans groupe C purgés sur le thème `<slug>`. Workflow drift possible : `endtask` exécuté sans tracker associé. Créer une issue de tracking rétroactif ?"
 
 Never silent — recurring group C is a signal, not a normal mode.
 
@@ -354,7 +365,7 @@ Present the table of all collected actions:
 
 | File | Type | Proposed action | Reason |
 |---|---|---|---|
-| `{path}` | user story / checklist / sub-plan / active plan / group C / audit | delete / keep / needs clarification | {short reason} |
+| `{path}` | feature directory / legacy plan / user story / checklist / sub-plan / group C / audit | delete / keep / needs clarification | {short reason} |
 
 Resolve **needs clarification** rows first by asking grouped questions. Once all decisions are made, ask for a single confirmation:
 

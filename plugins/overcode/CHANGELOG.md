@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- `alias endtask` et `harvest` suivent désormais le stockage AIDD par répertoire de feature : `plan.md` et ses `phase-<n>.md`, avec la fin portée par `status: implemented` plutôt que par un renommage `.pending.md` → `.processed.md`. `endtask` conserve le répertoire durable en place ; `harvest` le classe et le purge comme une unité après énumération explicite de ses fichiers. Les anciens `.processed.md` restent lisibles uniquement pour compatibilité.
+
 ## [5.0.0] — 2026-08-27
 
 ### Added

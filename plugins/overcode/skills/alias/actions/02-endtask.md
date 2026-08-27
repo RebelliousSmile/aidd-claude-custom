@@ -1,12 +1,13 @@
 # Endtask
 
-Fires the pre-crafted prompt for the full **commit → archive plan → learn → merge/push → changelog → push tags → close issue** workflow.
+Fires the pre-crafted prompt for the full **commit → resolve implemented plan directory → learn → merge/push → changelog → push tags → close issue** workflow.
 
 ## Context required
 
-- All changes must be implemented and reviewed.
+- All changes must be implemented; any review required by the caller or project must have passed.
 - The work may be on a dedicated plan branch or directly on the target branch (e.g. `develop`).
-- Issue number: resolved automatically in Step 2b — only ask if all detection sources fail.
+- AIDD plans use a feature directory `aidd_docs/tasks/<yyyy_mm>/<yyyy_mm_dd>_<feature>/` containing `plan.md` and its `phase-<n>.md` files. Completion is the `status: implemented` frontmatter value in `plan.md`; the filename carries no lifecycle suffix.
+- Issue number: resolved automatically after the plan directory is found. No match means no issue; do not ask.
 
 ## Prompt
 
@@ -26,26 +27,37 @@ Run `git branch --show-current`. Record as `current_branch`.
   - Otherwise, inspect `git log --oneline --decorate HEAD` to detect the parent branch.
   - If still ambiguous, ask: *"Which branch should I merge `<current_branch>` into?"*
 
-### Step 2b — Detect issue number
+### Step 2b — Resolve the completed plan directory
+
+Search `aidd_docs/tasks/**/plan.md` for the feature directory matching the current branch, task and recent commits. Read frontmatter rather than inferring lifecycle from a filename.
+
+- Require `status: implemented`. Also accept `status: reviewed` when a review layer has advanced the same completed plan.
+- Require every sibling `phase-<n>.md` declared by `plan.md` to exist and carry `status: done`.
+- Record the feature directory as `plan_directory` and its `plan.md` as `plan_file`.
+- Do **not** rename or move `plan.md`, the phase files, or their directory. The directory is the durable task record.
+- Ignore another feature directory merely because its `plan.md` is implemented. If no unique match can be established, ask: *"Which feature directory in `aidd_docs/tasks/` contains the plan for this work?"*
+- Legacy compatibility only: an existing `*.processed.md` may be read as a completed legacy plan, but never require or create `.pending.md`/`.processed.md` for a modern directory plan.
+
+If the matching plan is `pending`, `in-progress`, or `blocked`, stop before merge and report that `aidd-dev:02-implement` must complete it; `endtask` never writes the plan lifecycle status.
+
+### Step 2c — Detect issue number
 
 Attempt to resolve `issue_number` from the following sources in priority order. Stop at the first match.
 
 1. **Argument** — a number passed directly by the user (e.g. `endtask 42`).
 2. **Branch name** — extract from `current_branch`: patterns `issue-42`, `#42`, `-42-`, or a leading numeric segment (e.g. `42-my-feature`). Ignore date-like segments (`YYYY`, `MM`, `DD`).
-3. **Plan file frontmatter** — read the `.pending.md` found in Step 3 (read it now in advance); look for `issue_number:` or `tracker_id:`.
+3. **Plan file frontmatter** — read `plan_file`; look for `issue_number:` or `tracker_id:`.
 4. **Plan file content** — scan for `Fixes #42`, `Closes #42`, `**Issue:** #42`, `Ref: #42`.
 5. **Recent commits** — run `git log --oneline -10`; scan messages for `#42`, `fix #42`, `close #42`.
 6. **No match** — set `issue_number = none`. Do not ask.
 
-### Step 3 — Archive plan file
+### Step 3 — Verify the durable plan record
 
-Search `aidd_docs/tasks/` for a `.pending.md` file matching the current work. If not found, ask: *"Which file in `aidd_docs/tasks/` is the plan for this work?"*
-
-Rename `<name>.pending.md` → `<name>.processed.md` in the same directory.
+Confirm that `plan_directory`, `plan_file`, every declared phase and an optional `review.md` are tracked by Git. No archive rename is performed: `status: implemented` in `plan.md` is the completion marker.
 
 ### Step 4 — Capture learnings (auto-validate)
 
-Invoke `/aidd-context:10-learn` on the archived plan file.
+Invoke `/aidd-context:10-learn` on `plan_directory`, using `plan.md` as the primary source and its phase/review files only as supporting evidence.
 
 **Auto-validate all proposed learnings without asking for confirmation** — save every entry that the skill surfaces. Do not pause or prompt the user at this step.
 
@@ -82,7 +94,7 @@ If no issue number: skip this step silently.
 | Field | Value |
 |---|---|
 | Commit | `<sha> <message>` |
-| Plan archived | `<name>.processed.md` |
+| Plan completed | `<plan_directory>/plan.md` (`status: implemented|reviewed`) |
 | Branch mode | `plan branch merged into <target>` or `direct commit on <target>` |
 | Branch deleted | `<current_branch>` *(only if has_plan_branch)* |
 | Tag | `<tag>` pushed |
