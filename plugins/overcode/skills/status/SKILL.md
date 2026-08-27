@@ -1,6 +1,6 @@
 ---
 name: status
-description: >-
+description: "Project health and durable project state: synthesize memory, report status, audit memory quality, or synchronize a Markdown backlog from open GitHub/GitLab issues."
 author: François-Xavier Guillois
 version: 4.7.0
 vibe_version: ">=1.0.0"
@@ -16,7 +16,7 @@ Read [host portability](../../references/host-portability.md) before resolving p
 
 # Status
 
-Three independent actions covering project memory synthesis, full status reporting, and memory quality auditing. Actions are non-sequential and dispatched by intent.
+Four independent actions covering project memory synthesis, full status reporting, memory quality auditing, and durable backlog synchronization. Actions are non-sequential and dispatched by intent.
 
 ## Available actions
 
@@ -25,6 +25,7 @@ Three independent actions covering project memory synthesis, full status reporti
 | 01 | `memory` | Synthesize project memory and export decisions    | None required (optional scope) |
 | 02 | `report` | Full project status with audit, security, 7-day plan | None required             |
 | 03 | `audit`  | Audit memory files for quality, freshness, contradictions | Optional scope path   |
+| 04 | `backlog` | Synchronize `## Backlog` from the open issues of the repository declared in a Markdown file | Markdown file path + optional `--milestone`/`--ml` title filter |
 
 ## Default flow
 
@@ -33,6 +34,7 @@ Dispatch based on user intent:
 - "project memory / memory export / synthesize memory" → `memory`
 - "project status / status report / project health" → `report`
 - "audit memory / memory quality / check memory files" → `audit`
+- "status backlog <file> / synchronize the documentary backlog / update a Markdown backlog from GitHub or GitLab issues" → `backlog`
 
 ## Transversal rules
 
@@ -40,6 +42,7 @@ Dispatch based on user intent:
 - Never modify files during `report` or `audit` P2/P3 — only `memory` writes its export and `audit` applies P1 auto-fixes.
 - Cite `file:line` for every finding in `audit`.
 - Quick wins in `report` are strictly tasks under 15 minutes.
+- `backlog` never mutates the remote repository and writes its target only after every remote response and the final document have been validated.
 
 ## Assets
 

@@ -9,6 +9,7 @@ Les skills s'invoquent sous la forme `/overcode:<skill>`.
 | Ta situation | Skill |
 |---|---|
 | « où en est le projet ? » | [`status`](#santé-projet--status) action `report`, ou l'alias `previously` |
+| « synchronise le backlog Markdown depuis les issues » | [`status`](#santé-projet--status) action `backlog` |
 | « ce document dit-il encore la vérité ? » | [`taste`](#obsolescence--taste) |
 | « qu'est-ce qui va nous coûter cher dans six mois ? » | [`foresee`](#prospective--foresee) |
 | « le site est lent » | [`web-optimize`](#audits-de-performance) |
@@ -29,17 +30,20 @@ Les skills s'invoquent sous la forme `/overcode:<skill>`.
 
 ## Santé projet — `status`
 
-Trois actions indépendantes, à ne pas confondre :
+Quatre actions indépendantes, à ne pas confondre :
 
 | Action | Ce qu'elle rend |
 |---|---|
 | `memory` | synthétise la mémoire projet et exporte les décisions |
 | `report` | rapport complet — audit, sécurité, plan à 7 jours |
 | `audit` | qualité, fraîcheur et contradictions **des fichiers de mémoire eux-mêmes** |
+| `backlog <fichier.md>` | synchronise `## Backlog` depuis toutes les issues ouvertes GitHub/GitLab ; filtre facultatif `--milestone <titre>` ou `--ml <titre>` |
 
 `audit` est le méta-niveau : il ne juge pas le projet, il juge ce qu'on a écrit sur le projet.
 
-Pour une reprise de contexte rapide en début de session, l'alias `previously` est plus direct : snapshot git + tests + lint, avec le contexte de statut.
+`backlog` lit le dépôt dans le frontmatter `git_repo`. Sans milestone dans le projet, il conserve les lignes plates historiques. Dès qu'un catalogue existe, il regroupe les issues par échéance croissante, puis milestones sans échéance, et termine par `Sans milestone`. Un filtre absent garde tout le backlog ouvert ; un titre exact inconnu produit un état vide sans retomber sur toutes les issues.
+
+Pour une reprise de contexte rapide en début de session, l'alias `previously` est plus direct : snapshot git + tests + lint, avec le contexte de statut. Son option `--backlog` chaîne d'abord cette action sans devenir propriétaire de son rendu.
 
 ## Obsolescence — `taste`
 

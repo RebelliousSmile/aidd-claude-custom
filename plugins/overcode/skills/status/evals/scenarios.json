@@ -5,5 +5,9 @@
   { "prompt": "project health", "expect_action": "report" },
   { "prompt": "audit memory files", "expect_action": "audit" },
   { "prompt": "check memory files for contradictions", "expect_action": "audit" },
+  { "prompt": "status backlog docs/projet.md", "expect_action": "backlog" },
+  { "prompt": "synchronize the documentary backlog", "expect_action": "backlog" },
+  { "prompt": "mets à jour le backlog Markdown depuis les issues GitHub", "expect_action": "backlog" },
+  { "prompt": "synchronise la section backlog de projet.md depuis GitLab", "expect_action": "backlog" },
   { "prompt": "écris le chapitre 1", "expect_action": null }
 ]

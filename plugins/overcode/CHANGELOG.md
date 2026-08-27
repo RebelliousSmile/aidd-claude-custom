@@ -4,6 +4,22 @@
 
 ## [Unreleased]
 
+## [5.0.0] — 2026-08-27
+
+### Added
+
+- `status backlog` collecte toutes les issues ouvertes et le catalogue complet GitHub/GitLab, accepte le filtre exact `--milestone <titre>` ou son raccourci `--ml`, puis groupe les issues par échéance, milestone sans échéance et `Sans milestone`. Les projets sans milestone conservent le rendu plat historique.
+- La reconnaissance du bloc généré couvre les groupes milestone sans absorber un sous-titre réservé isolé ni les sous-sections manuelles ; les blocs plats existants migrent sans duplication.
+
+### Changed
+
+- La synchronisation du backlog appartient désormais à la skill `status`. `previously --backlog <fichier.md>` peut la chaîner avant le rapport et le snapshot, avec les mêmes options milestone, une quittance compacte et un arrêt bloquant si le document ne peut pas être synchronisé.
+- `previously` invoque explicitement `status report` lorsqu'aucun rapport récent n'existe et ne résout plus les références d'issues des commits en une seconde liste.
+
+### Removed
+
+- La chaîne `alias backlog` et sa route publique sont supprimées ; utiliser `status backlog`.
+
 ## [4.8.0] — 2026-08-26
 
 ### Added

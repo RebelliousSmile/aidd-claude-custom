@@ -17,14 +17,13 @@ Le nom peut aussi être formulé en langage naturel : « clôture la tâche » a
 | [`rechallenge`](#rechallenge) | plan → challenge, en boucle jusqu'à zéro objection | la tâche en cours |
 | [`endtask`](#endtask) | commit → archive → learn → merge → changelog → tags → issue | la branche courante |
 | [`bump-plugin`](#bump-plugin) | bump de version → commit → push marketplace | nom du plugin + version ou type de bump |
-| [`previously`](#previously) | statut + snapshot git / tests / lint | *(rien)* |
+| [`previously`](#previously) | backlog optionnel → statut + snapshot git / tests / lint | profondeur optionnelle, `--backlog <fichier.md>`, puis `--milestone` ou `--ml <titre>` |
 | [`smarten`](#smarten) | réécriture minimale d'un fichier de prompt, sur place | un chemin `.md` |
 | [`skillconf`](#skillconf) | classe les skills auto vs sur-invocation → écrit `skillOverrides` | *(rien)* |
 | [`weeklyemail`](#weeklyemail) | commits de la semaine → e-mail client | `github` ou `gitlab` |
 | [`gitit`](#gitit) | init → remote privé → commit → pull → push → tag | dossier cible (défaut : CWD) |
 | [`mirror`](#mirror) | image deux navigateurs → diff → corrections via `design:copycat` | une image |
 | [`codex-vision`](#codex-vision) | audit critique et non mutant du code généré par un autre LLM | diff, branche, commit ou chemin |
-| [`backlog`](#backlog) | issues ouvertes du dépôt déclaré → section `## Backlog` du document | un chemin `.md` |
 
 ---
 
@@ -48,9 +47,11 @@ La version d'un plugin vit dans **deux** fichiers — `plugins/<nom>/.claude-plu
 
 ## `previously`
 
-Reprise de contexte en début de session. Cherche un rapport de statut de moins de 7 jours dans `aidd_docs/tasks/status/` ; s'il existe, il en extrait le résumé projet et les quick wins, sinon il lance `/overcode:status` d'abord. Puis il ajoute le snapshot factuel : git, tests, arbre de travail, lint.
+Reprise de contexte en début de session. Avec `--backlog <fichier.md>`, commence toujours par appeler `status backlog`, y compris lorsqu'un rapport récent existe ; `--milestone <titre>` et son raccourci strict `--ml <titre>` sont transmis à cette action. Un échec de synchronisation arrête la routine avant le snapshot.
 
-Accepte une profondeur optionnelle (nombre de commits, ou durée du type `7d`).
+Cherche ensuite un rapport de statut de moins de 7 jours dans `aidd_docs/tasks/status/` ; s'il existe, il en extrait le résumé projet et les quick wins, sinon il lance explicitement `status report`. Puis il ajoute le snapshot factuel : git, tests, arbre de travail, lint. La sortie ne reconstruit pas de liste d'issues depuis les commits : le compte visible reste celui du rapport de statut.
+
+Syntaxe : `previously [<profondeur>] [--backlog <fichier.md>] [--milestone <titre> | --ml <titre>]`. La profondeur optionnelle reste un nombre de commits ou une durée du type `7d`, placée avant les options.
 
 ## `smarten`
 
@@ -101,14 +102,6 @@ Audite du code généré ou modifié par un autre LLM : défauts réels, simplif
 L'action est **non mutante vis-à-vis du code audité** — elle analyse et rapporte, elle ne corrige pas, ne reformate pas, ne commit pas, ne pousse pas. Les commandes de validation susceptibles d'écrire des artefacts ou des données persistantes sont écartées du périmètre.
 
 Par défaut, la cible est l'ensemble des changements suivis et non suivis du working tree, comparés à `HEAD`. Fournir le contrat fonctionnel (issue, plan, critères d'acceptation) est optionnel mais change la qualité de l'audit : sans lui, l'action juge la cohérence interne du code ; avec lui, elle juge la conformité à ce qui était demandé.
-
-## `backlog`
-
-Synchronise la section `## Backlog` d'un document Markdown avec les issues ouvertes du dépôt déclaré dans son frontmatter (`git_repo`). GitHub et GitLab.
-
-L'écriture est bornée au **bloc généré** : la première plage contiguë de lignes conformes au motif — lignes d'issues dont le lien pointe vers le dépôt résolu, ligne d'état vide, lignes vides internes — la reconnaissance s'arrêtant à la première ligne non conforme. Rien d'autre n'est touché : ni le contenu manuel de la section, ni ce qui la suit, ni une ligne de même forme pointant vers un autre dépôt. Une section dépourvue de bloc le reçoit en tête, son contenu manuel restant en place.
-
-Trois limites tiennent au motif et sont écrites dans l'action : une ligne manuelle **identique** à une sortie de la skill est indiscernable, donc remplacée ; placée avant le vrai bloc, elle capture la reconnaissance et duplique le vrai bloc à chaque synchronisation ; la ligne d'état vide est le seul motif non ancré au dépôt.
 
 ## Voir aussi
 
