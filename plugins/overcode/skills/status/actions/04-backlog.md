@@ -92,15 +92,15 @@ glab milestone list --repo <hôte>/<group/project> --include-ancestors --page <N
 
 1. Le **titre brut** d'une milestone est son titre après retrait des seuls espaces périphériques. Il porte l'identité métier, le filtre et le tri.
 2. Rattacher toute issue ayant une milestone à l'entrée du catalogue de même identifiant provider. Une référence absente du catalogue invalide la réponse.
-3. Si un filtre est fourni, chercher le titre brut avec égalité exacte et sensible à la casse :
-   - zéro correspondance → succès avec zéro issue retenue ;
-   - une correspondance → conserver seulement les issues portant son identifiant ;
-   - plusieurs correspondances → ambiguïté, arrêt sans écrire.
-4. Sans filtre, conserver toutes les issues ouvertes validées.
-5. Si des exclusions sont fournies, pour chaque titre d'exclusion (après retrait des espaces périphériques) :
+3. Si des exclusions sont fournies, pour chaque titre d'exclusion (après retrait des espaces périphériques) :
    - chercher dans le catalogue la milestone avec titre brut égal au titre d'exclusion ;
    - si trouvée (0 ou 1 correspondance dans le catalogue validé), retirer toutes les issues ayant cet identifiant de milestone ;
    - si non trouvée, continuer sans erreur (comportement silencieux).
+4. Si un filtre est fourni, chercher le titre brut avec égalité exacte et sensible à la casse parmi les issues restantes :
+   - zéro correspondance → succès avec zéro issue retenue ;
+   - une correspondance → conserver seulement les issues portant son identifiant ;
+   - plusieurs correspondances → ambiguïté, arrêt sans écrire.
+5. Sans filtre, conserver toutes les issues ouvertes validées restantes.
 6. Toute page invalide, tout identifiant d'issue ou de milestone répété, tout rattachement impossible, toute authentification ou commande en échec laisse le fichier strictement inchangé. Afficher provider, dépôt et cause utile.
 
 ### Step 4 — Build the backlog

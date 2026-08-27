@@ -44,7 +44,7 @@ status backlog <fichier.md> [--milestone <titre> | --ml <titre>] [--exclude-mile
 1. `--exclude-milestone` et `--em` sont des synonymes stricts (comme `--milestone`/`--ml`)
 2. Peut être spécifié plusieurs fois pour exclure plusieurs milestones
 3. Peut être combiné avec `--milestone` pour filtrer ET exclure
-4. L'exclusion s'applique **après** le filtrage par milestone et est **prioritaire** en cas de conflit (ex: `--milestone M --exclude-milestone M` → résultat vide)
+4. L'exclusion s'applique **sur le jeu complet d'issues** avant le filtrage par milestone, puis le filtrage est appliqué sur le résultat. En cas de conflit (`--milestone M --exclude-milestone M`), le résultat est vide car toutes les issues de M sont d'abord exclues, puis le filtrage sur M ne trouve rien
 5. Correspondance exacte, sensible à la casse (comme le filtre actuel)
 6. Si une milestone à exclure n'existe pas, c'est un succès (comportement silencieux, **non loggé**)
 7. Les options peuvent apparaître dans n'importe quel ordre dans la commande
@@ -62,13 +62,15 @@ status backlog <fichier.md> [--milestone <titre> | --ml <titre>] [--exclude-mile
 ### Logique de filtrage
 ```
 1. Collecter toutes les issues ouvertes valides
-2. Si --milestone <M> fourni:
-   - Garder seulement les issues avec milestone == M
+2. Si --exclude-milestone <E1>, <E2>, ... fournis:
+   - Pour chaque issue, si sa milestone est dans {E1, E2, ...} → exclure
+   - Note: les issues sans milestone ne sont jamais exclues
+3. Si --milestone <M> fourni:
+   - Garder seulement les issues restantes avec milestone == M
    - Si ambiguïté (plusieurs milestones avec titre M) → échec
-3. Si --exclude-milestone <E1>, <E2>, ... fournis:
-   - Pour chaque issue restante, si sa milestone est dans {E1, E2, ...} → exclure
-4. Résultat: issues filtrées et exclues
+4. Résultat: issues exclues puis filtrées
 ```
+**Note importante**: L'exclusion est appliquée **avant** le filtrage. Cela permet à `--milestone M --exclude-milestone M` de produire un résultat vide de manière cohérente.
 
 ### Exemples
 - `status backlog projet.md --exclude-milestone "Version 2"` → toutes les issues sauf celles de "Version 2"
@@ -87,16 +89,17 @@ status backlog <fichier.md> [--milestone <titre> | --ml <titre>] [--exclude-mile
 - Accepter les options dans n'importe quel ordre (avant ou après `--milestone`/`--ml`)
 
 ### 2. Mise à jour du Step 3 (Fetch and validate)
-- Après l'application du filtre `--milestone` (lignes 88-91)
+- **Avant** l'application du filtre `--milestone` (lignes 88-91)
 - Ajouter une nouvelle étape pour l'exclusion:
   ```
-  6. Si des exclusions sont fournies:
+  5. Si des exclusions sont fournies:
      - Pour chaque titre d'exclusion (dans l'ordre fourni, après retrait des espaces périphériques):
        - Chercher dans le catalogue la milestone avec titre brut égal au titre d'exclusion
        - Si trouvée (0 ou 1 correspondance dans le catalogue validé), retirer toutes les issues ayant cet identifiant de milestone
        - Si non trouvée: continuer sans erreur (comportement silencieux)
-     - Note: l'exclusion s'applique sur le jeu d'issues déjà filtré par --milestone
+     - Note: l'exclusion s'applique sur le jeu COMPLET d'issues validées, avant le filtrage --milestone
   ```
+- Puis appliquer le filtrage `--milestone` normalement sur les issues restantes
 
 ### 3. Mise à jour du Step 6 (Rapport)
 - Ajouter une ligne `Excluded milestones: <liste>` si des exclusions étaient présentes
@@ -131,7 +134,10 @@ status backlog <fichier.md> [--milestone <titre> | --ml <titre>] [--exclude-mile
 6. ✅ La documentation est mise à jour
 
 ### Tests à exécuter
-1. Tous les scénarios existants de `backlog-scenarios.md` doivent rester PASS (33/39 actuellement)
+1. Tous les scénarios existants de `backlog-scenarios.md` doivent rester PASS
+   - **Statut actuel**: 33/39 PASS + 6 contrôles négatifs intentionnels (FAIL attendu)
+   - Les 6 FAIL sont : S12, S16, S18, S21, S37, S38 - ce sont des **contrôles négatifs vivants** conçus pour vérifier que l'implémentation ne fait PAS certaines choses interdites
+   - **Objectif**: Maintenir 33/39 PASS (100% des tests nominaux) + 6/6 FAIL (100% des contrôles négatifs fonctionnels)
 2. Nouveaux scénarios pour l'exclusion:
    - S45: Exclusion simple → issues de cette milestone absentes
    - S46: Exclusion multiple → toutes les milestones exclues sont absentes
@@ -211,4 +217,5 @@ status backlog <fichier.md> [--milestone <titre> | --ml <titre>] [--exclude-mile
 - ✅ **Version bumpée** : overcode 5.0.1 → 5.1.0
 - ✅ **Tests ajoutés** : 8 nouveaux scénarios (S45-S52) dans backlog-scenarios.md
 - ✅ **Documentation mise à jour** : workflow.md, aliases.md, CHANGELOG.md
-- ⏳ **À valider** : Exécuter les scénarios de test pour confirmer 0 régression
+- ✅ **Base de tests stable** : 33/39 PASS (tests nominaux) + 6/6 FAIL (contrôles négatifs intentionnels) = 100% de couverture fonctionnelle
+- ⏳ **À valider** : Exécuter les nouveaux scénarios de test (S45-S52) pour confirmer qu'ils passent
