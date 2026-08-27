@@ -26,7 +26,7 @@ Four independent actions covering project memory synthesis, full status reportin
 | 01 | `memory` | Synthesize project memory and export decisions    | None required (optional scope) |
 | 02 | `report` | Full project status with audit, security, 7-day plan | None required             |
 | 03 | `audit`  | Audit memory files for quality, freshness, contradictions | Optional scope path   |
-| 04 | `backlog` | Synchronize `## Backlog` from the open issues of the repository declared in a Markdown file | Markdown file path |
+| 04 | `backlog` | Synchronize `## Backlog` from the open issues of the repository declared in a Markdown file | Markdown file path + optional `--milestone`/`--ml` title filter |
 
 ## Default flow
 

@@ -46,5 +46,135 @@
       "title": "Entrée obsolète",
       "state": "closed"
     }
+  ],
+  "catalog_empty_pages": [
+    []
+  ],
+  "github_issue_pages": [
+    [
+      {
+        "number": 12,
+        "title": "Corriger   le formulaire\nd'inscription",
+        "state": "open",
+        "milestone": { "id": 101, "title": "Release Alpha" }
+      },
+      {
+        "number": 11,
+        "title": "Mettre à jour la dépendance",
+        "state": "open",
+        "pull_request": { "url": "https://api.github.com/repos/acme/atlas/pulls/11" }
+      },
+      {
+        "number": 9,
+        "title": "Documenter le déploiement",
+        "state": "open",
+        "milestone": null
+      }
+    ],
+    [
+      {
+        "number": 7,
+        "title": "Préparer la suite",
+        "state": "open",
+        "milestone": { "id": 102, "title": "Version future" }
+      },
+      {
+        "number": 6,
+        "title": "Finaliser la bêta",
+        "state": "open",
+        "milestone": { "id": 104, "title": "Release Beta" }
+      },
+      {
+        "number": 5,
+        "title": "Durcir le rendu",
+        "state": "open",
+        "milestone": { "id": 105, "title": "Roadmap [Q4] <beta> *_`" }
+      }
+    ]
+  ],
+  "github_milestone_pages": [
+    [
+      { "id": 101, "number": 1, "title": "Release Alpha", "state": "open", "due_on": "2026-09-15T23:59:59Z" },
+      { "id": 104, "number": 4, "title": "Release Beta", "state": "open", "due_on": "2026-09-15T23:59:59Z" },
+      { "id": 105, "number": 5, "title": "Roadmap [Q4] <beta> *_`", "state": "open", "due_on": "2026-10-01T23:59:59Z" }
+    ],
+    [
+      { "id": 102, "number": 2, "title": "Version future", "state": "closed", "due_on": null }
+    ]
+  ],
+  "github_ambiguous_milestone_pages": [
+    [
+      { "id": 201, "number": 20, "title": "Version 2", "state": "open", "due_on": "2026-11-01T23:59:59Z" },
+      { "id": 202, "number": 21, "title": "Version 2", "state": "closed", "due_on": "2026-12-01T23:59:59Z" }
+    ]
+  ],
+  "github_ambiguous_issue_pages": [
+    [
+      { "number": 20, "title": "Préparer Version 2", "state": "open", "milestone": { "id": 201, "title": "Version 2" } }
+    ]
+  ],
+  "github_duplicate_issue_pages": [
+    [
+      { "number": 12, "title": "Première occurrence", "state": "open", "milestone": null }
+    ],
+    [
+      { "number": 12, "title": "Occurrence répétée", "state": "open", "milestone": null }
+    ]
+  ],
+  "github_duplicate_milestone_pages": [
+    [
+      { "id": 101, "number": 1, "title": "Release Alpha", "state": "open", "due_on": "2026-09-15T23:59:59Z" }
+    ],
+    [
+      { "id": 101, "number": 1, "title": "Release Alpha répétée", "state": "open", "due_on": "2026-09-16T23:59:59Z" }
+    ]
+  ],
+  "github_unassigned_issue_pages": [
+    [
+      { "number": 9, "title": "Documenter le déploiement", "state": "open", "milestone": null }
+    ]
+  ],
+  "gitlab_issue_pages": [
+    [
+      { "iid": 31, "title": "Ajouter le suivi métier", "state": "opened", "milestone": { "id": 301, "title": "Sprint 1" } },
+      { "iid": 29, "title": "Documenter l'exploitation", "state": "opened", "milestone": null }
+    ],
+    [
+      { "iid": 28, "title": "Préparer la suite", "state": "opened", "milestone": { "id": 302, "title": "Plus tard" } }
+    ],
+    []
+  ],
+  "gitlab_milestone_pages": [
+    [
+      { "id": 301, "iid": 3, "title": "Sprint 1", "state": "active", "due_date": "2026-09-01" },
+      { "id": 302, "iid": 4, "title": "Plus tard", "state": "active", "due_date": null }
+    ],
+    []
+  ],
+  "empty_issue_pages": [
+    []
+  ],
+  "github_invalid_issue_pages": [
+    [
+      { "number": 12, "title": "Issue sans état", "milestone": null }
+    ]
+  ],
+  "github_invalid_milestone_pages": [
+    [
+      { "id": 101, "number": 1, "title": "Échéance invalide", "state": "open", "due_on": "demain" }
+    ]
+  ],
+  "gitlab_invalid_issue_pages": [
+    [
+      { "iid": 31, "title": "Issue sans état", "milestone": null }
+    ]
+  ],
+  "gitlab_invalid_milestone_pages": [
+    [
+      { "id": 301, "iid": 3, "title": "Échéance invalide", "state": "active", "due_date": "2026-02-30" }
+    ]
+  ],
+  "invalid_page": [
+    "not-a-list"
   ]
 }
