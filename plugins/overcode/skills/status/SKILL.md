@@ -1,7 +1,6 @@
 ---
 name: status
-description: Project health and durable project state: synthesize memory, report status,
-  audit memory quality, or synchronize a Markdown backlog from open GitHub/GitLab issues.
+description: "Project health and durable project state: synthesize memory, report status, audit memory quality, or synchronize a Markdown backlog from open GitHub/GitLab issues."
 author: François-Xavier Guillois
 version: 4.7.0
 vibe_version: ">=1.0.0"
