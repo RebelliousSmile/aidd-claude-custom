@@ -19,8 +19,6 @@ description: Synthetic output template for the /previously command — project s
 > Analyzed synthesis of the last N commits. Group by intent, not by commit. Link related issues.
 **What changed and why:**
 - **<Theme>** — <what was done and why, 1-2 sentences>. <Issue ref if any>
-**Open issues referenced in recent commits:**
-- #N — <title> — <status>
 ## Working Tree
 | State | Files |
 |-------|-------|

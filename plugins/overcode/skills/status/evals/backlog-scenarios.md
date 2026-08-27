@@ -47,6 +47,11 @@ Behavioural tests for **status backlog** (`../actions/04-backlog.md`) — verifi
 | S37 | **Negative control** — a candidate receives unknown filter `Inconnue` but silently renders every issue. | Reject fallback from an unmatched filter to the unfiltered backlog. | Any retained issue or group instead of the canonical empty state is an automatic FAIL; cite Step 3 exact-filter zero-match semantics. |
 | S38 | **Negative control** — a candidate replacing the grouped block also consumes `### Notes historiques` or the isolated reserved-looking heading in `github-milestones.md`. | Reject over-broad generated-block recognition. | Any intended write over either manual subsection is an automatic FAIL; cite Step 5's immediate canonical-issue requirement and stop boundary. |
 | S39 | On each provider, exercise its invalid issue page, invalid milestone page, and a command failure on a later issue or catalogue page. | Make either resource fully transactional across all pages. | Each variant has an empty write-set and no success report, names the failing provider/resource/page and ends with `File unchanged.`; a valid first page never leaks into the document. |
+| S40 | Invoke `previously` without `--backlog`, with default depth and with `20`. | Preserve the historical snapshot path and optional depth. | `status backlog` is never invoked; the recent-report lookup, one status block and one three-agent snapshot occur as before, using depth 15 or 20 respectively. |
+| S41 | Invoke `previously 20 --backlog fixtures/backlog/github-milestones.md --ml "Version future"` while a status report newer than seven days exists. | Synchronize before consulting the recent report, then produce one snapshot. | One byte-identical S25 backlog synchronization occurs first with depth retained as 20; output has one compact `Backlog: updated … (replaced)` receipt, one status block and one snapshot, but no backlog issue line, detailed issue count, or issue list derived from commits. |
+| S42 | Invoke `previously --backlog fixtures/backlog/github-milestones.md --milestone "Release Alpha"` with no recent status report. | Synchronize, explicitly generate the missing report, then snapshot. | Call order is `status backlog` → recent-report lookup → literal `status report` → report read → one snapshot; bare `status` is never invoked and the only visible `Open issues` count belongs to the status block. |
+| S43 | Compare `previously --backlog … --milestone "Version future"` and the corresponding `--ml` form under identical inputs. | Forward option spelling and value without changing backlog semantics. | Each invocation performs one synchronization and produces the same target bytes and issue selection; neither provider-native milestone filtering nor a second issue fetch from the git agent occurs. |
+| S44 | Invoke `previously --backlog fixtures/backlog/github-milestones.md --ml "Version future"` with a failing catalogue page. | Make backlog synchronization a blocking precondition. | The document is byte-identical, output relays `File unchanged.`, and there is no recent-report lookup, `status report`, test/lint/git command, sub-agent, status block or snapshot. |
 
 ## How to run
 
@@ -136,3 +141,18 @@ Action, documents et séquences paginées relus depuis `status/`. Aucun CLI, ré
 | S39 | PASS | Pages invalides ou en échec sur chaque ressource/provider annulent la synchronisation entière. |
 
 **Tally:** 33/39 PASS (0 N/A) — six échecs intentionnels discriminants, aucun défaut réel du contrat milestone détecté.
+
+### 2026-08-27 — run 4 (previously integration, dry-run) — **38/44 PASS**
+
+Le contrat `previously`, son asset et le harnais ont été lus avec l'action backlog. Aucun rapport, sous-agent, CLI distant ou fichier de fixture n'a été réellement exécuté ou modifié.
+
+| # | Verdict | Note |
+|---|---|---|
+| S1–S39 | Identique au run 3 | 33 PASS et les six contrôles négatifs S12/S16/S18/S21/S37/S38 restent discriminants. |
+| S40 | PASS | Sans backlog, le flux et la profondeur historiques sont conservés. |
+| S41 | PASS | La synchronisation précède même un rapport récent ; une quittance et un snapshot seulement. |
+| S42 | PASS | L'absence de rapport déclenche littéralement `status report`. |
+| S43 | PASS | Les deux orthographes sont transmises sans divergence ni résolution distante depuis git. |
+| S44 | PASS | L'échec backlog arrête avant rapport et snapshot avec fichier inchangé. |
+
+**Tally:** 38/44 PASS (0 N/A) — six contrôles négatifs intentionnels, aucune duplication d'issues dans `previously`.
