@@ -10,11 +10,18 @@ Formes acceptées après le sélecteur d'action `backlog` :
 <fichier.md>
 <fichier.md> --milestone <titre>
 <fichier.md> --ml <titre>
+<fichier.md> --exclude-milestone <titre>
+<fichier.md> --em <titre>
+<fichier.md> --milestone <titre> --exclude-milestone <titre2>
+<fichier.md> --exclude-milestone <titre> --milestone <titre2>
+<fichier.md> --exclude-milestone <titre1> --exclude-milestone <titre2>
 ```
 
 - Exiger exactement un argument positionnel désignant un fichier `.md` existant et lisible.
-- `--milestone` et `--ml` sont des synonymes stricts. Accepter au plus l'un des deux, une seule fois, avec une valeur non vide. Retirer seulement les espaces périphériques de cette valeur ; conserver sa casse et ses espaces internes pour la correspondance exacte.
-- Refuser avant tout appel réseau : fichier absent ou illisible, argument positionnel surnuméraire, filtre dupliqué, filtre sans valeur ou option inconnue. Terminer par `File unchanged.`
+- `--milestone` et `--ml` sont des synonymes stricts. Accepter au plus l'un des deux, une seule fois, avec une valeur non vide.
+- `--exclude-milestone` et `--em` sont des synonymes stricts. Accepter zero, un ou plusieurs, chaque occurrence avec une valeur non vide.
+- Retirer seulement les espaces périphériques de chaque valeur ; conserver sa casse et ses espaces internes pour la correspondance exacte.
+- Refuser avant tout appel réseau : fichier absent ou illisible, argument positionnel surnuméraire, filtre `--milestone`/`--ml` dupliqué, exclusion `--exclude-milestone`/`--em` sans valeur, ou option inconnue. Terminer par `File unchanged.`
 - Le premier bloc du fichier doit être un frontmatter délimité par `---` et contenir une clé scalaire `git_repo:` non vide. S'il est absent, non fermé, ou si la clé manque, arrêter sans écrire.
 
 Ne jamais construire ni évaluer une commande shell concaténée à partir des arguments. Les valeurs distantes, chemins, hôtes, identifiants, pages et filtres sont toujours transmis comme arguments séparés aux capacités natives de l'hôte.
@@ -90,7 +97,11 @@ glab milestone list --repo <hôte>/<group/project> --include-ancestors --page <N
    - une correspondance → conserver seulement les issues portant son identifiant ;
    - plusieurs correspondances → ambiguïté, arrêt sans écrire.
 4. Sans filtre, conserver toutes les issues ouvertes validées.
-5. Toute page invalide, tout identifiant d'issue ou de milestone répété, tout rattachement impossible, toute authentification ou commande en échec laisse le fichier strictement inchangé. Afficher provider, dépôt et cause utile.
+5. Si des exclusions sont fournies, pour chaque titre d'exclusion (après retrait des espaces périphériques) :
+   - chercher dans le catalogue la milestone avec titre brut égal au titre d'exclusion ;
+   - si trouvée (0 ou 1 correspondance dans le catalogue validé), retirer toutes les issues ayant cet identifiant de milestone ;
+   - si non trouvée, continuer sans erreur (comportement silencieux).
+6. Toute page invalide, tout identifiant d'issue ou de milestone répété, tout rattachement impossible, toute authentification ou commande en échec laisse le fichier strictement inchangé. Afficher provider, dépôt et cause utile.
 
 ### Step 4 — Build the backlog
 
@@ -181,8 +192,9 @@ Rapport final :
 Backlog updated: <fichier>
 Repository: <provider> <dépôt>
 Milestone: <titre brut>        # ligne omise sans filtre
+Excluded milestones: <liste>  # ligne omise sans exclusion
 Open issues: <N>
 Section: replaced|inserted
 ```
 
-Sur GitLab, `<dépôt>` inclut toujours l'hôte. En cas d'échec, ne jamais afficher ce rapport et confirmer explicitement `File unchanged.`
+Sur GitLab, `<dépôt>` inclut toujours l'hôte. `<liste>` est la liste des titres bruts des milestones exclues, séparés par des virgules, dans l'ordre fourni. En cas d'échec, ne jamais afficher ce rapport et confirmer explicitement `File unchanged.`

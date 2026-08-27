@@ -37,11 +37,11 @@ Quatre actions indépendantes, à ne pas confondre :
 | `memory` | synthétise la mémoire projet et exporte les décisions |
 | `report` | rapport complet — audit, sécurité, plan à 7 jours |
 | `audit` | qualité, fraîcheur et contradictions **des fichiers de mémoire eux-mêmes** |
-| `backlog <fichier.md>` | synchronise `## Backlog` depuis toutes les issues ouvertes GitHub/GitLab ; filtre facultatif `--milestone <titre>` ou `--ml <titre>` |
+| `backlog <fichier.md>` | synchronise `## Backlog` depuis toutes les issues ouvertes GitHub/GitLab ; filtre facultatif `--milestone <titre>` ou `--ml <titre>` ; exclusion facultative `--exclude-milestone <titre>` ou `--em <titre>` (plusieurs possibles) |
 
 `audit` est le méta-niveau : il ne juge pas le projet, il juge ce qu'on a écrit sur le projet.
 
-`backlog` lit le dépôt dans le frontmatter `git_repo`. Sans milestone dans le projet, il conserve les lignes plates historiques. Dès qu'un catalogue existe, il regroupe les issues par échéance croissante, puis milestones sans échéance, et termine par `Sans milestone`. Un filtre absent garde tout le backlog ouvert ; un titre exact inconnu produit un état vide sans retomber sur toutes les issues.
+`backlog` lit le dépôt dans le frontmatter `git_repo`. Sans milestone dans le projet, il conserve les lignes plates historiques. Dès qu'un catalogue existe, il regroupe les issues par échéance croissante, puis milestones sans échéance, et termine par `Sans milestone`. Un filtre absent garde tout le backlog ouvert ; un titre exact inconnu produit un état vide sans retomber sur toutes les issues. Les exclusions (`--exclude-milestone`) s'appliquent après le filtre et retirent les issues des milestones spécifiées, même si celles-ci n'ont pas d'issues associées.
 
 Pour une reprise de contexte rapide en début de session, l'alias `previously` est plus direct : snapshot git + tests + lint, avec le contexte de statut. Son option `--backlog` chaîne d'abord cette action sans devenir propriétaire de son rendu.
 

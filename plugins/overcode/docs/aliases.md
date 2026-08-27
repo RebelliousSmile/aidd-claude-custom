@@ -17,7 +17,7 @@ Le nom peut aussi être formulé en langage naturel : « clôture la tâche » a
 | [`rechallenge`](#rechallenge) | plan → challenge, en boucle jusqu'à zéro objection | la tâche en cours |
 | [`endtask`](#endtask) | commit → plan implémenté → learn → merge → changelog → tags → issue | la branche courante |
 | [`bump-plugin`](#bump-plugin) | bump de version → commit → push marketplace | nom du plugin + version ou type de bump |
-| [`previously`](#previously) | backlog optionnel → statut + snapshot git / tests / lint | profondeur optionnelle, `--backlog <fichier.md>`, puis `--milestone` ou `--ml <titre>` |
+| [`previously`](#previously) | backlog optionnel → statut + snapshot git / tests / lint | profondeur optionnelle, `--backlog <fichier.md>`, puis `--milestone`/`--ml <titre>` et `--exclude-milestone`/`--em <titre>` (plusieurs possibles) |
 | [`smarten`](#smarten) | réécriture minimale d'un fichier de prompt, sur place | un chemin `.md` |
 | [`skillconf`](#skillconf) | classe les skills auto vs sur-invocation → écrit `skillOverrides` | *(rien)* |
 | [`weeklyemail`](#weeklyemail) | commits de la semaine → e-mail client | `github` ou `gitlab` |
@@ -47,11 +47,11 @@ La version d'un plugin vit dans **deux** fichiers — `plugins/<nom>/.claude-plu
 
 ## `previously`
 
-Reprise de contexte en début de session. Avec `--backlog <fichier.md>`, commence toujours par appeler `status backlog`, y compris lorsqu'un rapport récent existe ; `--milestone <titre>` et son raccourci strict `--ml <titre>` sont transmis à cette action. Un échec de synchronisation arrête la routine avant le snapshot.
+Reprise de contexte en début de session. Avec `--backlog <fichier.md>`, commence toujours par appeler `status backlog`, y compris lorsqu'un rapport récent existe ; `--milestone <titre>` et son raccourci strict `--ml <titre>` sont transmis à cette action, ainsi que `--exclude-milestone <titre>` et son raccourci `--em <titre>` (plusieurs exclusions possibles). Un échec de synchronisation arrête la routine avant le snapshot.
 
 Cherche ensuite un rapport de statut de moins de 7 jours dans `aidd_docs/tasks/status/` ; s'il existe, il en extrait le résumé projet et les quick wins, sinon il lance explicitement `status report`. Puis il ajoute le snapshot factuel : git, tests, arbre de travail, lint. La sortie ne reconstruit pas de liste d'issues depuis les commits : le compte visible reste celui du rapport de statut.
 
-Syntaxe : `previously [<profondeur>] [--backlog <fichier.md>] [--milestone <titre> | --ml <titre>]`. La profondeur optionnelle reste un nombre de commits ou une durée du type `7d`, placée avant les options.
+Syntaxe : `previously [<profondeur>] [--backlog <fichier.md>] [--milestone <titre> | --ml <titre>] [--exclude-milestone <titre> | --em <titre>]...`. La profondeur optionnelle reste un nombre de commits ou une durée du type `7d`, placée avant les options.
 
 ## `smarten`
 

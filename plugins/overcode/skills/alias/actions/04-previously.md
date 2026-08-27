@@ -7,13 +7,14 @@ Project snapshot (tests, git activity, working tree, lint) prefixed with a statu
 Accepted syntax after the `previously` action selector:
 
 ```text
-previously [<depth>] [--backlog <file.md>] [--milestone <title> | --ml <title>]
+previously [<depth>] [--backlog <file.md>] [--milestone <title> | --ml <title>] [--exclude-milestone <title> | --em <title>] [--exclude-milestone <title2> | --em <title2>]
 ```
 
 - `<depth>` is the existing optional first positional value: a positive commit count or a duration such as `7d`. Default: 15 commits.
 - `--backlog` accepts exactly one non-empty Markdown file path. `--milestone` and `--ml` are strict synonyms, accepted at most once and only with `--backlog`.
-- Parse and validate the whole argument list before any file lookup, command, sibling action, or sub-agent. Reject an unknown option, extra positional value, duplicate option, missing value, orphan milestone filter, or depth placed after named options. On rejection, do no work.
-- Preserve the selected spelling and values verbatim when forwarding the backlog request; do not reinterpret the filter as a native provider option.
+- `--exclude-milestone` and `--em` are strict synonyms, accepted zero or more times and only with `--backlog`.
+- Parse and validate the whole argument list before any file lookup, command, sibling action, or sub-agent. Reject an unknown option, extra positional value, duplicate `--milestone`/`--ml` option, duplicate `--exclude-milestone`/`--em` without value, missing value, orphan milestone filter, orphan exclusion filter, or depth placed after named options. On rejection, do no work.
+- Preserve the selected spelling and values verbatim when forwarding the backlog request; do not reinterpret the filter or exclusion as native provider options.
 
 ## Prompt
 
@@ -26,10 +27,10 @@ Apply `Context required`. Keep the resolved depth, optional backlog file, and op
 When `--backlog` is present, invoke the sibling `status` skill's `backlog` action before looking for a recent status report:
 
 ```text
-status backlog <file.md> [--milestone <title> | --ml <title>]
+status backlog <file.md> [--milestone <title> | --ml <title>] [--exclude-milestone <title> | --em <title>] [--exclude-milestone <title2> | --em <title2>]
 ```
 
-Forward the file, option spelling and filter value verbatim as separate arguments. This step runs on every invocation carrying `--backlog`, including when a recent status report already exists.
+Forward the file, option spelling and filter value, and all exclusion values verbatim as separate arguments, in the order they were provided. This step runs on every invocation carrying `--backlog`, including when a recent status report already exists.
 
 - On success, retain only this compact receipt for the final output: `Backlog: updated <file.md> (inserted|replaced)`. Do not repeat the detailed backlog report, its issue count, headings, or issue lines.
 - On failure, relay the useful cause and `File unchanged.`, then stop. Do not search for a status report and do not spawn snapshot agents.

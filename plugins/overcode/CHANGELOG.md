@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- `status backlog` accepte désormais l'exclusion de milestones via `--exclude-milestone <titre>` ou son raccourci `--em <titre>`, avec support de plusieurs exclusions. Les milestones exclues sont retirées du backlog après application du filtre `--milestone`, et leur liste apparaît dans le rapport final.
+
 ### Fixed
 
 - `alias endtask` et `harvest` suivent désormais le stockage AIDD par répertoire de feature : `plan.md` et ses `phase-<n>.md`, avec la fin portée par `status: implemented` plutôt que par un renommage `.pending.md` → `.processed.md`. `endtask` conserve le répertoire durable en place ; `harvest` le classe et le purge comme une unité après énumération explicite de ses fichiers. Les anciens `.processed.md` restent lisibles uniquement pour compatibilité.
