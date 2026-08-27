@@ -1,6 +1,6 @@
 ---
 objective: "Le backlog documentaire est synchronisé par `status`, filtrable et groupable par milestone, et `previously` peut le régénérer sans dupliquer son contenu dans l'instantané projet."
-status: in-progress
+status: implemented
 ---
 
 # Plan: Faire de `status` l'autorité du backlog et de ses milestones
