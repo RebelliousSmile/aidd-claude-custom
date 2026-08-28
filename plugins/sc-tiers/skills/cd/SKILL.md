@@ -24,8 +24,8 @@ Run the flow above. Read only the next action file.
 | Action | Does |
 | --- | --- |
 | local | reconcile a supported local provider adapter |
-| server | reconcile bounded provider prerequisites |
-| automata | generate a thin contract driven envelope |
+| server | reconcile bounded prerequisites for one named server target |
+| automata | generate a thin envelope for one named automata target |
 
 ## Transversal rules
 
@@ -33,3 +33,5 @@ Run the flow above. Read only the next action file.
 - Require a current contract from the root application or static owner before any provider or automation write.
 - Own provider configuration and envelopes only and never own or redetect the deployment procedure.
 - Never create another environment, collect secret values, contact production during configuration, mask a failure, or invent an unsupported provider.
+- Require an exact target id when a contract declares several targets. Read only that target's phase, mode, provider, invocation, lifecycle guard, lock, secrets, proof and recovery.
+- Keep unsupported status isolated to the selected target. Never aggregate paths, data, media or credentials across targets, and refuse every target-to-target flow.

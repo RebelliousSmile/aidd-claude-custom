@@ -351,6 +351,34 @@ projects:
     files: [package.json, pnpm-lock.yaml]
     contract: absent
 
+  tiers_federated:
+    root: automation/suddenly
+    producer: sc-python
+    contractVersion: 2
+    facade: uv run scripts/deploy.py
+    targets:
+      railway-main:
+        phase: production
+        mode: automata
+        provider: railway
+        sourceRef: 8c14d6d
+        lifecycleRevision: 4
+        invocation: uv run scripts/deploy.py --target railway-main --operation deploy:code
+        concurrencyGroup: suddenly-railway-main
+        secretNames: [RAILWAY_TOKEN]
+      alwaysdata-federated:
+        phase: production
+        mode: server
+        provider: alwaysdata
+        lifecycleRevision: 4
+        invocation: uv run scripts/deploy.py --target alwaysdata-federated --operation deploy:code
+        capabilities: { ssh: verified, sftp: verified, rsync: unverified, root: false }
+        remoteGuard: deploy/guard.json
+        hostKeyReference: ALWAYSDATA_HOST_KEY
+        secretNames: [ALWAYSDATA_ACCOUNT, ALWAYSDATA_HOST, ALWAYSDATA_USER, ALWAYSDATA_API_TOKEN]
+        restartHook: optional-site-or-service
+        apacheRestartScope: account-wide-authorization-required
+
 scenario_variants:
   css_missing_output:
     base: css_static

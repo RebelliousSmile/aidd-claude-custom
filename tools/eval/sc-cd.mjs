@@ -213,6 +213,22 @@ for (const required of ['brochure-server:', 'brochure-edge:', 'repository-fonts'
   if (!behavePark.includes(required)) failures.push(`sc-css fixture: missing ${required}`);
 }
 
+const tiersCd = join(root, 'plugins/sc-tiers/skills/cd');
+const tiersTexts = [
+  'SKILL.md', 'actions/02-server.md', 'actions/03-automata.md', 'references/providers.md',
+  'references/ci-adapters.md', 'evals/delivery-scenarios.md', 'evals/delivery-safety-scenarios.md',
+].map((path) => readFileSync(join(tiersCd, path), 'utf8')).join('\n').toLocaleLowerCase('en-US');
+for (const required of ['target id', 'alwaysdata', 'host-key', 'lifecycle revision', 'concurrency group', 'target-to-target', 'stale guard']) {
+  if (!tiersTexts.includes(required)) failures.push(`sc-tiers: missing target provider rule ${required}`);
+}
+const tiersScenarios = JSON.parse(readFileSync(join(tiersCd, 'evals/scenarios.json'), 'utf8'));
+for (const target of ['alwaysdata-federated', 'railway-main']) {
+  if (!tiersScenarios.some(({ prompt }) => prompt.includes(target))) failures.push(`sc-tiers: routing misses named target ${target}`);
+}
+for (const required of ['tiers_federated:', 'provider: alwaysdata', 'remoteGuard: deploy/guard.json', 'concurrencyGroup: suddenly-railway-main']) {
+  if (!behavePark.includes(required)) failures.push(`sc-tiers fixture: missing ${required}`);
+}
+
 if (failures.length) {
   for (const failure of failures) console.error(`SC-CD FAIL: ${failure}`);
   process.exit(1);
