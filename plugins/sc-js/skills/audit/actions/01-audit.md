@@ -1,6 +1,6 @@
 # Audit
 
-Orchestrate a JS code quality review: detect applicable pivots, load them from the plugin, and delegate analysis to `aidd-dev:reviewer`.
+Orchestrate a JS code quality review: detect applicable pivots, load them from the plugin, and delegate analysis to `aidd-dev:04-audit`.
 
 ## Transversal rules
 
@@ -70,68 +70,40 @@ Pick targets by the stack `01-scan` detected — do not assume a framework layou
 | Node backend | `src/`, `routes/`, `controllers/`, `services/`, server entry |
 | Any stack — always include | linter config (`eslint.config.*`, `biome.json`), test config (`vitest.config.*`, `playwright.config.*`), and `tests/` when present |
 
-These form the `review_target` for the reviewer agent. For vanilla web, **do not skip inline styles/scripts inside `*.html` and JS-generated DOM** — pivots like `css-transitions` and `images` apply to inline/dynamic markup, not just `.css` files.
+These form the `review_target` for the AIDD audit. For vanilla web, **do not skip inline styles/scripts inside `*.html` and JS-generated DOM** — pivots like `css-transitions` and `images` apply to inline/dynamic markup, not just `.css` files.
 
-### Step 4 — Delegate to aidd-dev:reviewer
+### Step 4 — Delegate to aidd-dev:04-audit
 
-Spawn an Agent with `subagent_type: aidd-dev:reviewer`, passing:
+Resolve `aidd-dev:04-audit` from the host's available-skills catalogue and read its complete
+`SKILL.md`. Invoke its `code-quality` pillar with:
 
-- `review_target`: the project source files identified in Step 3 — the reviewer will read and analyze them
-- `agreed_plan`: the acceptance criteria document built in Step 2 (JS capability pivots as the standard to verify against)
+- the JS review targets identified in Step 3 as the audit scope;
+- the capability pivots loaded in Step 2 as supplementary, stack-specific lenses;
+- an instruction that every loaded pivot be accounted for either by a concrete finding, a
+  "reviewed — no finding" coverage note, or an "unscannable" coverage note with its reason.
 
-**Instructions to include verbatim in the reviewer prompt:**
+Preserve the AIDD audit's own report schema and artifact path. Do not spawn the retired
+Do not introduce a retired reviewer agent type or impose a second scoring rubric on the delegated report.
 
-> 1. **Every loaded pivot must appear in the report** — either as a finding (violation) or as an explicit "✅ verified, no violations" entry in the satisfied criteria table. No pivot section may be silently absent.
-> 2. **Severity is fixed before emitting** — do not hedge a finding's severity in its body text ("à considérer MAJOR selon le contexte"). If severity is context-dependent, pick the more conservative severity and justify it in one line; then emit a single, definitive severity label.
-> 3. **Score breakdown is required** — for completion_score < 100%, list the pivot sections that were not fully reviewed. For quality_score, name the top 1–2 categories pulling it down.
-> 4. **quality_score uses this fixed rubric** (so the score is reproducible, not a vibe): start at 100, subtract **10 per MAJOR** finding and **3 per MINOR** finding, floor at 0. A pivot flagged N/A or "scope mismatch" (e.g. a perf pivot against a purely functional suite) costs **0** — it is not a violation. State the arithmetic in the breakdown, e.g. `100 − 3×10 (major) − 4×3 (minor) = 58`.
-
-The reviewer returns a structured report with:
-- items reviewed
-- findings (violations of pivot best practices)
-- completion score with breakdown
-- quality score with breakdown
+If the package, canonical skill, or `code-quality` pillar is unavailable, stop the delegation,
+name the missing capability, and return no substitute generic audit.
 
 ### Step 5 — Present results
 
-Display the reviewer's report to the user. Verify that:
-- Every loaded pivot appears either in findings or in the satisfied criteria table — flag any pivot silently absent.
-- Each finding has exactly one severity label with no hedging in the body.
-- Scores include a breakdown explaining what the remaining % represents, and quality_score matches the rubric arithmetic (100 − 10×major − 3×minor).
-
-**Always print a per-pivot status table covering all loaded pivots** — not only the clean ones. One row per pivot, so a reader can audit the 100% completion claim at a glance:
-
-```
-Per-pivot status (7/7):
-  styling/css-transitions.md   ⚠️  1 major
-  icons/svg-inline.md          ✅ verified
-  images/web-optimization.md   ⚠️  1 major · 1 minor
-  networking/preconnect.md     ⚠️  1 minor
-  tools/eslint.md              ⚠️  1 major · 1 minor
-  tools/playwright.md          ➖ N/A (functional suite — perf pivot)
-  tools/vitest.md              ⚠️  2 major · 1 minor
-```
-
-Use `✅ verified` (no findings), `⚠️ N major · M minor` (counts), or `➖ N/A` (pivot does not apply to this stack/usage).
+Read the resulting `code-quality.md` artifact. Return its path and a compact delegation receipt
+that maps every loaded pivot to `finding`, `reviewed — no finding`, or `unscannable`. Do not
+copy the report into a competing local report format.
 
 ## Output format
 
-```
-🔍 sc-js audit — JS code quality review
+```text
+🔍 sc-js audit — JS code quality
 
-Stack detected: Vue SPA + Vite + Pinia + lucide-vue-next (desktop/Tauri)
-
-Pivots loaded (6):
-  components/shared-scope.md
-  state/pinia.md
-  code-splitting/dynamic-import.md
-  code-splitting/defineAsyncComponent.md
-  styling/css-transitions.md
-  icons/lucide-vue.md
-
+Pivots loaded: <n>
 Review scope: src/, components/, stores/, pages/
+Delegated to: aidd-dev:04-audit / code-quality
+Artifact: <aidd_docs/tasks/.../code-quality.md>
 
-→ Delegating to aidd-dev:reviewer...
-
-[reviewer report — scores with rubric arithmetic, per-pivot status table (all loaded pivots), findings]
+Pivot receipt:
+  <pivot-path>  <finding | reviewed — no finding | unscannable>
 ```

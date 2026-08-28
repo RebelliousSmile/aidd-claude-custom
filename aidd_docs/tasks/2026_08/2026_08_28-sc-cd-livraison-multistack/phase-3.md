@@ -14,7 +14,7 @@ plugins/sc-js/skills/cd
 ├── actions
 │   ├── 01-local.md                                   ✅ runtime et commandes locales
 │   ├── 02-server.md                                  ✅ build, procédure et contrat projet
-│   └── 03-automata.md                                ✅ validation puis remise à sc-tiers
+│   └── 03-automata.md                                ✅ validation puis remise à web-tiers
 ├── references
 │   ├── command-facade.md                             ✅ scripts pnpm et réconciliation package.json
 │   ├── frameworks.md                                 ✅ Nuxt, Vue, Vite, SvelteKit, Astro, Node
@@ -33,7 +33,7 @@ flowchart TD
   C --> D[cd server]
   D --> E[Créer le script deploy et deploy:prod]
   E --> F[Valider build dry-run cible exclusions et identité de source]
-  F --> G[cd automata transmet la commande vérifiée à sc-tiers]
+  F --> G[cd automata transmet la commande vérifiée à web-tiers]
 ```
 
 ## Test Scope

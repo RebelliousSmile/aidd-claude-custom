@@ -1,5 +1,11 @@
 # Changelog — design
 
+## [2.13.3] — 2026-08-28
+
+### Fixed
+
+- Le README identifie `copycat` comme un agent interne consommé par `overcode:alias mirror`, et non comme une skill publique `design:copycat`.
+
 ## [2.13.2] — 2026-08-28
 
 ### Added

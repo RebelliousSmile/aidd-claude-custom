@@ -4,6 +4,23 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [4.0.0] - 2026-08-28
+
+### Changed ⚠ BREAKING
+
+- Le plugin `sc-tiers` devient `web-tiers` afin de distinguer les services web tiers de la famille `sc-*` consacrée aux langages et stacks.
+- Les invocations actives sont désormais `/web-tiers:setup` et `/web-tiers:cd`; tous les contrats, pivots, tests et délégations inter-plugins ont été migrés.
+- Le plugin autonome `pdf` disparaît : son unique skill devient `/overcode:extract-pdf`, ce qui évite la collision avec le plugin PDF natif.
+- Les README racine et plugins documentent les frontières et délégations inter-plugins actuelles.
+
+### Fixed
+
+- Les appels inter-plugins actifs sont vérifiés par la suite de cohérence, y compris les identifiants retirés.
+- Les audits `sc-js`, `sc-php`, `sc-python` et `sc-rust` délèguent à `aidd-dev:04-audit` avec le pilier `code-quality`.
+- `overcode:alias mirror` charge l’agent interne `design/agents/copycat.md` au lieu d’inventer une skill publique.
+- `obs:project` délègue l’amorçage logiciel à `aidd-context:01-bootstrap`.
+- `overcode:extract-pdf` s’arrête aux sources extraites et ne référence plus les skills RPG/TTRPG supprimées.
+
 ## [3.19.1] - 2026-08-28
 
 ### Fixed
@@ -22,7 +39,7 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnemen
 ### Changed
 
 - `sc-css`, `sc-js`, `sc-php`, `sc-python` et `sc-rust` conservent une façade applicative unique et gouvernent séparément `code`, `schema`, `data` et `media` selon la phase de chaque cible.
-- `sc-tiers` configure exclusivement les prérequis et enveloppes fournisseur par cible ; les automates utilisent un ref immuable, une garde courante et un groupe de concurrence propre.
+- `web-tiers` configure exclusivement les prérequis et enveloppes fournisseur par cible ; les automates utilisent un ref immuable, une garde courante et un groupe de concurrence propre.
 - Les productions deviennent autoritatives pour leurs données et médias, tandis qu'un staging peut refléter le local après aperçu, sauvegarde et confirmation.
 
 ### Fixed
@@ -40,7 +57,7 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnemen
 
 ### Added
 
-- Famille `cd` commune aux plugins `sc-css`, `sc-js`, `sc-php`, `sc-python`, `sc-rust` et `sc-tiers`, avec actions `local`, `server` et `automata`, contrat projet portable et façade de production unique propre à chaque stack.
+- Famille `cd` commune aux plugins `sc-css`, `sc-js`, `sc-php`, `sc-python`, `sc-rust` et `web-tiers`, avec actions `local`, `server` et `automata`, contrat projet portable et façade de production unique propre à chaque stack.
 - Action `design:harness normalize` pour reconstruire un HTML existant dans le shell canonique, préserver ses interactions et mesurer séparément conformité de format, validité runtime, migration et fidélité visuelle.
 - Exclusion de milestones dans `overcode:status backlog`, applicable avant le filtre de milestone et transmissible depuis l’alias `previously`.
 
@@ -68,7 +85,7 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnemen
 
 ### Added
 
-- Support Codex portable pour `design`, `obs`, `overcode`, `sc-css`, `sc-js`, `sc-php`, `sc-python`, `sc-rust` et `sc-tiers`, avec manifestes natifs, règles de résolution de racine et agents OpenAI pour les workflows concernés.
+- Support Codex portable pour `design`, `obs`, `overcode`, `sc-css`, `sc-js`, `sc-php`, `sc-python`, `sc-rust` et `web-tiers`, avec manifestes natifs, règles de résolution de racine et agents OpenAI pour les workflows concernés.
 - Contrat de délégation AIDD partagé par `foresee` et `taste`, scénarios comportementaux dédiés et garde structurelle/live contre les routes périmées ou les moteurs locaux réintroduits.
 - Générateur autonome du plugin `design`, livré avec ses routes Codex et ses preuves de validation.
 
@@ -91,13 +108,13 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnemen
 
 ## [3.11.0] - 2026-08-03
 
-`overcode` 4.2.0 → 4.3.0 · `design` 2.7.1 → 2.8.0 · `sc-tiers` 0.2.2 → 0.3.0 · `sc-css` 0.3.3 → 0.4.0 · `sc-python` 0.6.1 → 0.6.2 · `sc-php` 0.10.0 → 0.10.1 · `sc-rust` 0.5.0 → 0.5.1 · `sc-js` 0.15.1 → 0.15.2. Huit plugins sur onze : c'est le premier lot qui traverse la marketplace au lieu d'en approfondir un morceau.
+`overcode` 4.2.0 → 4.3.0 · `design` 2.7.1 → 2.8.0 · `web-tiers` 0.2.2 → 0.3.0 · `sc-css` 0.3.3 → 0.4.0 · `sc-python` 0.6.1 → 0.6.2 · `sc-php` 0.10.0 → 0.10.1 · `sc-rust` 0.5.0 → 0.5.1 · `sc-js` 0.15.1 → 0.15.2. Huit plugins sur onze : c'est le premier lot qui traverse la marketplace au lieu d'en approfondir un morceau.
 
-**Les deux bouts de la chaîne des pivots mentaient dans le même sens, et aucune garde ne pouvait le voir.** Côté installeur, six actions déclaraient des cibles `.claude/rules/` sans fichier source derrière — **neuf** au total, trois chez `sc-tiers` et six chez `sc-css` — et annonçaient « installed » même quand elles n'écrivaient rien. Côté consommateur, les quatre skills `*-optimize` chargeaient le pivot quand il était là, repliaient sur leur schéma générique quand il ne l'était pas, et rendaient le même rapport dans les deux cas. Un projet pouvait donc lire un audit « Django » entièrement générique, produit à partir d'une promesse d'installation qui n'aurait de toute façon écrit aucun fichier. Les deux défauts sont symétriques : **la sortie ne rend pas compte de ce qui s'est passé**.
+**Les deux bouts de la chaîne des pivots mentaient dans le même sens, et aucune garde ne pouvait le voir.** Côté installeur, six actions déclaraient des cibles `.claude/rules/` sans fichier source derrière — **neuf** au total, trois chez `web-tiers` et six chez `sc-css` — et annonçaient « installed » même quand elles n'écrivaient rien. Côté consommateur, les quatre skills `*-optimize` chargeaient le pivot quand il était là, repliaient sur leur schéma générique quand il ne l'était pas, et rendaient le même rapport dans les deux cas. Un projet pouvait donc lire un audit « Django » entièrement générique, produit à partir d'une promesse d'installation qui n'aurait de toute façon écrit aucun fichier. Les deux défauts sont symétriques : **la sortie ne rend pas compte de ce qui s'est passé**.
 
 **La quittance de pivot (DEC-010).** Chaque rapport `*-optimize` rend maintenant une paire `source` / `pivot` par stack applicable, et `pivot` prend quatre valeurs distinctes : `installed`, `not installed`, `no provider`, `empty receptacle`. La distinction n'est pas cosmétique — les trois dernières appellent trois suites incompatibles : installer les règles ici, générer une checklist, ou n'attendre personne. Deux précisions qui ne se déduisent pas : la quittance se lit **par stack** et non par dépôt (DEC-008), et « vide » se lit **sur les règles**, jamais sur les fichiers — un réceptacle avec un `.gitkeep` reste vide.
 
-**`no provider` exige une table, parce qu'une skill ne voit pas la marketplace depuis un projet.** `overcode/references/pivot-providers.md` porte la correspondance `<stack> → <plugin>, <commande>` — 33 lignes, citée par les quatre skills, recopiée par aucune. Elle dérive des tables *Target* des installeurs sous deux bornes explicites : n'entre que la cible **de la forme** `<famille>-pivots-<stack>.md`, et seulement si sa **source résout sur disque**. La commande y est portée **par plugin**, jamais par famille : `sc-tiers` s'installe par `/sc-tiers:setup`, les quatre `sc-<langage>` par `/sc-<langage>:sniff` — `sc-tiers` n'a pas de skill `sniff`, et un gabarit uniforme aurait remplacé un remède faux par un autre.
+**`no provider` exige une table, parce qu'une skill ne voit pas la marketplace depuis un projet.** `overcode/references/pivot-providers.md` porte la correspondance `<stack> → <plugin>, <commande>` — 33 lignes, citée par les quatre skills, recopiée par aucune. Elle dérive des tables *Target* des installeurs sous deux bornes explicites : n'entre que la cible **de la forme** `<famille>-pivots-<stack>.md`, et seulement si sa **source résout sur disque**. La commande y est portée **par plugin**, jamais par famille : `web-tiers` s'installe par `/web-tiers:setup`, les quatre `sc-<langage>` par `/sc-<langage>:sniff` — `web-tiers` n'a pas de skill `sniff`, et un gabarit uniforme aurait remplacé un remède faux par un autre.
 
 **Une famille de pivots sans aucun fournisseur est écrite comme telle.** `seo-pivots-<sitetype>.md` est une interface publique que personne ne remplit : aucun plugin n'écrit ce nom. `seo-optimize` continue de scanner le réceptacle — un fichier déposé à la main y garde la précédence — mais toute absence s'y rend `no provider`, jamais `not installed`. Un réceptacle vide qu'on présente comme installable fabrique une recommandation qui ne mène nulle part.
 
@@ -107,7 +124,7 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnemen
 
 **Trois arbitrages tranchés en chemin, chacun consigné au journal du plugin concerné.** Un chemin de la liste fermée de `sc-js:03-clean` n'a jamais été versionné, donc jamais installable : retiré, avec la branche de garde qui manquait pour les candidats sans référence. Un pivot ActivityPub de `sc-python` avait **deux** sources pour une cible : `capabilities/protocol/activitypub-django.md` fait foi, l'autre est supprimée après versement de ce qu'elle avait en propre. Et une clé de manifeste de `sc-css` recommandait trois pivots qui ne résolvaient vers aucune action : supprimée plutôt que réparée.
 
-**Deux suites behave accompagnent le lot et sont rejouées sur le code corrigé** — 12 scénarios de quittance côté consommateur (`overcode/skills/web-optimize/evals/`), 8 d'honnêteté côté installeur (`sc-tiers/skills/setup/evals/`). Registres append-only : le run 2 s'ajoute sous le run 1, il ne le remplace pas. Les deux runs sont jugés en contexte neuf, par des lecteurs qui n'ont écrit ni les suites ni les corrections.
+**Deux suites behave accompagnent le lot et sont rejouées sur le code corrigé** — 12 scénarios de quittance côté consommateur (`overcode/skills/web-optimize/evals/`), 8 d'honnêteté côté installeur (`web-tiers/skills/setup/evals/`). Registres append-only : le run 2 s'ajoute sous le run 1, il ne le remplace pas. Les deux runs sont jugés en contexte neuf, par des lecteurs qui n'ont écrit ni les suites ni les corrections.
 
 **Le run 2 tout-vert a produit le défaut suivant, et il est traité dans le contrat plutôt que dans les deux suites.** Une suite écrite pour reproduire un défaut cesse, le jour du correctif, d'établir qu'un défaut *nouveau* de la même famille serait attrapé : elle est devenue une suite de non-régression, ce qui est autre chose et moins. Deux invariants entrent donc dans `overcode/skills/behave/references/harness-conventions.md` et dans son gabarit de scaffold, donc devant les suites à naître et pas seulement derrière celles-ci — **une ligne n'annonce jamais son verdict** (l'annotation est lue comme la réponse par le juge suivant, et elle périme au correctif : mesuré 8 annotations sur 11 décrivant un texte disparu, soit six FAIL faux pour qui les recopiait) et **une suite garde un rouge vivant**, contrôle négatif *et* positif, compté **par famille** — un rouge ailleurs ne compte pas. Les deux suites gagnent en conséquence un contrôle négatif appuyé sur une mesure et explicitement non jugé.
 
@@ -270,7 +287,7 @@ Entrée écrite rétroactivement : la version a été atteinte par deux apports 
   - `obs` — les lignes `tree`, `filler` et `mail` omettaient respectivement `judge`/`destinations`, `index`/`synthesize`, et l'action `reply`.
   - `sc-js` — affirmait à tort que Svelte/SvelteKit n'étaient "pas encore" supportés ; `design-bridge` ne mentionnait pas le workflow de plateforme SPA.
   - `sc-php` — `design-bridge` ne mentionnait pas le workflow de plateforme FSE.
-- **`sc-tiers` (0.2.1)** — `README.md` et `marketplace.json` affirmaient des data pivots Supabase/DynamoDB/Hasura qui n'ont jamais été implémentés (seul un pivot Firebase/Firestore existe). Fausse mention présente depuis l'entrée baseline du CHANGELOG du plugin, non corrigée pour préserver l'historique.
+- **`web-tiers` (0.2.1)** — `README.md` et `marketplace.json` affirmaient des data pivots Supabase/DynamoDB/Hasura qui n'ont jamais été implémentés (seul un pivot Firebase/Firestore existe). Fausse mention présente depuis l'entrée baseline du CHANGELOG du plugin, non corrigée pour préserver l'historique.
 - **`sc-python`** — CHANGELOG comblé pour les versions `0.5.0`/`0.5.1`/`0.5.2`, bumpées sans entrée documentée. Un écart résiduel est noté dans le CHANGELOG du plugin : le commit `315a499` (2026-05-31) a ajouté du contenu après le bump `0.5.2` sans bumper à son tour — non corrigé ici, faute de version taguée à lui attribuer.
 
 ## [3.2.0] - 2026-07-22
@@ -359,4 +376,4 @@ Entrée écrite rétroactivement : la version a été atteinte par deux apports 
 
 ## [1.0.0-initial]
 
-- État initial du marketplace : `aidd-overlay`, `gamedesign`, `writing`, `sc-js`, `sc-php`, `sc-python`, `sc-rust`, `sc-tiers`, `obsidian`.
+- État initial du marketplace : `aidd-overlay`, `gamedesign`, `writing`, `sc-js`, `sc-php`, `sc-python`, `sc-rust`, `web-tiers`, `obsidian`.

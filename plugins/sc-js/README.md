@@ -6,7 +6,7 @@
 
 **Statut : 🧰 Beta.**
 
-- *Ça marche aujourd'hui :* détection runtime (web / desktop), framework (Nuxt 3, Vue SPA, SvelteKit/Svelte, Vite, Alpine.js, Astro, 11ty), ORMs (Prisma, Drizzle, TypeORM, Mongoose, GraphQL, tRPC), audit via `aidd-dev:reviewer`, migration Vue 2 → 3 / ESM / TypeScript, enseignement composables / réactivité / async
+- *Ça marche aujourd'hui :* détection runtime (web / desktop), framework (Nuxt 3, Vue SPA, SvelteKit/Svelte, Vite, Alpine.js, Astro, 11ty), ORMs (Prisma, Drizzle, TypeORM, Mongoose, GraphQL, tRPC), audit via `aidd-dev:04-audit` (`code-quality`), migration Vue 2 → 3 / ESM / TypeScript, enseignement composables / réactivité / async
 - *Pas encore :* React, Angular, Solid ; pivots routing (`vue-router`), i18n (`vue-i18n`), composables utilitaires (`@vueuse/core`), design system (UnoCSS, Tailwind)
 - *Prochaine étape :* couverture des gaps les plus fréquents (routing, composables utilitaires)
 
@@ -14,7 +14,7 @@
 
 - **Contexte au stack, pas universel** — seuls les pivots applicables au framework et aux libs détectés sont chargés pour l'audit
 - **Zéro écriture de capability rules** — les pivots de connaissance vivent dans le plugin, pas dans le projet
-- **Audit délégué à `aidd-dev:reviewer`** — pas une liste statique, une revue en contexte enrichi
+- **Audit délégué à `aidd-dev:04-audit` / `code-quality`** — les pivots de stack complètent le rapport AIDD sans imposer un second format
 - **Perf et data sur mesure** — `web-optimize` et `data-optimize` lisent des checklists adaptées au stack réel
 
 Pertinent si tu travailles sur des projets Vue / Nuxt / SvelteKit / Vite / Alpine avec le framework aidd. Pas applicable pour React, Angular ou Solid — aucun pivot disponible.
@@ -35,7 +35,7 @@ Pertinent si tu travailles sur des projets Vue / Nuxt / SvelteKit / Vite / Alpin
 /sc-js:teach          → explications composables, réactivité, patterns async
 /sc-js:design-bridge  → réceptacle du pivot design (règle ESLint + composant Vue 3/React) — rend au gate chaque règle assignée, réalisée ou non ; possède le workflow de plateforme SPA (application à composants)
 /sc-js:wp-blocks      → round-trip de validité des blocs Gutenberg (Playwright) pour markup FSE généré hors éditeur
-/sc-js:cd local|server|automata → local reproductible, façade de production native et enveloppe CI/PaaS via sc-tiers
+/sc-js:cd local|server|automata → local reproductible, façade de production native et enveloppe CI/PaaS via web-tiers
 ```
 
 ## Utilisation
@@ -46,7 +46,7 @@ Lit `package.json`, classe le runtime / framework / ORMs, émet un pivot manifes
 
 ### `/sc-js:audit`
 
-Reprend le manifeste émis par `sniff` (ou le recrée), charge les capability pivots depuis le plugin, et délègue la revue à `aidd-dev:reviewer`.
+Reprend le manifeste émis par `sniff` (ou le recrée), charge les capability pivots depuis le plugin, puis invoque `aidd-dev:04-audit` avec le pilier `code-quality`. Le rapport AIDD reste l'artefact autoritatif ; la skill ajoute seulement une quittance par pivot.
 
 ### `/sc-js:legacy`
 
@@ -54,7 +54,7 @@ Couvre trois migrations : Options API → Composition API (Vue 2 → 3), passage
 
 ### `/sc-js:cd`
 
-Préserve le gestionnaire détecté et privilégie `pnpm deploy:prod` lorsqu'un lockfile pnpm possède le projet. Nuxt, Vue/Vite, SvelteKit, Astro et les services Node suivent leur build/runtime configuré ; SQL sépare migrations et données, tandis qu'IndexedDB livre uniquement le code de migration cliente. `automata` exige `sc-tiers` et ne fabrique aucun fallback concurrent.
+Préserve le gestionnaire détecté et privilégie `pnpm deploy:prod` lorsqu'un lockfile pnpm possède le projet. Nuxt, Vue/Vite, SvelteKit, Astro et les services Node suivent leur build/runtime configuré ; SQL sépare migrations et données, tandis qu'IndexedDB livre uniquement le code de migration cliente. `automata` exige `web-tiers` et ne fabrique aucun fallback concurrent.
 
 ## Architecture des pivots
 

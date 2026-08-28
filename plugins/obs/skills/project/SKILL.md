@@ -1,6 +1,6 @@
 ---
 name: project
-description: Manages Obsidian project notes stored in Pro/Projets — create a project from templates, add an invoice to commercial.md, export a RAG context file. Runs as a deterministic script, no model call. Use when the user invokes obs:project with a project management intent. Do NOT use for code project scaffolding — use `aidd-context:project-init` instead.
+description: Manages Obsidian project notes stored in Pro/Projets — create a project from templates, add an invoice to commercial.md, export a RAG context file. Runs as a deterministic script, no model call. Use when the user invokes obs:project with a project management intent. Do NOT use for software architecture bootstrap — use `aidd-context:01-bootstrap` instead.
 author: fxgui
 version: 0.38.0
 vibe_version: ">=1.0.0"

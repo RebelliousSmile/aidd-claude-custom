@@ -74,10 +74,10 @@ Aucune rétroactivité : un pivot déjà installé se lit sans modification, et 
 
 Le lot qui instancie cette décision porte cinq parts et touche huit plugins plus le hors-plugin.
 
-- **Part 1** — deux suites `behave` neuves, enregistrant l'état « avant » : `overcode/skills/web-optimize/evals/pivot-provenance-scenarios.md` (11 scénarios, run 1 : 0 PASS · 10 FAIL · 1 N/A) et `sc-tiers/skills/setup/evals/pivot-install-scenarios.md` (7 scénarios, run 1 : 1 PASS · 6 FAIL).
+- **Part 1** — deux suites `behave` neuves, enregistrant l'état « avant » : `overcode/skills/web-optimize/evals/pivot-provenance-scenarios.md` (11 scénarios, run 1 : 0 PASS · 10 FAIL · 1 N/A) et `web-tiers/skills/setup/evals/pivot-install-scenarios.md` (7 scénarios, run 1 : 1 PASS · 6 FAIL).
 - **Part 2** — la présente décision ; `overcode/docs/concepts.md` § *agnostique par défaut, spécialisé par pivot* (les quatre états, l'obligation de sortie, l'installeur nommé par famille, la quatrième ligne `seo-optimize`) ; `overcode/README.md:7` aligné ; `design/references/sc-pivot-contract.md` (motif de l'asymétrie, quatre chemins de skill normalisés, table des verdicts complétée) ; `design/skills/enforce/actions/04-pivot.md` (même table, à l'identique).
 - **Part 3** — les quatre `*-optimize/SKILL.md` : règle de tête, échelle de repli, ligne de provenance, remède du garde-fou terminal, retrait des énumérations de fournisseurs fausses ; `overcode/references/pivot-providers.md`, table `<stack> → <plugin>, <commande>` créée.
-- **Part 4** — assainissement des installeurs qui déclarent du vide (`sc-tiers`, `sc-css`) ou figent leur sortie (`sc-python`, `sc-php`, `sc-rust`), un chemin non résolu dans `sc-js` ; gardes déclaré-vs-disque M4 et M5 dans `tools/eval/consistency.mjs` ; `CONTRIBUTING.md:24`/`:106` corrigé.
+- **Part 4** — assainissement des installeurs qui déclarent du vide (`web-tiers`, `sc-css`) ou figent leur sortie (`sc-python`, `sc-php`, `sc-rust`), un chemin non résolu dans `sc-js` ; gardes déclaré-vs-disque M4 et M5 dans `tools/eval/consistency.mjs` ; `CONTRIBUTING.md:24`/`:106` corrigé.
 - **Part 5** — rejeu des deux suites, bumps et journaux : huit plugins, la version racine de `.claude-plugin/marketplace.json` et le `CHANGELOG.md` de racine. Un plugin, un bump, un commit — les parts 1 à 4 n'en posent aucun.
 
 **Le cas d'école reste ouvert.** `seo-pivots-*` n'a, après cette décision, **aucun** fournisseur : le réceptacle est une interface publique sans réalisateur. C'est l'état `no provider` dans sa forme pure, et il est écrit comme tel plutôt que comme un oubli.

@@ -2,8 +2,8 @@
 type: plan
 statut: livre
 objective: "Aucun installeur du marketplace n'annonce l'ecriture d'un fichier qui n'existe pas, et une garde de build empeche la recidive"
-success_condition: "! rg -q 'data-pivots-supabase|data-pivots-dynamodb|data-pivots-hasura' plugins/sc-tiers/skills/setup/actions/01-install.md && ! test -e plugins/sc-css/skills/sniff/actions/02-install-pivots.md && test -e plugins/sc-css/skills/sniff/actions/01-scan.md && ! rg -q 'install-pivots' plugins/sc-css/skills/sniff/ && rg -q 'M4' tools/eval/consistency.mjs && rg -q 'M5' tools/eval/consistency.mjs && ! rg -q 'hors dépôt' CONTRIBUTING.md && node tools/eval/consistency.mjs && pnpm test"
-scope_note: "Le premier terme porte sur `plugins/sc-tiers/skills/`, jamais sur `plugins/sc-tiers/` (correction d'iteration 6). Le repertoire entier inclut `CHANGELOG.md`, ou les ids retires doivent au contraire **survivre** : la condition d'origine interdisait la trace que la part elle-meme reclamait. Les ids disparaissent des **instructions** ; ils reapparaissent dans le **journal**, ecrit en part 5 — c'est elle qui porte tous les CHANGELOG (master › *Ou se pose le bump*), et sa `success_condition` porte le terme positif correspondant. Les termes `sc-css` sont refondus en iteration 23 : la portee du `rg` passe de `SKILL.md` au **repertoire `sniff/` entier**, parce que `01-scan.md` est lui aussi un site (cf. *Files to modify*) ; le motif `pivot manifeste` **disparait**, parce que le manifeste survit au retrait — ce qui doit disparaitre est la chaine automatique, que seul `install-pivots` nomme. Le terme positif `test -e … 01-scan.md` interdit la lecture excessive « retirer la skill entiere » ; il tient aussi lieu de garde-fou au `rg` de repertoire, qui rendrait un faux vert si le dossier venait a manquer (`rg` sort 2, `!` inverse en vrai). **Les trois termes qui precedent `node tools/eval/consistency.mjs` sont ajoutes a l'iteration 43** : la condition ne couvrait pas la phase 4, c'est-a-dire ce que cette part livre de plus durable. `node tools/eval/consistency.mjs` **ne prouve rien sur M4 ni M5** — mesure du 2026-07-31 : le script sort **0 a HEAD**, ou ni l'une ni l'autre n'existe (`rg -c 'M4|M5'` = 0). Un implementeur qui livrait les phases 1 a 3 et sautait la phase 4 satisfaisait donc la condition de la part ; seule la `success_condition` du **master** l'attrapait, apres les neuf commits de la part 5, quand rouvrir coute le plus cher. Les trois termes discriminent tous : `M4`/`M5` passent de 0 a >=1, `hors dépôt` de **2** (`CONTRIBUTING.md:24`, `:106`) a 0. Le `node …` final reste utile — il verifie que la regle ajoutee ne rougit pas sur le depot assaini."
+success_condition: "! rg -q 'data-pivots-supabase|data-pivots-dynamodb|data-pivots-hasura' plugins/web-tiers/skills/setup/actions/01-install.md && ! test -e plugins/sc-css/skills/sniff/actions/02-install-pivots.md && test -e plugins/sc-css/skills/sniff/actions/01-scan.md && ! rg -q 'install-pivots' plugins/sc-css/skills/sniff/ && rg -q 'M4' tools/eval/consistency.mjs && rg -q 'M5' tools/eval/consistency.mjs && ! rg -q 'hors dépôt' CONTRIBUTING.md && node tools/eval/consistency.mjs && pnpm test"
+scope_note: "Le premier terme porte sur `plugins/web-tiers/skills/`, jamais sur `plugins/web-tiers/` (correction d'iteration 6). Le repertoire entier inclut `CHANGELOG.md`, ou les ids retires doivent au contraire **survivre** : la condition d'origine interdisait la trace que la part elle-meme reclamait. Les ids disparaissent des **instructions** ; ils reapparaissent dans le **journal**, ecrit en part 5 — c'est elle qui porte tous les CHANGELOG (master › *Ou se pose le bump*), et sa `success_condition` porte le terme positif correspondant. Les termes `sc-css` sont refondus en iteration 23 : la portee du `rg` passe de `SKILL.md` au **repertoire `sniff/` entier**, parce que `01-scan.md` est lui aussi un site (cf. *Files to modify*) ; le motif `pivot manifeste` **disparait**, parce que le manifeste survit au retrait — ce qui doit disparaitre est la chaine automatique, que seul `install-pivots` nomme. Le terme positif `test -e … 01-scan.md` interdit la lecture excessive « retirer la skill entiere » ; il tient aussi lieu de garde-fou au `rg` de repertoire, qui rendrait un faux vert si le dossier venait a manquer (`rg` sort 2, `!` inverse en vrai). **Les trois termes qui precedent `node tools/eval/consistency.mjs` sont ajoutes a l'iteration 43** : la condition ne couvrait pas la phase 4, c'est-a-dire ce que cette part livre de plus durable. `node tools/eval/consistency.mjs` **ne prouve rien sur M4 ni M5** — mesure du 2026-07-31 : le script sort **0 a HEAD**, ou ni l'une ni l'autre n'existe (`rg -c 'M4|M5'` = 0). Un implementeur qui livrait les phases 1 a 3 et sautait la phase 4 satisfaisait donc la condition de la part ; seule la `success_condition` du **master** l'attrapait, apres les neuf commits de la part 5, quand rouvrir coute le plus cher. Les trois termes discriminent tous : `M4`/`M5` passent de 0 a >=1, `hors dépôt` de **2** (`CONTRIBUTING.md:24`, `:106`) a 0. Le `node …` final reste utile — il verifie que la regle ajoutee ne rougit pas sur le depot assaini."
 iteration: 0
 created_at: 2026-07-31T14:33:20Z
 issue: 11
@@ -23,7 +23,7 @@ sequence: 4 of 5
 - Confidence : 9/10
 - Time to implement : 1 h 30 - 2 h (borne haute revue en iteration 17 : A1 = retrait au lieu d'ecrire six pivots, A2 = pas de doublage dans six actions)
 
-**La condition de sortie vise `01-install.md`, pas `plugins/sc-tiers/skills/` — et cette borne est deliberee** (deal-breaker d'iteration 15). La suite `pivot-install-scenarios.md` ecrite par la part 1 vit sous `plugins/sc-tiers/skills/setup/evals/`, et son objet est le scenario « 4 pivots data prevus dont 3 inexistants » (part 1 `:169`) que le critere `:156` oblige a decrire par l'etat precis qu'il porte : la rediger en nommant les trois ids est la forme naturelle. Balayer tout `skills/` rendait donc cette part invalidable sans mutiler un registre **append-only**, c'est-a-dire sans detruire la preuve du « avant ». Ce qui doit disparaitre, ce sont les **declarations d'installeur**, jamais les mentions dans un fichier de preuve ou un journal. Ne pas relarger cette portee par souci de couverture.
+**La condition de sortie vise `01-install.md`, pas `plugins/web-tiers/skills/` — et cette borne est deliberee** (deal-breaker d'iteration 15). La suite `pivot-install-scenarios.md` ecrite par la part 1 vit sous `plugins/web-tiers/skills/setup/evals/`, et son objet est le scenario « 4 pivots data prevus dont 3 inexistants » (part 1 `:169`) que le critere `:156` oblige a decrire par l'etat precis qu'il porte : la rediger en nommant les trois ids est la forme naturelle. Balayer tout `skills/` rendait donc cette part invalidable sans mutiler un registre **append-only**, c'est-a-dire sans detruire la preuve du « avant ». Ce qui doit disparaitre, ce sont les **declarations d'installeur**, jamais les mentions dans un fichier de preuve ou un journal. Ne pas relarger cette portee par souci de couverture.
 
 **`sc-js` est le modele, pas une victime.** Son `## Output` (`02-install-pivots.md:44-…`) porte trois cas (A / B / C) et l'instruction explicite `:46` — *« Pick the header by what actually happened — never claim "installed" when nothing was written »*. Les trois autres installeurs de stack n'ont qu'un bloc unique. La correction consiste a porter cette forme, pas a l'inventer.
 
@@ -31,7 +31,7 @@ sequence: 4 of 5
 
 | Fichier | Ligne(s) | Defaut | Verifie |
 |---|---|---|---|
-| `plugins/sc-tiers/skills/setup/actions/01-install.md` | `:27`, `:28`, `:29` | declare `08-data-pivots-supabase.md`, `-dynamodb.md`, `-hasura.md` — **aucun des trois n'est sur disque** ; seul `:26` (firebase) resout | oui |
+| `plugins/web-tiers/skills/setup/actions/01-install.md` | `:27`, `:28`, `:29` | declare `08-data-pivots-supabase.md`, `-dynamodb.md`, `-hasura.md` — **aucun des trois n'est sur disque** ; seul `:26` (firebase) resout | oui |
 | idem | `:33-51` | sortie figee : *« 12 files written »* + *« Data pivots (4) »*, dont les trois fantomes | oui |
 | `plugins/sc-css/skills/sniff/actions/02-install-pivots.md` | `:16-23` | declare 6 pivots ; **`skills/sniff/references/` n'existe pas** — zero source. Le fichier fait 29 lignes, tout son contenu utile est la table | oui |
 | `plugins/sc-python/.../02-install-pivots.md` | `:47-64` | bloc de sortie unique, nomme des fichiers en `(installed)` / `(skipped)` sans mesure. **Sa table de declaration resout entierement** (9/9) | oui |
@@ -45,13 +45,13 @@ sequence: 4 of 5
 
 Le vide reel est ailleurs, et se mesure autrement : `rg css-pivot` sur tout le depot renvoie **une seule occurrence** — la ligne de sortie de `01-scan.md:40` elle-meme. Le manifeste est **produit et jamais lu** : son unique consommateur declare est `SKILL.md:21`, qui le donne en input de l'action 02. Consequence que la formulation d'iteration 1 faisait manquer : retirer l'action 02 **prive `01-scan` de son seul consommateur**, donc `01-scan.md` est un site d'edition de cette part au meme titre que `SKILL.md` — quatre lignes a traiter (`:5`, `:18`, `:27`, `:40`), pas « rien a rerouter ».
 
-**Deux classes distinctes.** `sc-tiers` et `sc-css` declarent du vide — c'est le defaut de l'issue. `sc-python`, `sc-php`, `sc-rust` declarent juste mais **rapportent** faux : leur sortie figee affirme un resultat au lieu de le mesurer. Le second defaut est le meme que celui que la part 3 corrige cote `*-optimize` ; il se traite ici par coherence de lot.
+**Deux classes distinctes.** `web-tiers` et `sc-css` declarent du vide — c'est le defaut de l'issue. `sc-python`, `sc-php`, `sc-rust` declarent juste mais **rapportent** faux : leur sortie figee affirme un resultat au lieu de le mesurer. Le second defaut est le meme que celui que la part 3 corrige cote `*-optimize` ; il se traite ici par coherence de lot.
 
 ## Architecture projection
 
 ### Files to modify
 
-- `plugins/sc-tiers/skills/setup/actions/01-install.md` - retrait des 3 lignes fantomes ; sortie derivee au lieu de figee
+- `plugins/web-tiers/skills/setup/actions/01-install.md` - retrait des 3 lignes fantomes ; sortie derivee au lieu de figee
 - `plugins/sc-css/skills/sniff/actions/02-install-pivots.md` — **A1 tranché le 2026-07-31 sur l'option A** : l'action est retirée, les 6 ids consignés au CHANGELOG de `sc-css`. Les six fichiers `references/*.md` ne sont pas écrits ; la part reste dans son périmètre d'assainissement.
 - `plugins/sc-css/skills/sniff/SKILL.md` — **obligatoire, sinon `pnpm test` casse** (ajout d'itération 1). Retirer le fichier d'action sans toucher au SKILL.md laisse la ligne de table `:21` sans cible : c'est exactement la règle **A1** de `consistency.mjs` (*« toute ligne de table résout vers un fichier d'action »*), et `pnpm test` est le dernier terme de la `success_condition` de cette part. **Quatre sites obligatoires, deux conditionnels** (recompte en iteration 23, complete a l'iteration 41 — il en manquait deux, et aucune garde ne les rattrape) :
   - `:21` — ligne de table `02 | install-pivots` : **supprimer**
@@ -64,7 +64,7 @@ Le vide reel est ailleurs, et se mesure autrement : `rg css-pivot` sur tout le d
   - Ce qui **reste** : la detection d'architecture et de stack, et le manifeste comme sortie propre de `01-scan`. Ce n'est pas ce que le retrait touche.
   - Ce qui **perd son lecteur** : la seule cle `pivots_recommended` (`:27`). Deux issues acceptables, a trancher **par lecture** et non a l'aveugle — sur le modele du doublon `sc-python` de la phase 3 : soit la cle est retiree du schema, soit elle est conservee en la redocumentant comme recommandation lue par un humain. Ce qui n'est pas acceptable, c'est qu'elle continue de nommer une chaine automatique supprimee.
   - A verifier au passage : ses trois valeurs (`improve/custom-properties`, `improve/cascade-layers`, `legacy/float-to-flex`) ne resolvent vers **aucune** action reelle — `sc-css/skills/improve/actions/` porte `01-analyze`/`02-plan`, `legacy/actions/` porte `01-scan`/`02-migrate`. Ce sont des ids symboliques, ce qui pesera sur le choix ci-dessus.
-- `plugins/sc-css/README.md` — **site ajoute a l'iteration 41**, seul README de plugin que ce lot invalide. `:3` (*« detection d'architecture, audit, modernisation et **enseignement par pivots** »*) et `:5` (*« … puis **charge a la demande les pivots applicables** »*) ne renvoient a rien d'autre qu'a la chaine `scan → install-pivots` : `teach/` ne porte aucune occurrence de « pivot », et le seul `references/` du plugin est `design-bridge/references/workflow-static.md`. Ce n'est pas de l'historique — que la regle « README = existant only » renvoie au CHANGELOG — mais l'**existant decrit**, qui change ; `CONTRIBUTING.md:108` l'exige coherent. Ce qui **reste vrai** et ne se touche pas : la ligne de table `:11` (le manifeste survit) et `:16` (`design-bridge`, sans rapport). Mesure faite sur les huit plugins bumpes : aucun autre README de plugin n'est atteint — `sc-tiers/README.md:13` porte deja *« Data pivot : Firebase/Firestore uniquement »*, et `sc-python`/`sc-php`/`sc-rust`/`sc-js` listent leurs pivots par **cible**, jamais par source, donc le doublon AP de la phase 3 ne les touche pas
+- `plugins/sc-css/README.md` — **site ajoute a l'iteration 41**, seul README de plugin que ce lot invalide. `:3` (*« detection d'architecture, audit, modernisation et **enseignement par pivots** »*) et `:5` (*« … puis **charge a la demande les pivots applicables** »*) ne renvoient a rien d'autre qu'a la chaine `scan → install-pivots` : `teach/` ne porte aucune occurrence de « pivot », et le seul `references/` du plugin est `design-bridge/references/workflow-static.md`. Ce n'est pas de l'historique — que la regle « README = existant only » renvoie au CHANGELOG — mais l'**existant decrit**, qui change ; `CONTRIBUTING.md:108` l'exige coherent. Ce qui **reste vrai** et ne se touche pas : la ligne de table `:11` (le manifeste survit) et `:16` (`design-bridge`, sans rapport). Mesure faite sur les huit plugins bumpes : aucun autre README de plugin n'est atteint — `web-tiers/README.md:13` porte deja *« Data pivot : Firebase/Firestore uniquement »*, et `sc-python`/`sc-php`/`sc-rust`/`sc-js` listent leurs pivots par **cible**, jamais par source, donc le doublon AP de la phase 3 ne les touche pas
 - `plugins/sc-python/skills/sniff/actions/02-install-pivots.md` - sortie a trois cas, sur le modele `sc-js`
 - `plugins/sc-php/skills/sniff/actions/02-install-pivots.md` - idem
 - `plugins/sc-rust/skills/sniff/actions/02-install-pivots.md` - idem
@@ -72,7 +72,7 @@ Le vide reel est ailleurs, et se mesure autrement : `rg css-pivot` sur tout le d
 - `plugins/sc-python/skills/sniff/{SKILL.md, actions/02-install-pivots.md, actions/01-scan.md, references/capabilities/ap/django-activitypub.md}` - **deux sources concurrentes pour la cible `ap-pivots-django-activitypub.md`**, declarees a deux endroits normatifs du meme plugin (`SKILL.md:47-48` d'un cote, `02-install-pivots.md:33` + `01-scan.md:48`/`:195` de l'autre). Le nombre de fichiers touches depend de l'issue retenue — **retrait** de `ap/django-activitypub.md` : 1 site ; **promotion** : 3 sites (correction d'iteration 34, la ligne disait « source orpheline » et sous-estimait le remede). Phase 3 tache 3. Le fichier retenu et `02-install-pivots.md:33` doivent designer le meme
 - `tools/eval/consistency.mjs` - nouvelles regles **M4** (toute source declaree par un installeur existe) et **M5** (toute ligne de `pivot-providers.md` joint une ligne de table d'installeur sur *Target* + plugin, **dont la source resout sur disque**)
 - `CONTRIBUTING.md` - `:24` et `:106` : corriger l'affirmation « hors depot »
-- **Aucun `plugin.json`, `marketplace.json` ni CHANGELOG** : la part 5 est l'unique porteuse des bumps et des journaux (master › *Ou se pose le bump*). Cette part livre du contenu et une garde, rien d'autre. Les plugins qu'elle touche — `sc-tiers`, `sc-css`, `sc-python`, `sc-php`, `sc-rust`, `sc-js` — sont bumpes en part 5, d'un seul cran, avec ce que les autres parts leur ont ajoute.
+- **Aucun `plugin.json`, `marketplace.json` ni CHANGELOG** : la part 5 est l'unique porteuse des bumps et des journaux (master › *Ou se pose le bump*). Cette part livre du contenu et une garde, rien d'autre. Les plugins qu'elle touche — `web-tiers`, `sc-css`, `sc-python`, `sc-php`, `sc-rust`, `sc-js` — sont bumpes en part 5, d'un seul cran, avec ce que les autres parts leur ont ajoute.
 
 ### Files to create
 
@@ -123,10 +123,10 @@ flowchart TD
 | Retirer l'action `sc-css` efface la trace de 6 pivots souhaitables | on reperd l'intention | Les 6 ids sont consignes au CHANGELOG du plugin — **c'est la seule trace, et elle suffit**. La mitigation d'origine ajoutait *« `sniff/01-scan.md` continue de signaler les gaps »* : ecarte en iteration 23, `01-scan.md:27` n'emet que `pivots_recommended: ["improve/custom-properties", "improve/cascade-layers", "legacy/float-to-flex"]` — trois cles symboliques qui ne resolvent vers aucune action reelle (`improve/actions/` porte `01-analyze`/`02-plan`, `legacy/actions/` porte `01-scan`/`02-migrate`), et qui ne recouvrent que la moitie des six ids retires |
 | A1 = option B (ecrire les 6 pivots CSS) fait exploser le perimetre | la part 4 devient un chantier de contenu, pas d'assainissement | A1 tranche **avant** la part 4 ; l'option B sort du lot et devient une issue propre |
 | M4 doit distinguer un chemin plugin d'un chemin projet | faux positifs sur toutes les colonnes `Target (in project)` | M4 ne verifie que les chemins prefixes `${CLAUDE_PLUGIN_ROOT}` ou relatifs a `references/` ; jamais `.claude/rules/...` |
-| **Un chemin `references/…` est resolu depuis la racine du plugin** | **6 faux positifs sur le seul `sc-tiers`, `pnpm test` rouge, la part echoue sur sa propre `success_condition`** | Mesure le 2026-07-31 : `sc-tiers/01-install.md:13` declare `references/03-firebase-resources.md`, le fichier est en `plugins/sc-tiers/skills/setup/references/` — `plugins/sc-tiers/references/` **n'existe pas**. La base d'un chemin relatif est le **dossier de la skill** (`plugins/<p>/skills/<s>/`), celle de `${CLAUDE_PLUGIN_ROOT}/…` est la racine du plugin. Les deux bases coexistent et M4 les tient separees |
-| **L'en-tete de colonne source varie d'un installeur a l'autre** | un parseur ancre sur l'intitule rate `sc-tiers` — l'installeur fantome n°1, motif de l'issue | Mesure (recomptee en iteration 23) : **quatre** fichiers ecrivent `\| Source (in plugin) \| Target (in project) \|` — `sc-js`, `sc-php`, `sc-python`, `sc-rust`, verifie par `rg -l` sur `plugins/` — et `sc-tiers/01-install.md:11` ecrit `\| Reference file \| Target path \|`. Quatre plus un : le « cinquieme » a intitule standard n'existe pas, l'erreur venait de compter `sc-tiers` deux fois. M4 s'ancre sur la **forme**, pas sur l'intitule : toute table dont la seconde colonne vise `.claude/rules/` voit sa **premiere** colonne verifiee. Un fichier peut porter plusieurs tables (`sc-rust/02-install-pivots.md:11` et `:17`) — les itérer toutes |
+| **Un chemin `references/…` est resolu depuis la racine du plugin** | **6 faux positifs sur le seul `web-tiers`, `pnpm test` rouge, la part echoue sur sa propre `success_condition`** | Mesure le 2026-07-31 : `web-tiers/01-install.md:13` declare `references/03-firebase-resources.md`, le fichier est en `plugins/web-tiers/skills/setup/references/` — `plugins/web-tiers/references/` **n'existe pas**. La base d'un chemin relatif est le **dossier de la skill** (`plugins/<p>/skills/<s>/`), celle de `${CLAUDE_PLUGIN_ROOT}/…` est la racine du plugin. Les deux bases coexistent et M4 les tient separees |
+| **L'en-tete de colonne source varie d'un installeur a l'autre** | un parseur ancre sur l'intitule rate `web-tiers` — l'installeur fantome n°1, motif de l'issue | Mesure (recomptee en iteration 23) : **quatre** fichiers ecrivent `\| Source (in plugin) \| Target (in project) \|` — `sc-js`, `sc-php`, `sc-python`, `sc-rust`, verifie par `rg -l` sur `plugins/` — et `web-tiers/01-install.md:11` ecrit `\| Reference file \| Target path \|`. Quatre plus un : le « cinquieme » a intitule standard n'existe pas, l'erreur venait de compter `web-tiers` deux fois. M4 s'ancre sur la **forme**, pas sur l'intitule : toute table dont la seconde colonne vise `.claude/rules/` voit sa **premiere** colonne verifiee. Un fichier peut porter plusieurs tables (`sc-rust/02-install-pivots.md:11` et `:17`) — les itérer toutes |
 | M4 ne couvre pas `03-clean.md`, dont la liste fermee est un bloc de code, pas une table | la recidive reste possible sur cette forme | **Tranche le 2026-07-31 : couverture partielle assumee.** M4 ne lit que la forme *table markdown a colonne source* : apres le retrait de `sc-css`, **les cinq installeurs restants la partagent tous** (mesure). Deux formes restent hors garde et sont nommees dans le commentaire de la regle : le **bloc de code** de `03-clean.md` (une occurrence, corrigee a la main en phase 3), et la **table sans colonne source** — celle de `sc-css/02-install-pivots.md:16` (`\| Pivot \| Fichier installe \| Declencheur \|`), que M4 n'aurait **jamais** attrapee. Ecrire un parseur par forme unique coute plus que le defaut qu'il previent ; les nommer evite qu'une forme non couverte soit crue gardee |
-| **Aucun des six installeurs ne pince sa sortie a l'execution** | la garde est de build seulement | **Correction d'iteration 27.** La ligne disait *« `sc-tiers` n'a pas d'`evals/` »* : **faux**, `plugins/sc-tiers/skills/setup/evals/scenarios.json` existe (mesure du 2026-07-31) — le master le disait deja au Log d'iteration 23 (« aucun `evals/` n'est a creer »). Ce que ce fichier pince est le **routage** (`prompt` → `expect_action`), jamais la sortie, et c'est le cas des **six** installeurs : tous portent ce meme `scenarios.json` et rien d'autre ; les suites `behave` en `*-scenarios.md` n'existent qu'ailleurs (`obs`, `overcode/control` — inventaire des 52 dossiers `evals/` du parc). La lacune n'est donc pas propre a `sc-tiers`. La suite `pivot-install-scenarios.md` de la part 1 la comble a l'execution — **six installeurs au run 1, cinq apres la phase 1 de cette part** (part 1 `:37`, `:188`) ; M4 couvre le build. Les deux sont necessaires |
+| **Aucun des six installeurs ne pince sa sortie a l'execution** | la garde est de build seulement | **Correction d'iteration 27.** La ligne disait *« `web-tiers` n'a pas d'`evals/` »* : **faux**, `plugins/web-tiers/skills/setup/evals/scenarios.json` existe (mesure du 2026-07-31) — le master le disait deja au Log d'iteration 23 (« aucun `evals/` n'est a creer »). Ce que ce fichier pince est le **routage** (`prompt` → `expect_action`), jamais la sortie, et c'est le cas des **six** installeurs : tous portent ce meme `scenarios.json` et rien d'autre ; les suites `behave` en `*-scenarios.md` n'existent qu'ailleurs (`obs`, `overcode/control` — inventaire des 52 dossiers `evals/` du parc). La lacune n'est donc pas propre a `web-tiers`. La suite `pivot-install-scenarios.md` de la part 1 la comble a l'execution — **six installeurs au run 1, cinq apres la phase 1 de cette part** (part 1 `:37`, `:188`) ; M4 couvre le build. Les deux sont necessaires |
 | La correction de `CONTRIBUTING.md` passe pour un hors-sujet | revue bruyante | C'est un prerequis d'*A2* : la garde ne vaut que si l'outillage voyage. Une ligne de CHANGELOG le dit |
 
 ## Implementation phases
@@ -135,20 +135,20 @@ flowchart TD
 
 #### Tasks
 
-1. `sc-tiers/setup/01-install.md` — supprimer `:27-29`. La section *Data pivots* ne conserve que firebase.
+1. `web-tiers/setup/01-install.md` — supprimer `:27-29`. La section *Data pivots* ne conserve que firebase.
 2. Reecrire son `## Output` (`:33-51`) : plus de total fige (*« 12 files written »*), plus d'enumeration pre-ecrite. La sortie derive de ce qui a ete ecrit, avec la meme discipline que `sc-js:46`. **Les trois ids y figurent une seconde fois, hors table** (`:48-50`) : la reecriture les emporte avec le reste de l'enumeration — le critere `rg` ci-dessous les compte partout dans `skills/`, pas seulement dans la table.
 3. `sc-css/sniff/02-install-pivots.md` — appliquer *A1*, c'est-a-dire **supprimer le fichier d'action**, pas seulement ses six lignes de table. Aucun etat intermediaire ou l'action reste presente avec une table qui ne resout pas. Le retrait emporte **quatre** sites de `SKILL.md` (`:21`, `:25`, `:50`, `:51`) et **deux** du README du plugin (`:3`, `:5`) — cf. *Files to modify*. Les deux derniers de chaque paire sont hors de portee du `rg 'install-pivots'` du critere d'acceptation.
 3-bis. **Le retrait remonte a `01-scan.md`** (ajout d'iteration 23). L'action supprimee etait l'unique lecteur de `pivots_recommended` (`02-install-pivots.md:9`). Trancher par lecture — cle retiree du schema, ou conservee et redocumentee comme recommandation lue par un humain — puis appliquer sur les quatre lignes concernees (`:5`, `:18`, `:27`, `:40`). Le manifeste lui-meme est **conserve** dans les deux cas ; ce qui doit disparaitre est la chaine automatique. Si et seulement si le choix va jusqu'a retirer le manifeste, les deux sites conditionnels de `SKILL.md` (`:14`, `:20`) suivent.
-4. **Relever** — sans l'ecrire nulle part dans un CHANGELOG, cette part n'en touche aucun (master › *Ou se pose le bump*) — la liste exacte des ids retires, **sous une forme et une seule** : le **fichier cible**, celui qu'un projet aurait eu dans `.claude/rules/07-quality/`. Soit 3 pour `sc-tiers` (`data-pivots-supabase.md`, `data-pivots-dynamodb.md`, `data-pivots-hasura.md`) et 6 pour `sc-css` (`sc-css-custom-props.md`, `sc-css-layers.md`, `sc-css-specificity.md`, `sc-css-float-legacy.md`, `sc-css-prefixes.md`, `sc-css-prepro-vars.md`, colonne *Fichier installe* de `02-install-pivots.md:18-23`). Pas les cles (`improve/custom-properties`) : elles ne disent rien a qui lit le CHANGELOG depuis un projet. Elle est reprise telle quelle par la part 5, qui l'inscrit aux deux journaux au moment du bump. La consigner ici dans la section *Log* de cette part.
+4. **Relever** — sans l'ecrire nulle part dans un CHANGELOG, cette part n'en touche aucun (master › *Ou se pose le bump*) — la liste exacte des ids retires, **sous une forme et une seule** : le **fichier cible**, celui qu'un projet aurait eu dans `.claude/rules/07-quality/`. Soit 3 pour `web-tiers` (`data-pivots-supabase.md`, `data-pivots-dynamodb.md`, `data-pivots-hasura.md`) et 6 pour `sc-css` (`sc-css-custom-props.md`, `sc-css-layers.md`, `sc-css-specificity.md`, `sc-css-float-legacy.md`, `sc-css-prefixes.md`, `sc-css-prepro-vars.md`, colonne *Fichier installe* de `02-install-pivots.md:18-23`). Pas les cles (`improve/custom-properties`) : elles ne disent rien a qui lit le CHANGELOG depuis un projet. Elle est reprise telle quelle par la part 5, qui l'inscrit aux deux journaux au moment du bump. La consigner ici dans la section *Log* de cette part.
 
 #### Acceptance criteria
 
-- [x] `rg 'data-pivots-(supabase|dynamodb|hasura)' plugins/sc-tiers/skills/` ne renvoie rien — **`skills/`, pas la racine du plugin** : le CHANGELOG doit au contraire les porter (critere suivant)
-- [x] Toute source declaree par `sc-tiers/setup/01-install.md` existe sur disque
+- [x] `rg 'data-pivots-(supabase|dynamodb|hasura)' plugins/web-tiers/skills/` ne renvoie rien — **`skills/`, pas la racine du plugin** : le CHANGELOG doit au contraire les porter (critere suivant)
+- [x] Toute source declaree par `web-tiers/setup/01-install.md` existe sur disque
 - [x] `sc-css` n'expose plus d'action qui annonce des fichiers absents
 - [x] `rg 'install-pivots' plugins/sc-css/skills/sniff/` ne renvoie rien — `SKILL.md` **et** `01-scan.md` compris ; `01-scan.md` existe toujours
 - [x] **Relecture humaine de `sc-css/skills/sniff/SKILL.md` et de `sc-css/README.md`** : plus aucune phrase n'annonce d'installation de pivot ni de signalement de gap de pivot. Le `rg` ci-dessus ne suffit pas — `SKILL.md:50`/`:51` et `README.md:3`/`:5` ne portent pas la chaine `install-pivots`. Ce qui doit **survivre** a cette relecture : tout ce qui parle du **manifeste** (`SKILL.md:8`, `:14`, `:20`, `:32`, `README.md:11`) et de `design-bridge`
-- [x] Les 9 ids retires (3 `sc-tiers` + 6 `sc-css`) sont ecrits dans le *Log* de cette part, prêts pour les journaux que la part 5 redige
+- [x] Les 9 ids retires (3 `web-tiers` + 6 `sc-css`) sont ecrits dans le *Log* de cette part, prêts pour les journaux que la part 5 redige
 
 ### Phase 2 : les trois sorties figees
 
@@ -166,7 +166,7 @@ flowchart TD
 
 ### Phase 3 : les affirmations d'installation non tenues
 
-> Deux fichiers se disent installes par un installeur qui ne les nomme pas. Meme famille que les installeurs fantomes, sens inverse : la ou `sc-tiers` declare un fichier absent, ceux-ci sont presents et se declarent seuls.
+> Deux fichiers se disent installes par un installeur qui ne les nomme pas. Meme famille que les installeurs fantomes, sens inverse : la ou `web-tiers` declare un fichier absent, ceux-ci sont presents et se declarent seuls.
 
 #### Tasks
 
@@ -202,8 +202,8 @@ flowchart TD
 
 1. Ajouter M4 **et M5** a l'en-tete de regles de `consistency.mjs` (`:11-13` portent M1, M2, M3).
 2. La regle : pour chaque `plugins/*/skills/*/actions/*.md`, dans **toute** table dont la seconde colonne vise `.claude/rules/`, chaque chemin de la **premiere** colonne doit exister sur disque. Trois points non negociables, chacun mesure sur le depot (voir *Risk register*) :
-   - **Ancrage sur la forme, jamais sur l'intitule** — `sc-tiers` ecrit `Reference file`, les cinq autres `Source (in plugin)`.
-   - **Deux bases de resolution** — `${CLAUDE_PLUGIN_ROOT}/x` → `plugins/<p>/x` ; `references/x` → `plugins/<p>/skills/<s>/references/x`, le dossier de la **skill**. Confondre les deux rend 6 faux positifs sur `sc-tiers`.
+   - **Ancrage sur la forme, jamais sur l'intitule** — `web-tiers` ecrit `Reference file`, les cinq autres `Source (in plugin)`.
+   - **Deux bases de resolution** — `${CLAUDE_PLUGIN_ROOT}/x` → `plugins/<p>/x` ; `references/x` → `plugins/<p>/skills/<s>/references/x`, le dossier de la **skill**. Confondre les deux rend 6 faux positifs sur `web-tiers`.
    - **Toutes les tables d'un fichier**, pas la premiere : `sc-rust/02-install-pivots.md` en porte deux.
 
    Reutiliser l'enumeration de plugins existante (`:37`) et la lecture d'action deja faite par la boucle A1/A2 (`:166`) — cout marginal nul.
@@ -217,7 +217,7 @@ flowchart TD
 #### Acceptance criteria
 
 - [x] `node tools/eval/consistency.mjs` signale une source fantome introduite exprès
-- [x] **Zero faux positif** : M4 est vert sur les cinq installeurs qui subsistent, `sc-tiers/01-install.md` compris — c'est le seul a chemins relatifs, et le seul a en-tete divergente
+- [x] **Zero faux positif** : M4 est vert sur les cinq installeurs qui subsistent, `web-tiers/01-install.md` compris — c'est le seul a chemins relatifs, et le seul a en-tete divergente
 - [x] `pnpm test` vert apres retrait de la ligne d'essai
 - [x] `CONTRIBUTING.md` ne dit plus que `tools/eval/`, `package.json` ou le workflow CI sont hors depot — les trois sujets de `:24`, pas le premier seul
 - [x] La couverture partielle de M4 **et celle de M5** sont ecrites dans leurs commentaires, pas seulement dans ce plan
@@ -234,10 +234,10 @@ flowchart TD
 
 **Phase 1 — les deux installeurs fantomes.**
 
-`sc-tiers/setup/01-install.md` : les trois lignes fantomes retirees de la table *Data pivots*, qui ne
+`web-tiers/setup/01-install.md` : les trois lignes fantomes retirees de la table *Data pivots*, qui ne
 conserve que firebase ; `## Output` reecrit — plus de total fige, une phrase de derivation (*« Report
 what was written, not what the tables above list »*), un cas d'echec par source manquante et un header
-`❌ sc-tiers rules — nothing written` quand tout manque. Les trois ids qui figuraient une seconde fois
+`❌ web-tiers rules — nothing written` quand tout manque. Les trois ids qui figuraient une seconde fois
 hors table sont partis avec l'enumeration pre-ecrite.
 
 `sc-css` : `02-install-pivots.md` retire par `git rm` (option A). Quatre sites de `SKILL.md` traites
@@ -262,9 +262,9 @@ de la part 5 :
 
 | Plugin | Cible qu'un projet aurait eue dans `.claude/rules/07-quality/` |
 |---|---|
-| `sc-tiers` | `data-pivots-supabase.md` |
-| `sc-tiers` | `data-pivots-dynamodb.md` |
-| `sc-tiers` | `data-pivots-hasura.md` |
+| `web-tiers` | `data-pivots-supabase.md` |
+| `web-tiers` | `data-pivots-dynamodb.md` |
+| `web-tiers` | `data-pivots-hasura.md` |
 | `sc-css` | `sc-css-custom-props.md` |
 | `sc-css` | `sc-css-layers.md` |
 | `sc-css` | `sc-css-specificity.md` |
@@ -328,7 +328,7 @@ ne subsiste que dans `plugins/sc-python/CHANGELOG.md` — journal historique, la
 `consistency.mjs` : en-tete complete, `ruleInstallLine()` ajoutee, M4 branchee dans la boucle actions
 existante (cout marginal nul), M5 en aval sur `pivot-providers.md`. M4 s'ancre sur la **forme** — toute
 ligne de table citant une cible `.claude/rules/` voit ses sources verifiees — et non sur l'intitule de
-colonne, qui diverge (`Reference file` chez `sc-tiers`, `Source (in plugin)` chez les quatre autres). Les
+colonne, qui diverge (`Reference file` chez `web-tiers`, `Source (in plugin)` chez les quatre autres). Les
 deux bases de resolution sont tenues separees : `${CLAUDE_PLUGIN_ROOT}/x` → `plugins/<p>/x`, relatif →
 `plugins/<p>/skills/<s>/x`. **Formulee par ligne, pas par colonne** — ecart au libelle de la tache 2, motive
 par une mesure : `sc-python/01-scan.md:195` met source et cible dans la **meme cellule**, separees d'une
@@ -338,17 +338,17 @@ M5 alimente son ensemble `installable` uniquement depuis les lignes **dont toute
 la conjonction du deal-breaker d'iteration 11. Verifie : elle rend le meme verdict avant et apres la phase 1,
 donc independamment de l'ordre des parts.
 
-Preuve que les deux mordent — injection temporaire d'une ligne `08-data-pivots-supabase.md` dans `sc-tiers`
+Preuve que les deux mordent — injection temporaire d'une ligne `08-data-pivots-supabase.md` dans `web-tiers`
 et de deux lignes fausses dans `pivot-providers.md` :
 
 ```
-✗ [M4] sc-tiers/skills/setup/01-install.md — source declaree absente : `references/08-data-pivots-supabase.md` …
-✗ [M5] pivot-providers — `data-pivots-supabase.md` attribue a `sc-tiers` : …
+✗ [M4] web-tiers/skills/setup/01-install.md — source declaree absente : `references/08-data-pivots-supabase.md` …
+✗ [M5] pivot-providers — `data-pivots-supabase.md` attribue a `web-tiers` : …
 ✗ [M5] pivot-providers — `perf-pivots-nuxt.md` attribue a `sc-php` : …
 ✗ consistency — 3 incoherence(s)   exit=1
 ```
 
-L'injection M4 a bien ete faite **dans `sc-tiers`** (test 2-bis) : c'est le seul installeur a chemins
+L'injection M4 a bien ete faite **dans `web-tiers`** (test 2-bis) : c'est le seul installeur a chemins
 relatifs et a en-tete divergente, un M4 vert par accident s'y serait vu. Injections retirees, retour a
 `✓ consistency — 11 plugins`.
 
@@ -369,9 +369,9 @@ Rien n'est commite.
 
 ## Validation flow demonstration
 
-1. `rg 'data-pivots-supabase' plugins/sc-tiers/skills/` : aucun resultat. (Sur `plugins/` entier le test serait faux des que la part 5 aura ecrit les journaux — l'id doit y survivre.)
+1. `rg 'data-pivots-supabase' plugins/web-tiers/skills/` : aucun resultat. (Sur `plugins/` entier le test serait faux des que la part 5 aura ecrit les journaux — l'id doit y survivre.)
 2. Injecter une ligne `| references/inexistant.md | .claude/rules/07-quality/x.md |` dans un installeur, lancer `node tools/eval/consistency.mjs` : M4 rougit en nommant fichier et ligne. Retirer la ligne.
-2-bis. **Le test inverse, obligatoire** : sur l'arbre propre, `node tools/eval/consistency.mjs` est vert alors que `sc-tiers/01-install.md` porte six sources `references/…` resolues depuis `skills/setup/` et un en-tete `Reference file`. Un M4 vert par accident — parce qu'il n'a rien lu de ce fichier — se distingue en injectant la ligne fantome **dans `sc-tiers`** et non ailleurs.
+2-bis. **Le test inverse, obligatoire** : sur l'arbre propre, `node tools/eval/consistency.mjs` est vert alors que `web-tiers/01-install.md` porte six sources `references/…` resolues depuis `skills/setup/` et un en-tete `Reference file`. Un M4 vert par accident — parce qu'il n'a rien lu de ce fichier — se distingue en injectant la ligne fantome **dans `web-tiers`** et non ailleurs.
 3. Relire les quatre installeurs de stack cote a cote : meme structure de sortie, meme phrase de discipline.
 4. `pnpm test` : vert.
 

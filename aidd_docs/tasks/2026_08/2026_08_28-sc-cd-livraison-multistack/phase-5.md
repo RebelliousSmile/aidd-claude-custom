@@ -13,7 +13,7 @@ plugins/sc-python/skills/cd
 ├── SKILL.md                                          ✅ stratégies Python couvertes
 ├── actions/01-local.md                               ✅ environnement et services locaux
 ├── actions/02-server.md                              ✅ build migrations contrat et production
-├── actions/03-automata.md                            ✅ validation puis remise à sc-tiers
+├── actions/03-automata.md                            ✅ validation puis remise à web-tiers
 ├── references
 │   ├── command-facade.md                             ✅ arbitrage uv et gestionnaires existants
 │   ├── python-frameworks.md                          ✅ Django FastAPI Flask et workers détectés

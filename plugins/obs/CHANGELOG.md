@@ -2,6 +2,16 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/obs`.
 
+## [0.38.1] — 2026-08-28
+
+### Fixed
+
+- `obs:project` délègue l’amorçage d’un projet logiciel à la skill installée `aidd-context:01-bootstrap` ; le README documente cette frontière.
+
+### Changed
+
+- Le README repointe l’extraction PDF vers `overcode:extract-pdf`, destination finale de la skill après son passage transitoire dans le plugin autonome `pdf`.
+
 ## [0.38.0] — 2026-08-20
 
 ### Changed — les actions deviennent des scripts

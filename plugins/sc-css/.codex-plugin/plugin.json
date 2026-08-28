@@ -1,6 +1,6 @@
 {
   "name": "sc-css",
-  "version": "0.7.0+codex.20260828.2",
+  "version": "0.7.1+codex.20260828.2",
   "description": "CSS ecosystem skills for auditing, modernization, and multi-target delivery of deterministic static artifacts with bounded composite ownership.",
   "author": { "name": "François-Xavier Guillois" },
   "skills": "./skills/",

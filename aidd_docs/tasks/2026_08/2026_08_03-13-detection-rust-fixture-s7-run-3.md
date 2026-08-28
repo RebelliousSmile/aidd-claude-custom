@@ -8,7 +8,7 @@ Le problème de fond n'est pas la quittance, qui est réparée : c'est la **dét
 
 Résultat attendu : les deux suites tournent sur une détection qui existe, le barreau *template* est exercé pour la première fois, et un run 3 en contexte neuf note S8 et S12 — **en laissant des rouges**, qui sont la matière de #14.
 
-**Arbitrages tranchés par l'utilisateur** (2026-08-03) : S7 → poser le fichier de fixture et élargir son critère · contenu → copier le fichier réel et écrire la divergence de version · `sc-tiers` → bump de patch, un eval expédie dans le plugin.
+**Arbitrages tranchés par l'utilisateur** (2026-08-03) : S7 → poser le fichier de fixture et élargir son critère · contenu → copier le fichier réel et écrire la divergence de version · `web-tiers` → bump de patch, un eval expédie dans le plugin.
 
 ## État mesuré à HEAD `2c96f2f`
 
@@ -25,7 +25,7 @@ Relevé sur la **source** (`plugins/`), jamais sur le cache.
 | Position des `Cargo.toml` du parc | **jamais à la racine** : `lyremember/_code/app/rust-backend/` (prof. 2), `choix-narratifs/_code/engine/core\|harness\|wasm/` (prof. 3), `email-to-markdown/_code/app/` (prof. 1) |
 | Fixture S7 — `email-to-markdown/_code/site` | Nuxt **^4.3.1** · `aidd_docs/templates/dev/` existe (5 fichiers, aucun `perf_checklist_*`) · réceptacle `.claude/rules/07-quality/` présent avec **`.gitkeep` seul** · dépôt git autonome, `aidd_docs/` non ignoré |
 | Marqueur d'exemple sur les corps *Case A* | **0 sur 4** installeurs `sniff` |
-| Versions | `overcode` 4.3.0 · `sc-tiers` 0.3.0 · marketplace 3.11.0 |
+| Versions | `overcode` 4.3.0 · `web-tiers` 0.3.0 · marketplace 3.11.0 |
 
 ## Quatre constats que l'issue ne porte pas
 
@@ -89,7 +89,7 @@ Chaque rapport devient un registre de run daté dans sa suite : table *Before / 
 
 ### Phase 5 — Versions, changelogs, mémoire, suite
 
-`overcode` 4.3.0 → **4.4.0** (mineure, additive) · `sc-tiers` 0.3.0 → **0.3.1** · `.claude-plugin/marketplace.json` 3.11.0 → **3.12.0** avec les deux lignes de plugin. Bump et contenu dans le **même commit**, jamais d'install sur arbre sale.
+`overcode` 4.3.0 → **4.4.0** (mineure, additive) · `web-tiers` 0.3.0 → **0.3.1** · `.claude-plugin/marketplace.json` 3.11.0 → **3.12.0** avec les deux lignes de plugin. Bump et contenu dans le **même commit**, jamais d'install sur arbre sale.
 
 `aidd_docs/memory/pivots-testing.md` : ce que ce cycle apprend — un critère de ligne peut passer par la mauvaise route ; un contrôle négatif se ferme, il ne se garde pas par confort.
 
@@ -115,7 +115,7 @@ rg -q 'Cargo\.toml'  plugins/overcode/skills/{web,data}-optimize/tests.md
 ! rg -q 'nuxt3'      plugins/overcode/skills/web-optimize/tests.md
 test -f "C:/Users/fxgui/Documents/Perso/Projects/email-to-markdown/_code/site/aidd_docs/templates/dev/perf_checklist_nuxt.md"
 rg -q '^### .*run 3' plugins/overcode/skills/web-optimize/evals/pivot-provenance-scenarios.md
-rg -q '^### .*run 3' plugins/sc-tiers/skills/setup/evals/pivot-install-scenarios.md
+rg -q '^### .*run 3' plugins/web-tiers/skills/setup/evals/pivot-install-scenarios.md
 ```
 
 Deux pièges de motif, évités : `rg -qi 'rust'` est **déjà vert** sur `web-optimize/SKILL.md` par *trustable* (`:248`) et *trusting* (`:289`) — d'où `Cargo\.toml` et `axum`. `run 3` nu est **déjà vert** dans les deux suites par la section *What a run 3 owes this suite* — d'où l'ancrage sur `^### .*run 3`.

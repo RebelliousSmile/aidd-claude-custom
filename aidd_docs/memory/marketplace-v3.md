@@ -17,7 +17,7 @@ Un `version.txt` racine a existé et a été **supprimé le 2026-07-30** : aucun
 | `sc-php` | Écosystème PHP (WP/Laravel/Symfony) + log-analysis, bruno, setup, design-bridge, builder-coverage |
 | `sc-python` | Écosystème Python (Django/FastAPI/Flask) |
 | `sc-rust` | Écosystème Rust (Axum/Actix + SQLx/Diesel) |
-| `sc-tiers` | SaaS tiers (Firebase/Firestore, Klaviyo, GTM, Clarity, PSI) |
+| `web-tiers` | SaaS tiers (Firebase/Firestore, Klaviyo, GTM, Clarity, PSI) |
 | `obs` | Notes Obsidian, arbre Documents/, filler, research, extract-pdf |
 
 ## Plugins supprimés ou renommés

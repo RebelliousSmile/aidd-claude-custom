@@ -23,7 +23,7 @@ status: implemented
 | 5 | Livraison Python et façade native arbitrée | [`phase-5.md`](./phase-5.md) |
 | 6 | Releases Rust et façade native arbitrée | [`phase-6.md`](./phase-6.md) |
 | 7 | Livraison statique possédée par sc-css | [`phase-7.md`](./phase-7.md) |
-| 8 | CI et fournisseurs managés possédés par sc-tiers | [`phase-8.md`](./phase-8.md) |
+| 8 | CI et fournisseurs managés possédés par web-tiers | [`phase-8.md`](./phase-8.md) |
 | 9 | Preuves intégrées, documentation et distribution | [`phase-9.md`](./phase-9.md) |
 
 ## Resources
@@ -47,9 +47,9 @@ status: implemented
 | Conserver seulement les environnements `local` et `production`. | Le flux réel valide localement puis livre en production ; ajouter staging créerait une branche jamais exercée. |
 | Faire de `deploy:*` une famille strictement orientée `local → production`, et réserver `pull:*` au sens inverse. | Le sens devient lisible dans toute stack et une inversion destructive ne peut pas se cacher derrière `sync`. |
 | Dériver les références communes d’une source unique, puis vérifier leurs copies empaquetées octet pour octet. | Chaque plugin doit rester installable seul, mais six copies maintenues à la main feraient diverger le tronc commun. |
-| Donner le runtime et la base aux plugins de langage, la livraison statique à `sc-css`, et les adaptateurs CI/PaaS à `sc-tiers`. | Cette frontière évite que deux skills écrivent des scripts concurrents dans un projet composite. |
+| Donner le runtime et la base aux plugins de langage, la livraison statique à `sc-css`, et les adaptateurs CI/PaaS à `web-tiers`. | Cette frontière évite que deux skills écrivent des scripts concurrents dans un projet composite. |
 | Faire appeler par `automata` la commande `deploy:*` déjà installée, sans deuxième implémentation. | Le chemin manuel et le chemin automatisé accumulent ainsi les mêmes corrections et gardes. |
-| Matérialiser le passage entre plugins dans `deploy/contract.json`, descriptif sans secret et validé contre la façade réellement installée. | `sc-tiers` doit pouvoir lire commande, répertoire, propriétaire, opérations et politique de déclenchement sans redétecter la stack ni inventer une seconde procédure. |
+| Matérialiser le passage entre plugins dans `deploy/contract.json`, descriptif sans secret et validé contre la façade réellement installée. | `web-tiers` doit pouvoir lire commande, répertoire, propriétaire, opérations et politique de déclenchement sans redétecter la stack ni inventer une seconde procédure. |
 | Autoriser un seul propriétaire de façade racine et des contributeurs bornés par composant ou workspace. | Un projet composite peut combiner PHP, JavaScript et CSS, mais ses sous-stacks doivent alimenter la commande racine au lieu de créer plusieurs procédures quotidiennes. |
 | Garder le validateur JavaScript sous `tools/` comme oracle du marketplace, sans le distribuer comme dépendance runtime. | Les projets Python, Rust ou PHP ne doivent pas recevoir Node pour satisfaire le contrat ; leurs scripts natifs portent les préflight d’exécution, tandis que les skills lisent le schéma portable lors de la réconciliation. |
 | Rejouer une configuration par réconciliation bornée, jamais par écrasement global. | La skill doit améliorer les projets existants et préserver leurs scripts, secrets et choix locaux. |

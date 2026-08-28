@@ -8,12 +8,12 @@ Périmètre : six routeurs `cd`, leurs dix-huit actions et les six suites Behave
 
 | Suite | Comportements couverts | Miroir NO-GO | Contrôles | Frontières couvertes |
 | --- | --- | --- | --- | --- |
-| sc-css | local statique, façade unique, contrat, idempotence, contribution composite, délégation automata | sortie absente, propriété sc-js | positif et négatif | sc-tiers absent, sortie inventée |
-| sc-js | détection Nuxt/pnpm, façade unique, contrat, idempotence, IndexedDB, SQL, délégation | façade existante conflictuelle | positif et négatif | contrat périmé, sc-tiers absent |
-| sc-php | wp-env/Docker, façade Composer, contribution JS/CSS, synchro WordPress raisonnée | portée ou direction de sync absente | positif et négatif | sauvegarde/confirmation absentes, sc-tiers absent |
-| sc-python | uv et processus multiples, façade Python, contrat, idempotence, Alembic | migration forcée de gestionnaire | positif et négatif | entrypoint inconnu, sc-tiers absent |
-| sc-rust | workspace, alias/xtask, artefact immuable, migration, health-check, rollback | cross-build non prouvé | positif et négatif | dépendance globale refusée, sc-tiers absent |
-| sc-tiers | local non applicable, SSH/PaaS, métadonnées non secrètes, enveloppe CI mince | contrat producteur absent | positif et négatif | primitive SSH absente, contrat périmé, propagation d'échec |
+| sc-css | local statique, façade unique, contrat, idempotence, contribution composite, délégation automata | sortie absente, propriété sc-js | positif et négatif | web-tiers absent, sortie inventée |
+| sc-js | détection Nuxt/pnpm, façade unique, contrat, idempotence, IndexedDB, SQL, délégation | façade existante conflictuelle | positif et négatif | contrat périmé, web-tiers absent |
+| sc-php | wp-env/Docker, façade Composer, contribution JS/CSS, synchro WordPress raisonnée | portée ou direction de sync absente | positif et négatif | sauvegarde/confirmation absentes, web-tiers absent |
+| sc-python | uv et processus multiples, façade Python, contrat, idempotence, Alembic | migration forcée de gestionnaire | positif et négatif | entrypoint inconnu, web-tiers absent |
+| sc-rust | workspace, alias/xtask, artefact immuable, migration, health-check, rollback | cross-build non prouvé | positif et négatif | dépendance globale refusée, web-tiers absent |
+| web-tiers | local non applicable, SSH/PaaS, métadonnées non secrètes, enveloppe CI mince | contrat producteur absent | positif et négatif | primitive SSH absente, contrat périmé, propagation d'échec |
 
 La couverture de routage `local/server/automata` reste portée par les six `scenarios.json`. Les nouvelles suites couvrent volontairement un seul aspect distinct : la sûreté des mutations et la propriété de la livraison.
 
@@ -66,14 +66,14 @@ Barème Behave : ambiguïté, observabilité, minimalité, NO-GO, contrôlabilit
 | sc-rust | S7 | 12/14 | minimalité | aucun |
 | sc-rust | S8 | 14/14 | — | aucun |
 | sc-rust | S9 | 14/14 | — | aucun |
-| sc-tiers | S1 | 14/14 | — | aucun |
-| sc-tiers | S2 | 14/14 | — | aucun |
-| sc-tiers | S3 | 13/14 | minimalité | aucun |
-| sc-tiers | S4 | 14/14 | — | aucun |
-| sc-tiers | S5 | 14/14 | — | aucun |
-| sc-tiers | S6 | 12/14 | minimalité | aucun |
-| sc-tiers | S7 | 13/14 | minimalité | aucun |
-| sc-tiers | S8 | 14/14 | — | aucun |
+| web-tiers | S1 | 14/14 | — | aucun |
+| web-tiers | S2 | 14/14 | — | aucun |
+| web-tiers | S3 | 13/14 | minimalité | aucun |
+| web-tiers | S4 | 14/14 | — | aucun |
+| web-tiers | S5 | 14/14 | — | aucun |
+| web-tiers | S6 | 12/14 | minimalité | aucun |
+| web-tiers | S7 | 13/14 | minimalité | aucun |
+| web-tiers | S8 | 14/14 | — | aucun |
 
 Moyenne : **13,3/14**. Minimum : **12/14**. Statut : **vert** ; aucun scénario ne passe sous le seuil de 8/14.
 
@@ -86,7 +86,7 @@ Les routeurs ont été raccourcis vers le routage et les règles transversales. 
 | `plugins/sc-css/skills/cd/SKILL.md` | R1–R10, lignes 1–35 | description discriminante, hint, Mermaid, table Action/Does |
 | `plugins/sc-css/skills/cd/actions/01-local.md` | R11–R13, lignes 1–27 | titre sans numéro, Input/Output/Process/Test |
 | `plugins/sc-css/skills/cd/actions/02-server.md` | R11–R13 | Input/Output/Process/Test et garde de façade |
-| `plugins/sc-css/skills/cd/actions/03-automata.md` | R11–R13 | délégation exacte et arrêt sans sc-tiers |
+| `plugins/sc-css/skills/cd/actions/03-automata.md` | R11–R13 | délégation exacte et arrêt sans web-tiers |
 | `plugins/sc-js/skills/cd/SKILL.md` | R1–R10 | description discriminante, hint, Mermaid, table Action/Does |
 | `plugins/sc-js/skills/cd/actions/01-local.md` | R11–R13 | titre sans numéro, Input/Output/Process/Test |
 | `plugins/sc-js/skills/cd/actions/02-server.md` | R11–R13 | façade unique, conflit explicite, tests |
@@ -98,15 +98,15 @@ Les routeurs ont été raccourcis vers le routage et les règles transversales. 
 | `plugins/sc-python/skills/cd/SKILL.md` | R1–R10 | description discriminante, hint, Mermaid, table Action/Does |
 | `plugins/sc-python/skills/cd/actions/01-local.md` | R11–R13 | titre sans numéro, gestionnaire conservé, tests |
 | `plugins/sc-python/skills/cd/actions/02-server.md` | R11–R13 | façade native et barrières SQL |
-| `plugins/sc-python/skills/cd/actions/03-automata.md` | R11–R13 | contrat courant et sc-tiers requis |
+| `plugins/sc-python/skills/cd/actions/03-automata.md` | R11–R13 | contrat courant et web-tiers requis |
 | `plugins/sc-rust/skills/cd/SKILL.md` | R1–R10 | description discriminante, hint, Mermaid, table Action/Does |
 | `plugins/sc-rust/skills/cd/actions/01-local.md` | R11–R13 | titre sans numéro, toolchain/workspace conservés |
 | `plugins/sc-rust/skills/cd/actions/02-server.md` | R11–R13 | artefact identifiable, migration et rollback |
-| `plugins/sc-rust/skills/cd/actions/03-automata.md` | R11–R13 | alias exact, échecs propagés, sc-tiers requis |
-| `plugins/sc-tiers/skills/cd/SKILL.md` | R1–R10 | description discriminante, hint, Mermaid, table Action/Does |
-| `plugins/sc-tiers/skills/cd/actions/01-local.md` | R11–R13 | titre sans numéro, frontière distante explicite |
-| `plugins/sc-tiers/skills/cd/actions/02-server.md` | R11–R13 | stratégie prouvée et secrets hors dépôt |
-| `plugins/sc-tiers/skills/cd/actions/03-automata.md` | R11–R13 | enveloppe mince, manuel par défaut, statut propagé |
+| `plugins/sc-rust/skills/cd/actions/03-automata.md` | R11–R13 | alias exact, échecs propagés, web-tiers requis |
+| `plugins/web-tiers/skills/cd/SKILL.md` | R1–R10 | description discriminante, hint, Mermaid, table Action/Does |
+| `plugins/web-tiers/skills/cd/actions/01-local.md` | R11–R13 | titre sans numéro, frontière distante explicite |
+| `plugins/web-tiers/skills/cd/actions/02-server.md` | R11–R13 | stratégie prouvée et secrets hors dépôt |
+| `plugins/web-tiers/skills/cd/actions/03-automata.md` | R11–R13 | enveloppe mince, manuel par défaut, statut propagé |
 
 Les références existantes ont été relues au titre de R14–R15 : elles restent atteignables depuis les actions concernées et aucune duplication supplémentaire n'a été introduite.
 

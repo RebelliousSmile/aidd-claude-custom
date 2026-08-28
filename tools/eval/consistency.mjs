@@ -18,6 +18,8 @@
 //   A4  aucun titre H1 d'action ne porte son numéro (le nom de fichier le porte)
 //   M4  toute source déclarée en face d'une cible `.claude/rules/` existe sur disque
 //   M5  toute ligne de `pivot-providers.md` s'appuie sur une cible réellement installable
+//   I1  tout appel explicite vers une skill locale résout vers une skill présente
+//   I2  aucun identifiant inter-skill retiré ne subsiste dans la documentation active
 
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -167,13 +169,13 @@ const titleIsClean = (h1) => !NUMBERED_TITLE.test(h1);
  * M4 — une action qui annonce écrire dans `.claude/rules/` doit pouvoir le faire.
  *
  * Le défaut visé n'est pas une faute de frappe : c'est un installeur qui **déclare
- * du vide**. `sc-tiers` annonçait quatre pivots data dont trois n'avaient aucune
+ * du vide**. `web-tiers` annonçait quatre pivots data dont trois n'avaient aucune
  * source sur disque ; `sc-css` en annonçait six pour un plugin sans le moindre
  * `references/`. Le rapport de sortie, lui, affirmait le succès. D'où la garde :
  * une source citée en face d'une cible se relit sur disque, sinon rien n'est écrit
  * et l'annonce est fausse (DEC-009 §2 — un prérequis absent vaut champ absent).
  *
- * L'ancrage se fait sur la **forme**, jamais sur l'intitulé de colonne : `sc-tiers`
+ * L'ancrage se fait sur la **forme**, jamais sur l'intitulé de colonne : `web-tiers`
  * écrit `Reference file`, les quatre autres `Source (in plugin)`. Est donc examinée
  * toute ligne de table qui cite une cible `.claude/rules/…`, quelle que soit sa
  * colonne — `sc-python/01-scan.md` met source et cible dans la *même* cellule,
@@ -183,7 +185,7 @@ const titleIsClean = (h1) => !NUMBERED_TITLE.test(h1);
  * inopérante sur la moitié du parc :
  *   `${<PLUGIN>_PLUGIN_ROOT}/x` → `plugins/<plugin>/x`            (portable Codex/Claude)
  *   `${CLAUDE_PLUGIN_ROOT}/x`   → `plugins/<plugin>/x`            (compatibilité historique)
- *   `references/x` (relatif)   → `plugins/<plugin>/skills/<skill>/x`  (`sc-tiers`)
+ *   `references/x` (relatif)   → `plugins/<plugin>/skills/<skill>/x`  (`web-tiers`)
  *
  * Couverture volontairement partielle, à ne pas confondre avec une garantie :
  *   — les listes de chemins en **bloc de code** (`sc-js/sniff/03-clean.md`) sont hors
@@ -299,6 +301,41 @@ if (existsSync(join(ROOT, PROVIDERS))) {
     if (!installable.has(`${provider}::${pivot}`))
       fail('M5', `pivot-providers — \`${pivot}\` attribué à \`${provider}\` : aucune action de ce plugin n'écrit cette cible depuis une source présente`);
   }
+}
+
+// ─── Appels inter-skills ──────────────────────────────────────────────────────
+
+const activeSkillDocs = [];
+function collectActiveDocs(path) {
+  for (const entry of readdirSync(path, { withFileTypes: true })) {
+    if (entry.name === 'evals' || entry.name === '.pytest_cache' || entry.name === '.venv') continue;
+    const full = join(path, entry.name);
+    if (entry.isDirectory()) collectActiveDocs(full);
+    else if ((entry.name.endsWith('.md') || entry.name.endsWith('.yaml') || entry.name.endsWith('.yml'))
+      && !entry.name.startsWith('CHANGELOG')) activeSkillDocs.push(full);
+  }
+}
+collectActiveDocs(join(ROOT, 'plugins'));
+
+const localPlugins = new Set(plugins);
+const explicitCall = /(?:\/|\$)([a-z][a-z0-9-]*):([a-z0-9][a-z0-9-]*)/gi;
+const retiredCalls = [
+  ['aidd-dev:reviewer', 'aidd-dev:04-audit'],
+  ['aidd-context:project-init', 'aidd-context:01-bootstrap'],
+  ['ttrpg:lore-extract', 'un rôle aval explicitement sélectionné'],
+  ['ttrpg:rules-keeper', 'un rôle aval explicitement sélectionné'],
+];
+
+for (const path of activeSkillDocs) {
+  const text = readFileSync(path, 'utf8');
+  const display = path.slice(ROOT.length + 1).replaceAll('\\', '/');
+  for (const match of text.matchAll(explicitCall)) {
+    const [, plugin, skill] = match;
+    if (localPlugins.has(plugin) && !existsSync(join(ROOT, 'plugins', plugin, 'skills', skill)))
+      fail('I1', `${display} — appel local introuvable : ${plugin}:${skill}`);
+  }
+  for (const [retired, replacement] of retiredCalls)
+    if (text.includes(retired)) fail('I2', `${display} — appel retiré ${retired}; utiliser ${replacement}`);
 }
 
 // ─── Verdict ───────────────────────────────────────────────────────────────────

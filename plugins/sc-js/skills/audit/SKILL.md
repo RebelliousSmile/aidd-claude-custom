@@ -18,13 +18,13 @@ Read [host portability](../../references/host-portability.md) before resolving p
 
 # sc-js Audit
 
-JS code quality audit — detects applicable pivots via sniff and delegates to `aidd-dev:reviewer`.
+JS code quality audit — detects applicable pivots via sniff and delegates to `aidd-dev:04-audit`.
 
 ## Available actions
 
 | # | Action | Role | Input |
 |---|--------|------|-------|
-| 01 | `audit` | Detect stack → load pivots → spawn aidd-dev:reviewer | project path |
+| 01 | `audit` | Detect stack → load pivots → invoke aidd-dev:04-audit (code-quality) | project path |
 
 ## Default flow
 
@@ -34,7 +34,7 @@ Single action: `audit`.
 
 - audit is a read-only orchestrator: it detects, loads, and delegates — it never writes to `.claude/rules/`
 - The JS knowledge lives in the plugin (`skills/sniff/references/capabilities/`) — loaded at runtime, not pre-installed
-- `aidd-dev:reviewer` is the analysis engine — audit provides the acceptance criteria (pivots), reviewer provides the findings
+- `aidd-dev:04-audit` is the analysis engine — audit provides the acceptance criteria (pivots), AIDD audit provides the findings
 
 ## Transversal rules
 

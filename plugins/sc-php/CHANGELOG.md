@@ -1,5 +1,11 @@
 # Changelog — sc-php
 
+## [0.14.1] — 2026-08-28
+
+### Fixed
+
+- `sc-php:audit` délègue à `aidd-dev:04-audit` avec le pilier `code-quality` et conserve le rapport AIDD comme artefact autoritatif ; le README reflète ce contrat.
+
 ## [0.14.0] — 2026-08-28
 
 - CD v2 multi-cibles et miroir WordPress staging différentiel ; données, contenu et uploads de production protégés.
@@ -154,7 +160,7 @@ Cinq références et deux actions nommaient un projet client et un hébergeur en
 
 ### Fixed — le corps illustré de `Case A` se lisait comme la liste à reproduire (S8, rouge au run 3)
 
-`sniff/02-install-pivots` posait sa clause de sortie sur le seul **en-tête** — *Pick the header by what actually happened* — et ne disait rien du corps. Le bloc *Case B* voisin, lui, porte `Use this header verbatim`. Le fichier posait donc une norme de copie littérale sur un bloc et **aucune contre-instruction sur l'autre** : un lecteur qui reproduit *Case A* énumère les cibles des tables au lieu de celles qu'il a écrites. C'est le contrôle négatif **S8** de `plugins/sc-tiers/skills/setup/evals/pivot-install-scenarios.md`, laissé délibérément non jugé en 0.3.0 et rendu **FAIL** au run 3 sur les quatre installeurs `sniff`.
+`sniff/02-install-pivots` posait sa clause de sortie sur le seul **en-tête** — *Pick the header by what actually happened* — et ne disait rien du corps. Le bloc *Case B* voisin, lui, porte `Use this header verbatim`. Le fichier posait donc une norme de copie littérale sur un bloc et **aucune contre-instruction sur l'autre** : un lecteur qui reproduit *Case A* énumère les cibles des tables au lieu de celles qu'il a écrites. C'est le contrôle négatif **S8** de `plugins/web-tiers/skills/setup/evals/pivot-install-scenarios.md`, laissé délibérément non jugé en 0.3.0 et rendu **FAIL** au run 3 sur les quatre installeurs `sniff`.
 
 - **Marqueur d'exemple** sous chaque famille du bloc : `… one line per target actually processed`.
 - **Contre-instruction** au-dessus du bloc : les blocs sont des *formes, pas des contenus*, et seuls les pivots que le manifeste liste sont traités — un projet détecté Laravel seul émet deux lignes, `perf-pivots-symfony.md` et `perf-pivots-wordpress.md` n'apparaissent **pas même en `skipped`**.

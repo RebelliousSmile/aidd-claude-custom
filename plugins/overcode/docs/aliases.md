@@ -22,7 +22,7 @@ Le nom peut aussi être formulé en langage naturel : « clôture la tâche » a
 | [`skillconf`](#skillconf) | classe les skills auto vs sur-invocation → écrit `skillOverrides` | *(rien)* |
 | [`weeklyemail`](#weeklyemail) | commits de la semaine → e-mail client | `github` ou `gitlab` |
 | [`gitit`](#gitit) | init → remote privé → commit → pull → push → tag | dossier cible (défaut : CWD) |
-| [`mirror`](#mirror) | image deux navigateurs → diff → corrections via `design:copycat` | une image |
+| [`mirror`](#mirror) | image deux navigateurs → diff → corrections via le contrat agent `design/agents/copycat.md` | une image |
 | [`codex-vision`](#codex-vision) | audit critique et non mutant du code généré par un autre LLM | diff, branche, commit ou chemin |
 
 ---
@@ -86,7 +86,7 @@ Deux garanties portées par l'action :
 
 Reçoit une capture montrant deux navigateurs côte à côte — la référence et l'implémentation — identifie toutes les différences de texte et de style, puis les corrige. La référence est à gauche par défaut ; `--ref right` inverse. `--page <chemin>`, répétable, enchaîne plusieurs pages dans l'ordre fourni.
 
-`mirror` ne rend pas le modèle plus intelligent : il apporte de la discipline de process et **délègue l'analyse de style à l'agent `design:copycat`**, qui repart d'un contexte neuf avec un prompt propriété-par-propriété. Ce gain a un coût réel en tokens et en latence.
+`mirror` ne rend pas le modèle plus intelligent : il apporte de la discipline de process et **délègue l'analyse de style à un sous-agent chargé avec `design/agents/copycat.md`**, qui repart d'un contexte neuf avec un prompt propriété-par-propriété. `copycat` n'est pas une skill publique. Ce gain a un coût réel en tokens et en latence.
 
 | Situation | Choix |
 |---|---|

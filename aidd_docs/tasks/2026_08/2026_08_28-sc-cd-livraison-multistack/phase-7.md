@@ -13,7 +13,7 @@ plugins/sc-css/skills/cd
 ├── SKILL.md                                          ✅ borne statique et redirection runtime
 ├── actions/01-local.md                               ✅ build et preview CSS ou statique
 ├── actions/02-server.md                              ✅ artefacts statiques et contrat projet
-├── actions/03-automata.md                            ✅ validation puis remise à sc-tiers
+├── actions/03-automata.md                            ✅ validation puis remise à web-tiers
 ├── references/static-delivery.md                     ✅ build output exclusions cache
 └── evals
     ├── scenarios.json                                ✅ routes et refus CSS
@@ -29,7 +29,7 @@ flowchart TD
   C --> D[Rediriger la livraison globale vers le plugin de langage]
   B -->|non| E[Détecter build preview et sortie statique]
   E --> F[Installer la façade et le contrat projet]
-  F --> G[Remettre automata à sc-tiers]
+  F --> G[Remettre automata à web-tiers]
 ```
 
 ## Test Scope
@@ -72,8 +72,8 @@ journey
 > Remettre une procédure déjà prouvée au propriétaire des enveloppes CI.
 
 1. Valider le contrat contre la façade et la sortie statique.
-2. Invoquer `sc-tiers:cd automata` seulement s’il est disponible.
-3. Sans `sc-tiers`, arrêter sans écriture et nommer le prérequis public.
+2. Invoquer `web-tiers:cd automata` seulement s’il est disponible.
+3. Sans `web-tiers`, arrêter sans écriture et nommer le prérequis public.
 
 ## Test acceptance criteria
 
@@ -81,4 +81,4 @@ journey
 | ---- | ------------------- |
 | 1 | Un site statique est possédé par sc-css, tandis qu’une application composite conserve son unique propriétaire de langage. |
 | 2 | Build, preview, sortie et contrat concordent après deux exécutions ; une sortie inconnue ne produit aucune cible. |
-| 3 | Automata consomme la commande existante via sc-tiers et n’écrit aucun fallback lorsque ce plugin manque. |
+| 3 | Automata consomme la commande existante via web-tiers et n’écrit aucun fallback lorsque ce plugin manque. |

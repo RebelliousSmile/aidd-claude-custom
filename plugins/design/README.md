@@ -14,6 +14,8 @@ Principe directeur : **la seule référence opposable est celle qu'un outil sait
 
 Le détail normatif de chaque règle vit dans [`references/`](references/) ; le processus de chaque verbe, dans son `SKILL.md`.
 
+`copycat` est un contrat d'agent interne (`agents/copycat.md`) chargé par `define`, `enforce` ou un orchestrateur compatible. Ce n'est pas une skill publique et aucune commande `design:copycat` n'existe.
+
 ## Flux
 
 ```

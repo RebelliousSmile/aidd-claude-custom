@@ -139,7 +139,7 @@ flowchart TD
 
 #### Tasks
 
-1. Ecrire `references/sc-pivot-contract.md` (format du spec d'enforcement emis + contrat de retour du receptacle ; reutilise l'idiome de relais existant type sc-tiers:setup help).
+1. Ecrire `references/sc-pivot-contract.md` (format du spec d'enforcement emis + contrat de retour du receptacle ; reutilise l'idiome de relais existant type web-tiers:setup help).
 2. Ecrire `04-pivot.md` (detecte le langage ; mappe -> sc-php/sc-js ; si present, emet le spec et appelle sc-<techno>:design-bridge ; sinon, baseline et le signale).
 
 #### Acceptance criteria

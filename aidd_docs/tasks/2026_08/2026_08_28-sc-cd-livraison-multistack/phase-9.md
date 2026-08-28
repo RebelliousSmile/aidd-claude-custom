@@ -19,7 +19,7 @@ status: done
     ├── sc-php                                        ✏️ manifests, README, changelog, scénarios
     ├── sc-python                                     ✏️ manifests, README, changelog, scénarios
     ├── sc-rust                                       ✏️ manifests, README, changelog, scénarios
-    └── sc-tiers                                      ✏️ manifests, README, changelog, scénarios
+    └── web-tiers                                      ✏️ manifests, README, changelog, scénarios
         fichiers modifiés dans chacun
         ├── .claude-plugin/plugin.json                ✏️ bump mineur et description
         ├── .codex-plugin/plugin.json                 ✏️ même version plus cachebuster

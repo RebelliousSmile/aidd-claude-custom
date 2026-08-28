@@ -33,7 +33,7 @@ Expands a short command into a well-crafted, pre-authored prompt that chains aid
 | 06  | `skillconf`   | Classify enabled skills as auto-trigger vs user-invocable-only → update skillOverrides | settings.json accessible |
 | 07  | `weeklyemail` | Collecte les commits de la semaine sur tous les dépôts GitHub ou GitLab accessibles et génère un e-mail client synthétique | plateforme (`github` / `gitlab`) + optionnel `since` |
 | 08  | `gitit`       | Init git dans `R` + dépôt distant **privé** via gh (si absent) + commit + pull + push + tag SemVer si un push a eu lieu | dossier cible `R` (défaut CWD) `[--public]` |
-| 09  | `mirror`      | Image deux navigateurs côte à côte → diff texte + style → corrections via `design:copycat` | image (chemin ou collée) + optionnel `--ref right` |
+| 09  | `mirror`      | Image deux navigateurs côte à côte → diff texte + style → corrections via le contrat agent `design/agents/copycat.md` | image (chemin ou collée) + optionnel `--ref right` |
 | 10  | `codex-vision` | Audit critique, prouvé et non-mutant du code généré par un autre LLM, avec contrôle explicite des régressions fonctionnelles | diff/branche/commit/chemin (défaut : changements locaux) + contrat optionnel |
 
 ## Default flow

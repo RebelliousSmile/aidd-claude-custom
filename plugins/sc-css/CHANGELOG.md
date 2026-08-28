@@ -1,5 +1,11 @@
 # Changelog — sc-css
 
+## [0.7.1] — 2026-08-28
+
+### Fixed
+
+- Les délégations fournisseur et CI de `sc-css:cd automata` pointent vers le plugin renommé `web-tiers`; le README et les scénarios utilisent le même namespace.
+
 ## [0.7.0] — 2026-08-28
 
 - CD v2 multi-cibles : artefact statique partagé, cache/preuve/récupération par cible et refus des surfaces mutables.

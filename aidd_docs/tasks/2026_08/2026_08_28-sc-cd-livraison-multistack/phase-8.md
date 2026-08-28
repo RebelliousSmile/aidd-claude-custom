@@ -9,7 +9,7 @@ status: done
 > Tree of the final files. ✅ create · ✏️ modify · ❌ delete
 
 ```txt
-plugins/sc-tiers/skills/cd
+plugins/web-tiers/skills/cd
 ├── SKILL.md                                          ✅ fournisseurs et automates
 ├── actions/01-local.md                               ✅ émulateur ou N/A explicite
 ├── actions/02-server.md                              ✅ configuration fournisseur bornée
@@ -26,7 +26,7 @@ plugins/sc-tiers/skills/cd
 
 ```mermaid
 flowchart TD
-  A[Contrat projet validé par le plugin propriétaire] --> B[sc-tiers lit commande cible et déclencheur]
+  A[Contrat projet validé par le plugin propriétaire] --> B[web-tiers lit commande cible et déclencheur]
   B --> C[Configurer noms de secrets sans lire leur valeur]
   C --> D[Émettre l’adaptateur du fournisseur choisi]
   D --> E[Installer la stack dans l’automate]

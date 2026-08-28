@@ -9,7 +9,7 @@ status: done
 > Tree of the final files. ✅ create · ✏️ modify · ❌ delete
 
 ```txt
-plugins/sc-tiers/skills/cd
+plugins/web-tiers/skills/cd
 ├── SKILL.md                                          ✏️ plusieurs cibles déclarées
 ├── actions/{02-server,03-automata}.md                ✏️ prérequis et enveloppes par cible
 ├── references
@@ -58,7 +58,7 @@ journey
 
 ### `1)` Faire de la cible l'unité fournisseur
 
-> Empêcher sc-tiers de confondre les instances d'un projet.
+> Empêcher web-tiers de confondre les instances d'un projet.
 
 1. Exiger un identifiant lorsque le contrat contient plusieurs cibles.
 2. Lire mode, fournisseur, invocation, secrets, preuve, récupération, verrou, phase et révision de cette cible seulement.
@@ -90,6 +90,6 @@ journey
 
 | Task | Acceptance criteria |
 | ---- | ------------------- |
-| 1 | sc-tiers configure une cible explicite, n'accède jamais aux surfaces d'une autre et isole les cibles unsupported. |
+| 1 | web-tiers configure une cible explicite, n'accède jamais aux surfaces d'une autre et isole les cibles unsupported. |
 | 2 | Alwaysdata expose seulement ses prérequis SSH/API et son hook ; aucune logique applicative n'y est dupliquée. |
 | 3 | Passer une cible de server à automata conserve l'invocation, exige un commit propre et une garde courante ; une enveloppe antérieure à la promotion échoue avant mutation. |

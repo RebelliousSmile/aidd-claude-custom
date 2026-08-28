@@ -1,6 +1,6 @@
 # Audit
 
-Orchestrate a PHP code quality review: detect applicable pivots, load them from the plugin, and delegate analysis to `aidd-dev:reviewer`.
+Orchestrate a PHP code quality review: detect applicable pivots, load them from the plugin, and delegate analysis to `aidd-dev:04-audit`.
 
 ## Transversal rules
 
@@ -62,39 +62,40 @@ From the `01-scan` output, identify PHP source directories:
 - Generic: check `composer.json` `autoload.psr-4` for custom source roots
 - Always exclude: `vendor/`
 
-These form the `review_target` for the reviewer agent.
+These form the `review_target` for the AIDD audit.
 
-### Step 4 — Delegate to aidd-dev:reviewer
+### Step 4 — Delegate to aidd-dev:04-audit
 
-Spawn an Agent with `subagent_type: aidd-dev:reviewer`, passing in the prompt:
+Resolve `aidd-dev:04-audit` from the host's available-skills catalogue and read its complete
+`SKILL.md`. Invoke its `code-quality` pillar with:
 
-- `review_target`: the PHP source files/directories identified in Step 3 — the reviewer will read and analyze them
-- `agreed_plan`: the aggregated PHP criteria document built in Step 2 (PHP capability pivots as the standard to verify against)
+- the PHP review targets identified in Step 3 as the audit scope;
+- the capability pivots loaded in Step 2 as supplementary, stack-specific lenses;
+- an instruction that every loaded pivot be accounted for either by a concrete finding, a
+  "reviewed — no finding" coverage note, or an "unscannable" coverage note with its reason.
 
-The reviewer returns a structured report with:
-- items reviewed
-- findings (violations of pivot best practices)
-- completion score
-- quality score
+Preserve the AIDD audit's own report schema and artifact path. Do not spawn the retired
+Do not introduce a retired reviewer agent type or impose a second scoring rubric on the delegated report.
+
+If the package, canonical skill, or `code-quality` pillar is unavailable, stop the delegation,
+name the missing capability, and return no substitute generic audit.
 
 ### Step 5 — Present results
 
-Display the reviewer's report to the user. If `completion_score < 100`, note which criteria were not fully verified and suggest a follow-up targeted review.
+Read the resulting `code-quality.md` artifact. Return its path and a compact delegation receipt
+that maps every loaded pivot to `finding`, `reviewed — no finding`, or `unscannable`. Do not
+copy the report into a competing local report format.
 
 ## Output format
 
-```
-🔍 sc-php audit — PHP code quality review
+```text
+🔍 sc-php audit — PHP code quality
 
-Stack detected: Laravel + Eloquent ORM (+ Bruno testing)
-
-Pivots loaded (2):
-  php/solid.md
-  testing/bruno.md
-
+Pivots loaded: <n>
 Review scope: app/Http/Controllers/, app/Models/, app/Services/
+Delegated to: aidd-dev:04-audit / code-quality
+Artifact: <aidd_docs/tasks/.../code-quality.md>
 
-→ Delegating to aidd-dev:reviewer...
-
-[reviewer report here]
+Pivot receipt:
+  <pivot-path>  <finding | reviewed — no finding | unscannable>
 ```

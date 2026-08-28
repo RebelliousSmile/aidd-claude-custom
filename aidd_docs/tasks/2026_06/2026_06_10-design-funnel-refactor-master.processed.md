@@ -29,7 +29,7 @@ created_at: "2026-06-10T18:29:29Z"
 - Generique multi-stack: WordPress FSE = un adaptateur parmi d'autres (Vue/React/Tailwind/CSS/WP).
 - Enforcement HYBRIDE: baseline lint-core.mjs portable (universel, derive du contrat) + PIVOT technique vers sc-<techno> quand present (realisation native idiomatique). Le design garde le QUOI (contrat, vocabulaire ferme); les sc-* font le COMMENT (linter reel, wiring).
 - Le pivot s'applique a `enforce` (linter) ET `diffuse` (rendu technique). Receptacle ajoute a sc-php + sc-js d'abord (WP + web); python/rust ensuite.
-- Le pivot reutilise l'idiome de relais existant du depot (cf sc-tiers:setup help, et sc-*:sniff -> .claude/rules/07-quality consommes par web-optimize). Interface = un contrat de pivot partage (design/references/sc-pivot-contract.md).
+- Le pivot reutilise l'idiome de relais existant du depot (cf web-tiers:setup help, et sc-*:sniff -> .claude/rules/07-quality consommes par web-optimize). Interface = un contrat de pivot partage (design/references/sc-pivot-contract.md).
 - Philo mobile-first/a11y/no-emoji = profil activable (rapatrie depuis ex-setup), plus impose d'office.
 - Migration legacy absorbee dans l'entonnoir (destructure critique l'existant, enforce porte la propagation).
 - Le contrat 3-couches est rattache a `adjust`, pas a `define`.

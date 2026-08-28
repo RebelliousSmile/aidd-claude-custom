@@ -19,7 +19,7 @@
   { "prompt": "alias bump-plugin", "expect_action": "bump-plugin" },
   { "prompt": "bump-plugin", "expect_action": "bump-plugin" },
   { "prompt": "release plugin writing", "expect_action": "bump-plugin" },
-  { "prompt": "monter en version sc-tiers", "expect_action": "bump-plugin" },
+  { "prompt": "monter en version web-tiers", "expect_action": "bump-plugin" },
   { "prompt": "bumper le plugin overcode", "expect_action": "bump-plugin" },
   { "prompt": "just run the plan", "expect_action": null },
   { "prompt": "just run the review", "expect_action": null },

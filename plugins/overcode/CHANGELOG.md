@@ -2,6 +2,18 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/overcode plugins/aidd-overlay` (le plugin s'appelait `aidd-overlay` avant la 3.0.0).
 
+## [5.2.0] — 2026-08-28
+
+### Added
+
+- La skill `extract-pdf`, absorbée depuis le plugin autonome `pdf`, extrait les gros PDF en plusieurs sessions vers des sources Markdown brutes. Ses scripts, prompts, références, métadonnées et scénarios restent regroupés dans la skill.
+- Le pipeline ne référence plus les rôles RPG/TTRPG retirés et s’arrête sous `sources/` tant qu’aucun rôle aval compatible n’est choisi explicitement.
+
+### Fixed
+
+- L’alias `mirror` résout et charge le contrat de l’agent interne `design/agents/copycat.md` avant délégation, sans appeler une skill `design:copycat` inexistante.
+- Le README et la documentation des alias décrivent la même frontière entre `overcode` et `design`.
+
 ## [Unreleased]
 
 ### Added
@@ -143,18 +155,18 @@ Les quatre skills `*-optimize` chargeaient un pivot quand il était là et repli
 - **La quittance se lit par stack, pas par dépôt** (DEC-008) : un projet Django + Alpine rend deux paires, pas un verdict moyenné.
 - **« Vide » se lit sur les règles, pas sur les fichiers.** Un réceptacle contenant un `.gitkeep` reste vide : ce qui compte est qu'aucune règle n'y soit chargeable.
 - **`no provider` ne se devine pas.** Nouvelle référence partagée `references/pivot-providers.md` — table `<stack> → <plugin>, <commande>`, **33 lignes**, citée par les quatre skills et recopiée par aucune. Une skill qui tourne dans un projet ne voit pas les autres plugins de la marketplace ; elle ne peut donc rien dériver à l'exécution, d'où une table statique et unique. Une stack absente s'y rend `no provider`, jamais un nom inventé.
-- **La commande est portée par plugin, jamais par famille.** `sc-tiers` s'installe par `/sc-tiers:setup`, les quatre `sc-<langage>` par `/sc-<langage>:sniff` — `sc-tiers` n'a pas de skill `sniff`, et lui prêter un gabarit uniforme remplacerait un remède faux par un autre.
+- **La commande est portée par plugin, jamais par famille.** `web-tiers` s'installe par `/web-tiers:setup`, les quatre `sc-<langage>` par `/sc-<langage>:sniff` — `web-tiers` n'a pas de skill `sniff`, et lui prêter un gabarit uniforme remplacerait un remède faux par un autre.
 - **`seo-optimize` n'a aucun fournisseur, et c'est écrit.** `seo-pivots-<sitetype>.md` est une interface publique qu'aucun plugin ne remplit : toute absence s'y rend `empty receptacle` / `no provider`, jamais `not installed` — il n'y a aucun installeur à recommander. Un fichier déposé à la main y est chargé et garde la précédence.
 - **Recommander n'est pas installer** (DEC-007 §2). Une skill `*-optimize` cite le plugin et sa commande ; elle ne lance jamais l'installeur.
 - **`web-optimize` distingue deux remèdes que son texte confondait** : installer les règles *ici* (le plugin est déjà présent dans la plupart des cas) et ajouter un plugin absent. Réinstaller le plugin n'a jamais été le remède.
 
 `docs/concepts.md` gagne la section correspondante — les quatre états, les deux précisions de lecture, et la table `Skill | Pivots consommés | Qui les installe`, dont la ligne `seo-optimize` porte `personne`. Le `README.md` du plugin remplace « l'absence est énoncée » par la quittance elle-même.
 
-Deux suites behave accompagnent le lot : `skills/web-optimize/evals/pivot-provenance-scenarios.md` (12 scénarios, la quittance côté consommateur) et, chez `sc-tiers`, la symétrique côté installeur. Elles sont **appendo-registres** : chaque rejeu ajoute son bloc sous le précédent, il n'en remplace aucun.
+Deux suites behave accompagnent le lot : `skills/web-optimize/evals/pivot-provenance-scenarios.md` (12 scénarios, la quittance côté consommateur) et, chez `web-tiers`, la symétrique côté installeur. Elles sont **appendo-registres** : chaque rejeu ajoute son bloc sous le précédent, il n'en remplace aucun.
 
 ### Fixed — deux tables de mapping qui annonçaient des pivots que personne n'écrit
 
-`web-optimize/references/framework-mapping.md` et `data-optimize/references/api-mapping.md` portaient chacune une table `Plugin → stack` dite « informative », recopiée de `pivot-providers.md` et dérivée depuis. La première prêtait des pivots perf à `sc-tiers` (qui n'en installe aucun) et des pivots Actix/Rocket à `sc-rust` (jamais écrits) ; la seconde annonçait un pivot Sea-ORM inexistant, omettait `rusqlite` qui existe, et listait encore Supabase / DynamoDB / Hasura après leur retrait par `sc-tiers` 0.3.0. **Les deux tables sont supprimées** plutôt que corrigées : un second exemplaire dérive de nouveau en silence, la source unique est la seule correction stable. Les deux fichiers perdent au passage la phrase « les deux fichiers de repli », fausse depuis que le repli est décrit par la quittance elle-même.
+`web-optimize/references/framework-mapping.md` et `data-optimize/references/api-mapping.md` portaient chacune une table `Plugin → stack` dite « informative », recopiée de `pivot-providers.md` et dérivée depuis. La première prêtait des pivots perf à `web-tiers` (qui n'en installe aucun) et des pivots Actix/Rocket à `sc-rust` (jamais écrits) ; la seconde annonçait un pivot Sea-ORM inexistant, omettait `rusqlite` qui existe, et listait encore Supabase / DynamoDB / Hasura après leur retrait par `web-tiers` 0.3.0. **Les deux tables sont supprimées** plutôt que corrigées : un second exemplaire dérive de nouveau en silence, la source unique est la seule correction stable. Les deux fichiers perdent au passage la phrase « les deux fichiers de repli », fausse depuis que le repli est décrit par la quittance elle-même.
 
 `web-optimize/SKILL.md` : le slug de stack `nuxt3` devient `nuxt`, et la liste gagne l'avertissement qui manquait — **un slug de stack n'est pas un nom de fichier de pivot** (`svelte-kit` → `perf-pivots-sveltekit.md`, `static-html` et `astro` → `perf-pivots-static.md`, `php-laravel` → `perf-pivots-laravel.md`, `alpine-spa` → `perf-pivots-alpine.md`). Le pivot se résout par `pivot-providers.md`, jamais par collage du slug dans le nom.
 

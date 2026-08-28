@@ -8,21 +8,31 @@ Le **détail des skills de chaque plugin vit dans son propre README** — ce tab
 
 | Plugin | Doc | `recommended` | Description |
 |---|---|---|---|
-| [`overcode`](plugins/overcode/README.md) | [README](plugins/overcode/README.md) · [CHANGELOG](plugins/overcode/CHANGELOG.md) | ✅ | Socle commun — workflows projet-agnostiques (recherche documentaire, alias, harvest, audits perf, gouvernance des tests…) |
+| [`overcode`](plugins/overcode/README.md) | [README](plugins/overcode/README.md) · [CHANGELOG](plugins/overcode/CHANGELOG.md) | ✅ | Socle commun — recherche et extraction PDF, alias, maintenance, audits et gouvernance des tests |
 | [`design`](plugins/design/README.md) | [README](plugins/design/README.md) · [CHANGELOG](plugins/design/CHANGELOG.md) | — | Création, critique, figeage, contrôle et diffusion d'un design system. Chaque skill fonctionne seule ; le cycle complet reste disponible pour les refontes globales. |
 | [`sc-js`](plugins/sc-js/README.md) | [README](plugins/sc-js/README.md) · [CHANGELOG](plugins/sc-js/CHANGELOG.md) | — | Stack JavaScript : Nuxt / Vue SPA / Vite / Alpine / Astro |
 | [`sc-php`](plugins/sc-php/README.md) | [README](plugins/sc-php/README.md) · [CHANGELOG](plugins/sc-php/CHANGELOG.md) | — | Stack PHP : Laravel / Symfony / WordPress / HTMX |
 | [`sc-css`](plugins/sc-css/README.md) | [README](plugins/sc-css/README.md) · [CHANGELOG](plugins/sc-css/CHANGELOG.md) | — | Couche CSS pure : architecture (BEM, utility-first, CSS Modules, ITCSS), audit, modernisation |
 | [`sc-python`](plugins/sc-python/README.md) | [README](plugins/sc-python/README.md) · [CHANGELOG](plugins/sc-python/CHANGELOG.md) | — | Stack Python : Django / FastAPI / Flask / Celery |
 | [`sc-rust`](plugins/sc-rust/README.md) | [README](plugins/sc-rust/README.md) · [CHANGELOG](plugins/sc-rust/CHANGELOG.md) | — | Stack Rust : Axum / Actix-web |
-| [`sc-tiers`](plugins/sc-tiers/README.md) | [README](plugins/sc-tiers/README.md) · [CHANGELOG](plugins/sc-tiers/CHANGELOG.md) | — | SaaS tiers : Firebase, Klaviyo, GTM, Clarity, PSI |
-| [`obs`](plugins/obs/README.md) | [README](plugins/obs/README.md) · [CHANGELOG](plugins/obs/CHANGELOG.md) | — | Notes Obsidian — projets Pro, tri d'emails, organisation de l'arborescence et ingestion PDF |
+| [`web-tiers`](plugins/web-tiers/README.md) | [README](plugins/web-tiers/README.md) · [CHANGELOG](plugins/web-tiers/CHANGELOG.md) | — | SaaS tiers : Firebase, Klaviyo, GTM, Clarity, PSI |
+| [`obs`](plugins/obs/README.md) | [README](plugins/obs/README.md) · [CHANGELOG](plugins/obs/CHANGELOG.md) | — | Notes Obsidian — projets Pro, tri d'emails et organisation de l'arborescence |
 
-### Livraison homogène avec `sc-*:cd`
+### Livraison homogène avec `sc-*:cd` et `web-tiers:cd`
 
-Les plugins `sc-css`, `sc-js`, `sc-php`, `sc-python`, `sc-rust` et `sc-tiers` partagent les actions `local`, `server` et `automata`. Le plugin de langage possède une unique façade projet (`deploy:*`) ; chaque invocation sélectionne une cible nommée. Une cible combine une phase (`staging` ou `production`), un mode (`server` ou `automata`), un fournisseur, une garde de cycle de vie et un verrou indépendant. `sc-tiers` configure seulement les prérequis et enveloppes pour SSH, Alwaysdata, Railway, Heroku, GitHub Actions ou GitLab CI.
+Les plugins `sc-css`, `sc-js`, `sc-php`, `sc-python`, `sc-rust` et `web-tiers` partagent les actions `local`, `server` et `automata`. Le plugin de langage possède une unique façade projet (`deploy:*`) ; chaque invocation sélectionne une cible nommée. Une cible combine une phase (`staging` ou `production`), un mode (`server` ou `automata`), un fournisseur, une garde de cycle de vie et un verrou indépendant. `web-tiers` configure seulement les prérequis et enveloppes pour SSH, Alwaysdata, Railway, Heroku, GitHub Actions ou GitLab CI.
 
 Les choix restent natifs à la stack : pnpm côté JavaScript, façade racine existante côté PHP, gestionnaire existant côté Python, Cargo/xtask versionné côté Rust, et propriété sc-css uniquement pour un site statique pur. Les surfaces `code`, `schema`, `data` et `media` sont gouvernées séparément : le local fait autorité sur un staging de présentation, tandis qu'une production conserve l'autorité sur ses données et médias. La synchronisation staging compare des manifestes et ne transfère que les différences ; aucun flux cible-à-cible n'est permis.
+
+### Appels entre plugins
+
+| Appelant | Cible vérifiée | Contrat |
+|---|---|---|
+| `sc-js:audit`, `sc-php:audit`, `sc-python:audit`, `sc-rust:audit` | `aidd-dev:04-audit`, pilier `code-quality` | Les pivots de stack deviennent des critères supplémentaires du rapport AIDD. |
+| `sc-*:cd automata` | `web-tiers:cd automata` | La stack conserve la façade applicative ; `web-tiers` possède seulement l'enveloppe fournisseur/CI. |
+| `overcode:alias mirror` | `design/agents/copycat.md` | `copycat` est un contrat de sous-agent interne, pas une skill publique. |
+| `obs:project` (projet logiciel) | `aidd-context:01-bootstrap` | Le cadrage d'architecture logicielle reste dans AIDD ; `obs` gère uniquement les notes de projet. |
+| `overcode:extract-pdf` | aucune cible implicite | L'extraction s'arrête sous `sources/`; aucun ancien rôle RPG/TTRPG n'est invoqué. |
 
 ## Installation
 
@@ -37,7 +47,7 @@ codex plugin add aidd-refine@aidd-framework
 codex plugin add design@my-marketplace
 ```
 
-La dernière commande s'exécute après l'enregistrement de `my-marketplace` depuis `.agents/plugins/marketplace.json`. Répéter avec `overcode`, `obs` ou un plugin `sc-*` selon les besoins, puis ouvrir une nouvelle session Codex.
+La dernière commande s'exécute après l'enregistrement de `my-marketplace` depuis `.agents/plugins/marketplace.json`. Répéter avec `overcode`, `obs`, `web-tiers` ou un plugin `sc-*` selon les besoins, puis ouvrir une nouvelle session Codex.
 
 ### 1. Enregistrer le marketplace (une seule fois, global)
 
@@ -87,8 +97,9 @@ Par projet — `.claude/settings.json` du projet, ou via commande :
 | CSS pur (architecture, audit, modernisation) | `sc-css` |
 | Web Python | `sc-python` |
 | Web Rust | `sc-rust` |
-| SaaS tiers (Firebase, Klaviyo, GTM…) | `sc-tiers` |
+| SaaS tiers (Firebase, Klaviyo, GTM…) | `web-tiers` |
 | Notes Obsidian | `obs` |
+| Extraction de sources PDF | `overcode` (`extract-pdf`) |
 
 ## Licence
 

@@ -32,7 +32,7 @@ risk_score: 3
 **Hors perimetre.**
 - **`sc-godot`** — son repertoire `skills/` est **vide** : aucun squelette `sniff`, aucun arbre `capabilities/`. Ecrire un pivot y suppose de creer d'abord une skill entiere, disproportionne face a un fichier de 120 lignes. Le plugin reste en 0.1.0 sans pivot ; l'absence est deja un cas nomme par le contrat (*Absence*).
 - **Declenchement, provenance et quittance des pivots** — issue #11.
-- **Faux installeurs** (`sc-css` declare 6 pivots pour 0 fichier, `sc-tiers` 4 pour 1) — issue #11, sauf le sous-ensemble strictement necessaire a la part 5.
+- **Faux installeurs** (`sc-css` declare 6 pivots pour 0 fichier, `web-tiers` 4 pour 1) — issue #11, sauf le sous-ensemble strictement necessaire a la part 5.
 - **Suite `control` exercant un vrai pivot sur une fixture JS** — appelle une troisieme fixture, donc une decision de harnais. A rouvrir separement.
 
 **Ne rien committer ni pousser.** Les bumps de version sont **decrits** par chaque part ; l'utilisateur declenche les commits. Rappel DEC-004/`plugins-marketplace.md` : la marketplace est `source: directory`, un install capture le disque — bump et contenu doivent atterrir dans **le meme commit**, et aucun install ne tourne sur un arbre sale.

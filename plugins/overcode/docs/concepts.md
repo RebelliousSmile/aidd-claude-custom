@@ -23,7 +23,7 @@ Aucune skill d'`overcode` ne code en dur la connaissance d'une stack. C'est le p
 Une skill d'audit fonctionne en deux temps :
 
 1. **Détecter** la stack depuis les manifestes du projet (`package.json`, `composer.json`, `pyproject.toml`, `Cargo.toml`, les lockfiles).
-2. **Charger les pivots** — des fichiers de règles installés par les plugins `sc-*` sous `.claude/rules/07-quality/`. Aucun pivot trouvé → un schéma générique s'applique.
+2. **Charger les pivots** — des fichiers de règles installés par les plugins spécialisés (`sc-*` et `web-tiers`) sous `.claude/rules/07-quality/`. Aucun pivot trouvé → un schéma générique s'applique.
 
 ### La quittance : ce que la sortie dit de ce qu'elle n'a pas chargé
 
@@ -43,7 +43,7 @@ Le rationnel complet est dans DEC-010 (`aidd_docs/internal/decisions/`, dépôt 
 | Skill | Pivots consommés | Qui les installe |
 |---|---|---|
 | `web-optimize` | `perf-pivots-*.md` | `sc-js`, `sc-php`, `sc-python`, `sc-rust` — via leur skill `sniff` |
-| `data-optimize` | `data-pivots-*.md` | les quatre mêmes, plus `sc-tiers` via `setup` pour les SaaS de données |
+| `data-optimize` | `data-pivots-*.md` | les quatre mêmes, plus `web-tiers` via `setup` pour les SaaS de données |
 | `ap-optimize` | `ap-pivots-*.md` | `sc-python` seul |
 | `seo-optimize` | `seo-pivots-*.md` | **personne** — le réceptacle est déclaré, aucun plugin ne le remplit |
 
@@ -51,7 +51,7 @@ La dernière ligne est l'état `no provider` à l'état pur, et elle est écrite
 
 Le détail par stack — quel plugin couvre quelle stack, et sous quelle commande — vit dans `references/pivot-providers.md`, pas ici : cette page nomme le plugin par famille, ce fichier fait la correspondance par stack.
 
-L'inversion de dépendance est délibérée : `overcode` ne connaît pas Laravel ni Nuxt. C'est `sc-php` et `sc-js` qui **déposent** leur savoir dans le projet, et `overcode` qui le ramasse. Ajouter le support d'une stack ne demande donc jamais de toucher `overcode` — c'est ce qui permet aux plugins `sc-*` d'évoluer à leur propre rythme.
+L'inversion de dépendance est délibérée : `overcode` ne connaît pas Laravel, Nuxt ni Firebase. Ce sont `sc-php`, `sc-js` et `web-tiers` qui **déposent** leur savoir dans le projet, et `overcode` qui le ramasse. Ajouter le support d'une stack ou d'un service ne demande donc jamais de toucher `overcode` — les plugins spécialisés évoluent à leur propre rythme.
 
 Conséquence pratique : `/overcode:web-optimize` sur un projet Laravel sans `sc-php` installé produit un audit générique correct mais moins précis. L'installation du pivot est ce qui fait la différence entre « ton bundle est trop gros » et « ton `@vite` charge le manifest en dev à chaque requête ».
 

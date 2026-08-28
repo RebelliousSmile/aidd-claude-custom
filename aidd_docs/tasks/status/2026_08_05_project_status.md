@@ -17,7 +17,7 @@ description: Rapport de statut projet — audit, sécurité, plan d'action.
 | Issues ouvertes | 4 (#8, #9, #12, #13 — remote `RebelliousSmile/my-claude-marketplace`) |
 | Arbre de travail | 12 fichiers modifiés (non committés) + `aidd_docs/tasks/2026_08/` non suivi (2 fichiers) |
 
-**État de l'arbre non committé** : correspond à l'exécution en cours des Phases 1/2/5 du plan `aidd_docs/tasks/2026_08/2026_08_03-13-detection-rust-fixture-s7-run-3.md` (issue #13) — détection Rust ajoutée dans `web-optimize/SKILL.md` et `data-optimize/SKILL.md`, suites `evals/pivot-provenance-scenarios.md` et `evals/pivot-install-scenarios.md` étendues, versions bumpées en cohérence (`overcode` 4.3.0→4.4.0, `sc-tiers` 0.3.0→0.3.1, marketplace 3.11.0→3.12.0, dans le même diff que le contenu — conforme à la règle du dépôt). Rien n'a été committé ni poussé (conforme à la consigne du plan : « Ne rien committer ni pousser — déclenchement utilisateur »).
+**État de l'arbre non committé** : correspond à l'exécution en cours des Phases 1/2/5 du plan `aidd_docs/tasks/2026_08/2026_08_03-13-detection-rust-fixture-s7-run-3.md` (issue #13) — détection Rust ajoutée dans `web-optimize/SKILL.md` et `data-optimize/SKILL.md`, suites `evals/pivot-provenance-scenarios.md` et `evals/pivot-install-scenarios.md` étendues, versions bumpées en cohérence (`overcode` 4.3.0→4.4.0, `web-tiers` 0.3.0→0.3.1, marketplace 3.11.0→3.12.0, dans le même diff que le contenu — conforme à la règle du dépôt). Rien n'a été committé ni poussé (conforme à la consigne du plan : « Ne rien committer ni pousser — déclenchement utilisateur »).
 
 ## Digest des tâches (`aidd_docs/tasks/`)
 
@@ -119,7 +119,7 @@ Recherche `rm -rf|--force|force-push|reset --hard|git push.*-f|--no-verify|--no-
 
 ### J5 — Clôture #13 + versions (60min)
 - Dépouiller les registres du run 3, rédiger le corps final de #14 à partir de ce qui est adjugé (~30min)
-- Vérifier cohérence des 3 bumps déjà en place dans l'arbre de travail (`overcode` 4.4.0, `sc-tiers` 0.3.1, marketplace 3.12.0) contre le contenu final avant commit (~15min) `pnpm test`
+- Vérifier cohérence des 3 bumps déjà en place dans l'arbre de travail (`overcode` 4.4.0, `web-tiers` 0.3.1, marketplace 3.12.0) contre le contenu final avant commit (~15min) `pnpm test`
 - Committer la clôture de #13 (~15min) `git add && git commit`
 
 ### J6 — Couverture `evals/` : sc-css (60min)

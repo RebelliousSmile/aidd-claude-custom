@@ -14,7 +14,7 @@ plugins/sc-php/skills
 │   ├── SKILL.md                                      ✅ stratégies WordPress Laravel Symfony
 │   ├── actions/01-local.md                           ✅ wp-env ou Compose selon framework
 │   ├── actions/02-server.md                          ✅ façade Composer, contrat et cible SSH
-│   ├── actions/03-automata.md                        ✅ validation puis remise à sc-tiers
+│   ├── actions/03-automata.md                        ✅ validation puis remise à web-tiers
 │   ├── references
 │   │   ├── command-facade.md                         ✅ scripts Composer et wrappers requis
 │   │   ├── php-frameworks.md                         ✅ stratégies PHP couvertes

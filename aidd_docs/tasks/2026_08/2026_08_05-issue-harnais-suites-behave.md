@@ -9,7 +9,7 @@
 
 Deux suites behave couvrent les pivots `.claude/rules/07-quality/` :
 
-- `plugins/sc-tiers/skills/setup/evals/pivot-install-scenarios.md` — l'installation (9 lignes, S1–S9)
+- `plugins/web-tiers/skills/setup/evals/pivot-install-scenarios.md` — l'installation (9 lignes, S1–S9)
 - `plugins/overcode/skills/web-optimize/evals/pivot-provenance-scenarios.md` — la quittance et la détection (12 lignes, S1–S12)
 
 Quatre runs ont eu lieu (2026-07-30, 2026-08-03 ×2, 2026-08-05). Les correctifs qu'ils ont produits sont livrés. **Ce qui suit est ce que les runs ont trouvé sur le harnais lui-même et que personne n'a corrigé** — chaque point est daté, mesuré, et adossé au registre de la suite concernée.
@@ -60,7 +60,7 @@ La famille **détection** de la suite provenance est **2/2 verte** et n'a reçu 
 
 ## 5. La couverture retirée n'est suivie nulle part
 
-Tous les verts d'une suite d'honnêteté s'obtiennent aussi **par retrait** : « toute source déclarée résout sur disque » se satisfait en publiant la source *ou* en supprimant la déclaration, et les correctifs de #11 ont choisi le retrait — `sc-tiers` 12 → 9 cibles, `sc-css` 6 → 0. C'est légitime et voulu. Mais rien ne trace ce qui a été retiré, donc un run ultérieur lira ces PASS comme un progrès de couverture.
+Tous les verts d'une suite d'honnêteté s'obtiennent aussi **par retrait** : « toute source déclarée résout sur disque » se satisfait en publiant la source *ou* en supprimant la déclaration, et les correctifs de #11 ont choisi le retrait — `web-tiers` 12 → 9 cibles, `sc-css` 6 → 0. C'est légitime et voulu. Mais rien ne trace ce qui a été retiré, donc un run ultérieur lira ces PASS comme un progrès de couverture.
 
 Slugs actuellement **`no provider`** et jamais suivis : `supabase`, `dynamodb`, `hasura`, `sequelize`, `sea-orm`, `rest-vanilla` côté data · `rust-vanilla` côté perf · les **six** de `sc-css`. Certains sont des décisions (`sc-css`, cf. `pivots-testing.md`), d'autres des dettes — et rien ne les distingue aujourd'hui. Une liste datée, avec le motif par ligne, suffit.
 

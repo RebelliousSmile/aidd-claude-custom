@@ -75,7 +75,7 @@ journey
 
 > Garder le même artefact et la même façade en server et automata.
 
-1. Passer contrat, cible et invocation inchangés à sc-tiers.
+1. Passer contrat, cible et invocation inchangés à web-tiers.
 2. Propager statut, preuve d'entrée et preuve d'asset empreinté.
 3. Tester plusieurs cibles avec caches différents sans mélanger leurs métadonnées.
 4. Rejouer la réconciliation et obtenir zéro diff.

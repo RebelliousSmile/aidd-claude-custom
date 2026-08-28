@@ -28,7 +28,7 @@ plugins
 ├── sc-php/references/cd-project-contract.schema.json    ✅ copie générée portable
 ├── sc-python/references/cd-project-contract.schema.json ✅ copie générée portable
 ├── sc-rust/references/cd-project-contract.schema.json   ✅ copie générée portable
-└── sc-tiers/references/cd-project-contract.schema.json  ✅ copie générée portable
+└── web-tiers/references/cd-project-contract.schema.json  ✅ copie générée portable
 ```
 
 ## User Journey
@@ -37,7 +37,7 @@ plugins
 flowchart TD
   A[Plugin de stack installe le script deploy] --> B[Il écrit deploy/contract.json]
   B --> C[La skill confronte manifeste schéma et façade]
-  C -->|valide| D[sc-tiers lit la commande exacte]
+  C -->|valide| D[web-tiers lit la commande exacte]
   D --> E[CI ou PaaS appelle cette commande]
   C -->|invalide| F[Aucun automate n’est écrit]
 ```
@@ -85,12 +85,12 @@ journey
 
 ### `3)` Prouver le passage langage vers automate
 
-> Empêcher `sc-tiers` de redétecter ce que le plugin de stack a déjà décidé.
+> Empêcher `web-tiers` de redétecter ce que le plugin de stack a déjà décidé.
 
 1. Fixer la propriété : un plugin d’application possède la façade racine ; les autres langages et CSS contribuent par scope ; tiers possède fournisseurs et enveloppes CI sans posséder la procédure.
 2. Prouver sur fixtures que le consommateur reprend textuellement commande, répertoire et opérations du producteur.
 3. Encoder `manual` comme défaut et n’accepter `push` que lorsqu’il est explicitement déclaré dans le contrat projet.
-4. Si `sc-tiers` n’est pas disponible, arrêter `automata` en nommant le prérequis ; ne jamais installer un plugin ni générer un fallback concurrent implicitement.
+4. Si `web-tiers` n’est pas disponible, arrêter `automata` en nommant le prérequis ; ne jamais installer un plugin ni générer un fallback concurrent implicitement.
 
 ## Test acceptance criteria
 
@@ -98,4 +98,4 @@ journey
 | ---- | ------------------- |
 | 1 | Un contrat valide décrit une unique façade racine, borne ses contributeurs, ne contient aucun secret et rend source, preuve et récupération observables par opération. |
 | 2 | Les six copies sont identiques au schéma canonique ; l’oracle rejette les fixtures divergentes sans devenir une dépendance runtime ; chaque façade native porte ses préflight. |
-| 3 | Les fixtures composite et automata conservent une façade racine et reprennent sa commande ; double propriétaire et déclencheur implicite échouent ; l’absence de `sc-tiers` s’arrête sans écriture. |
+| 3 | Les fixtures composite et automata conservent une façade racine et reprennent sa commande ; double propriétaire et déclencheur implicite échouent ; l’absence de `web-tiers` s’arrête sans écriture. |

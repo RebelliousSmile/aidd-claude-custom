@@ -13,7 +13,7 @@ plugins/sc-rust/skills/cd
 ├── SKILL.md                                          ✅ stratégies crate workspace service binaire
 ├── actions/01-local.md                               ✅ toolchain services et run local
 ├── actions/02-server.md                              ✅ release artefact migration contrat et cible
-├── actions/03-automata.md                            ✅ validation puis remise à sc-tiers
+├── actions/03-automata.md                            ✅ validation puis remise à web-tiers
 ├── references
 │   ├── command-facade.md                             ✅ arbitrage Cargo et task runner
 │   ├── releases.md                                   ✅ version tag artefact cible et rollback

@@ -83,7 +83,7 @@ journey
 1. Réconcilier les anciennes commandes pnpm, PowerShell ou Composer derrière une seule implémentation.
 2. Laisser JavaScript et CSS contribuer aux scopes du thème sans créer une autre façade.
 3. Faire porter cible, phase et opération par le contrat et les arguments existants.
-4. Déléguer uniquement l'enveloppe fournisseur à sc-tiers.
+4. Déléguer uniquement l'enveloppe fournisseur à web-tiers.
 
 ## Test acceptance criteria
 

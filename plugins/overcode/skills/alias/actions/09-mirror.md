@@ -1,6 +1,6 @@
 # Mirror
 
-Reçoit une image montrant deux navigateurs côte à côte (référence vs implémentation courante), identifie toutes les différences de texte et de style, puis les corrige en s'appuyant sur `design:copycat`.
+Reçoit une image montrant deux navigateurs côte à côte (référence vs implémentation courante), identifie toutes les différences de texte et de style, puis les corrige en chargeant le contrat feuille `design/agents/copycat.md` dans un sous-agent natif.
 
 Avec `--page`, enchaîne automatiquement plusieurs screenshots page par page.
 
@@ -128,11 +128,11 @@ Si un texte présent dans l'implémentation est absent de la référence, le sup
 
 ---
 
-### Step 3 — Invocation de design:copycat *(mode A)*
+### Step 3 — Exécution du contrat agent copycat *(mode A)*
 
 **Court-circuit** : si le Step 1 n'a relevé aucun écart susceptible d'être de style (seulement des écarts texte déjà traités au Step 2 et/ou des écarts layout), sauter ce Step et passer au Step 4b — ne pas invoquer `copycat` pour rien. (S'il n'y a aucun écart du tout, aller au Step 6.)
 
-Sinon, invoquer `/design:copycat` avec le prompt structuré suivant, en substituant les variables contextuelles :
+Sinon, résoudre la racine du plugin `design`, charger intégralement `agents/copycat.md`, puis fournir ce contrat et le prompt structuré suivant à un sous-agent natif de l'hôte. `copycat` est un agent interne, pas une skill invocable : ne jamais construire une commande de skill à partir de ce nom.
 
 ---
 
@@ -157,7 +157,7 @@ Sinon, invoquer `/design:copycat` avec le prompt structuré suivant, en substitu
 
 Lire la sortie de `copycat` attentivement avant de passer au Step 4.
 
-Si `/design:copycat` est indisponible : pour chaque propriété divergente du tableau Step 1, identifier manuellement le token ou la règle CSS dans le codebase et noter la correction à appliquer en Step 4.
+Si le contrat `agents/copycat.md` est absent ou illisible : arrêter la branche d'analyse de style, nommer le fichier manquant et conserver les écarts texte/layout déjà établis. Ne pas simuler le contrat par une analyse locale silencieuse.
 
 ---
 

@@ -2,9 +2,9 @@
 
 *Socle commun de la marketplace : workflows projet-agnostiques qui étendent le framework [AIDD](https://github.com/ai-driven-dev/aidd-framework).*
 
-Plugin principal, installé globalement (`recommended`). Il ne cible pas une stack : il ajoute des workflows transversaux de maintenance, d'analyse, de documentation et de planification, plus des chaînes d'alias pour enchaîner des skills AIDD.
+Plugin principal, installé globalement (`recommended`). Il ne cible pas une stack : il ajoute des workflows transversaux de maintenance, d'analyse, d'ingestion documentaire et de planification, plus des chaînes d'alias pour enchaîner des skills AIDD.
 
-Aucune skill ne code en dur la connaissance d'une stack : les audits détectent la stack puis chargent les **pivots** déposés par les plugins `sc-*` sous `.claude/rules/07-quality/`. Sans pivot, un schéma générique s'applique — et la sortie rend une **quittance** qui sépare quatre états, une ligne par stack : chargé, aucun fournisseur, fournisseur non installé ici, réceptacle sans règle. Détail dans [`docs/concepts.md`](docs/concepts.md).
+Aucune skill ne code en dur la connaissance d'une stack ou d'un service : les audits chargent les **pivots** déposés par les plugins spécialisés (`sc-*` et `web-tiers`) sous `.claude/rules/07-quality/`. Sans pivot, un schéma générique s'applique — et la sortie rend une **quittance** qui sépare quatre états, une ligne par stack : chargé, aucun fournisseur, fournisseur non installé ici, réceptacle sans règle. Détail dans [`docs/concepts.md`](docs/concepts.md).
 
 ## Documentation
 
@@ -39,8 +39,9 @@ Le processus de chaque skill vit dans son `SKILL.md` et ses `actions/`.
 | `status` | `/overcode:status <action>` | État durable du projet — mémoire, rapport, audit et synchronisation d'un backlog Markdown depuis les issues GitHub/GitLab, avec filtre et regroupement milestone |
 | `baby` | `/overcode:baby` | Explique, réécrit ou compare un sujet en langage simple, sans jargon non défini |
 | `research` | `/overcode:research` | Recherche documentaire cross-référencée et extraction de terminologie |
+| `extract-pdf` | `/overcode:extract-pdf <action>` | Extraction multi-session de gros PDF vers des sources Markdown brutes sous `sources/`, sans synthèse aval implicite |
 
-Chaînes d'alias fournies : `rechallenge`, `endtask`, `bump-plugin`, `previously`, `smarten`, `skillconf`, `weeklyemail`, `gitit`, `mirror`, `codex-vision` — détail dans [`docs/aliases.md`](docs/aliases.md).
+Chaînes d'alias fournies : `rechallenge`, `endtask`, `bump-plugin`, `previously`, `smarten`, `skillconf`, `weeklyemail`, `gitit`, `mirror`, `codex-vision` — détail dans [`docs/aliases.md`](docs/aliases.md). `mirror` charge le contrat feuille `design/agents/copycat.md` dans un sous-agent natif ; il n'appelle aucune skill `design:copycat`.
 
 ## Licence
 

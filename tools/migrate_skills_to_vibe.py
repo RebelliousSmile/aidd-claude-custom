@@ -75,7 +75,7 @@ PLUGIN_TAGS = {
     "sc-php": ["php", "backend", "audit"],
     "sc-python": ["python", "backend", "audit"],
     "sc-rust": ["rust", "backend", "audit"],
-    "sc-tiers": ["saas", "third-party", "integration"],
+    "web-tiers": ["saas", "third-party", "integration"],
 }
 
 # Tags supplémentaires par skill name

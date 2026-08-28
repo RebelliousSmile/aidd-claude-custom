@@ -24,6 +24,7 @@ Les skills s'invoquent sous la forme `/overcode:<skill>`.
 | « cette feature marche-t-elle de bout en bout ? » | [`journey`](#recette--journey) |
 | « je ne comprends rien à ce sujet » | [`baby`](#vulgarisation--baby) |
 | « il me faut une recherche documentaire sourcée » | [`research`](#recherche-documentaire--research) |
+| « je veux extraire un gros PDF en plusieurs sessions » | [`extract-pdf`](#extraction-pdf--extract-pdf) |
 | « je veux enchaîner plusieurs skills » | [`alias`](aliases.md) |
 
 ---
@@ -72,7 +73,7 @@ Si la capacité AIDD requise manque ou est incompatible, la branche s'arrête en
 
 ## Audits de performance
 
-Même forme pour les deux : détection de stack → chargement des pivots `sc-*` → checklist → roadmap priorisée. Un argument optionnel borne le périmètre à une route ou une action.
+Même forme pour les deux : détection de stack/service → chargement des pivots spécialisés (`sc-*`, `web-tiers`) → checklist → roadmap priorisée. Un argument optionnel borne le périmètre à une route ou une action.
 
 **`web-optimize`** — LCP, CLS, INP, TBT, TTFB, taille de bundle, ressources bloquantes, N+1 **au rendu**.
 
@@ -161,6 +162,10 @@ Explique, réécrit ou compare un sujet en langage progressif et concret, sans j
 ## Recherche documentaire — `research`
 
 Effectue une recherche documentaire cross-référencée avec au moins trois recherches et trois sources, signale les contradictions et compare les résultats aux documents existants. Son action `extract-terminology` extrait sans invention les termes présents dans les sources. La skill conserve le modèle documentaire local auparavant fourni par `obs:research`, mais vit désormais dans le socle transversal `overcode`.
+
+## Extraction PDF — `extract-pdf`
+
+Découpe et extrait un gros PDF sur plusieurs sessions, conserve le texte intégral et les bundles classés sous `sources/`, puis s’arrête avant toute synthèse. Les actions `setup`, `process-chunk`, `distribute` et `debug` reprennent l’ancien plugin autonome `pdf`; aucun rôle RPG/TTRPG supprimé n’est invoqué.
 
 ## Voir aussi
 

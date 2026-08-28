@@ -18,7 +18,7 @@ Relevé sur la **source** (`plugins/`), jamais sur le cache.
 | Ce que ces sept fichiers déclarent | `Loaded by web-optimize` / `Loaded by data-optimize`, en tête de fichier |
 | `paths:` dans les 33 sources | présent partout — mécanisme **natif Claude Code**, documenté `sc-js/README.md:80` (« Claude Code (automatique, via `paths:`) — à chaque édition de fichier matchant ») |
 | Marqueur d'exemple sur les corps *Case A* | **0 sur 4** installeurs `sniff` ; couverture illustrée `sc-php` 6/6 · `sc-rust` 3/4 · `sc-python` 4/9 · `sc-js` 3/13 |
-| Garde « source qui ne résout pas → rendue manquante » | **0 sur 4** `sniff` · **4 occurrences** dans `sc-tiers/setup/actions/01-install.md` |
+| Garde « source qui ne résout pas → rendue manquante » | **0 sur 4** `sniff` · **4 occurrences** dans `web-tiers/setup/actions/01-install.md` |
 | Garde de build sur l'appariement carte ↔ table | **aucune** — `pivot-providers.md:83` le dit déjà pour l'unicité de la clé |
 | `tools/eval/` | 4 scripts, chaînés par `pnpm test` : `consistency` · `harness` · `coverage` · `selftest` |
 | `coverage.mjs:188` | compte les `*-scenarios.md` d'un `evals/` — un `*-runs.md` n'entrerait pas dans ce compte |
@@ -65,7 +65,7 @@ Parsing borné : la carte est extraite du bloc qui suit `Map to one (or more) of
 ### Phase 3 — S8 fermée sur les quatre installeurs
 
 Sur les quatre `plugins/sc-{js,php,python,rust}/skills/sniff/actions/02-install-pivots.md` :
-- **Marqueur d'exemple** dans chaque bloc *Case A*, sur le modèle éprouvé de `sc-tiers/setup/actions/01-install.md` (`… one line per target actually processed`).
+- **Marqueur d'exemple** dans chaque bloc *Case A*, sur le modèle éprouvé de `web-tiers/setup/actions/01-install.md` (`… one line per target actually processed`).
 - **Contre-instruction explicite**, qui manque là où `Use this header verbatim` existe en *Case B* : le corps de *Case A* est une illustration, l'énumération porte les cibles **réellement touchées**. Aujourd'hui les fichiers posent une norme de copie littérale sur un bloc et jamais son contraire sur l'autre.
 - **`sc-php` en premier** : son corps illustré nomme 6 cibles sur 6, donc une copie littérale y est indiscernable d'une sortie dérivée — et sur la fixture WordPress de S3 elle affirme `perf-pivots-laravel.md (installed)` et `data-pivots-eloquent.md (installed)`. Puis `sc-rust`, `sc-python`, `sc-js`.
 
@@ -73,7 +73,7 @@ Sur les quatre `plugins/sc-{js,php,python,rust}/skills/sniff/actions/02-install-
 
 Fermer S8 sans rien poser reproduirait exactement ce que le run 2 a fait : une famille *frozen output* tout en vert, qui n'établit plus qu'un défaut **nouveau** serait attrapé.
 
-Ligne neuve dans `plugins/sc-tiers/skills/setup/evals/pivot-install-scenarios.md` — **rouge sur une mesure, pas sur une hypothèse** : la garde « une source qui ne résout pas est rendue **manquante**, jamais écrite » existe dans `sc-tiers` (4 occurrences) et dans **aucun** des quatre `sniff` (0/4). C'est le correctif de la 0.3.0 appliqué à un seul plugin sur cinq : les quatre autres peuvent annoncer `(installed)` pour un fichier que le plugin ne contient pas.
+Ligne neuve dans `plugins/web-tiers/skills/setup/evals/pivot-install-scenarios.md` — **rouge sur une mesure, pas sur une hypothèse** : la garde « une source qui ne résout pas est rendue **manquante**, jamais écrite » existe dans `web-tiers` (4 occurrences) et dans **aucun** des quatre `sniff` (0/4). C'est le correctif de la 0.3.0 appliqué à un seul plugin sur cinq : les quatre autres peuvent annoncer `(installed)` pour un fichier que le plugin ne contient pas.
 
 Conforme à la méthode : la ligne est **écrite et mesurée maintenant, non talliée au run 4**, et entre au run 5. C'est ce cycle exact qui a fait de S8 un verdict indépendant.
 
@@ -92,7 +92,7 @@ Chaque rapport devient un registre daté en append : table *Before / After / Δ*
 
 ### Phase 6 — Versions, changelogs, mémoire, suite
 
-`overcode` **4.4.0 → 4.5.0** (mineure : cartes élargies + garde neuve) · `sc-js`, `sc-php`, `sc-python`, `sc-rust` **bump de patch chacun** (le correctif *Case A* touche un fichier d'action par plugin) · `sc-tiers` **0.3.1 → 0.3.2** (ligne de suite) · `.claude-plugin/marketplace.json` **3.12.0 → 3.13.0** avec les six lignes de plugin. Bump et contenu dans le **même commit**, jamais d'install sur arbre sale.
+`overcode` **4.4.0 → 4.5.0** (mineure : cartes élargies + garde neuve) · `sc-js`, `sc-php`, `sc-python`, `sc-rust` **bump de patch chacun** (le correctif *Case A* touche un fichier d'action par plugin) · `web-tiers` **0.3.1 → 0.3.2** (ligne de suite) · `.claude-plugin/marketplace.json` **3.12.0 → 3.13.0** avec les six lignes de plugin. Bump et contenu dans le **même commit**, jamais d'install sur arbre sale.
 
 `aidd_docs/memory/pivots-testing.md` : ce que ce cycle apprend — un fichier peut déclarer son propre consommateur et lui être inatteignable ; une désynchronisation interne à un fichier se corrige par une garde, pas par une passe.
 
@@ -121,7 +121,7 @@ for p in sc-js sc-php sc-python sc-rust; do
   rg -q 'one line per target actually processed' plugins/$p/skills/sniff/actions/02-install-pivots.md
 done
 rg -q '^### .*run 4' plugins/overcode/skills/web-optimize/evals/pivot-provenance-scenarios.md
-rg -q '^### .*run 4' plugins/sc-tiers/skills/setup/evals/pivot-install-scenarios.md
+rg -q '^### .*run 4' plugins/web-tiers/skills/setup/evals/pivot-install-scenarios.md
 ```
 
 Piège de motif évité : `rg -q 'vite'` est **déjà vert** sur `web-optimize/SKILL.md` par le témoin `vite.config.ts` de Step 1.3 — d'où l'ancrage sur le slug entre backticks. Même raison pour `celery`, absent, et `fastapi`, **déjà présent** en Step 1.1 : ce terme-là ne vaut que couplé à la garde de phase 2, seule à distinguer *nommé* de *apparié*.

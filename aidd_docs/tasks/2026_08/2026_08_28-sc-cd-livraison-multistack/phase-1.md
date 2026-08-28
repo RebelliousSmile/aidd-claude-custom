@@ -23,7 +23,7 @@ status: done
     ├── sc-php/references/cd-contract.md              ✅ copie portable générée
     ├── sc-python/references/cd-contract.md           ✅ copie portable générée
     ├── sc-rust/references/cd-contract.md             ✅ copie portable générée
-    └── sc-tiers/references/cd-contract.md            ✅ copie portable générée
+    └── web-tiers/references/cd-contract.md            ✅ copie portable générée
 ```
 
 ## User Journey

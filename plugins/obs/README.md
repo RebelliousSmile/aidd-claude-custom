@@ -26,6 +26,8 @@ Plugin personnel orienté coffre Obsidian (conventions propres à l'auteur). Dep
 
 Bibliothèque standard uniquement, Windows / Linux / macOS. Chaque commande est en **dry-run par défaut** : rien n'est écrit sans `--apply`.
 
+`obs:project` gère des notes sous `Pro/Projets/`. Pour cadrer l'architecture d'un nouveau logiciel, la route externe est `aidd-context:01-bootstrap` ; le plugin `obs` ne scaffold aucun projet de code.
+
 ```bash
 python3 scripts/tree.py check ~/Documents/Perso/Finance
 python3 scripts/filler.py survey ~/Documents/Pro/Projets/acme/2026/06
@@ -36,7 +38,7 @@ python3 -m unittest discover -s scripts/tests -v
 
 Résumer, distiller, synthétiser un fil humain, rédiger une réponse, arbitrer le sens d'un contenu : ces opérations demandaient un jugement de lecture. Elles ont été retirées plutôt que simulées. Le socle mécanique reste, et il est vérifiable.
 
-L'extraction de PDF est partie dans le plugin [`pdf`](../pdf/README.md).
+L'extraction de PDF vit désormais dans [`overcode:extract-pdf`](../overcode/README.md), après un passage transitoire par le plugin autonome `pdf`.
 
 ## Licence
 

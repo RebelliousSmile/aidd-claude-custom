@@ -7,7 +7,7 @@ import { compareManifests } from '../sc-cd/compare-manifests.mjs';
 import { validateEvidenceFixture } from './validate-js-delivery-evidence.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
-const plugins = ['sc-css', 'sc-js', 'sc-php', 'sc-python', 'sc-rust', 'sc-tiers'];
+const plugins = ['sc-css', 'sc-js', 'sc-php', 'sc-python', 'sc-rust', 'web-tiers'];
 const canonical = readFileSync(join(root, 'tools/sc-cd/contract.md'), 'utf8');
 const schema = readFileSync(join(root, 'tools/sc-cd/project-contract.schema.json'), 'utf8');
 const differentialSync = readFileSync(join(root, 'tools/sc-cd/differential-sync.md'), 'utf8');
@@ -234,20 +234,20 @@ for (const required of ['brochure-server:', 'brochure-edge:', 'repository-fonts'
   if (!behavePark.includes(required)) failures.push(`sc-css fixture: missing ${required}`);
 }
 
-const tiersCd = join(root, 'plugins/sc-tiers/skills/cd');
+const tiersCd = join(root, 'plugins/web-tiers/skills/cd');
 const tiersTexts = [
   'SKILL.md', 'actions/02-server.md', 'actions/03-automata.md', 'references/providers.md',
   'references/ci-adapters.md', 'evals/delivery-scenarios.md', 'evals/delivery-safety-scenarios.md',
 ].map((path) => readFileSync(join(tiersCd, path), 'utf8')).join('\n').toLocaleLowerCase('en-US');
 for (const required of ['target id', 'alwaysdata', 'host-key', 'lifecycle revision', 'concurrency group', 'target-to-target', 'stale guard']) {
-  if (!tiersTexts.includes(required)) failures.push(`sc-tiers: missing target provider rule ${required}`);
+  if (!tiersTexts.includes(required)) failures.push(`web-tiers: missing target provider rule ${required}`);
 }
 const tiersScenarios = JSON.parse(readFileSync(join(tiersCd, 'evals/scenarios.json'), 'utf8'));
 for (const target of ['alwaysdata-federated', 'railway-main']) {
-  if (!tiersScenarios.some(({ prompt }) => prompt.includes(target))) failures.push(`sc-tiers: routing misses named target ${target}`);
+  if (!tiersScenarios.some(({ prompt }) => prompt.includes(target))) failures.push(`web-tiers: routing misses named target ${target}`);
 }
 for (const required of ['tiers_federated:', 'provider: alwaysdata', 'remoteGuard: deploy/guard.json', 'concurrencyGroup: suddenly-railway-main']) {
-  if (!behavePark.includes(required)) failures.push(`sc-tiers fixture: missing ${required}`);
+  if (!behavePark.includes(required)) failures.push(`web-tiers fixture: missing ${required}`);
 }
 
 for (const plugin of plugins) {
@@ -262,10 +262,10 @@ for (const plugin of plugins) {
 }
 
 const releaseVersions = {
-  'sc-css': '0.7.0', 'sc-js': '0.17.1', 'sc-php': '0.14.0',
-  'sc-python': '0.8.0', 'sc-rust': '0.7.0', 'sc-tiers': '0.5.0',
+  'sc-css': '0.7.1', 'sc-js': '0.17.2', 'sc-php': '0.14.1',
+  'sc-python': '0.8.1', 'sc-rust': '0.7.1', 'web-tiers': '0.6.0',
 };
-const codexCachebusters = { 'sc-js': '20260828.3' };
+const codexCachebusters = { 'sc-js': '20260828.3', 'web-tiers': '20260828.1' };
 const marketplace = JSON.parse(readFileSync(join(root, '.claude-plugin/marketplace.json'), 'utf8'));
 for (const [plugin, version] of Object.entries(releaseVersions)) {
   const claudeManifest = JSON.parse(readFileSync(join(root, 'plugins', plugin, '.claude-plugin/plugin.json'), 'utf8'));
@@ -279,7 +279,7 @@ for (const [plugin, version] of Object.entries(releaseVersions)) {
   if (!readme.includes('CD multi-cibles') && !readme.includes('CD par cible')) failures.push(`${plugin}: README misses v2 capabilities`);
   if (!changelog.includes(`## [${version}]`)) failures.push(`${plugin}: changelog misses ${version}`);
 }
-if (marketplace.version !== '3.19.1') failures.push('marketplace: expected version 3.19.1');
+if (marketplace.version !== '4.0.0') failures.push('marketplace: expected version 4.0.0');
 
 if (failures.length) {
   for (const failure of failures) console.error(`SC-CD FAIL: ${failure}`);

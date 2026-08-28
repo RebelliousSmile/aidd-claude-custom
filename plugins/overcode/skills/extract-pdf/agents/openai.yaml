@@ -1,0 +1,6 @@
+interface:
+  display_name: "Extract PDF"
+  short_description: "Extract large PDFs into source notes"
+  default_prompt: "Use $overcode:extract-pdf to extract this PDF into source notes."
+policy:
+  allow_implicit_invocation: false

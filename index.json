@@ -21,8 +21,8 @@
       "name": "sc-css"
     },
     {
-      "id": "sc-tiers",
-      "name": "sc-tiers"
+      "id": "web-tiers",
+      "name": "web-tiers"
     },
     {
       "id": "sc-python",
@@ -35,10 +35,6 @@
     {
       "id": "obs",
       "name": "obs"
-    },
-    {
-      "id": "pdf",
-      "name": "pdf"
     }
   ]
 }
