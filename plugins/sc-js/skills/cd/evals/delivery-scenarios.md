@@ -9,3 +9,7 @@
 | IndexedDB | Ship tested client migration code; transfer no browser data. |
 | Composite PHP application | Register a bounded JS contributor and create no second root facade. |
 | Missing sc-tiers | Stop automata with a named prerequisite and write nothing. |
+| Named Node targets | Use one package-manager facade with separate server and automata invocations and locks. |
+| Nuxt staging store | Mirror server data/media only when export/import or manifest inventory is proven. |
+| Nuxt production store | Apply schema migration while preserving target-authoritative rows and media. |
+| Static target | Deliver its configured artifact without inventing a database or media store. |

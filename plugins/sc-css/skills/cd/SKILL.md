@@ -24,8 +24,8 @@ Run the flow above. Read only the next action file.
 | Action | Does |
 | --- | --- |
 | local | reconcile a bounded static build and preview |
-| server | reconcile one static production facade and contract |
-| automata | validate and delegate the existing facade |
+| server | reconcile a named static server target through one facade |
+| automata | validate and delegate a named automata target |
 
 ## Transversal rules
 
@@ -33,3 +33,5 @@ Run the flow above. Read only the next action file.
 - Let sc-css own the root only for a pure static site with deterministic build, preview, and output evidence.
 - Keep CSS as a bounded contributor when a language runtime owns the application.
 - Never create another environment, contact production during configuration, or invent an unsupported output or provider.
+- Require an exact target id, phase and `deploy:*` operation when several targets exist. Build/preview/output remain project facts; cache, proof, recovery, invocation and lock are target facts.
+- Treat repository HTML, CSS, JavaScript, images and fonts as the code artifact. Never claim database, mutable data or user media ownership.

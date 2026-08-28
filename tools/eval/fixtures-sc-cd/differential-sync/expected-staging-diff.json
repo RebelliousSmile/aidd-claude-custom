@@ -1,0 +1,15 @@
+{
+  "allowed": true,
+  "phase": "staging",
+  "surface": "media",
+  "deletions": "mirror",
+  "totalLocalBytes": 506000000,
+  "transferableBytes": 6000000,
+  "deletionCount": 1,
+  "changes": {
+    "added": ["uploads/new.jpg"],
+    "modified": ["uploads/avatar.png"],
+    "deleted": ["uploads/obsolete.jpg"],
+    "unchanged": ["uploads", "uploads/hero.mp4"]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "algorithm": "sha256",
+  "entries": [
+    { "path": "uploads", "type": "directory", "size": 0 },
+    { "path": "uploads/avatar.png", "type": "file", "size": 5000000, "hash": "sha256:old-avatar" },
+    { "path": "uploads/hero.mp4", "type": "file", "size": 500000000, "hash": "sha256:stable-hero" },
+    { "path": "uploads/obsolete.jpg", "type": "file", "size": 2000000, "hash": "sha256:obsolete-photo" }
+  ]
+}

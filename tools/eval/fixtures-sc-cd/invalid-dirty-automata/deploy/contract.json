@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "owner": { "plugin": "sc-python", "scope": "root" },
+  "manager": "uv",
+  "command": "uv run scripts/deploy.py",
+  "workingDirectory": ".",
+  "source": { "repository": "git", "ref": "working-tree", "clean": false, "manifest": "deploy/source-manifest.json", "dirtyPolicy": "reviewed" },
+  "targets": [
+    { "id": "railway-main", "phase": "production", "mode": "automata", "provider": "railway", "executionContext": "automation-checkout", "lifecycleRevision": 1, "guard": { "kind": "provider-metadata", "reference": "SC_CD_LIFECYCLE" }, "lock": { "key": "deploy-railway-main", "behavior": "wait" }, "invocation": { "command": "uv run scripts/deploy.py --target railway-main", "workingDirectory": ".", "operations": ["deploy:code"] } }
+  ],
+  "operations": [
+    { "name": "deploy:code", "surface": "code", "authority": "local", "phases": ["production"], "preconditions": ["tests pass"], "proof": ["health check passes"], "recovery": ["restore previous release"] }
+  ]
+}

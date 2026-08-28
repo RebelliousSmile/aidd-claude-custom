@@ -1,5 +1,9 @@
 # Changelog — sc-css
 
+## [0.7.0] — 2026-08-28
+
+- CD v2 multi-cibles : artefact statique partagé, cache/preuve/récupération par cible et refus des surfaces mutables.
+
 ## [0.6.0] — 2026-08-28
 
 ### Added

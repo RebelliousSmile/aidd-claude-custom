@@ -22,6 +22,11 @@ This suite is distinct from:
 | S6 | **Positive control:** GitHub automation for `tiers_manual`. | Generate a thin manual envelope that calls the exact producer command in its directory. | Intended workflow uses `workflow_dispatch`, working directory `apps/site`, command `composer deploy:prod`, secret-name references only, and no duplicated deploy/migration body. |
 | S7 | GitLab automation for `tiers_push`. | Generate push rules only because the contract explicitly requests push. | Intended job uses directory `services/api`, command `cargo deploy-prod`, explicit push policy and no manual-default rewrite. |
 | S8 | **Negative control:** the project facade exits 42 in variant `tiers_facade_failure`. | Preserve the failing job status and expose contract recovery. | Intended envelope contains no `|| true`, ignored error, success reinterpretation or fallback deployment; recovery `redeploy-previous-release` remains visible. |
+| S9 | Configure `tiers_federated.targets.alwaysdata-federated`. | Reconcile only bounded Alwaysdata metadata. | No API/network call occurs; secret names have no values; Apache restart warns about account-wide impact. |
+| S10 | Generate `tiers_federated.targets.railway-main`. | Emit one thin job for its immutable ref and exact invocation. | Expected phase/revision and target concurrency group are present; no build, migration, media or sync body is duplicated. |
+| S11 | Omit target id. | Refuse ambiguity. | No provider file, workflow, path, secret name or concurrency group is selected. |
+| S12 | Run an envelope created before a lifecycle promotion. | Fail closed on the remote guard. | No facade, migration, transfer or restart executes with the stale revision. |
+| S13 | Request Railway-to-Alwaysdata copy. | Refuse target-to-target flow. | No envelope, database/media access or remote command is intended. |
 
 ## How to run
 

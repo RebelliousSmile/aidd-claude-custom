@@ -47,6 +47,10 @@ Ce que ce pivot **ne fait pas** : décider s'il faut écrire un test, ni quel ni
 | Perf / data pivot | `.claude/rules/07-quality/` | `web-optimize` / `data-optimize` (explicite) | Au lancement du skill |
 | Pivot `testing` | Plugin uniquement | Tout consommateur du contrat de pivot (découverte par glob) | À chaque action de gouvernance de tests sur un projet Rust |
 
+## CD multi-cibles
+
+`sc-rust:cd` passe la cible à un alias ou xtask unique. Chaque cible possède son identité d'artefact, son répertoire de release, ses pointeurs, son verrou et son rollback. Les migrations de schéma précèdent la bascule ; les données persistantes de production ne sont jamais copiées depuis le local. `server` et `automata` reprennent la même invocation.
+
 ## Licence
 
 MIT — voir [LICENSE](../../LICENSE).

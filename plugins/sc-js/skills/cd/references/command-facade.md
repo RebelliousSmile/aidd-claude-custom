@@ -11,3 +11,5 @@ Reconciliation rules:
 5. Match `deploy/contract.json.command` and `workingDirectory` exactly to the runnable facade.
 
 The project script owns preflight, exclusions, source identity, provider call, proof and recovery. An envelope only calls it and relays its exit status.
+
+The facade accepts a target id and `deploy:*` operation. Provider and mode live in target metadata, so switching a target between server and automata does not create a second script or change operation semantics. Every target has its own invocation, lifecycle revision and lock; an error never falls through to another target.

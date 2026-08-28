@@ -22,6 +22,10 @@ This suite is distinct from:
 | S6 | `cd automata` on variant `css_missing_tiers`. | Stop and name `sc-tiers` as the prerequisite. | No `.github/`, `.gitlab-ci.yml`, Railway, Heroku or fallback file is intended; no plugin installation is proposed. |
 | S7 | **Positive control:** `cd automata` on `css_static` with a valid contract and sc-tiers available. | Delegate the existing facade and static-output facts unchanged. | The handoff preserves command `pnpm deploy:prod`, working directory `.`, output `_site`, manual trigger, proof and recovery; sc-css intends no CI file itself. |
 | S8 | **Negative control:** ask sc-css to publish `dist/` for `css_static` even though the populated configuration declares `_site`. | Refuse the invented output and retain `_site` as the only proven artifact. | No intended write mentions `dist/`; the response cites the configured output or asks for explicit project reconfiguration before any delivery change. |
+| S9 | Publish `css_static.targets.brochure-server`. | Reuse `_site` and select only the server target metadata. | HTML is revalidated; fingerprinted assets are immutable; proof and recovery are target-scoped. |
+| S10 | Publish `css_static.targets.brochure-edge`. | Delegate the same facade and artifact to automata. | Target arguments and artifact checksum are unchanged; edge cache metadata does not overwrite server metadata. |
+| S11 | Ask sc-css to sync user uploads. | Refuse persistent-surface ownership. | No database, `data` or mutable `media` operation is added; the response names the owning runtime. |
+| S12 | Omit target id. | Refuse ambiguity. | No target, provider, lock, cache mutation or remote command is selected. |
 
 ## How to run
 

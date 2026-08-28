@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "owner": { "plugin": "sc-php", "scope": "root" },
+  "manager": "composer",
+  "command": "composer deploy",
+  "workingDirectory": ".",
+  "source": { "repository": "git", "ref": "ab1289f", "clean": true },
+  "targets": [
+    {
+      "id": "client-demo",
+      "phase": "staging",
+      "mode": "server",
+      "provider": "alwaysdata",
+      "executionContext": "workspace",
+      "lifecycleRevision": 1,
+      "guard": { "kind": "file", "reference": ".sc-cd/client-demo.json" },
+      "lock": { "key": "deploy-client-demo", "behavior": "fail" },
+      "quiescence": { "strategy": "maintenance-mode", "enter": "composer maintenance:on", "exit": "composer maintenance:off", "proof": ["writes are rejected"] },
+      "invocation": { "command": "composer deploy -- --target client-demo", "workingDirectory": ".", "operations": ["deploy:code", "deploy:data", "deploy:media"] }
+    }
+  ],
+  "operations": [
+    { "name": "deploy:code", "surface": "code", "authority": "local", "phases": ["staging", "production"], "preconditions": ["build passes"], "proof": ["site answers"], "recovery": ["restore previous release"] },
+    { "name": "deploy:data", "surface": "data", "authority": "local", "phases": ["staging"], "destructive": true, "sync": { "comparison": "content-hash", "deletions": "mirror", "resumable": true }, "preconditions": ["backup current", "dry-run reviewed", "confirmation recorded"], "proof": ["data manifest matches"], "recovery": ["restore data backup"] },
+    { "name": "deploy:media", "surface": "media", "authority": "local", "phases": ["staging"], "destructive": true, "sync": { "comparison": "content-hash", "deletions": "mirror", "resumable": true }, "preconditions": ["backup current", "dry-run reviewed", "confirmation recorded"], "proof": ["media manifest matches"], "recovery": ["restore media backup"] }
+  ]
+}

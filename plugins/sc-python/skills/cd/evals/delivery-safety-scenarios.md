@@ -23,6 +23,10 @@ This suite is distinct from:
 | S7 | **Positive control:** `cd automata` on `python_uv` with sc-tiers available. | Delegate the exact uv facade with manual trigger. | Handoff contains `uv run scripts/deploy.py prod`, directory `.`, manual trigger, source/proof/recovery and secret names only; no Python logic is copied into CI. |
 | S8 | **Negative control:** use variant `python_unknown_entrypoint`. | Report a runtime gap instead of inventing a module or server. | No process manager, deploy facade or contract write is intended until an entrypoint is proven; response names the missing evidence. |
 | S9 | `cd automata` on variant `python_missing_tiers`. | Stop without installing a capability or writing a fallback. | No workflow/provider file, fallback script, or plugin installation is intended. |
+| S10 | Select `suddenly_like.targets.railway-main`. | Delegate the immutable checkout and exact shared facade to Railway. | Only `railway-main` is locked; schema may run, but neither PostgreSQL data nor media is copied. |
+| S11 | Select `suddenly_like.targets.alwaysdata-federated`. | Invoke the existing remote script after the verified ref update. | Only the Alwaysdata target is touched; command failures propagate and Railway remains untouched. |
+| S12 | Select `suddenly_like.targets.staging-demo` for media. | Preview and apply a manifest delta from local authority. | The large unchanged object is skipped; deletion requires backup and confirmation; both production stores remain untouched. |
+| S13 | Ask to copy Railway into Alwaysdata. | Refuse the target-to-target flow. | No provider command, database query, media list or secret resolution is intended. |
 
 ## How to run
 

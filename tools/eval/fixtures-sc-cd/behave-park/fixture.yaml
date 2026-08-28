@@ -30,6 +30,24 @@ projects:
       trigger: manual
       proof: [entrypoint-200, fingerprinted-css-200]
       recovery: [redeploy-previous-commit]
+    surfaces: { code: [html, css, javascript, repository-images, repository-fonts], data: none, media: none }
+    targets:
+      brochure-server:
+        phase: production
+        mode: server
+        invocation: pnpm deploy:prod --target brochure-server
+        cache: { html: revalidate, fingerprinted_assets: immutable }
+        proof: [server-entrypoint-200, server-fingerprinted-css-200]
+        recovery: [server-redeploy-previous-commit]
+        lock: css-static-brochure-server
+      brochure-edge:
+        phase: production
+        mode: automata
+        invocation: pnpm deploy:prod --target brochure-edge
+        cache: { html: revalidate-60s, fingerprinted_assets: immutable }
+        proof: [edge-entrypoint-200, edge-fingerprinted-css-200]
+        recovery: [edge-redeploy-previous-commit]
+        lock: css-static-brochure-edge
 
   css_composite:
     root: apps/storefront
@@ -72,6 +90,22 @@ projects:
       workingDirectory: .
       trigger: manual
       secretNames: [DEPLOY_HOST, DEPLOY_USER]
+    targets:
+      demo-node:
+        phase: staging
+        mode: server
+        invocation: pnpm deploy:prod --target demo-node
+        authority: { code: local, schema: local, data: local, media: local }
+        dataStrategy: deterministic-export-import
+        mediaStrategy: manifest-delta-resumable
+        lock: js-nuxt-demo-node
+      railway-prod:
+        phase: production
+        mode: automata
+        invocation: pnpm deploy:prod --target railway-prod
+        authority: { code: local, schema: local, data: target, media: target }
+        indexeddb: migration-code-only
+        lock: js-nuxt-railway-prod
 
   js_conflict:
     root: apps/legacy-vite
@@ -120,6 +154,22 @@ projects:
       command: composer deploy:prod
       workingDirectory: .
       trigger: manual
+    targets:
+      demo-staging:
+        phase: staging
+        mode: server
+        authority: { code: local, schema: local, data: local, media: local }
+        mediaInventory: { algorithm: sha256, resumable: true, finalVerification: true }
+        mediaBytes: { total: 506000000, transferable: 6000000, unchangedLargeUpload: 500000000 }
+        deletionPolicy: mirror-after-backup-preview-confirmation
+        lock: php-wordpress-demo-staging
+      client-prod:
+        phase: production
+        mode: automata
+        authority: { code: local, schema: local, data: target, media: target }
+        allowedOperations: [deploy:code, deploy:schema]
+        forbiddenOperations: [deploy:data, deploy:media]
+        lock: php-wordpress-client-prod
 
   python_uv:
     root: apps/django-api
@@ -152,6 +202,53 @@ projects:
     documented_start: .venv/bin/python app.py
     task_runner_decision: absent
 
+  suddenly_like:
+    root: apps/suddenly
+    owner: sc-python
+    manager: uv
+    framework: django
+    facade: uv run scripts/deploy.py
+    source: { repository: git, ref: 8c14d6d }
+    schema: { tool: django-migrations, command: uv run manage.py migrate }
+    targets:
+      railway-main:
+        phase: production
+        mode: automata
+        provider: railway
+        executionContext: automation-checkout
+        invocation: uv run scripts/deploy.py --target railway-main --operation deploy:code
+        database: { engine: postgresql, authority: target }
+        media: { storage: object, authority: target, sync: forbidden }
+        health: [revision-match, http-200]
+        restart: railway-service-redeploy
+        lock: suddenly-railway-main
+      alwaysdata-federated:
+        phase: production
+        mode: server
+        provider: alwaysdata
+        executionContext: workspace
+        invocation: ssh-script-after-verified-ref-update
+        remoteScript: bin/deploy-suddenly
+        database: { engine: postgresql, authority: target }
+        media: { storage: filesystem, authority: target, sync: forbidden }
+        health: [revision-match, http-200]
+        restart: alwaysdata-service-restart
+        lock: suddenly-alwaysdata-federated
+      staging-demo:
+        phase: staging
+        mode: server
+        provider: alwaysdata
+        executionContext: workspace
+        invocation: uv run scripts/deploy.py --target staging-demo --operation deploy:all
+        database: { engine: postgresql, authority: local, sync: manifest-delta }
+        media: { storage: filesystem, authority: local, sync: manifest-delta-resumable }
+        health: [revision-match, http-200, manifest-match]
+        restart: alwaysdata-service-restart
+        lock: suddenly-staging-demo
+    forbiddenFlows:
+      - railway-main-to-alwaysdata-federated
+      - alwaysdata-federated-to-railway-main
+
   rust_workspace:
     root: services/catalog
     owner: sc-rust
@@ -180,6 +277,27 @@ projects:
       command: cargo deploy-prod
       workingDirectory: .
       trigger: manual
+    targets:
+      rust-east:
+        phase: production
+        mode: server
+        invocation: cargo deploy-prod -- --target rust-east --operation deploy:code
+        artifact: { package: catalog-api, binary: catalog-api, features: [production], target: x86_64-unknown-linux-gnu, source: 8c14d6d, checksum: sha256-east }
+        releaseRoot: releases/rust-east
+        currentPointer: releases/rust-east/current
+        previousPointer: releases/rust-east/previous
+        lock: rust-workspace-rust-east
+        authority: { schema: local, data: target, media: target }
+      rust-west:
+        phase: production
+        mode: automata
+        invocation: cargo deploy-prod -- --target rust-west --operation deploy:code
+        artifact: { package: catalog-api, binary: catalog-api, features: [production], target: x86_64-unknown-linux-gnu, source: 8c14d6d, checksum: sha256-west }
+        releaseRoot: releases/rust-west
+        currentPointer: releases/rust-west/current
+        previousPointer: releases/rust-west/previous
+        lock: rust-workspace-rust-west
+        authority: { schema: local, data: target, media: target }
 
   rust_cross_unknown:
     root: services/windows-agent
@@ -232,6 +350,34 @@ projects:
     provider: heroku
     files: [package.json, pnpm-lock.yaml]
     contract: absent
+
+  tiers_federated:
+    root: automation/suddenly
+    producer: sc-python
+    contractVersion: 2
+    facade: uv run scripts/deploy.py
+    targets:
+      railway-main:
+        phase: production
+        mode: automata
+        provider: railway
+        sourceRef: 8c14d6d
+        lifecycleRevision: 4
+        invocation: uv run scripts/deploy.py --target railway-main --operation deploy:code
+        concurrencyGroup: suddenly-railway-main
+        secretNames: [RAILWAY_TOKEN]
+      alwaysdata-federated:
+        phase: production
+        mode: server
+        provider: alwaysdata
+        lifecycleRevision: 4
+        invocation: uv run scripts/deploy.py --target alwaysdata-federated --operation deploy:code
+        capabilities: { ssh: verified, sftp: verified, rsync: unverified, root: false }
+        remoteGuard: deploy/guard.json
+        hostKeyReference: ALWAYSDATA_HOST_KEY
+        secretNames: [ALWAYSDATA_ACCOUNT, ALWAYSDATA_HOST, ALWAYSDATA_USER, ALWAYSDATA_API_TOKEN]
+        restartHook: optional-site-or-service
+        apacheRestartScope: account-wide-authorization-required
 
 scenario_variants:
   css_missing_output:

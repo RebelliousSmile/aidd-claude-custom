@@ -1,0 +1,15 @@
+{
+  "allowed": false,
+  "reason": "production media is target-authoritative",
+  "phase": "production",
+  "surface": "media",
+  "deletions": "mirror",
+  "totalLocalBytes": 506000000,
+  "transferableBytes": 0,
+  "changes": {
+    "added": [],
+    "modified": [],
+    "deleted": [],
+    "unchanged": []
+  }
+}

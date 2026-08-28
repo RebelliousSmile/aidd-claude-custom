@@ -11,3 +11,7 @@
 | Capable host and restricted host | Select from verified target capabilities independently; do not impose the restricted host's transport on the capable host. |
 | Laravel/Symfony | Use native migrations and keep them distinct from content copying. |
 | Missing sc-tiers | Stop automata and write no fallback. |
+| WordPress staging mirror | Diff database/content/media from local, skip unchanged uploads and gate deletions behind backup, preview and confirmation. |
+| WordPress production | Release code and safe migrations only; preserve remote database, editorial content and uploads. |
+| Unreliable media inventory | Refuse sync without falling back to a complete archive. |
+| Composite multi-target | Keep one PHP-owned root facade; JS/CSS contribute bounded scopes and sc-tiers owns only provider envelopes. |

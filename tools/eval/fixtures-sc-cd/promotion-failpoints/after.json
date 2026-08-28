@@ -1,0 +1,6 @@
+{
+  "id": "client-site",
+  "phase": "production",
+  "lifecycleRevision": 2,
+  "quiescence": { "strategy": "maintenance-mode", "enter": "maintenance:on", "exit": "maintenance:off", "proof": ["writes rejected"] }
+}

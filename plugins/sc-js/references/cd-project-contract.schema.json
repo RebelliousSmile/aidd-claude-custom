@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://my-marketplace.local/sc-cd/project-contract.schema.json",
-  "title": "SC-CD project delivery contract",
+  "title": "SC-CD project delivery contract v2",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "owner", "manager", "command", "workingDirectory", "source", "target", "operations"],
+  "required": ["version", "owner", "manager", "command", "workingDirectory", "source", "targets", "operations"],
   "properties": {
-    "version": { "const": 1 },
+    "version": { "const": 2 },
     "owner": {
       "type": "object",
       "additionalProperties": false,
@@ -22,30 +22,17 @@
     "source": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["repository", "ref"],
+      "required": ["repository", "ref", "clean"],
       "properties": {
         "repository": { "type": "string", "minLength": 1 },
-        "ref": { "type": "string", "minLength": 1 }
+        "ref": { "type": "string", "minLength": 1 },
+        "clean": { "type": "boolean" },
+        "manifest": { "type": "string", "minLength": 1 },
+        "dirtyPolicy": { "type": "string", "minLength": 1 }
       }
-    },
-    "target": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["kind", "provider"],
-      "properties": {
-        "kind": { "enum": ["server", "automata"] },
-        "provider": { "type": "string", "minLength": 1 }
-      }
-    },
-    "trigger": { "enum": ["manual", "push"], "default": "manual" },
-    "secretNames": {
-      "type": "array",
-      "uniqueItems": true,
-      "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }
     },
     "contributors": {
       "type": "array",
-      "uniqueItems": true,
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -56,30 +43,114 @@
         }
       }
     },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/target" }
+    },
     "operations": {
       "type": "array",
       "minItems": 1,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["name", "direction", "preconditions", "proof", "recovery"],
-        "properties": {
-          "name": { "type": "string", "pattern": "^(deploy|pull):[a-z0-9:-]+$" },
-          "direction": { "enum": ["local-to-production", "production-to-local"] },
-          "preconditions": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
-          "proof": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
-          "recovery": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+      "items": { "$ref": "#/$defs/operation" }
+    }
+  },
+  "$defs": {
+    "stringList": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "phase", "mode", "provider", "executionContext", "lifecycleRevision", "guard", "lock", "invocation"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "phase": { "enum": ["staging", "production"] },
+        "mode": { "enum": ["server", "automata"] },
+        "provider": { "type": "string", "minLength": 1 },
+        "executionContext": { "enum": ["workspace", "automation-checkout"] },
+        "lifecycleRevision": { "type": "integer", "minimum": 1 },
+        "guard": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "reference"],
+          "properties": {
+            "kind": { "enum": ["file", "provider-metadata"] },
+            "reference": { "type": "string", "minLength": 1 }
+          }
+        },
+        "lock": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["key", "behavior"],
+          "properties": {
+            "key": { "type": "string", "minLength": 1 },
+            "behavior": { "enum": ["wait", "fail"] }
+          }
+        },
+        "trigger": { "enum": ["manual", "push"], "default": "manual" },
+        "secretNames": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }
+        },
+        "quiescence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["strategy", "enter", "exit", "proof"],
+          "properties": {
+            "strategy": { "type": "string", "minLength": 1 },
+            "enter": { "type": "string", "minLength": 1 },
+            "exit": { "type": "string", "minLength": 1 },
+            "proof": { "$ref": "#/$defs/stringList" }
+          }
+        },
+        "invocation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["command", "workingDirectory", "operations"],
+          "properties": {
+            "command": { "type": "string", "minLength": 1 },
+            "workingDirectory": { "type": "string", "minLength": 1 },
+            "operations": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "type": "string", "pattern": "^deploy:[a-z0-9:-]+$" }
+            }
+          }
         }
       }
     },
-    "automata": {
+    "operation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["command", "workingDirectory", "operations"],
+      "required": ["name", "surface", "authority", "phases", "preconditions", "proof", "recovery"],
       "properties": {
-        "command": { "type": "string", "minLength": 1 },
-        "workingDirectory": { "type": "string", "minLength": 1 },
-        "operations": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+        "name": { "type": "string", "pattern": "^deploy:[a-z0-9:-]+$" },
+        "surface": { "enum": ["code", "schema", "data", "media"] },
+        "authority": { "enum": ["local", "target"] },
+        "phases": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["staging", "production"] }
+        },
+        "destructive": { "type": "boolean", "default": false },
+        "preconditions": { "$ref": "#/$defs/stringList" },
+        "proof": { "$ref": "#/$defs/stringList" },
+        "recovery": { "$ref": "#/$defs/stringList" },
+        "sync": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["comparison", "deletions", "resumable"],
+          "properties": {
+            "comparison": { "const": "content-hash" },
+            "deletions": { "enum": ["mirror", "preserve", "forbid"] },
+            "resumable": { "const": true }
+          }
+        }
       }
     }
   }

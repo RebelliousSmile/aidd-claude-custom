@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "sc-js",
-  "version": "0.16.0",
-  "description": "JavaScript stack detection, audit, modernization, design pivots, Gutenberg validation, and framework-aware local/production CD through a native package-manager facade.",
+  "version": "0.17.0",
+  "description": "JavaScript stack detection, audit, modernization, and multi-target CD through one native facade with distinct schema, server data, browser data, and media.",
   "author": {
     "name": "François-Xavier Guillois"
   }

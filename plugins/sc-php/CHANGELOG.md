@@ -1,5 +1,9 @@
 # Changelog — sc-php
 
+## [0.14.0] — 2026-08-28
+
+- CD v2 multi-cibles et miroir WordPress staging différentiel ; données, contenu et uploads de production protégés.
+
 ## [0.13.1] — 2026-08-28
 
 ### Fixed

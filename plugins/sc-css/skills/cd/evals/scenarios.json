@@ -4,6 +4,10 @@
   { "prompt": "cd server pour publier ce site statique", "expect_action": "server" },
   { "prompt": "ajoute deploy:prod à ce projet CSS sans runtime", "expect_action": "server" },
   { "prompt": "cd automata pour l'hébergement statique", "expect_action": "automata" },
+  { "prompt": "publie le site en staging sur brochure-demo", "expect_action": "server" },
+  { "prompt": "publie le site en production sur brochure-server", "expect_action": "server" },
+  { "prompt": "publie le site en production sur brochure-edge automata", "expect_action": "automata" },
+  { "prompt": "publie sans choisir entre les deux cibles", "expect_action": null },
   { "prompt": "crée une seconde façade CSS dans cette application Nuxt", "expect_action": null },
   { "prompt": "déploie vers une sortie inconnue", "expect_action": null }
 ]

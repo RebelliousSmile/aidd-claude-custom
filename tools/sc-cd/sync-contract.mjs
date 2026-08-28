@@ -9,6 +9,7 @@ const check = process.argv.includes('--check');
 const sources = [
   ['contract.md', 'cd-contract.md'],
   ['project-contract.schema.json', 'cd-project-contract.schema.json'],
+  ['differential-sync.md', 'cd-differential-sync.md'],
 ].filter(([source]) => existsSync(join(root, 'tools/sc-cd', source)));
 
 let failed = false;

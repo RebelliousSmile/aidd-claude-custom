@@ -1,10 +1,10 @@
-# Server
+# Server target
 
 Reconcile one project-native root facade with explicit WordPress or PHP delivery scopes.
 
 ## Input
 
-- Verified local setup, framework strategy, production target facts and capabilities, requested scope, proof, and recovery.
+- Verified local setup, framework strategy, named `server` target facts and capabilities, phase, lifecycle guard, requested operation, proof, and recovery.
 
 ## Output
 
@@ -13,14 +13,15 @@ One root facade, one owned implementation, and a matching secret free contract, 
 ## Process
 
 1. **Load.** Read [facade reconciliation](../references/command-facade.md), [framework strategies](../references/php-frameworks.md), and [WordPress synchronization](../references/wordpress-sync.md).
-2. **Detect.** Identify the existing root package-manager command and its owning script before choosing a facade. PHP or WordPress does not by itself make Composer the deployment owner.
+2. **Select.** Resolve the exact target, phase, independent lock and lifecycle revision. Identify the existing root package-manager command and its owning script before choosing a facade. PHP or WordPress does not by itself make Composer the deployment owner.
 3. **Reconcile.** Preserve targets and custom behavior behind that one existing facade. Create a Composer facade only when Composer already owns root project operations or no deployment facade exists and Composer is the detected project manager.
    - Report conflicting semantics and request arbitration without adding a second producer.
 4. **Profile.** Record commands available on the actual host. Prefer the strongest verified transport without assuming that two shared hosts expose the same SSH, shell, archive, rsync, WP-CLI, database, or scheduler capabilities.
-5. **Scope.** Keep `deploy:prod` code only unless another surface is explicitly selected with direction and deletion policy.
-6. **Guard.** Require backup, dry run or review, explicit confirmation, proof, and recovery before database, content, or media mutation.
-7. **Contract.** Write `deploy/contract.json` with the exact root command, manager, directory, source, operations, host capability assumptions, and secret names.
-8. **Verify.** Run local dry-run and contract checks without contacting production. Run a read-only remote capability or proof probe only when the user explicitly requests remote verification, then repeat reconciliation.
+5. **Scope.** Keep code, declarative configuration, schema, editorial data and uploads separate. Exclude caches, logs, temporary upgrade files and secrets everywhere.
+6. **Authorize.** In production, permit code and explicitly safe migrations only; refuse local database, content and upload transfer. In staging, allow a local mirror only after a stable diff preview, fresh backup and explicit confirmation.
+7. **Transport.** Use proven rsync or the manifest fallback, with resumable partials and final inventory verification. Refuse unreliable inventories and never fall back to a full `tar | ssh` upload.
+8. **Contract.** Write `deploy/contract.json` with exact root command, manager, directory, named target, invocation, lifecycle guard, source, operations, capability assumptions and secret names.
+9. **Verify.** Run local dry-run and contract checks without contacting production. Propagate every failure and repeat reconciliation.
 
 ## Test
 
@@ -32,3 +33,5 @@ One root facade, one owned implementation, and a matching secret free contract, 
 | existing pnpm/PowerShell or Composer pipeline is present | its one root facade remains and custom targets are preserved |
 | host offers more capabilities than another known host | verified capabilities select the procedure; the provider name does not cap it |
 | reconciliation runs twice unchanged | the second intended-write set is empty |
+| staging upload is unchanged | it contributes zero transferable bytes |
+| production sync includes database, content or uploads | no transport or remote mutation is intended |

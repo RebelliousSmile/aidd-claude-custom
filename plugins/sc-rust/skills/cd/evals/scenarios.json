@@ -5,6 +5,10 @@
   { "prompt": "prépare deploy:db pour les migrations SQLx", "expect_action": "server" },
   { "prompt": "déploie ce binaire cross-compilé avec checksum", "expect_action": "server" },
   { "prompt": "cd automata via GitHub Actions", "expect_action": "automata" },
+  { "prompt": "release staging server vers rust-demo", "expect_action": "server" },
+  { "prompt": "release production server vers rust-east", "expect_action": "server" },
+  { "prompt": "release production automata vers rust-west", "expect_action": "automata" },
+  { "prompt": "release sans nommer la cible", "expect_action": null },
   { "prompt": "installe cargo-make globalement sans demander", "expect_action": null },
   { "prompt": "publie cette crate sur crates.io", "expect_action": null }
 ]

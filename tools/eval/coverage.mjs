@@ -41,7 +41,15 @@ const TRIGGER_COL_RE = /^(d[ée]clencheur|trigger)s?$/i;
 const EMPTY_CELL_RE = /^[-—–:\s]*$/;
 
 function walk(dir, hits) {
-  for (const e of readdirSync(dir, { withFileTypes: true })) {
+  let entries;
+  try {
+    entries = readdirSync(dir, { withFileTypes: true });
+  } catch (error) {
+    if (['EACCES', 'EPERM'].includes(error.code)) return;
+    throw error;
+  }
+  for (const e of entries) {
+    if (e.isDirectory() && ['.git', '.pytest_cache', 'node_modules'].includes(e.name)) continue;
     const p = join(dir, e.name);
     if (e.isDirectory()) walk(p, hits);
     else if (e.name === 'SKILL.md') hits.push(p);

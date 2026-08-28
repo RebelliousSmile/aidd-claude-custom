@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "owner": [
     { "plugin": "sc-js", "scope": "root" },
     { "plugin": "sc-css", "scope": "root" }
@@ -7,15 +7,21 @@
   "manager": "pnpm",
   "command": "pnpm deploy:prod",
   "workingDirectory": ".",
-  "source": { "repository": "git", "ref": "working-tree" },
-  "target": { "kind": "server", "provider": "ssh" },
-  "operations": [
+  "source": { "repository": "git", "ref": "abc1234", "clean": true },
+  "targets": [
     {
-      "name": "deploy:prod",
-      "direction": "local-to-production",
-      "preconditions": ["tests pass"],
-      "proof": ["health check passes"],
-      "recovery": ["restore previous release"]
+      "id": "site-main",
+      "phase": "production",
+      "mode": "server",
+      "provider": "ssh",
+      "executionContext": "workspace",
+      "lifecycleRevision": 1,
+      "guard": { "kind": "file", "reference": ".sc-cd/site-main.json" },
+      "lock": { "key": "deploy-site-main", "behavior": "fail" },
+      "invocation": { "command": "pnpm deploy:prod --target site-main", "workingDirectory": ".", "operations": ["deploy:code"] }
     }
+  ],
+  "operations": [
+    { "name": "deploy:code", "surface": "code", "authority": "local", "phases": ["production"], "preconditions": ["tests pass"], "proof": ["health check passes"], "recovery": ["restore previous release"] }
   ]
 }

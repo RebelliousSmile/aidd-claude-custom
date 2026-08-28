@@ -5,6 +5,9 @@
   { "prompt": "prépare deploy:db pour les migrations Alembic", "expect_action": "server" },
   { "prompt": "conserve Pipenv et crée la façade de production", "expect_action": "server" },
   { "prompt": "cd automata sur Railway", "expect_action": "automata" },
+  { "prompt": "déploie Suddenly vers la cible staging-demo server", "expect_action": "server" },
+  { "prompt": "déploie Suddenly en production sur railway-main automata", "expect_action": "automata" },
+  { "prompt": "déploie Suddenly en production sur alwaysdata-federated server", "expect_action": "server" },
   { "prompt": "convertis automatiquement ce requirements.txt vers uv", "expect_action": null },
-  { "prompt": "crée une cible de staging", "expect_action": null }
+  { "prompt": "copie les médias de railway-main vers alwaysdata-federated", "expect_action": null }
 ]

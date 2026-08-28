@@ -1,31 +1,49 @@
 {
-  "version": 1,
+  "version": 2,
   "owner": { "plugin": "sc-php", "scope": "root" },
   "manager": "composer",
-  "command": "composer deploy:prod",
+  "command": "composer deploy",
   "workingDirectory": ".",
-  "source": { "repository": "git", "ref": "working-tree" },
-  "target": { "kind": "server", "provider": "ssh" },
-  "trigger": "manual",
-  "secretNames": ["SSH_HOST"],
+  "source": { "repository": "git", "ref": "7c91be2", "clean": true },
   "contributors": [
     { "plugin": "sc-js", "scope": "assets" },
     { "plugin": "sc-css", "scope": "theme-styles" }
   ],
+  "targets": [
+    {
+      "id": "client-preview",
+      "phase": "staging",
+      "mode": "server",
+      "provider": "alwaysdata",
+      "executionContext": "workspace",
+      "lifecycleRevision": 1,
+      "guard": { "kind": "file", "reference": ".sc-cd/client-preview.json" },
+      "lock": { "key": "deploy-client-preview", "behavior": "fail" },
+      "quiescence": { "strategy": "wordpress-maintenance", "enter": "composer maintenance:on", "exit": "composer maintenance:off", "proof": ["writes return maintenance response"] },
+      "secretNames": ["SSH_HOST"],
+      "invocation": { "command": "composer deploy -- --target client-preview", "workingDirectory": ".", "operations": ["deploy:code", "deploy:media"] }
+    }
+  ],
   "operations": [
     {
-      "name": "deploy:prod",
-      "direction": "local-to-production",
+      "name": "deploy:code",
+      "surface": "code",
+      "authority": "local",
+      "phases": ["staging", "production"],
       "preconditions": ["wp-env checks pass"],
-      "proof": ["production URL answers"],
-      "recovery": ["restore files and database backup"]
+      "proof": ["target URL answers"],
+      "recovery": ["restore previous code release"]
     },
     {
-      "name": "pull:db",
-      "direction": "production-to-local",
-      "preconditions": ["local backup exists"],
-      "proof": ["local WordPress loads"],
-      "recovery": ["restore the local backup"]
+      "name": "deploy:media",
+      "surface": "media",
+      "authority": "local",
+      "phases": ["staging"],
+      "destructive": true,
+      "sync": { "comparison": "content-hash", "deletions": "mirror", "resumable": true },
+      "preconditions": ["fresh media backup", "dry-run reviewed", "confirmation recorded"],
+      "proof": ["final media manifest matches local"],
+      "recovery": ["restore media backup"]
     }
   ]
 }

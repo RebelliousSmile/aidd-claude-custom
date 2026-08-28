@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "sc-rust",
-  "version": "0.6.0",
-  "description": "Rust stack detection, audit, modernization, logs, teaching, and reversible local/production CD for crates, workspaces, services, binaries, and SQL.",
+  "version": "0.7.0",
+  "description": "Rust stack skills with target-isolated reversible releases, schema delivery, and one facade shared by server and automata modes.",
   "author": {
     "name": "François-Xavier Guillois"
   }

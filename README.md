@@ -20,9 +20,9 @@ Le **détail des skills de chaque plugin vit dans son propre README** — ce tab
 
 ### Livraison homogène avec `sc-*:cd`
 
-Les plugins `sc-css`, `sc-js`, `sc-php`, `sc-python`, `sc-rust` et `sc-tiers` partagent les actions `local`, `server` et `automata`. Le plugin de langage possède une unique façade projet (`deploy:prod`, et seulement les variantes `deploy:db`/`deploy:sync` réellement définies) ; `sc-tiers` enveloppe cette même commande pour SSH, Railway, Heroku, GitHub Actions ou GitLab CI. Il n'existe que deux environnements, local et production, avec déclenchement CI manuel par défaut.
+Les plugins `sc-css`, `sc-js`, `sc-php`, `sc-python`, `sc-rust` et `sc-tiers` partagent les actions `local`, `server` et `automata`. Le plugin de langage possède une unique façade projet (`deploy:*`) ; chaque invocation sélectionne une cible nommée. Une cible combine une phase (`staging` ou `production`), un mode (`server` ou `automata`), un fournisseur, une garde de cycle de vie et un verrou indépendant. `sc-tiers` configure seulement les prérequis et enveloppes pour SSH, Alwaysdata, Railway, Heroku, GitHub Actions ou GitLab CI.
 
-Les choix restent natifs à la stack : pnpm côté JavaScript, Composer côté PHP, gestionnaire existant côté Python, façade Cargo/xtask versionnée côté Rust, et propriété sc-css uniquement pour un site statique pur. WordPress utilise wp-env/Docker en local et sépare code, base, contenus et médias avant toute synchronisation.
+Les choix restent natifs à la stack : pnpm côté JavaScript, façade racine existante côté PHP, gestionnaire existant côté Python, Cargo/xtask versionné côté Rust, et propriété sc-css uniquement pour un site statique pur. Les surfaces `code`, `schema`, `data` et `media` sont gouvernées séparément : le local fait autorité sur un staging de présentation, tandis qu'une production conserve l'autorité sur ses données et médias. La synchronisation staging compare des manifestes et ne transfère que les différences ; aucun flux cible-à-cible n'est permis.
 
 ## Installation
 

@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "owner": { "plugin": "sc-php", "scope": "root" },
+  "manager": "composer",
+  "command": "composer deploy",
+  "workingDirectory": ".",
+  "source": { "repository": "git", "ref": "bc239af", "clean": true },
+  "targets": [
+    {
+      "id": "client-live",
+      "phase": "production",
+      "mode": "server",
+      "provider": "alwaysdata",
+      "executionContext": "workspace",
+      "lifecycleRevision": 2,
+      "guard": { "kind": "file", "reference": ".sc-cd/client-live.json" },
+      "lock": { "key": "deploy-client-live", "behavior": "fail" },
+      "invocation": { "command": "composer deploy -- --target client-live", "workingDirectory": ".", "operations": ["deploy:code", "deploy:schema"] }
+    }
+  ],
+  "operations": [
+    { "name": "deploy:code", "surface": "code", "authority": "local", "phases": ["staging", "production"], "preconditions": ["build passes"], "proof": ["site answers"], "recovery": ["restore previous release"] },
+    { "name": "deploy:schema", "surface": "schema", "authority": "local", "phases": ["production"], "preconditions": ["migration plan reviewed", "fresh database backup"], "proof": ["schema revision matches"], "recovery": ["restore database backup"] }
+  ]
+}
