@@ -1,6 +1,6 @@
 ---
 objective: "sc-js:cd refuse de propager des permissions synthétiques DrvFs et détecte toute divergence entre le script de livraison et les preuves ou récupérations promises par son contrat."
-status: in-progress
+status: implemented
 issue_number: 18
 ---
 
