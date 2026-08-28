@@ -9,6 +9,7 @@ Installe dans le projet les règles d'usage des SaaS tiers (quotas, sécurité, 
 | Skill | Déclencheur | Description |
 |---|---|---|
 | `setup` | `/sc-tiers:setup` | Installe les règles de consommation SaaS dans `.claude/rules/` — install, verify (audit du code contre les règles), help (contexte d'intégration pour un service) |
+| `cd` | `/sc-tiers:cd local\|server\|automata` | Consomme un `deploy/contract.json` existant pour configurer SSH, Railway ou Heroku et générer une enveloppe GitHub/GitLab mince. Reprend la commande exacte, manuel par défaut, noms de secrets seulement. |
 
 Couvre : Firestore (limites de requêtes, security rules, quotas), Auth listeners, Hosting (trailing slash, cache headers), Playwright + Firebase Auth, Klaviyo (subscribe 2 temps, 409→PATCH), GTM Consent Mode v2 + Meta Pixel, Microsoft Clarity (best-effort, consent-gated), PageSpeed Insights / Lighthouse (variance, métriques déterministes, checklist Nuxt 3). Data pivot : Firebase/Firestore uniquement.
 

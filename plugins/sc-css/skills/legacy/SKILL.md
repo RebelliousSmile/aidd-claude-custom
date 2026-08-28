@@ -1,6 +1,7 @@
 ---
 name: legacy
 description: >-
+  Migrate legacy CSS patterns such as floats, pixel sizing, vendor prefixes, preprocessors, and browser hacks.
 author: François-Xavier Guillois
 version: 0.5.0
 vibe_version: ">=1.0.0"

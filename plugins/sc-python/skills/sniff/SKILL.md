@@ -1,6 +1,7 @@
 ---
 name: sniff
 description: >-
+  Detect Python framework, environment manager, data layer, and capabilities and install applicable project pivots.
 author: François-Xavier Guillois
 version: 0.6.3
 vibe_version: ">=1.0.0"

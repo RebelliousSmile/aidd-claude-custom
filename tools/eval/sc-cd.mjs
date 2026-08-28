@@ -17,6 +17,29 @@ for (const plugin of plugins) {
   const schemaTarget = join(root, 'plugins', plugin, 'references/cd-project-contract.schema.json');
   if (!existsSync(schemaTarget)) failures.push(`${plugin}: missing cd-project-contract.schema.json`);
   else if (readFileSync(schemaTarget, 'utf8') !== schema) failures.push(`${plugin}: project contract schema drifted`);
+
+  const skillRoot = join(root, 'plugins', plugin, 'skills/cd');
+  const skill = join(skillRoot, 'SKILL.md');
+  if (!existsSync(skill)) failures.push(`${plugin}: missing cd skill`);
+  else {
+    const router = readFileSync(skill, 'utf8');
+    for (const [index, action] of ['local', 'server', 'automata'].entries()) {
+      const actionPath = join(skillRoot, 'actions', `0${index + 1}-${action}.md`);
+      if (!existsSync(actionPath)) failures.push(`${plugin}: missing ${action} action`);
+      if (!router.includes(`\`${action}\``)) failures.push(`${plugin}: ${action} is not routed`);
+    }
+  }
+  const scenariosPath = join(skillRoot, 'evals/scenarios.json');
+  if (!existsSync(scenariosPath)) failures.push(`${plugin}: missing cd routing scenarios`);
+  else {
+    const scenarios = JSON.parse(readFileSync(scenariosPath, 'utf8'));
+    const routed = new Set(scenarios.map(({ expect_action: action }) => action));
+    for (const action of ['local', 'server', 'automata', null]) {
+      if (!routed.has(action)) failures.push(`${plugin}: scenarios do not cover ${action ?? 'a negative neighbor'}`);
+    }
+    const staging = scenarios.filter(({ prompt }) => /\bstaging\b/i.test(prompt));
+    if (staging.some(({ expect_action: action }) => action !== null)) failures.push(`${plugin}: staging routes to a delivery action`);
+  }
 }
 
 for (const required of ['`local`', '`production`', '`deploy:*`', '`pull:*`', '`automata`', 'one root deployment facade']) {
@@ -49,6 +72,8 @@ if (!validateProjectContract(producer, { command: 'cargo run deploy', workingDir
 if ((producer.trigger || 'manual') !== 'push') failures.push('automata: explicit push trigger was not preserved');
 const manualDefault = JSON.parse(readFileSync(join(fixtures, 'valid-language-owner/deploy/contract.json'), 'utf8'));
 if ((manualDefault.trigger || 'manual') !== 'manual') failures.push('language owner: trigger does not default to manual');
+const composite = JSON.parse(readFileSync(join(fixtures, 'valid-composite/deploy/contract.json'), 'utf8'));
+if (composite.owner.scope !== 'root' || composite.contributors.some(({ scope }) => scope === 'root')) failures.push('composite: contributor escaped its bounded scope');
 
 if (failures.length) {
   for (const failure of failures) console.error(`SC-CD FAIL: ${failure}`);

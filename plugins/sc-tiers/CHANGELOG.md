@@ -1,5 +1,12 @@
 # Changelog — sc-tiers
 
+## [0.4.0] — 2026-08-28
+
+### Added
+
+- Skill `cd` qui consomme la commande d'un contrat projet validé pour SSH, Railway, Heroku, GitHub Actions et GitLab CI.
+- Adaptateurs minces, déclenchement manuel par défaut, propagation du code de sortie et déclaration des seuls noms de secrets.
+
 > Baseline établie le 2026-05-29 à partir de l'état courant. Détail : `git log -- plugins/sc-tiers`.
 
 ## [0.3.2] — 2026-08-05

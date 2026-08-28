@@ -1,6 +1,7 @@
 ---
 name: sniff
 description: >-
+  Detect Rust crates, frameworks, data layers, and capabilities and install only applicable project pivots.
 author: François-Xavier Guillois
 version: 0.5.2
 vibe_version: ">=1.0.0"

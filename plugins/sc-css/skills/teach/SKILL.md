@@ -1,6 +1,7 @@
 ---
 name: teach
 description: >-
+  Explain CSS architecture and modern language features in the context of the current codebase without editing it.
 author: François-Xavier Guillois
 version: 0.5.0
 vibe_version: ">=1.0.0"

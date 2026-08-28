@@ -1,6 +1,7 @@
 ---
 name: builder-coverage
 description: >-
+  Prove WordPress FSE builder coverage by mapping components to editable block patterns and reporting gaps.
 author: François-Xavier Guillois
 version: 0.12.0
 vibe_version: ">=1.0.0"

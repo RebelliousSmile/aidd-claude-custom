@@ -1,6 +1,7 @@
 ---
 name: setup
 description: >-
+  Install and verify host-native project guidance for supported third-party SaaS integrations and data pivots.
 author: François-Xavier Guillois
 version: 0.3.2
 vibe_version: ">=1.0.0"

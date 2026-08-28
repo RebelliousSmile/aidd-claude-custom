@@ -1,6 +1,7 @@
 ---
 name: design-bridge
 description: >-
+  Realize design-system tokens, components, and lint rules as native CSS from a design pivot specification.
 author: François-Xavier Guillois
 version: 0.5.0
 vibe_version: ">=1.0.0"

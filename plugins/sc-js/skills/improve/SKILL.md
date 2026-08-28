@@ -1,6 +1,7 @@
 ---
 name: improve
 description: >-
+  Analyze JavaScript code for idioms, architecture improvements, and targeted modernization opportunities before editing.
 author: François-Xavier Guillois
 version: 0.15.4
 vibe_version: ">=1.0.0"

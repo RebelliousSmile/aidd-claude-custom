@@ -1,6 +1,7 @@
 ---
 name: teach
 description: >-
+  Explain Rust ownership, language idioms, async, and framework patterns in the current project context.
 author: François-Xavier Guillois
 version: 0.5.2
 vibe_version: ">=1.0.0"

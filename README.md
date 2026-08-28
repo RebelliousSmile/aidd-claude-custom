@@ -18,6 +18,12 @@ Le **détail des skills de chaque plugin vit dans son propre README** — ce tab
 | [`sc-tiers`](plugins/sc-tiers/README.md) | [README](plugins/sc-tiers/README.md) · [CHANGELOG](plugins/sc-tiers/CHANGELOG.md) | — | SaaS tiers : Firebase, Klaviyo, GTM, Clarity, PSI |
 | [`obs`](plugins/obs/README.md) | [README](plugins/obs/README.md) · [CHANGELOG](plugins/obs/CHANGELOG.md) | — | Notes Obsidian — projets Pro, tri d'emails, organisation de l'arborescence et ingestion PDF |
 
+### Livraison homogène avec `sc-*:cd`
+
+Les plugins `sc-css`, `sc-js`, `sc-php`, `sc-python`, `sc-rust` et `sc-tiers` partagent les actions `local`, `server` et `automata`. Le plugin de langage possède une unique façade projet (`deploy:prod`, et seulement les variantes `deploy:db`/`deploy:sync` réellement définies) ; `sc-tiers` enveloppe cette même commande pour SSH, Railway, Heroku, GitHub Actions ou GitLab CI. Il n'existe que deux environnements, local et production, avec déclenchement CI manuel par défaut.
+
+Les choix restent natifs à la stack : pnpm côté JavaScript, Composer côté PHP, gestionnaire existant côté Python, façade Cargo/xtask versionnée côté Rust, et propriété sc-css uniquement pour un site statique pur. WordPress utilise wp-env/Docker en local et sépare code, base, contenus et médias avant toute synchronisation.
+
 ## Installation
 
 ### Prérequis AIDD pour Codex

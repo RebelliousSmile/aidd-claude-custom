@@ -1,5 +1,12 @@
 # Changelog — sc-rust
 
+## [0.6.0] — 2026-08-28
+
+### Added
+
+- Skill `cd` pour crates, workspaces, services et binaires avec façade Cargo/xtask ou task runner versionné.
+- Releases identifiables et réversibles : checksum, cible prouvée, migrations avant bascule atomique, health check et release précédente conservée.
+
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/sc-rust`.
 
 ## [0.5.2] — 2026-08-05

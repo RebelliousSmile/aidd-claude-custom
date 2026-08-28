@@ -1,6 +1,7 @@
 ---
 name: legacy
 description: >-
+  Detect deprecated Rust edition, crate, and language patterns and propose a safe migration path.
 author: François-Xavier Guillois
 version: 0.5.2
 vibe_version: ">=1.0.0"

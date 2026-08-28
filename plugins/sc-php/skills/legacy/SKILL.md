@@ -1,6 +1,7 @@
 ---
 name: legacy
 description: >-
+  Detect deprecated PHP and framework patterns and propose a version-aware migration path.
 author: François-Xavier Guillois
 version: 0.12.0
 vibe_version: ">=1.0.0"

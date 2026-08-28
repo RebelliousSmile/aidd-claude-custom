@@ -1,6 +1,7 @@
 ---
 name: sniff
 description: >-
+  Detect a project's CSS architecture, preprocessors, lint tooling, cascade layers, and custom-property adoption.
 author: François-Xavier Guillois
 version: 0.5.0
 vibe_version: ">=1.0.0"

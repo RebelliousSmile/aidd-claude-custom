@@ -1,6 +1,7 @@
 ---
 name: improve
 description: >-
+  Analyze Rust code for idioms, ownership improvements, architecture opportunities, and a targeted change plan.
 author: François-Xavier Guillois
 version: 0.5.2
 vibe_version: ">=1.0.0"

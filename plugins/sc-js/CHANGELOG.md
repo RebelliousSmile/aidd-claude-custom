@@ -1,5 +1,12 @@
 # Changelog — sc-js
 
+## [0.16.0] — 2026-08-28
+
+### Added
+
+- Skill `cd` pour réconcilier le local et une façade `deploy:prod` native, avec stratégies Nuxt, Vue/Vite, SvelteKit, Astro et Node.
+- Contrats SQL/IndexedDB distincts et remise des enveloppes CI/PaaS à `sc-tiers` sans dupliquer la procédure projet.
+
 ## [0.15.4] — 2026-08-06
 
 ### Fixed — la table `## Phases` du workflow SPA ne disait pas où ses phases s'insèrent

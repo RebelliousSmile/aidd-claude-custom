@@ -1,6 +1,7 @@
 ---
 name: audit
 description: >-
+  Audit a detected Python stack by delegating review with the applicable framework and capability pivots.
 author: François-Xavier Guillois
 version: 0.6.3
 vibe_version: ">=1.0.0"

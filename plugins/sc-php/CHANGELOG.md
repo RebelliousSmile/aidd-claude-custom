@@ -1,5 +1,15 @@
 # Changelog — sc-php
 
+## [0.13.0] — 2026-08-28
+
+### Added
+
+- Skill `cd` pour WordPress, Laravel et Symfony : wp-env/Docker en local, façade Composer en production et synchronisations WordPress bornées par surface.
+
+### Changed
+
+- `setup wire-deploy` devient une route de compatibilité vers `cd server` ; les anciens scripts et cibles sont migrés derrière une seule façade sans écrasement silencieux.
+
 ## [0.12.0] — 2026-08-14
 
 ### Added

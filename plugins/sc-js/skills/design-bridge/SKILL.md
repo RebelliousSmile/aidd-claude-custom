@@ -1,6 +1,7 @@
 ---
 name: design-bridge
 description: >-
+  Realize design enforcement and rendered components as idiomatic JavaScript framework code from a design pivot spec.
 author: François-Xavier Guillois
 version: 0.15.4
 vibe_version: ">=1.0.0"

@@ -1,6 +1,7 @@
 ---
 name: teach
 description: >-
+  Explain PHP language, object-oriented patterns, and framework idioms in the context of the current project.
 author: François-Xavier Guillois
 version: 0.12.0
 vibe_version: ">=1.0.0"

@@ -1,13 +1,13 @@
 {
   "name": "sc-tiers",
-  "version": "0.3.2+codex.20260814",
-  "description": "Third-party SaaS consumption guidance installed through host-native project instructions: Firebase Firestore limits, security, quotas, Auth listener cleanup, Hosting headers; Klaviyo API patterns; GTM Consent Mode v2 and Meta Pixel consent; Microsoft Clarity; PageSpeed Insights and Lighthouse.",
+  "version": "0.4.0+codex.20260828",
+  "description": "Third-party SaaS guidance plus provider and CI/CD adapters that consume an existing project delivery contract for SSH, Railway, Heroku, GitHub, and GitLab.",
   "author": { "name": "François-Xavier Guillois" },
   "skills": "./skills/",
   "interface": {
     "displayName": "SC Third-party Services",
     "shortDescription": "Install safe SaaS integration guidance",
-    "longDescription": "Install project guidance for Firebase, Klaviyo, analytics consent, Microsoft Clarity, PageSpeed Insights, and Lighthouse.",
+    "longDescription": "Install SaaS guidance and configure thin provider or CI/CD envelopes that call a validated project-owned production facade.",
     "developerName": "François-Xavier Guillois",
     "category": "Developer Tools",
     "capabilities": ["Interactive", "Write"],

@@ -1,5 +1,12 @@
 # Changelog — sc-css
 
+## [0.6.0] — 2026-08-28
+
+### Added
+
+- Skill `cd` avec interface `local`, `server`, `automata`, façade statique native et contrat projet portable.
+- Propriété bornée : sc-css possède les sites statiques purs et reste contributeur d'assets dans les applications pilotées par une stack de langage.
+
 ## [0.5.0] — 2026-08-14
 
 ### Added

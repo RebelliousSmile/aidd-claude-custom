@@ -1,6 +1,7 @@
 ---
 name: improve
 description: >-
+  Analyze Python code for idioms, architecture improvements, and a targeted change plan.
 author: François-Xavier Guillois
 version: 0.6.3
 vibe_version: ">=1.0.0"

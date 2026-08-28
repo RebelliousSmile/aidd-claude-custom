@@ -1,6 +1,7 @@
 ---
 name: sniff
 description: >-
+  Detect PHP framework, WordPress, data layer, and capabilities and install only the applicable project pivots.
 author: François-Xavier Guillois
 version: 0.12.0
 vibe_version: ">=1.0.0"

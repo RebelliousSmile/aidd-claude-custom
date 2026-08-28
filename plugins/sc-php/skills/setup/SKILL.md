@@ -1,6 +1,7 @@
 ---
 name: setup
 description: >-
+  Scaffold WordPress, Laravel, or Symfony with guarded local containers and route optional delivery to the cd skill.
 author: François-Xavier Guillois
 version: 0.12.0
 vibe_version: ">=1.0.0"

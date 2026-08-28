@@ -1,13 +1,13 @@
 {
   "name": "sc-php",
-  "version": "0.12.0+codex.20260814",
-  "description": "PHP and WordPress skills with native FSE patterns, shared front/editor design assets, core-block bindings, guarded WP-CLI, builder coverage, and rendered cascade-ownership proof.",
+  "version": "0.13.0+codex.20260828",
+  "description": "PHP and WordPress skills with native FSE patterns, guarded WP-CLI, builder coverage, and scoped local/production CD for WordPress, Laravel, and Symfony.",
   "author": { "name": "François-Xavier Guillois" },
   "skills": "./skills/",
   "interface": {
     "displayName": "SC PHP",
     "shortDescription": "Build, audit, and modernize PHP stacks",
-    "longDescription": "Work with PHP, WordPress FSE, Laravel, Symfony, Bruno API tests, logs, design pivots, and builder coverage.",
+    "longDescription": "Work with PHP, WordPress FSE, Laravel, Symfony, tests, logs, design pivots, and reasoned local/production delivery through a Composer facade.",
     "developerName": "François-Xavier Guillois",
     "category": "Developer Tools",
     "capabilities": ["Interactive", "Write"],

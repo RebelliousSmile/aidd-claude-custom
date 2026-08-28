@@ -1,6 +1,7 @@
 ---
 name: log-analysis
 description: >-
+  Tail, parse, search, and summarize PHP, Apache, Nginx, Docker, or remote application logs.
 author: François-Xavier Guillois
 version: 0.12.0
 vibe_version: ">=1.0.0"

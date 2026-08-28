@@ -1,6 +1,7 @@
 ---
 name: wp-blocks
 description: >-
+  Validate Gutenberg block markup through a Playwright editor round trip and report structural validity failures.
 author: François-Xavier Guillois
 version: 0.15.4
 vibe_version: ">=1.0.0"

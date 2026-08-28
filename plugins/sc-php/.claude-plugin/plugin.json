@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "sc-php",
-  "version": "0.12.0",
-  "description": "PHP and WordPress skills with native FSE patterns, shared front/editor design assets, core-block bindings, guarded WP-CLI, builder coverage, and rendered cascade-ownership proof.",
+  "version": "0.13.0",
+  "description": "PHP and WordPress skills with native FSE patterns, guarded WP-CLI, builder coverage, and scoped local/production CD for WordPress, Laravel, and Symfony.",
   "author": {
     "name": "François-Xavier Guillois"
   }
