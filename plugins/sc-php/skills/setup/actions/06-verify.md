@@ -20,7 +20,7 @@ Sanity checks post-scaffold. À exécuter après `02/03/04-scaffold-*` et, si c�
 4. **Styles design front + éditeur (WordPress)** : la réponse front contient le handle
    `<slug>-design-css`, et `pnpm wp eval` confirme que `editor-styles` référence exactement
    `assets/css/design/index.css`. L'un sans l'autre est un échec.
-5. **Si déploiement câblé** : `pnpm deploy <cible> --no-db` en dry-run mental (vérifier que `deploy-targets.mjs` contient bien la cible, ne pas exécuter de vrai transfert sans confirmation explicite de l'utilisateur si la cible est une cible réelle et non un exemple).
+5. **Si livraison câblée** : vérifier que `composer deploy:prod` correspond textuellement à `deploy/contract.json`, qu'une seule implémentation est possédée et que ses preflight, preuve et récupération sont déclarés. Ne jamais exécuter de transfert réel pendant cette vérification.
 6. Rapporter un résumé pass/fail par vérification — jamais de "tout est bon" silencieux si une étape a été sautée (ex: pas de cible de déploiement configurée).
 
 ## Outputs

@@ -1,6 +1,7 @@
 ---
 name: bruno
 description: >-
+  Create and iterate Bruno CLI API tests, environments, scripts, and assertions until the requested suite passes.
 author: François-Xavier Guillois
 version: 0.12.0
 vibe_version: ">=1.0.0"

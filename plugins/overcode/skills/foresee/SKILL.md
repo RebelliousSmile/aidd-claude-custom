@@ -1,6 +1,7 @@
 ---
 name: foresee
 description: >-
+  Route prospective document and code analysis to the installed AIDD skills, or analyze dependency abandonment and lock-in signals beyond a dependency audit. Use for foresee, prospective analysis, future-problem analysis, discussion, or follow-up planning. Do NOT use to run tests, implement features, or duplicate a general audit.
 author: François-Xavier Guillois
 version: 4.7.0
 vibe_version: ">=1.0.0"

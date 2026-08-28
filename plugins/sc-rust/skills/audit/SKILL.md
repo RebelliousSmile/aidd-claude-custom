@@ -1,6 +1,7 @@
 ---
 name: audit
 description: >-
+  Audit a detected Rust stack by delegating review with the applicable framework, crate, and capability pivots.
 author: François-Xavier Guillois
 version: 0.5.2
 vibe_version: ">=1.0.0"

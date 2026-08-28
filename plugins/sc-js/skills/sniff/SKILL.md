@@ -1,6 +1,7 @@
 ---
 name: sniff
 description: >-
+  Detect JavaScript runtime, framework, tooling, data layer, and capabilities and emit the applicable pivot manifest.
 author: François-Xavier Guillois
 version: 0.15.4
 vibe_version: ">=1.0.0"

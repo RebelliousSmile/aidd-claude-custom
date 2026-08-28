@@ -1,0 +1,27 @@
+# Automata
+
+Validate the native JavaScript facade and delegate a thin automation envelope.
+
+## Input
+
+- A current project contract, native package script, chosen provider, and available sc-tiers capability.
+
+## Output
+
+A validated handoff containing the exact command, directory, operations, trigger, and secret names.
+
+## Process
+
+1. **Validate.** Reject stale command, directory, source, proof, recovery, or operation data before delegation.
+2. **Require.** Stop without writing or installing anything when sc-tiers is unavailable.
+3. **Delegate.** Pass the exact project contract to `sc-tiers:cd automata` without copying JavaScript delivery logic.
+4. **Trigger.** Use manual delivery by default and preserve push only when explicitly declared.
+
+## Test
+
+| Case | Pass |
+| --- | --- |
+| native facade and contract agree | the handoff preserves command and working directory byte-for-byte |
+| contract is stale | no workflow or provider file is intended and the drift is named |
+| sc-tiers is absent | no fallback or plugin installation is intended |
+| delegated facade exits non-zero | the envelope is required to preserve the failing status |

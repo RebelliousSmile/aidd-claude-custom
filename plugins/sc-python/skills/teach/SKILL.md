@@ -1,6 +1,7 @@
 ---
 name: teach
 description: >-
+  Explain Python language, async, Django, FastAPI, and framework idioms in the current project context.
 author: François-Xavier Guillois
 version: 0.6.3
 vibe_version: ">=1.0.0"

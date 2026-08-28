@@ -84,13 +84,17 @@ const classList = () => {
 };
 const el = (extra = {}) => ({
   innerHTML: '',
+  textContent: '',
   scrollTop: 0,
+  dataset: {},
   classList: classList(),
   attributes: {},
   setAttribute(n, v) { this.attributes[n] = v; },
   getAttribute(n) { return this.attributes[n]; },
   removeAttribute(n) { delete this.attributes[n]; },
   addEventListener() {},
+  querySelector() { return null; },
+  querySelectorAll() { return []; },
   ...extra,
 });
 
@@ -133,7 +137,7 @@ const ctx = vm.createContext(sandbox);
 
 bodies.forEach((body, i) => {
   try {
-    vm.runInContext(body, ctx, { filename: `${file}#script${i + 1}` });
+    vm.runInContext(body, ctx, { filename: `${file}#script${i + 1}`, timeout: 1000 });
   } catch (e) {
     // An unbalanced brace reports at end of input, with no useful position — the script
     // index is the locator that actually helps.
@@ -189,7 +193,7 @@ for (const key of expectPages) {
 // object — sandbox.pages is undefined. Evaluating in the context is the only reading.
 let registryKeys;
 try {
-  registryKeys = vm.runInContext('Object.keys(pages)', ctx);
+  registryKeys = vm.runInContext('Object.keys(pages)', ctx, { timeout: 1000 });
 } catch (e) {
   fail(`the pages registry is not readable: ${e.name}: ${e.message}`);
 }
@@ -199,7 +203,7 @@ check('the pages registry is empty', registryKeys.length > 0);
 // entry so a renamed key cannot silently keep the source or theme of another page.
 let metadata;
 try {
-  metadata = vm.runInContext('pageMetadata', ctx);
+  metadata = vm.runInContext('pageMetadata', ctx, { timeout: 1000 });
 } catch (e) {
   fail(`the pageMetadata registry is not readable: ${e.name}: ${e.message}`);
 }

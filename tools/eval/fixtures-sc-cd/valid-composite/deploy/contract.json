@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "owner": { "plugin": "sc-php", "scope": "root" },
+  "manager": "composer",
+  "command": "composer deploy:prod",
+  "workingDirectory": ".",
+  "source": { "repository": "git", "ref": "working-tree" },
+  "target": { "kind": "server", "provider": "ssh" },
+  "trigger": "manual",
+  "secretNames": ["SSH_HOST"],
+  "contributors": [
+    { "plugin": "sc-js", "scope": "assets" },
+    { "plugin": "sc-css", "scope": "theme-styles" }
+  ],
+  "operations": [
+    {
+      "name": "deploy:prod",
+      "direction": "local-to-production",
+      "preconditions": ["wp-env checks pass"],
+      "proof": ["production URL answers"],
+      "recovery": ["restore files and database backup"]
+    },
+    {
+      "name": "pull:db",
+      "direction": "production-to-local",
+      "preconditions": ["local backup exists"],
+      "proof": ["local WordPress loads"],
+      "recovery": ["restore the local backup"]
+    }
+  ]
+}

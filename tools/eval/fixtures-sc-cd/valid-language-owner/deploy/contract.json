@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "owner": { "plugin": "sc-js", "scope": "root" },
+  "manager": "pnpm",
+  "command": "pnpm deploy:prod",
+  "workingDirectory": ".",
+  "source": { "repository": "git", "ref": "working-tree" },
+  "target": { "kind": "server", "provider": "ssh" },
+  "secretNames": ["DEPLOY_HOST", "DEPLOY_USER"],
+  "operations": [
+    {
+      "name": "deploy:prod",
+      "direction": "local-to-production",
+      "preconditions": ["tests pass", "working tree reviewed"],
+      "proof": ["remote health check passes"],
+      "recovery": ["restore the previous release pointer"]
+    }
+  ]
+}

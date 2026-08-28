@@ -1,6 +1,7 @@
 ---
 name: improve
 description: >-
+  Analyze PHP code for idiomatic patterns, framework improvements, and a targeted change plan.
 author: François-Xavier Guillois
 version: 0.12.0
 vibe_version: ">=1.0.0"

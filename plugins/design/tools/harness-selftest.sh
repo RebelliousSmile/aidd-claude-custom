@@ -42,6 +42,8 @@ if [ -z "$NODE" ] || ! command -v "$NODE" >/dev/null 2>&1; then
   exit 1
 fi
 RUNTIME="$DIR/tools/harness-runtime-check.mjs"
+ANALYZER="$DIR/tools/harness-analyze.mjs"
+APPLIER="$DIR/tools/harness-apply.py"
 
 check() {  # name expected_code <harness args…>
   name=$1; want=$2; shift 2
@@ -109,8 +111,10 @@ else
   echo "FAIL frozen usage rule missing from LLM framing"; fail=1
 fi
 if grep -q "AUTHOR PAGE STYLES" "$OUT/meta.html" &&
-   grep -q "Modifie uniquement les deux zones auteur" "$OUT/meta.html"; then
-  echo "ok   LLM edit scope names both author-owned regions"
+   grep -q "AUTHOR SHARED HELPERS" "$OUT/meta.html" &&
+   grep -q "AUTHOR AFTER RENDER" "$OUT/meta.html" &&
+   grep -q "Modifie uniquement les zones auteur" "$OUT/meta.html"; then
+  echo "ok   LLM edit scope names all governed author regions"
 else
   echo "FAIL LLM edit scope is missing or contradictory"; fail=1
 fi
@@ -235,6 +239,137 @@ else
   echo "ok   the style-breakout payload reaches no output"
 fi
 
+# ─── Existing HTML analysis ─────────────────────────────────────────────────
+# Normalization starts from an aggregate read-only report. A readable nonconformant
+# document is a successful analysis (0), while unreadable/empty input is invalid (2).
+if "$NODE" "$ANALYZER" "$OUT/s.html" >"$OUT/analyze-canonical.json" 2>"$OUT/err" &&
+   grep -q '"classification": "canonical-harness"' "$OUT/analyze-canonical.json" &&
+   grep -q '"conformant": true' "$OUT/analyze-canonical.json"; then
+  echo "ok   analyzer recognizes a runtime-valid canonical harness"
+else
+  echo "FAIL analyzer does not recognize the canonical harness"; cat "$OUT/err"; fail=1
+fi
+
+printf '%s\n' '<!doctype html><html><head><style>.hero{color:red}</style></head><body><main><h1>Hello</h1></main></body></html>' >"$OUT/document.html"
+if "$NODE" "$ANALYZER" "$OUT/document.html" >"$OUT/analyze-document.json" 2>"$OUT/err" &&
+   grep -q '"classification": "html-document"' "$OUT/analyze-document.json" &&
+   grep -q '"readyWithoutDecision": true' "$OUT/analyze-document.json"; then
+  echo "ok   analyzer accepts a script-free author document for migration"
+else
+  echo "FAIL analyzer misclassifies a script-free author document"; cat "$OUT/err"; fail=1
+fi
+
+sed '/END AUTHOR PAGE STYLES/d' "$OUT/s.html" >"$OUT/damaged.html"
+if "$NODE" "$ANALYZER" "$OUT/damaged.html" >"$OUT/analyze-damaged.json" 2>"$OUT/err" &&
+   grep -q '"classification": "repairable-harness"' "$OUT/analyze-damaged.json" &&
+   grep -q '"id": "missing-authorStyleEnd"' "$OUT/analyze-damaged.json"; then
+  echo "ok   analyzer identifies a repairable harness without mutating it"
+else
+  echo "FAIL analyzer misses damaged canonical infrastructure"; cat "$OUT/err"; fail=1
+fi
+
+printf '%s\n' '<!doctype html><html><head></head><body><main></main><script src="app.js"></script></body></html>' >"$OUT/scripted.html"
+if "$NODE" "$ANALYZER" "$OUT/scripted.html" >"$OUT/analyze-scripted.json" 2>"$OUT/err" &&
+   grep -q '"readyWithoutDecision": false' "$OUT/analyze-scripted.json" &&
+   grep -q 'external application scripts' "$OUT/analyze-scripted.json"; then
+  echo "ok   analyzer blocks silent application-script migration"
+else
+  echo "FAIL analyzer does not expose the application-script blocker"; cat "$OUT/err"; fail=1
+fi
+
+# Selector and style evidence is scoped to canonical ownership. Business form options
+# and body template styles must not masquerade as harness registry/chrome evidence.
+sed 's#<div class="preview-stage">#<select id="business"><option value="sql">SQL</option></select><style>.business{color:red}</style><div class="preview-stage">#' "$OUT/s.html" >"$OUT/business-controls.html"
+if "$NODE" "$ANALYZER" "$OUT/business-controls.html" >"$OUT/analyze-business.json" 2>"$OUT/err" &&
+   grep -q '"classification": "canonical-harness"' "$OUT/analyze-business.json" &&
+   grep -q '"inlineHeadBlocks": 1' "$OUT/analyze-business.json" &&
+   ! grep -q 'registry-option-drift' "$OUT/analyze-business.json"; then
+  echo "ok   analyzer scopes options to #page-select and styles to head"
+else
+  echo "FAIL analyzer confuses page content with harness-owned evidence"; cat "$OUT/err"; fail=1
+fi
+
+# Accessibility preferences describe the user environment and survive normalization;
+# width/orientation queries secretly introduce a fourth viewport and remain forbidden.
+sed 's#AUTHOR PAGE STYLES — LLM MAY EDIT BETWEEN THESE MARKERS ===== \*/#AUTHOR PAGE STYLES — LLM MAY EDIT BETWEEN THESE MARKERS ===== */\n  @media (prefers-reduced-motion: reduce) { .hero { transition: none; } }#' "$OUT/s.html" >"$OUT/preference-media.html"
+if "$NODE" "$ANALYZER" "$OUT/preference-media.html" >"$OUT/analyze-preference.json" 2>"$OUT/err" &&
+   grep -q '"classification": "canonical-harness"' "$OUT/analyze-preference.json" &&
+   grep -q 'prefers-reduced-motion' "$OUT/analyze-preference.json"; then
+  echo "ok   analyzer preserves accessibility preference media queries"
+else
+  echo "FAIL analyzer rejects an accessibility preference query"; cat "$OUT/err"; fail=1
+fi
+sed 's#AUTHOR PAGE STYLES — LLM MAY EDIT BETWEEN THESE MARKERS ===== \*/#AUTHOR PAGE STYLES — LLM MAY EDIT BETWEEN THESE MARKERS ===== */\n  @import url("https://fonts.example.test/family.css");#' "$OUT/s.html" >"$OUT/import-style.html"
+if "$NODE" "$ANALYZER" "$OUT/import-style.html" >"$OUT/analyze-import.json" 2>"$OUT/err" &&
+   grep -q 'https://fonts.example.test/family.css' "$OUT/analyze-import.json" &&
+   grep -q 'unresolved stylesheet dependencies' "$OUT/analyze-import.json"; then
+  echo "ok   analyzer exposes external CSS imported from an author style block"
+else
+  echo "FAIL analyzer misses an @import stylesheet dependency"; cat "$OUT/err"; fail=1
+fi
+sed 's#AUTHOR PAGE STYLES — LLM MAY EDIT BETWEEN THESE MARKERS ===== \*/#AUTHOR PAGE STYLES — LLM MAY EDIT BETWEEN THESE MARKERS ===== */\n  @media (max-width: 700px) { .hero { display: block; } }#' "$OUT/s.html" >"$OUT/viewport-media.html"
+if "$NODE" "$ANALYZER" "$OUT/viewport-media.html" >"$OUT/analyze-viewport.json" 2>"$OUT/err" &&
+   grep -q '"classification": "repairable-harness"' "$OUT/analyze-viewport.json" &&
+   grep -q 'viewport-media-query' "$OUT/analyze-viewport.json"; then
+  echo "ok   analyzer rejects viewport media queries"
+else
+  echo "FAIL analyzer accepts a hidden viewport breakpoint"; cat "$OUT/err"; fail=1
+fi
+
+printf '%s' '{"pages":[{"key":"legacy","label":"Legacy","source":"C:\\\\old-machine\\\\page.html"}]}' >"$OUT/legacy-source.json"
+"$PY" "$HARNESS" --out "$OUT/legacy-source.html" --pages-json "$OUT/legacy-source.json" >/dev/null 2>&1
+if "$NODE" "$ANALYZER" "$OUT/legacy-source.html" >"$OUT/analyze-source.json" 2>"$OUT/err" &&
+   grep -q 'unreadable-source-path' "$OUT/analyze-source.json"; then
+  echo "ok   analyzer exposes machine-local source provenance"
+else
+  echo "FAIL analyzer misses unreadable absolute source provenance"; cat "$OUT/err"; fail=1
+fi
+
+if "$NODE" "$ANALYZER" "$OUT/s.html" --baseline "$OUT/document.html" >"$OUT/analyze-size.json" 2>"$OUT/err" &&
+   grep -q 'size-growth' "$OUT/analyze-size.json" &&
+   grep -q 'output size exceeds 2x baseline' "$OUT/analyze-size.json"; then
+  echo "ok   analyzer gates output growth above 2x baseline"
+else
+  echo "FAIL analyzer misses excessive normalization growth"; cat "$OUT/err"; fail=1
+fi
+
+# Reviewed payload application is deterministic: generated placeholders only, safe JS
+# string serialization, governed raw-JS zones, and a distinct atomic output.
+printf '%s' '{"pages":{"page-1":"<main><h1>Safe</h1><script>demo</script>\u2028</main>"},"styles":".safe { color: red; }","sharedHelpers":"function icon() { return '\''ok'\''; }","afterRender":"root.querySelectorAll('\''.faq'\'').forEach(function (item) { item.addEventListener('\''click'\'', function () {}); }); root.setAttribute('\''data-ready'\'', page);"}' >"$OUT/payload.json"
+if "$PY" "$APPLIER" --harness "$OUT/s.html" --payload "$OUT/payload.json" --out "$OUT/applied.html" >"$OUT/out" 2>"$OUT/err" &&
+   grep -Fq '<\/script>' "$OUT/applied.html" &&
+   grep -Fq '\u2028' "$OUT/applied.html" &&
+   grep -q 'function icon()' "$OUT/applied.html" &&
+   "$NODE" "$RUNTIME" "$OUT/applied.html" >/dev/null 2>"$OUT/err"; then
+  echo "ok   payload applicator serializes safely and keeps runtime valid"
+else
+  echo "FAIL deterministic payload application"; cat "$OUT/err"; fail=1
+fi
+printf '%s' '{"pageBodies":{"page-1":"  return sharedLayout('\''Body'\'');"},"styles":"","sharedHelpers":"function sharedLayout(value) { return '\''<main><h1>'\'' + value + '\''</h1></main>'\''; }","afterRender":""}' >"$OUT/body-payload.json"
+if "$PY" "$APPLIER" --harness "$OUT/s.html" --payload "$OUT/body-payload.json" --out "$OUT/body-applied.html" >"$OUT/out" 2>"$OUT/err" &&
+   grep -q "return sharedLayout('Body')" "$OUT/body-applied.html" &&
+   "$NODE" "$RUNTIME" "$OUT/body-applied.html" >/dev/null 2>"$OUT/err"; then
+  echo "ok   payload applicator preserves reusable page function bodies"
+else
+  echo "FAIL reusable page-body application"; cat "$OUT/err"; fail=1
+fi
+"$PY" "$APPLIER" --harness "$OUT/applied.html" --payload "$OUT/payload.json" --out "$OUT/overwrite.html" >"$OUT/out" 2>"$OUT/err"
+got=$?
+if [ "$got" -eq 2 ] && [ ! -e "$OUT/overwrite.html" ]; then
+  echo "ok   payload applicator refuses a lossy overwrite"
+else
+  echo "FAIL payload applicator overwrite gate: exit $got"; cat "$OUT/err"; fail=1
+fi
+
+: >"$OUT/empty.html"
+"$NODE" "$ANALYZER" "$OUT/empty.html" >"$OUT/analyze-empty.json" 2>"$OUT/err"
+got=$?
+if [ "$got" -eq 2 ] && grep -q 'input is empty' "$OUT/err"; then
+  echo "ok   analyzer rejects empty input with exit 2"
+else
+  echo "FAIL analyzer empty input exit $got, expected 2"; cat "$OUT/err"; fail=1
+fi
+
 # ─── Runtime ─────────────────────────────────────────────────────────────────
 # Everything above asserts on the TEXT of the generated file. A generator emitting a
 # syntactically dead <script> satisfies all of it: measured on a copy with an unbalanced
@@ -251,6 +386,16 @@ for f in m.html c.html s.html meta.html; do
     echo "FAIL runtime check on $f"; fail=1
   fi
 done
+
+# A syntactically valid but non-terminating author helper cannot hang the analyzer or CI.
+sed '/function placeholder/i\    while (true) {}' "$OUT/s.html" >"$OUT/infinite.html"
+if "$NODE" "$RUNTIME" "$OUT/infinite.html" >"$OUT/out" 2>"$OUT/err"; then
+  echo "FAIL runtime accepts an infinite author script"; fail=1
+elif grep -q 'timed out' "$OUT/err"; then
+  echo "ok   runtime bounds non-terminating scripts"
+else
+  echo "FAIL runtime rejects infinite script without timeout evidence"; cat "$OUT/err"; fail=1
+fi
 
 # ─── Three-branch page-key invariant ─────────────────────────────────────────
 # Registry, <option value> and the oracle's reference_page are one set written by three

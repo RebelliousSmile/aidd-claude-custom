@@ -1,6 +1,7 @@
 ---
 name: legacy
 description: >-
+  Detect deprecated Python and framework patterns and propose a version-aware migration path.
 author: François-Xavier Guillois
 version: 0.6.3
 vibe_version: ">=1.0.0"

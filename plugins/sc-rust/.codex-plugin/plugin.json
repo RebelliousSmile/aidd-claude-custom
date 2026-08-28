@@ -1,13 +1,13 @@
 {
   "name": "sc-rust",
-  "version": "0.5.2+codex.20260814",
-  "description": "Rust-specific skills and workflows: two-tier sniff (pivot model), audit (aidd-dev:reviewer), improve, legacy, log-analysis, teach (Axum/Actix + SQLx/Diesel).",
+  "version": "0.6.0+codex.20260828",
+  "description": "Rust stack detection, audit, modernization, logs, teaching, and reversible local/production CD for crates, workspaces, services, binaries, and SQL.",
   "author": { "name": "François-Xavier Guillois" },
   "skills": "./skills/",
   "interface": {
     "displayName": "SC Rust",
     "shortDescription": "Audit and modernize Rust applications",
-    "longDescription": "Detect Rust stacks and audit, improve, migrate, teach, or inspect logs for Axum, Actix, SQLx, and Diesel projects.",
+    "longDescription": "Detect Rust stacks, audit and modernize code, inspect logs, and reconcile reproducible local plus reversible production releases.",
     "developerName": "François-Xavier Guillois",
     "category": "Developer Tools",
     "capabilities": ["Interactive", "Write"],

@@ -14,6 +14,7 @@ Détecte les crates du projet (`Cargo.toml`) et charge à la demande les pivots 
 | `legacy` | `/sc-rust:legacy` | Scanne le code pour patterns dépréciés / spécifiques à une édition, propose une migration |
 | `log-analysis` | `/sc-rust:log-analysis` | Analyse les logs d'application Rust (local, Docker, prod SSH) — tail, parse-errors, search, summarize |
 | `teach` | `/sc-rust:teach` | Enseigne le langage, l'ownership, les idiomes et les patterns de framework |
+| `cd` | `/sc-rust:cd local\|server\|automata` | Façade projet Cargo/xtask ou task runner déjà versionné, release identifiée par source et checksum, bascule atomique et récupération de la release précédente. Aucun outil global ajouté implicitement. |
 
 ## Pivots
 

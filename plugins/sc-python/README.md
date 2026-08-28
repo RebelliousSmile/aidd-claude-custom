@@ -14,6 +14,7 @@ Détecte la stack du projet depuis ses manifestes Python et charge à la demande
 | `legacy` | `/sc-python:legacy` | Scanne le code pour patterns dépréciés / spécifiques à une version, propose une migration |
 | `log-analysis` | `/sc-python:log-analysis` | Analyse les logs d'application Python (local, Docker, prod SSH) — tail, parse-errors, search, summarize |
 | `teach` | `/sc-python:teach` | Enseigne les fonctionnalités du langage, idiomes pythoniques, patterns async et idiomes de framework |
+| `cd` | `/sc-python:cd local\|server\|automata` | Réconcilie local et production sans convertir le gestionnaire : uv, Poetry ou Pipenv sont conservés ; un projet requirements-only demande un arbitrage. SQL distingue migrations et transfert de données. |
 
 ## Pivots disponibles
 

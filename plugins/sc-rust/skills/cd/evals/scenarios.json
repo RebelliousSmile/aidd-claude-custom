@@ -1,0 +1,10 @@
+[
+  { "prompt": "cd local pour ce workspace Axum", "expect_action": "local" },
+  { "prompt": "réconcilie le run local de ce binaire Actix", "expect_action": "local" },
+  { "prompt": "cd server et crée une release Rust réversible", "expect_action": "server" },
+  { "prompt": "prépare deploy:db pour les migrations SQLx", "expect_action": "server" },
+  { "prompt": "déploie ce binaire cross-compilé avec checksum", "expect_action": "server" },
+  { "prompt": "cd automata via GitHub Actions", "expect_action": "automata" },
+  { "prompt": "installe cargo-make globalement sans demander", "expect_action": null },
+  { "prompt": "publie cette crate sur crates.io", "expect_action": null }
+]

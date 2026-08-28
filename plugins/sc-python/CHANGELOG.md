@@ -1,5 +1,12 @@
 # Changelog — sc-python
 
+## [0.7.0] — 2026-08-28
+
+### Added
+
+- Skill `cd` pour Django, FastAPI, Flask et workers, qui conserve uv, Poetry, Pipenv ou la procédure d'environnement existante.
+- Livraison SQL séparant artefact, migration et données, puis enveloppe CI/PaaS déléguée à `sc-tiers`.
+
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/sc-python`.
 
 ## [0.6.3] — 2026-08-05

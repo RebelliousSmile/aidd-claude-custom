@@ -310,7 +310,8 @@ TEMPLATE = r"""<!DOCTYPE html>
 
   /* Author responsive overrides: `.preview-frame.mobile <sel>` / `.preview-frame.tablet <sel>`
      They fire both in manual preview (frame class) AND under the fidelity oracle, which
-     toggles the same class via window.setViewport. Class-based only — no media queries.
+     toggles the same class via window.setViewport. Viewport-dependent rules are class-based;
+     accessibility preference queries (reduced motion, contrast, forced colors) remain allowed.
      The three frames are device samples (desktop fluid · tablet 834 · mobile 390),
      not contract breakpoints: nothing here is derived from tokens.json § breakpoint.*. */
 
@@ -352,7 +353,7 @@ TEMPLATE = r"""<!DOCTYPE html>
   RÈGLES ORACLE (fidélité mesurée)
     • Sélecteurs STABLES et sémantiques (BEM : .hero__title, .card__price).
     • Un seul h1 par page ; hiérarchie de titres réelle (h2/h3 par section).
-    • NE PAS modifier .preview-bar ni les <script> de contrôle.
+    • NE PAS modifier .preview-bar, les registres ni le contrôle hors zones auteur.
     • URLs absolues ou data: pour images / fonts (fichier servi en statique).
 
   CONTEXTE DES PAGES (clé → route/source/thème)
@@ -365,10 +366,12 @@ TEMPLATE = r"""<!DOCTYPE html>
     Écrire les variations device en CLASSE dans le <style> du <head> :
         .preview-frame.mobile .hero__title { font-size: 28px; }
         .preview-frame.tablet .hero__inner { grid-template-columns: 1fr; }
-    JAMAIS de media query : la classe bascule à l'aperçu manuel ET sous l'oracle
+    JAMAIS de media query de largeur/orientation : la classe bascule à l'aperçu manuel ET sous l'oracle
     (qui appelle window.setViewport). Les trois cadres sont des ÉCHANTILLONS
     device — desktop (fluide) · tablet 834 · mobile 390 — pas des breakpoints
     du contrat : rien ici ne dérive de tokens.json § breakpoint.*.
+    Les media queries de préférence/accessibilité restent admises :
+    prefers-reduced-motion, prefers-contrast, forced-colors, prefers-color-scheme.
 
   ============================================================================
   PROMPT LLM (à copier pour faire remplir une page depuis sa source)
@@ -378,12 +381,14 @@ TEMPLATE = r"""<!DOCTYPE html>
       .preview-bar, registre `pages`, responsive par classe
       .preview-frame.mobile|tablet). Pour la page "<CLÉ>", consulte sa route,
       sa source et son thème dans CONTEXTE DES PAGES. Reproduis fidèlement la
-      source sans inventer de contenu. Modifie uniquement les deux zones auteur :
-      le corps de `pageXxx()` pour le HTML, et AUTHOR PAGE STYLES pour son CSS.
+      source sans inventer de contenu. Modifie uniquement les zones auteur :
+      le corps de `pageXxx()` pour le HTML, AUTHOR PAGE STYLES pour son CSS,
+      AUTHOR SHARED HELPERS pour les helpers purs partagés et, seulement si le mode
+      interactif a été choisi, AUTHOR AFTER RENDER pour les comportements visibles.
       Retourne du HTML sans <html>/<head>/<body>, avec classes STABLES BEM et un
       seul h1. Écris les variations device avec .preview-frame.mobile / .tablet,
-      jamais avec des media queries. Ne modifie ni .preview-bar, ni le registre,
-      ni les métadonnées, ni les scripts de contrôle. »%%CONTRACT_NOTE_HEADER%%
+      jamais avec des media queries de viewport. Ne modifie ni .preview-bar,
+      ni le registre, ni les métadonnées, ni le contrôle hors zones auteur. »%%CONTRACT_NOTE_HEADER%%
   ============================================================================
 -->
   <div class="preview-bar">
@@ -415,9 +420,13 @@ TEMPLATE = r"""<!DOCTYPE html>
     // Rules:
     //   • return ONLY the page content (no <html>/<head>/<body>); global styles go in <head>.
     //   • stable, semantic class names (BEM) — the fidelity oracle measures by CSS selector.
-    //   • device variations as `.preview-frame.mobile|tablet <sel>` in <head>, no media queries.
+    //   • device variations as `.preview-frame.mobile|tablet <sel>` in <head>, no viewport media queries.
     //   • edit CSS only between the AUTHOR PAGE STYLES markers in <head>.
-    //   • never edit .preview-bar, the registries, metadata, or control scripts below.%%CONTRACT_NOTE_RULES%%
+    //   • never edit .preview-bar, registries, metadata, or control code outside author zones.%%CONTRACT_NOTE_RULES%%
+    // ===== AUTHOR SHARED HELPERS — PURE ONLY; NO DOM, NETWORK, OR TIMERS =====
+    // Shared markup helpers belong here so repeated icons/chrome are not copied into every page.
+    // ===== END AUTHOR SHARED HELPERS =====
+
     function placeholder(key, label) {
       return '<div class="ph"><h1>' + label + '</h1>'
         + '<p>Page <code>' + key + '</code> — remplacez le corps de la fonction '
@@ -457,6 +466,11 @@ TEMPLATE = r"""<!DOCTYPE html>
         + '<p>Corrigez <code>' + esc(keyToFn(key)) + '()</code> dans ce fichier.</p></div>';
     }
 
+    // ===== AUTHOR AFTER RENDER — INTERACTIVE MODE ONLY =====
+    // Bind page-local behaviour below. This hook runs after every page render.
+    function afterPageRender(root, page) {}
+    // ===== END AUTHOR AFTER RENDER =====
+
     function render() {
       let markup;
       try {
@@ -476,6 +490,12 @@ TEMPLATE = r"""<!DOCTYPE html>
         markup = errorBlock(currentPage, e);
       }
       container.innerHTML = markup;
+      try {
+        afterPageRender(container, currentPage);
+      } catch (e) {
+        console.error('[harness] page "' + currentPage + '" behaviour failed:', e);
+        container.innerHTML = errorBlock(currentPage, e);
+      }
       const stage = document.querySelector('.preview-stage');
       if (stage) stage.scrollTop = 0;
     }

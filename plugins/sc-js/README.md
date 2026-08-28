@@ -35,6 +35,7 @@ Pertinent si tu travailles sur des projets Vue / Nuxt / SvelteKit / Vite / Alpin
 /sc-js:teach          → explications composables, réactivité, patterns async
 /sc-js:design-bridge  → réceptacle du pivot design (règle ESLint + composant Vue 3/React) — rend au gate chaque règle assignée, réalisée ou non ; possède le workflow de plateforme SPA (application à composants)
 /sc-js:wp-blocks      → round-trip de validité des blocs Gutenberg (Playwright) pour markup FSE généré hors éditeur
+/sc-js:cd local|server|automata → local reproductible, façade de production native et enveloppe CI/PaaS via sc-tiers
 ```
 
 ## Utilisation
@@ -50,6 +51,10 @@ Reprend le manifeste émis par `sniff` (ou le recrée), charge les capability pi
 ### `/sc-js:legacy`
 
 Couvre trois migrations : Options API → Composition API (Vue 2 → 3), passage à l'ESM natif, et montée en TypeScript strict.
+
+### `/sc-js:cd`
+
+Préserve le gestionnaire détecté et privilégie `pnpm deploy:prod` lorsqu'un lockfile pnpm possède le projet. Nuxt, Vue/Vite, SvelteKit, Astro et les services Node suivent leur build/runtime configuré ; SQL sépare migrations et données, tandis qu'IndexedDB livre uniquement le code de migration cliente. `automata` exige `sc-tiers` et ne fabrique aucun fallback concurrent.
 
 ## Architecture des pivots
 

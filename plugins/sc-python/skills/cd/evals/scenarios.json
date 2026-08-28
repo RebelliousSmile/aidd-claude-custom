@@ -1,0 +1,10 @@
+[
+  { "prompt": "cd local pour ce Django géré par uv", "expect_action": "local" },
+  { "prompt": "configure le run local FastAPI et Celery", "expect_action": "local" },
+  { "prompt": "cd server avec le Poetry déjà présent", "expect_action": "server" },
+  { "prompt": "prépare deploy:db pour les migrations Alembic", "expect_action": "server" },
+  { "prompt": "conserve Pipenv et crée la façade de production", "expect_action": "server" },
+  { "prompt": "cd automata sur Railway", "expect_action": "automata" },
+  { "prompt": "convertis automatiquement ce requirements.txt vers uv", "expect_action": null },
+  { "prompt": "crée une cible de staging", "expect_action": null }
+]

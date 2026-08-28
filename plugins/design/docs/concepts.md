@@ -22,7 +22,7 @@ Le point de bascule est `adjust`. Avant lui, tout peut changer sans coût : les 
 
 Cette asymétrie est délibérée. Elle rend la correction bon marché tant qu'elle est précoce, et traçable une fois qu'elle est tardive. C'est aussi pourquoi `destructure` — la phase divergente, celle qui critique la direction — vit **avant** le figeage et pas après.
 
-`detail` (verbe 0) est en dehors de cette mécanique : lecture seule, aucun artefact. Il donne la carte et route une intention vers une séquence. `harness` aussi est hors entonnoir : il scaffolde une maquette de référence quand il n'en existe pas encore de mesurable.
+`detail` (verbe 0) est en dehors de cette mécanique : lecture seule, aucun artefact. Il donne la carte et route une intention vers une séquence. `harness` aussi est hors entonnoir : il scaffolde une référence absente ou normalise un HTML auteur pour la rendre mesurable.
 
 ## Le contrat
 

@@ -1,6 +1,7 @@
 ---
 name: behave
 description: >-
+  Behavioural-test harness for skills, agents, and prompt-driven workflows. It scaffolds and runs scenario suites, checks regressions, and reviews behavioural coverage. Use for requests to behave, scaffold behavioural tests, run or audit a behavioural suite, or regression-test a skill or agent. Do NOT use for code unit/integration tests, style-guide code review, or one-off manual checks.
 author: François-Xavier Guillois
 version: 4.7.0
 vibe_version: ">=1.0.0"

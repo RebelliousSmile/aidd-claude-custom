@@ -1,13 +1,13 @@
 {
   "name": "sc-python",
-  "version": "0.6.3+codex.20260814",
-  "description": "Python-specific skills and workflows: two-tier sniff (pivot model), audit (aidd-dev:reviewer), improve, legacy, log-analysis, teach (Django/FastAPI).",
+  "version": "0.7.0+codex.20260828",
+  "description": "Python stack detection, audit, modernization, logs, teaching, and manager-preserving local/production CD for Django, FastAPI, Flask, workers, and SQL.",
   "author": { "name": "François-Xavier Guillois" },
   "skills": "./skills/",
   "interface": {
     "displayName": "SC Python",
     "shortDescription": "Audit and modernize Python applications",
-    "longDescription": "Detect Python stacks and audit, improve, migrate, teach, or inspect logs for Django, FastAPI, and related tooling.",
+    "longDescription": "Detect Python stacks, audit and modernize code, inspect logs, and reconcile local plus production delivery while preserving the existing environment manager.",
     "developerName": "François-Xavier Guillois",
     "category": "Developer Tools",
     "capabilities": ["Interactive", "Write"],

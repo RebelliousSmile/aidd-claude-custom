@@ -13,7 +13,7 @@ Classe une intention en classe de cas et émet la séquence exécutable. Répond
 
 1. Classer en une des six classes (`${DESIGN_PLUGIN_ROOT}/skills/detail/references/workflow-classes.md`), à partir de la signature d'entrée croisée avec l'état du contrat.
 2. Si la classe énoncée par le consommateur contredit l'état observé, **signaler l'écart** et re-classer sur l'état réel — jamais corriger en silence.
-3. Énoncer la précondition `harness` si la classe l'exige (référence pas encore mesurable).
+3. Énoncer la précondition `harness` si la classe l'exige (référence pas encore mesurable ou HTML non canonique).
 4. Appliquer la règle de résolution des pivots (`${DESIGN_PLUGIN_ROOT}/references/sc-pivot-contract.md § Règle de résolution`) :
    - pivot installé **et** stack correspondante → la classe **étendue** par le workflow de plateforme du pivot ;
    - pivot absent, ou installé mais stack non correspondante → la classe **seule**, l'absence énoncée + recommandation conditionnelle d'installer `sc-<langage>`.

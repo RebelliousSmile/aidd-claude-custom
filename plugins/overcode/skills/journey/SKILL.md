@@ -1,6 +1,7 @@
 ---
 name: journey
 description: >-
+  Execute a user journey from a GitHub or GitLab issue, log Playwright results to a PLAN.journey.md report, and post the summary and conclusion to the issue. Use to run or validate an issue-linked journey with Playwright. Do NOT use for unit/API tests, non-Playwright testing, issue creation, or work without a matching plan file.
 author: François-Xavier Guillois
 version: 4.7.0
 vibe_version: ">=1.0.0"

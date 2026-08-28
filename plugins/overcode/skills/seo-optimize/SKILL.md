@@ -1,6 +1,19 @@
 ---
 name: seo-optimize
 description: >-
+  Audits a website's SEO and GEO (generative engine optimization) against a
+  site-type-aware checklist (indexability, on-page title/meta/H1, structured
+  data, AI extractability, local SEO/GBP, E-E-A-T, CWV-as-ranking-signal) and
+  produces a ranked roadmap plus ready-to-paste copy. Detects site type
+  (local-business, SaaS, blog/content, e-commerce, docs) and captures a
+  falsifiable baseline (GSC positions, GBP score, AI citation grid) before
+  recommending changes. Every report states where its checklist came from and
+  the state of the `${PROJECT_RULES_ROOT}/07-quality/seo-pivots-*.md` receptacle.
+  Use when the user mentions SEO, GEO, référencement, ranking, SERP, Google
+  Search Console, GSC, mots-clés, keywords, meta title, balise title, H1,
+  rich results, JSON-LD, schema, Google Business Profile, GBP, fiche Google,
+  llm.txt, "citée par ChatGPT", "visible sur Perplexity", AI Overviews, or
+  invokes seo-optimize.
 author: François-Xavier Guillois
 version: 4.7.0
 vibe_version: ">=1.0.0"

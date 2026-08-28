@@ -1,6 +1,7 @@
 ---
 name: log-analysis
 description: >-
+  Tail, parse, search, and summarize local, containerized, or remote Rust application logs.
 author: François-Xavier Guillois
 version: 0.5.2
 vibe_version: ">=1.0.0"

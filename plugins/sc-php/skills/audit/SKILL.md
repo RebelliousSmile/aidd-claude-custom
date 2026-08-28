@@ -1,6 +1,7 @@
 ---
 name: audit
 description: >-
+  Audit a detected PHP stack by delegating review with the applicable framework and capability pivots.
 author: François-Xavier Guillois
 version: 0.12.0
 vibe_version: ">=1.0.0"

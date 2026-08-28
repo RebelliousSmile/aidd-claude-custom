@@ -1,6 +1,7 @@
 ---
 name: improve
 description: >-
+  Improve an existing CSS architecture with custom properties, cascade layers, lower specificity, and modern syntax.
 author: François-Xavier Guillois
 version: 0.5.0
 vibe_version: ">=1.0.0"

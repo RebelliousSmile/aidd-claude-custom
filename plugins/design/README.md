@@ -22,7 +22,7 @@ Le détail normatif de chaque règle vit dans [`references/`](references/) ; le 
              └── malléable ──┘  └──── figé ────────────────┘
 ```
 
-Le pipeline compte **cinq verbes**. Le point de bascule est `adjust` : avant lui tout change sans coût, après lui chaque changement est un bump de version. Deux skills sont hors pipeline — `detail` (verbe 0, lecture seule, il donne la carte) et `harness` (il scaffolde une maquette de référence quand il n'en existe pas encore de mesurable).
+Le pipeline compte **cinq verbes**. Le point de bascule est `adjust` : avant lui tout change sans coût, après lui chaque changement est un bump de version. Deux skills sont hors pipeline — `detail` (verbe 0, lecture seule, il donne la carte) et `harness` (il scaffolde ou normalise une maquette de référence pour la rendre mesurable).
 
 ## Skills
 
@@ -34,7 +34,7 @@ Le pipeline compte **cinq verbes**. Le point de bascule est `adjust` : avant lui
 | `adjust` | `design:adjust` | Arbitrage maquettes + figeage du contrat + migration 1.x → 2.0. |
 | `enforce` | `design:enforce` | Linter portable dérivé du contrat · 4 gates de vocabulaire + 1 gate de fidélité · pivot par langage. |
 | `diffuse` | `design:diffuse` | Éléments répétables sous gate lint · baseline HTML/CSS · pivot par langage. |
-| `harness` | `design:harness` | Génère le harness HTML autonome (`setPage`/`setViewport`) piloté par l'oracle de fidélité. **Hors entonnoir.** |
+| `harness` | `design:harness` | Génère ou normalise le harness HTML autonome (`setPage`/`setViewport`) piloté par l'oracle de fidélité. **Hors entonnoir.** |
 
 ## Démarrage rapide
 

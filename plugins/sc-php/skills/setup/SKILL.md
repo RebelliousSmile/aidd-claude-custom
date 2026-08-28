@@ -1,6 +1,7 @@
 ---
 name: setup
 description: >-
+  Scaffold WordPress, Laravel, or Symfony with guarded local containers and route optional delivery to the cd skill.
 author: François-Xavier Guillois
 version: 0.12.0
 vibe_version: ">=1.0.0"
@@ -27,8 +28,8 @@ Scaffold-from-zero counterpart to `sc-php:sniff` (which detects/audits an alread
 | 02 | `scaffold-wordpress` | WordPress FSE theme + custom plugin + Docker/wp-env | resolved framework = wordpress |
 | 03 | `scaffold-laravel` | Laravel via composer create-project + Docker Compose | resolved framework = laravel |
 | 04 | `scaffold-symfony` | Symfony via composer create-project + Docker Compose | resolved framework = symfony |
-| 05 | `wire-deploy` | Optional SSH deploy pipeline (rsync + optional DB export) | framework, target(s) info from user |
-| 06 | `verify` | Post-scaffold sanity checks | framework, project root |
+| 05 | `wire-deploy` | Compatibility route to `sc-php:cd server`; never a second producer | framework, target(s) info from user |
+| 06 | `verify` | Post-scaffold and native CD facade sanity checks | framework, project root |
 
 ## Default flow
 
@@ -44,7 +45,7 @@ Trigger-to-action mapping for `01`:
 - `references/compose-project-name-guard.md` — `start.ps1`/`stop.ps1`/`wp.ps1` template shared by all three scaffolds.
 - `references/wp-env-json.md`, `references/theme-plugin-skeleton.md` — WordPress scaffold content.
 - `references/docker-compose-laravel.md`, `references/docker-compose-symfony.md` — Docker Compose content for the other two frameworks.
-- `references/deploy-pipeline.md` — `deploy.mjs`/`deploy-targets.mjs` content for `wire-deploy`.
+- `references/deploy-pipeline.md` — legacy pipeline recognition and migration rules; new delivery belongs to `sc-php:cd`.
 
 ## Transversal rules
 

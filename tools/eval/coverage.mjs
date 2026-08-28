@@ -5,7 +5,7 @@
 // chaque action ROUTABLE — celle qu'un énoncé d'utilisateur peut atteindre
 // directement — a ≥1 scénario dont expect_action la cible.
 //
-// Le dépôt documente le routage sous SIX formes. Les modéliser toutes est le
+// Le dépôt documente le routage sous SEPT formes. Les modéliser toutes est le
 // travail du détecteur : imposer une forme unique reviendrait à réécrire trente
 // SKILL.md pour satisfaire un linter, alors que chaque forme est adaptée à sa
 // skill (table de dispatch pour readme, chaîne séquentielle pour legacy).
@@ -17,6 +17,7 @@
 //   (e) chaîne séquentielle — `scan` → `migrate`  (≥2 actions : seule la TÊTE
 //       est routable, la suite sont des étapes internes du pipeline)
 //   (f) action unique déclarée — routable par défaut, faute d'alternative
+//   (g) flowchart Mermaid AIDD — les nœuds portant un slug d'action sont routables
 //
 // (a) et (b) sont des déclarations explicites de déclencheur et l'emportent.
 // À défaut, (c)(d)(e) sont lues dans la section de flux. À défaut, (f).
@@ -129,6 +130,22 @@ function flowTriggers(flowLines, declared) {
   return out;
 }
 
+// Forme (g) — routeur généré par aidd-context:skill-generate. Le flowchart est
+// la source de dispatch et la table Action | Does reste volontairement minimale.
+function mermaidTriggers(lines, declared) {
+  const out = new Set();
+  let inMermaid = false;
+  for (const line of lines) {
+    if (line.trim() === '```mermaid') { inMermaid = true; continue; }
+    if (inMermaid && line.trim() === '```') { inMermaid = false; continue; }
+    if (!inMermaid || (!line.includes('-->') && !line.includes('-.->'))) continue;
+    for (const action of declared) {
+      if (new RegExp(`(^|[^a-z0-9+._-])${action}([^a-z0-9+._-]|$)`).test(line)) out.add(action);
+    }
+  }
+  return out;
+}
+
 function parseSkill(skillPath) {
   const txt = readFileSync(skillPath, 'utf8');
   const lines = txt.split(/\r?\n/);
@@ -147,6 +164,10 @@ function parseSkill(skillPath) {
   if (!routable.size && flowLines.length) {
     routable = flowTriggers(flowLines, declared);
     if (routable.size) shape = 'flux';
+  }
+  if (!routable.size) {
+    routable = mermaidTriggers(lines, declared);
+    if (routable.size) shape = 'mermaid';
   }
   if (!routable.size && declared.size === 1) {
     routable = new Set(declared);

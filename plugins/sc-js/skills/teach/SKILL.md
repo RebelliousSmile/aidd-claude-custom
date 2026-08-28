@@ -1,6 +1,7 @@
 ---
 name: teach
 description: >-
+  Explain JavaScript, TypeScript, Vue, and framework concepts in the context of the current project.
 author: François-Xavier Guillois
 version: 0.15.4
 vibe_version: ">=1.0.0"

@@ -1,6 +1,7 @@
 ---
 name: audit
 description: >-
+  Audit a detected JavaScript stack by delegating review with the applicable runtime, framework, and capability pivots.
 author: François-Xavier Guillois
 version: 0.15.4
 vibe_version: ">=1.0.0"

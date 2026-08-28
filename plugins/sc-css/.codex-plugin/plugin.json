@@ -1,13 +1,13 @@
 {
   "name": "sc-css",
-  "version": "0.5.0+codex.20260814",
-  "description": "CSS ecosystem skills for auditing and modernising styles; design-bridge now supports mixed platform stacks, disjoint outputs, platform bindings, and static inputs for rendered ownership proof.",
+  "version": "0.6.0+codex.20260828",
+  "description": "CSS ecosystem skills for auditing, modernization, design pivots, and CD of pure static sites with bounded ownership in composite applications.",
   "author": { "name": "François-Xavier Guillois" },
   "skills": "./skills/",
   "interface": {
     "displayName": "SC CSS",
     "shortDescription": "Audit and modernize CSS codebases",
-    "longDescription": "Detect CSS architecture, audit quality and accessibility, modernize legacy styles, and realize design-system pivots.",
+    "longDescription": "Detect CSS architecture, audit and modernize styles, realize design pivots, and configure static local and production delivery without stealing application ownership.",
     "developerName": "François-Xavier Guillois",
     "category": "Developer Tools",
     "capabilities": ["Interactive", "Write"],

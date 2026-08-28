@@ -1,6 +1,7 @@
 ---
 name: legacy
 description: >-
+  Migrate legacy JavaScript patterns including Vue 2, CommonJS, and progressively stricter TypeScript.
 author: François-Xavier Guillois
 version: 0.15.4
 vibe_version: ">=1.0.0"

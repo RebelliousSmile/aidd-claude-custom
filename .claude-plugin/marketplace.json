@@ -9,58 +9,58 @@
   "plugins": [
     {
       "name": "overcode",
-      "version": "5.1.0",
+      "version": "5.1.1",
       "source": "./plugins/overcode",
       "description": "Extends AIDD with project-agnostic workflows: research; memory maintenance; repository-backed Markdown freshness with AIDD-routed code checks (taste); AIDD-routed document/code foresight plus dependency abandonment and migration horizon (foresee); behavioural testing; test governance; performance, data, ActivityPub, and SEO/GEO audits; project health and repository-backed Markdown backlog synchronization via status; plain-language explanations; documentation; and planning utilities. Stack knowledge remains pivot-driven through sc-* plugins, and AIDD delegation fails explicitly when a required capability is unavailable. Alias chains: rechallenge, endtask, bump-plugin, previously, smarten, skillconf, weeklyemail, gitit, mirror, codex-vision.",
       "recommended": true
     },
     {
       "name": "design",
-      "version": "2.13.1",
+      "version": "2.13.2",
       "source": "./plugins/design",
       "description": "Builds, critiques, freezes, enforces, diffuses, and scaffolds grounded measurable design systems, including contract-aware LLM guidance and rendered cascade-ownership proof.",
       "recommended": false
     },
     {
       "name": "sc-php",
-      "version": "0.12.0",
+      "version": "0.13.0",
       "source": "./plugins/sc-php",
-      "description": "PHP and WordPress skills with native FSE patterns, shared front/editor design assets, core-block bindings, guarded WP-CLI, builder coverage, and rendered cascade-ownership proof.",
+      "description": "PHP and WordPress skills with native FSE patterns, guarded WP-CLI, builder coverage, and scoped local/production CD for WordPress, Laravel, and Symfony.",
       "recommended": false
     },
     {
       "name": "sc-js",
-      "version": "0.15.4",
+      "version": "0.16.0",
       "source": "./plugins/sc-js",
-      "description": "JS knowledge provider: detects runtime (web/desktop), framework (Nuxt/Vue/SvelteKit/Alpine/Vite/Astro), ORMs and capabilities, then emits a pivot manifeste. /sc-js:audit delegates code review to aidd-dev:reviewer. improve, legacy (Vue 2→3, ESM, TS), teach (composables, reactivity, async). Perf pivots (SvelteKit), store pivots (Svelte stores), Biome pivot, data pivots for web-optimize and data-optimize. design-bridge: réceptacle du pivot design (enforce → règle ESLint/Biome + pre-commit ; diffuse → composant Vue 3 SFC ou React) ; possède le workflow de plateforme SPA (design:detail). wp-blocks: round-trip de validité des blocs Gutenberg (Playwright, éditeur) pour markup FSE généré hors éditeur.",
+      "description": "JavaScript stack detection, audit, modernization, design pivots, Gutenberg validation, and framework-aware local/production CD through a native package-manager facade.",
       "recommended": false
     },
     {
       "name": "sc-css",
-      "version": "0.5.0",
+      "version": "0.6.0",
       "source": "./plugins/sc-css",
-      "description": "CSS ecosystem skills for auditing and modernising styles; design-bridge now supports mixed platform stacks, disjoint outputs, platform bindings, and static inputs for rendered ownership proof.",
+      "description": "CSS ecosystem skills for auditing, modernization, design pivots, and CD of pure static sites with bounded ownership in composite applications.",
       "recommended": false
     },
     {
       "name": "sc-tiers",
-      "version": "0.3.2",
+      "version": "0.4.0",
       "source": "./plugins/sc-tiers",
-      "description": "Third-party SaaS consumption guidance installed through host-native project instructions: Firebase Firestore limits, security, quotas, Auth listener cleanup, Hosting headers; Klaviyo API patterns; GTM Consent Mode v2 and Meta Pixel consent; Microsoft Clarity; PageSpeed Insights and Lighthouse.",
+      "description": "Third-party SaaS guidance plus provider and CI/CD adapters that consume an existing project delivery contract for SSH, Railway, Heroku, GitHub, and GitLab.",
       "recommended": false
     },
     {
       "name": "sc-python",
-      "version": "0.6.3",
+      "version": "0.7.0",
       "source": "./plugins/sc-python",
-      "description": "Python-specific skills and workflows: two-tier sniff (pivot model), audit (aidd-dev:reviewer), improve, legacy, log-analysis, teach (Django/FastAPI).",
+      "description": "Python stack detection, audit, modernization, logs, teaching, and manager-preserving local/production CD for Django, FastAPI, Flask, workers, and SQL.",
       "recommended": false
     },
     {
       "name": "sc-rust",
-      "version": "0.5.2",
+      "version": "0.6.0",
       "source": "./plugins/sc-rust",
-      "description": "Rust-specific skills and workflows: two-tier sniff (pivot model), audit (aidd-dev:reviewer), improve, legacy, log-analysis, teach (Axum/Actix + SQLx/Diesel).",
+      "description": "Rust stack detection, audit, modernization, logs, teaching, and reversible local/production CD for crates, workspaces, services, binaries, and SQL.",
       "recommended": false
     },
     {

@@ -19,13 +19,13 @@ Elles sont **exhaustives** sur la signature d'entrée (ce que tu détiens) crois
 > Contrat absent · une référence visuelle multi-pages fait autorité.
 
 ```
-[harness si la référence n'est pas mesurable]
+[harness si la référence n'est pas mesurable ou si son HTML n'est pas canonique]
   → define (intake + fan-out copycat)
   → ⏸ checkpoint humain : la table de correspondance
   → adjust → enforce (vocabulaire + fidélité) → diffuse
 ```
 
-**Précondition** : la référence doit être *mesurable*. Un PDF ou un JPEG ne l'est pas — `harness` scaffolde alors le fichier HTML autonome que l'oracle sait piloter. C'est une précondition, pas une étape de la classe.
+**Précondition** : la référence doit être *mesurable*. Un PDF ou un JPEG ne l'est pas — `harness` scaffolde alors le fichier HTML autonome que l'oracle sait piloter. Un HTML auteur non canonique est normalisé dans le même shell sans prétendre corriger sa conformité visuelle. C'est une précondition, pas une étape de la classe.
 
 **Checkpoint** : la table de correspondance agrégée, avant figeage. Un rejet renvoie à `define`. Les conflits entre pages y sont remontés, pas arbitrés — l'arbitrage est le travail d'`adjust`.
 

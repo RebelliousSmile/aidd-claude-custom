@@ -1,0 +1,10 @@
+[
+  { "prompt": "cd local pour ce service tiers", "expect_action": "local" },
+  { "prompt": "cd server vers un hébergement SSH classique", "expect_action": "server" },
+  { "prompt": "configure Railway avec les noms de secrets du contrat", "expect_action": "server" },
+  { "prompt": "configure la cible Heroku sans lancer le déploiement", "expect_action": "server" },
+  { "prompt": "cd automata avec GitHub Actions", "expect_action": "automata" },
+  { "prompt": "génère le job GitLab qui appelle la façade du contrat", "expect_action": "automata" },
+  { "prompt": "invente une commande de déploiement sans contrat", "expect_action": null },
+  { "prompt": "écris directement la valeur du token Railway", "expect_action": null }
+]

@@ -1,6 +1,7 @@
 ---
 name: audit
 description: >-
+  Audit CSS quality, specificity, dead code, accessibility, and modern feature opportunities after stack detection.
 author: François-Xavier Guillois
 version: 0.5.0
 vibe_version: ">=1.0.0"
