@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "my-marketplace",
-  "version": "3.18.0",
+  "version": "3.18.1",
   "description": "Local marketplace — personal overlay on the AIDD framework",
   "owner": {
     "name": "François-Xavier Guillois"
@@ -23,7 +23,7 @@
     },
     {
       "name": "sc-php",
-      "version": "0.13.0",
+      "version": "0.13.1",
       "source": "./plugins/sc-php",
       "description": "PHP and WordPress skills with native FSE patterns, guarded WP-CLI, builder coverage, and scoped local/production CD for WordPress, Laravel, and Symfony.",
       "recommended": false

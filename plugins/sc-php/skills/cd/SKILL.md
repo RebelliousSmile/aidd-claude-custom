@@ -1,6 +1,6 @@
 ---
 name: cd
-description: Standardizes local setup and scoped production delivery for WordPress, Laravel, and Symfony while preserving one Composer facade. Use when the user wants project setup, production hosting, database delivery, content synchronization, or automation. Not for scaffolding.
+description: Standardizes local setup and scoped production delivery for WordPress, Laravel, and Symfony while preserving the project's existing root deployment facade. Use when the user wants project setup, production hosting, database delivery, content synchronization, or automation. Not for scaffolding.
 argument-hint: project setup | production scope | automation target
 ---
 

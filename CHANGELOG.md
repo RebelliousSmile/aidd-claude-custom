@@ -4,6 +4,13 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [3.18.1] - 2026-08-28
+
+### Fixed
+
+- `sc-php:cd` conserve la façade de déploiement déjà native du projet au lieu d'imposer Composer aux projets WordPress pilotés par pnpm, PowerShell ou shell.
+- La stratégie de livraison WordPress dépend maintenant des capacités vérifiées de chaque cible ; un hébergement plus permissif peut conserver ses outils et son automatisation tandis qu'une cible restreinte garde ses contournements propres.
+
 ## [3.18.0] - 2026-08-28
 
 ### Added

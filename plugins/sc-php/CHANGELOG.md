@@ -1,5 +1,13 @@
 # Changelog — sc-php
 
+## [0.13.1] — 2026-08-28
+
+### Fixed
+
+- `cd server` préserve désormais la façade racine réellement détenue par le projet — Composer, pnpm, npm ou équivalent — et n'ajoute plus `composer.json` autour d'une procédure WordPress déjà cohérente.
+- Les stratégies WordPress sont choisies d'après les capacités vérifiées de chaque cible. Un hébergement disposant de davantage de libertés conserve rsync, WP-CLI distant, sauvegardes ou automatisation, sans être ramené aux limitations d'un autre hébergeur.
+- Les alias dont le nom masque un périmètre plus large, par exemple une commande `theme` qui transfère aussi plugin et médias, sont traités comme conflits sémantiques à corriger ou arbitrer.
+
 ## [0.13.0] — 2026-08-28
 
 ### Added
