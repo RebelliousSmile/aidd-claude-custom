@@ -262,22 +262,24 @@ for (const plugin of plugins) {
 }
 
 const releaseVersions = {
-  'sc-css': '0.7.0', 'sc-js': '0.17.0', 'sc-php': '0.14.0',
+  'sc-css': '0.7.0', 'sc-js': '0.17.1', 'sc-php': '0.14.0',
   'sc-python': '0.8.0', 'sc-rust': '0.7.0', 'sc-tiers': '0.5.0',
 };
+const codexCachebusters = { 'sc-js': '20260828.3' };
 const marketplace = JSON.parse(readFileSync(join(root, '.claude-plugin/marketplace.json'), 'utf8'));
 for (const [plugin, version] of Object.entries(releaseVersions)) {
   const claudeManifest = JSON.parse(readFileSync(join(root, 'plugins', plugin, '.claude-plugin/plugin.json'), 'utf8'));
   const codexManifest = JSON.parse(readFileSync(join(root, 'plugins', plugin, '.codex-plugin/plugin.json'), 'utf8'));
   const listing = marketplace.plugins.find(({ name }) => name === plugin);
   if (claudeManifest.version !== version || listing?.version !== version) failures.push(`${plugin}: Claude/catalog version mismatch`);
-  if (codexManifest.version !== `${version}+codex.20260828.2`) failures.push(`${plugin}: Codex cachebuster mismatch`);
+  const cachebuster = codexCachebusters[plugin] ?? '20260828.2';
+  if (codexManifest.version !== `${version}+codex.${cachebuster}`) failures.push(`${plugin}: Codex cachebuster mismatch`);
   const readme = readFileSync(join(root, 'plugins', plugin, 'README.md'), 'utf8');
   const changelog = readFileSync(join(root, 'plugins', plugin, 'CHANGELOG.md'), 'utf8');
   if (!readme.includes('CD multi-cibles') && !readme.includes('CD par cible')) failures.push(`${plugin}: README misses v2 capabilities`);
   if (!changelog.includes(`## [${version}]`)) failures.push(`${plugin}: changelog misses ${version}`);
 }
-if (marketplace.version !== '3.19.0') failures.push('marketplace: expected version 3.19.0');
+if (marketplace.version !== '3.19.1') failures.push('marketplace: expected version 3.19.1');
 
 if (failures.length) {
   for (const failure of failures) console.error(`SC-CD FAIL: ${failure}`);

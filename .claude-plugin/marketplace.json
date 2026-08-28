@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "my-marketplace",
-  "version": "3.19.0",
+  "version": "3.19.1",
   "description": "Local marketplace — personal overlay on the AIDD framework",
   "owner": {
     "name": "François-Xavier Guillois"
@@ -30,9 +30,9 @@
     },
     {
       "name": "sc-js",
-      "version": "0.17.0",
+      "version": "0.17.1",
       "source": "./plugins/sc-js",
-      "description": "JavaScript stack detection, audit, modernization, and multi-target CD through one native facade with distinct schema, server data, browser data, and media.",
+      "description": "JavaScript stack detection, audit, modernization, and multi-target CD with safe DrvFs permissions plus behavior-bound proof and recovery.",
       "recommended": false
     },
     {

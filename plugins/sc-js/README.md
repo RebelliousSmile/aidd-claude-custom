@@ -105,6 +105,10 @@ Les retours sur les gaps de détection (libs non couvertes dans le manifeste) et
 
 `sc-js:cd` conserve une seule façade du gestionnaire détecté et sélectionne une cible nommée. Le schéma SQL reste livrable, les données serveur et médias de production restent distants, et les migrations IndexedDB voyagent avec le code sans copier les données navigateur. Un staging peut refléter les surfaces persistantes uniquement avec une stratégie d'export/import ou d'inventaire prouvée.
 
+Lorsqu'un artefact provient de Windows via DrvFs, ses bits de permissions ne sont jamais pris pour autorité Unix : la livraison doit soit préparer l'artefact sur un système de fichiers Linux natif, soit désactiver la préservation permissions/owner/group et appliquer des modes destination explicites. La livraison vérifie ensuite les modes d'un répertoire, d'un nouveau fichier et d'un fichier mis à jour.
+
+Les champs `proof` et `recovery` doivent correspondre au comportement actuel du script projet. À chaque réconciliation, le skill relit ce script, lie les affirmations à des événements ordonnés et refuse notamment une preuve sans contrôle observable ou un rollback supprimé avant la fin de sa fenêtre annoncée.
+
 ## Licence
 
 MIT — voir [LICENSE](../../LICENSE).
