@@ -152,6 +152,53 @@ projects:
     documented_start: .venv/bin/python app.py
     task_runner_decision: absent
 
+  suddenly_like:
+    root: apps/suddenly
+    owner: sc-python
+    manager: uv
+    framework: django
+    facade: uv run scripts/deploy.py
+    source: { repository: git, ref: 8c14d6d }
+    schema: { tool: django-migrations, command: uv run manage.py migrate }
+    targets:
+      railway-main:
+        phase: production
+        mode: automata
+        provider: railway
+        executionContext: automation-checkout
+        invocation: uv run scripts/deploy.py --target railway-main --operation deploy:code
+        database: { engine: postgresql, authority: target }
+        media: { storage: object, authority: target, sync: forbidden }
+        health: [revision-match, http-200]
+        restart: railway-service-redeploy
+        lock: suddenly-railway-main
+      alwaysdata-federated:
+        phase: production
+        mode: server
+        provider: alwaysdata
+        executionContext: workspace
+        invocation: ssh-script-after-verified-ref-update
+        remoteScript: bin/deploy-suddenly
+        database: { engine: postgresql, authority: target }
+        media: { storage: filesystem, authority: target, sync: forbidden }
+        health: [revision-match, http-200]
+        restart: alwaysdata-service-restart
+        lock: suddenly-alwaysdata-federated
+      staging-demo:
+        phase: staging
+        mode: server
+        provider: alwaysdata
+        executionContext: workspace
+        invocation: uv run scripts/deploy.py --target staging-demo --operation deploy:all
+        database: { engine: postgresql, authority: local, sync: manifest-delta }
+        media: { storage: filesystem, authority: local, sync: manifest-delta-resumable }
+        health: [revision-match, http-200, manifest-match]
+        restart: alwaysdata-service-restart
+        lock: suddenly-staging-demo
+    forbiddenFlows:
+      - railway-main-to-alwaysdata-federated
+      - alwaysdata-federated-to-railway-main
+
   rust_workspace:
     root: services/catalog
     owner: sc-rust

@@ -126,6 +126,29 @@ try {
   if (!error.message.includes('unsafe path')) failures.push(`differential sync: unexpected unsafe-path error (${error.message})`);
 }
 
+const pythonCd = join(root, 'plugins/sc-python/skills/cd');
+const pythonTexts = [
+  'SKILL.md',
+  'actions/02-server.md',
+  'actions/03-automata.md',
+  'references/command-facade.md',
+  'references/python-frameworks.md',
+  'references/sql-delivery.md',
+  'evals/delivery-scenarios.md',
+  'evals/delivery-safety-scenarios.md',
+].map((path) => readFileSync(join(pythonCd, path), 'utf8')).join('\n');
+for (const required of ['target id', 'lifecycle', 'staging', 'production', 'media', 'target-to-target', 'manifest']) {
+  if (!pythonTexts.toLocaleLowerCase('en-US').includes(required)) failures.push(`sc-python: missing multi-target rule ${required}`);
+}
+const pythonScenarios = JSON.parse(readFileSync(join(pythonCd, 'evals/scenarios.json'), 'utf8'));
+for (const target of ['railway-main', 'alwaysdata-federated', 'staging-demo']) {
+  if (!pythonScenarios.some(({ prompt }) => prompt.includes(target))) failures.push(`sc-python: routing misses named target ${target}`);
+}
+const behavePark = readFileSync(join(fixtures, 'behave-park/fixture.yaml'), 'utf8');
+for (const required of ['suddenly_like:', 'railway-main:', 'alwaysdata-federated:', 'staging-demo:', 'forbiddenFlows:', 'manifest-delta-resumable']) {
+  if (!behavePark.includes(required)) failures.push(`sc-python fixture: missing ${required}`);
+}
+
 if (failures.length) {
   for (const failure of failures) console.error(`SC-CD FAIL: ${failure}`);
   process.exit(1);

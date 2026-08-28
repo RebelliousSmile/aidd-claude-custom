@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Instruction: Éprouver sc-python sur plusieurs instances indépendantes
