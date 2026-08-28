@@ -59,9 +59,74 @@ export function validateTransportProfile(evidence) {
   return errors;
 }
 
+function eventMap(events, errors) {
+  const byId = new Map();
+  const orders = new Set();
+  if (!Array.isArray(events) || events.length === 0) {
+    errors.push('behavior trace requires ordered events');
+    return byId;
+  }
+  for (const event of events) {
+    if (!populated(event?.id) || byId.has(event.id)) errors.push('behavior trace event ids must be unique non-empty strings');
+    else byId.set(event.id, event);
+    if (!Number.isInteger(event?.order) || orders.has(event.order)) errors.push('behavior trace event orders must be unique integers');
+    else orders.add(event.order);
+    if (!['success', 'failure', 'all'].includes(event?.path)) errors.push(`event ${event?.id ?? '<unknown>'} has an invalid path`);
+  }
+  return byId;
+}
+
+function successEvent(byId, id) {
+  const event = byId.get(id);
+  return event && ['success', 'all'].includes(event.path) ? event : undefined;
+}
+
+export function validateBehaviorTrace(evidence) {
+  const errors = [];
+  if (!populated(evidence?.source?.path) || !evidence?.source?.digest?.startsWith('sha256:') || evidence?.source?.inspection !== 'full') {
+    errors.push('behavior trace requires a fully inspected source path and sha256 digest');
+  }
+
+  const byId = eventMap(evidence?.events, errors);
+  for (const proof of evidence?.proofs ?? []) {
+    const event = successEvent(byId, proof.eventId);
+    if (!event) {
+      errors.push(`proof ${proof.name ?? '<unnamed>'} references a missing or unreachable event`);
+      continue;
+    }
+    if (event.kind !== 'check' || !populated(event.observable) || event.onFailure !== 'propagate') {
+      errors.push(`proof ${proof.name ?? '<unnamed>'} must bind to an observable check that propagates failure`);
+    }
+  }
+  if (!Array.isArray(evidence?.proofs) || evidence.proofs.length === 0) errors.push('behavior trace requires at least one proof claim');
+
+  for (const recovery of evidence?.recoveries ?? []) {
+    const label = recovery.name ?? '<unnamed>';
+    const created = successEvent(byId, recovery.createEventId);
+    const through = successEvent(byId, recovery.availableThroughEventId);
+    const removed = recovery.removeEventId ? successEvent(byId, recovery.removeEventId) : undefined;
+    if (!populated(recovery.artifact)) errors.push(`recovery ${label} requires an artifact`);
+    if (!created || created.kind !== 'mutation' || created.action !== 'create' || created.subject !== recovery.artifact) {
+      errors.push(`recovery ${label} requires a matching reachable creation event`);
+    }
+    if (!through) errors.push(`recovery ${label} requires a reachable availability-window event`);
+    if (created && through && created.order >= through.order) errors.push(`recovery ${label} is not created before its availability window`);
+    if (recovery.removeEventId && (!removed || removed.kind !== 'cleanup' || removed.action !== 'remove' || removed.subject !== recovery.artifact)) {
+      errors.push(`recovery ${label} has an invalid removal event`);
+    }
+    if (removed && through && removed.order <= through.order) {
+      errors.push(`recovery ${label} is removed before its availability window ends`);
+    }
+  }
+  if (!Array.isArray(evidence?.recoveries) || evidence.recoveries.length === 0) errors.push('behavior trace requires at least one recovery claim');
+
+  return errors;
+}
+
 export function validateEvidenceFixture(fixture) {
-  if (fixture?.kind !== 'transport-profile') return ['fixture kind must be transport-profile'];
-  return validateTransportProfile(fixture.evidence);
+  if (fixture?.kind === 'transport-profile') return validateTransportProfile(fixture.evidence);
+  if (fixture?.kind === 'behavior-trace') return validateBehaviorTrace(fixture.evidence);
+  return ['fixture kind must be transport-profile or behavior-trace'];
 }
 
 function runFixtureDirectory(directory) {

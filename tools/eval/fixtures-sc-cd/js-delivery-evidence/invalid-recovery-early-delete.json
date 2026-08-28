@@ -1,0 +1,19 @@
+{
+  "kind": "behavior-trace",
+  "expected": {
+    "valid": false,
+    "errorIncludes": ["removed before its availability window ends"]
+  },
+  "evidence": {
+    "source": { "path": "scripts/deploy.mjs", "digest": "sha256:early-delete-fixture", "inspection": "full" },
+    "events": [
+      { "id": "create-output-old", "order": 1, "path": "success", "kind": "mutation", "action": "create", "subject": ".output.old" },
+      { "id": "activate-output", "order": 2, "path": "success", "kind": "mutation", "action": "activate", "subject": ".output" },
+      { "id": "remove-output-old", "order": 3, "path": "success", "kind": "cleanup", "action": "remove", "subject": ".output.old" },
+      { "id": "health-proof", "order": 4, "path": "success", "kind": "check", "observable": "HTTP 200 and revision match", "onFailure": "propagate" },
+      { "id": "delivery-complete", "order": 5, "path": "success", "kind": "checkpoint" }
+    ],
+    "proofs": [{ "name": "health", "eventId": "health-proof" }],
+    "recoveries": [{ "name": "previous-output", "artifact": ".output.old", "createEventId": "create-output-old", "availableThroughEventId": "delivery-complete", "removeEventId": "remove-output-old" }]
+  }
+}

@@ -194,7 +194,11 @@ const jsScenarios = JSON.parse(readFileSync(join(jsCd, 'evals/scenarios.json'), 
 for (const target of ['demo-node', 'railway-prod']) {
   if (!jsScenarios.some(({ prompt }) => prompt.includes(target))) failures.push(`sc-js: routing misses named target ${target}`);
 }
-for (const required of ['demo-node:', 'railway-prod:', 'dataStrategy: deterministic-export-import', 'indexeddb: migration-code-only', 'js_drvfs_archive:', 'js_drvfs_normalized:', 'js_linux_native_artifact:']) {
+for (const required of [
+  'demo-node:', 'railway-prod:', 'dataStrategy: deterministic-export-import', 'indexeddb: migration-code-only',
+  'js_drvfs_archive:', 'js_drvfs_normalized:', 'js_linux_native_artifact:',
+  'js_recovery_early_delete:', 'js_proof_unbound:', 'js_recovery_window_valid:',
+]) {
   if (!behavePark.includes(required)) failures.push(`sc-js fixture: missing ${required}`);
 }
 

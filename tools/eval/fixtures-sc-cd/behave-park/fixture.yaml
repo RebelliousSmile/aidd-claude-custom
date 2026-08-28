@@ -404,6 +404,18 @@ scenario_variants:
     artifactFilesystem: { provenance: linux-native, resolvedPath: /home/deployer/build/nuxt-shop/.output, filesystemEvidence: ext4 }
     transport: { preservePermissions: true, preserveOwner: false, preserveGroup: false }
     postTransferModeProof: [directory, new-file, updated-file]
+  js_recovery_early_delete:
+    base: js_nuxt
+    observedScript: { path: scripts/deploy.mjs, digest: sha256:early-delete-fixture, successEvents: [create-output-old, activate-output, remove-output-old, health-proof, delivery-complete] }
+    contractClaims: { proof: { health: health-proof }, recovery: { artifact: .output.old, availableThrough: delivery-complete } }
+  js_proof_unbound:
+    base: js_nuxt
+    observedScript: { path: scripts/deploy.mjs, digest: sha256:unbound-proof-fixture, successEvents: [activate-output, delivery-complete] }
+    contractClaims: { proof: { health: missing-health-event } }
+  js_recovery_window_valid:
+    base: js_nuxt
+    observedScript: { path: scripts/deploy.mjs, digest: sha256:valid-window-fixture, successEvents: [create-output-old, activate-output, health-proof, delivery-complete, remove-output-old-next-run] }
+    contractClaims: { proof: { health: health-proof }, recovery: { artifact: .output.old, availableThrough: delivery-complete } }
   js_missing_tiers:
     base: js_nuxt
     sc_tiers_available: false

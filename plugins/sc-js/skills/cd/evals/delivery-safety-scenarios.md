@@ -30,12 +30,15 @@ This suite is distinct from:
 | S14 | **NO-GO DrvFs archive:** select variant `js_drvfs_archive`, whose artifact comes from a converted Windows path and whose transport preserves archive permissions. | Reject the transport profile before any target access. | The response names permission/owner/group preservation; no remote command is intended. |
 | S15 | Select variant `js_drvfs_normalized`. | Accept explicit destination normalization without treating DrvFs bits as Unix authority. | Directory and file modes are bounded, executable exceptions are declared, and delivery-time proof covers a directory, new file, and updated file. |
 | S16 | Select variant `js_linux_native_artifact`. | Accept the artifact's established native-Linux provenance. | No DrvFs rule is invented and the same three delivery-time proof categories remain required. |
+| S17 | **NO-GO early cleanup:** reconcile variant `js_recovery_early_delete`, whose contract retains `.output.old` through delivery completion but whose success trace deletes it first. | Reject behavioral parity before delivery. | The response cites the removal and window event ids; string presence alone cannot pass. |
+| S18 | **NO-GO decorative proof:** reconcile variant `js_proof_unbound`. | Reject the health claim without a reachable checking event. | No contract or script rewrite is intended; the unbound proof is named. |
+| S19 | Reconcile variant `js_recovery_window_valid`. | Accept proof and recovery bindings whose observed ordering preserves `.output.old` through completion. | A second reconciliation of the unchanged script and digest has an empty intended-write set. |
 
 ## How to run
 
 Agent-as-`sc-js:cd` (dry-run, READ-ONLY): load the router, three actions, all references, common contract, schema, this suite and `tools/eval/fixtures-sc-cd/behave-park/fixture.yaml`. For every scenario state the exact intended writes and commands that would not run.
 
-**Decisive observables:** lockfile preserved; one facade and one owner; IndexedDB data never transferred; migrations never imply data copy; stale/unsupported contracts produce no automation; proven DrvFs archive preservation fails closed; delivery-time mode proof covers directories plus new and updated files; no production command runs during configuration.
+**Decisive observables:** lockfile preserved; one facade and one owner; IndexedDB data never transferred; migrations never imply data copy; stale/unsupported contracts produce no automation; proven DrvFs archive preservation fails closed; delivery-time mode proof covers directories plus new and updated files; proof and recovery claims bind to ordered current-script events; no production command runs during configuration.
 
 ## Results log
 

@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Instruction: Vérifier la véracité comportementale de proof et recovery
