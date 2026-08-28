@@ -4,6 +4,24 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [3.19.0] - 2026-08-28
+
+### Added
+
+- Contrat SC-CD v2 pour plusieurs cibles nommées, chacune dotée d'une phase `staging` ou `production`, d'un mode `server` ou `automata`, d'un verrou et d'une garde de cycle de vie indépendants.
+- Protocole commun de synchronisation différentielle des données et médias : manifestes normalisés, aperçu des octets, reprise, vérification finale et refus de toute archive complète de secours.
+- Profil Alwaysdata borné et fixtures fédérées Suddenly/Scriptami couvrant Railway, serveur SSH, code, schéma, données et médias sans flux cible-à-cible.
+
+### Changed
+
+- `sc-css`, `sc-js`, `sc-php`, `sc-python` et `sc-rust` conservent une façade applicative unique et gouvernent séparément `code`, `schema`, `data` et `media` selon la phase de chaque cible.
+- `sc-tiers` configure exclusivement les prérequis et enveloppes fournisseur par cible ; les automates utilisent un ref immuable, une garde courante et un groupe de concurrence propre.
+- Les productions deviennent autoritatives pour leurs données et médias, tandis qu'un staging peut refléter le local après aperçu, sauvegarde et confirmation.
+
+### Fixed
+
+- Le scanner de couverture ignore les caches et dépendances inaccessibles au lieu d'interrompre la suite racine sur un répertoire hors périmètre.
+
 ## [3.18.1] - 2026-08-28
 
 ### Fixed
