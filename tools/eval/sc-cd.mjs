@@ -165,6 +165,22 @@ for (const required of ['demo-staging:', 'client-prod:', 'unchangedLargeUpload: 
   if (!behavePark.includes(required)) failures.push(`sc-php fixture: missing ${required}`);
 }
 
+const jsCd = join(root, 'plugins/sc-js/skills/cd');
+const jsTexts = [
+  'SKILL.md', 'actions/02-server.md', 'actions/03-automata.md', 'references/command-facade.md',
+  'references/data-layers.md', 'evals/delivery-scenarios.md', 'evals/delivery-safety-scenarios.md',
+].map((path) => readFileSync(join(jsCd, path), 'utf8')).join('\n').toLocaleLowerCase('en-US');
+for (const required of ['target id', 'staging', 'production', 'indexeddb', 'manifest', 'target-to-target', 'transferable bytes']) {
+  if (!jsTexts.includes(required)) failures.push(`sc-js: missing v2 data rule ${required}`);
+}
+const jsScenarios = JSON.parse(readFileSync(join(jsCd, 'evals/scenarios.json'), 'utf8'));
+for (const target of ['demo-node', 'railway-prod']) {
+  if (!jsScenarios.some(({ prompt }) => prompt.includes(target))) failures.push(`sc-js: routing misses named target ${target}`);
+}
+for (const required of ['demo-node:', 'railway-prod:', 'dataStrategy: deterministic-export-import', 'indexeddb: migration-code-only']) {
+  if (!behavePark.includes(required)) failures.push(`sc-js fixture: missing ${required}`);
+}
+
 if (failures.length) {
   for (const failure of failures) console.error(`SC-CD FAIL: ${failure}`);
   process.exit(1);

@@ -72,6 +72,22 @@ projects:
       workingDirectory: .
       trigger: manual
       secretNames: [DEPLOY_HOST, DEPLOY_USER]
+    targets:
+      demo-node:
+        phase: staging
+        mode: server
+        invocation: pnpm deploy:prod --target demo-node
+        authority: { code: local, schema: local, data: local, media: local }
+        dataStrategy: deterministic-export-import
+        mediaStrategy: manifest-delta-resumable
+        lock: js-nuxt-demo-node
+      railway-prod:
+        phase: production
+        mode: automata
+        invocation: pnpm deploy:prod --target railway-prod
+        authority: { code: local, schema: local, data: target, media: target }
+        indexeddb: migration-code-only
+        lock: js-nuxt-railway-prod
 
   js_conflict:
     root: apps/legacy-vite

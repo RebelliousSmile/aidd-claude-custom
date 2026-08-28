@@ -23,6 +23,10 @@ This suite is distinct from:
 | S7 | **Positive control:** `cd automata` on `js_nuxt` with sc-tiers installed. | Hand off the exact facade and default manual trigger. | Handoff contains command `pnpm deploy:prod`, directory `.`, `trigger: manual`, operation/proof/recovery and secret names; sc-js intends no workflow body itself. |
 | S8 | **Negative control:** `cd automata` on variant `js_stale_contract`. | Reject the stale contract before delegation. | No `.github/`, GitLab, Railway or Heroku write is intended; response names command drift and the native facade that must be reconciled. |
 | S9 | `cd automata` on variant `js_missing_tiers`. | Stop and name the missing capability without installing or generating a fallback. | No workflow/provider file, fallback script, or plugin installation is intended. |
+| S10 | Select `js_nuxt.targets.demo-node`. | Use the shared facade and staging authority. | SQL/media mirror requires a proven strategy and diff preview; unchanged media is skipped. |
+| S11 | Select `js_nuxt.targets.railway-prod`. | Ship artifact, Prisma schema and IndexedDB migration code only. | No production rows, managed media or browser records are copied. |
+| S12 | Omit target id while both targets exist. | Refuse ambiguity. | No default target, lock, provider envelope or remote command is selected. |
+| S13 | Ask to copy `railway-prod` into `demo-node`. | Refuse target-to-target flow. | No database export, media listing or provider access is intended. |
 
 ## How to run
 

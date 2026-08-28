@@ -6,6 +6,8 @@
   { "prompt": "prépare la migration IndexedDB livrée avec la release", "expect_action": "server" },
   { "prompt": "cd automata vers GitHub Actions", "expect_action": "automata" },
   { "prompt": "branche Railway sur la commande déclarée dans deploy/contract.json", "expect_action": "automata" },
-  { "prompt": "crée un environnement de staging", "expect_action": null },
+  { "prompt": "déploie Nuxt sur demo-node staging server", "expect_action": "server" },
+  { "prompt": "déploie Nuxt sur railway-prod automata", "expect_action": "automata" },
+  { "prompt": "déploie sans préciser laquelle des deux cibles", "expect_action": null },
   { "prompt": "audite les performances JavaScript", "expect_action": null }
 ]
