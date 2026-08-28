@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Instruction: Publier les sites statiques vers plusieurs cibles
@@ -87,4 +87,3 @@ journey
 | 1 | Un artefact statique déterministe peut alimenter plusieurs cibles nommées avec preuves propres. |
 | 2 | Les assets versionnés suivent le code ; les données et médias utilisateurs ne deviennent jamais propriété de sc-css. |
 | 3 | Server et automata appellent la même façade et une seconde réconciliation ne modifie aucun fichier. |
-

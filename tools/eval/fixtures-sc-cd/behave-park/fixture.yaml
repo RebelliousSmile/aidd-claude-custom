@@ -30,6 +30,24 @@ projects:
       trigger: manual
       proof: [entrypoint-200, fingerprinted-css-200]
       recovery: [redeploy-previous-commit]
+    surfaces: { code: [html, css, javascript, repository-images, repository-fonts], data: none, media: none }
+    targets:
+      brochure-server:
+        phase: production
+        mode: server
+        invocation: pnpm deploy:prod --target brochure-server
+        cache: { html: revalidate, fingerprinted_assets: immutable }
+        proof: [server-entrypoint-200, server-fingerprinted-css-200]
+        recovery: [server-redeploy-previous-commit]
+        lock: css-static-brochure-server
+      brochure-edge:
+        phase: production
+        mode: automata
+        invocation: pnpm deploy:prod --target brochure-edge
+        cache: { html: revalidate-60s, fingerprinted_assets: immutable }
+        proof: [edge-entrypoint-200, edge-fingerprinted-css-200]
+        recovery: [edge-redeploy-previous-commit]
+        lock: css-static-brochure-edge
 
   css_composite:
     root: apps/storefront

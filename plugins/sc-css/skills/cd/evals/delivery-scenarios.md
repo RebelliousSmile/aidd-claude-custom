@@ -8,3 +8,7 @@
 | Unknown output | Report a gap and write no target or contract. |
 | Cache policy | Revalidate HTML and preserve immutable caching for fingerprinted assets. |
 | Missing sc-tiers | Stop automata with no generated fallback. |
+| Two static targets | Reuse one deterministic artifact and facade with independent cache, proof and recovery metadata. |
+| Repository image/font | Include it in the code artifact rather than declaring mutable user media. |
+| User uploads or database | Refuse ownership and route to the root application runtime. |
+| Missing target id | Select no destination when the contract declares several targets. |

@@ -197,6 +197,22 @@ for (const required of ['rust-east:', 'rust-west:', 'releaseRoot: releases/rust-
   if (!behavePark.includes(required)) failures.push(`sc-rust fixture: missing ${required}`);
 }
 
+const cssCd = join(root, 'plugins/sc-css/skills/cd');
+const cssTexts = [
+  'SKILL.md', 'actions/02-server.md', 'actions/03-automata.md', 'references/static-delivery.md',
+  'evals/delivery-scenarios.md', 'evals/delivery-safety-scenarios.md',
+].map((path) => readFileSync(join(cssCd, path), 'utf8')).join('\n').toLocaleLowerCase('en-US');
+for (const required of ['target id', 'deterministic artifact', 'fingerprinted', 'user media', 'bounded contributor', 'independent']) {
+  if (!cssTexts.includes(required)) failures.push(`sc-css: missing multi-target static rule ${required}`);
+}
+const cssScenarios = JSON.parse(readFileSync(join(cssCd, 'evals/scenarios.json'), 'utf8'));
+for (const target of ['brochure-server', 'brochure-edge']) {
+  if (!cssScenarios.some(({ prompt }) => prompt.includes(target))) failures.push(`sc-css: routing misses named target ${target}`);
+}
+for (const required of ['brochure-server:', 'brochure-edge:', 'repository-fonts', 'media: none']) {
+  if (!behavePark.includes(required)) failures.push(`sc-css fixture: missing ${required}`);
+}
+
 if (failures.length) {
   for (const failure of failures) console.error(`SC-CD FAIL: ${failure}`);
   process.exit(1);
