@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Instruction: Rendre WordPress différentiel selon la phase de la cible
@@ -92,4 +92,3 @@ journey
 | 1 | Le staging peut refléter base et médias locaux ; la production ne reçoit que code et migrations explicitement sûres. |
 | 2 | Un média inchangé n'est pas retransmis, les suppressions staging sont prévisualisées et une cible sans inventaire fiable est refusée. |
 | 3 | Un projet WordPress composite conserve une façade racine et plusieurs cibles sans dupliquer les procédures PHP, JS, CSS ou fournisseur. |
-

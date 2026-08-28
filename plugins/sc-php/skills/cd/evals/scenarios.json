@@ -5,6 +5,8 @@
   { "prompt": "prépare deploy:db avec sauvegarde WordPress", "expect_action": "server" },
   { "prompt": "deploy:sync uniquement pour les médias", "expect_action": "server" },
   { "prompt": "cd automata vers GitLab CI", "expect_action": "automata" },
-  { "prompt": "déploie en staging", "expect_action": null },
+  { "prompt": "miroir WordPress vers la cible demo-staging server", "expect_action": "server" },
+  { "prompt": "publie le code sur client-prod automata", "expect_action": "automata" },
+  { "prompt": "copie les uploads de client-prod vers demo-staging", "expect_action": null },
   { "prompt": "scaffolde un nouveau projet Symfony", "expect_action": null }
 ]

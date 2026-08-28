@@ -24,8 +24,8 @@ Run the flow above. Read only the next action file.
 | Action | Does |
 | --- | --- |
 | local | reconcile the detected PHP framework locally |
-| server | reconcile one scoped Composer delivery facade |
-| automata | validate and delegate the existing facade |
+| server | reconcile one named server target through the root facade |
+| automata | validate and delegate one named automata target |
 
 ## Transversal rules
 
@@ -33,3 +33,5 @@ Run the flow above. Read only the next action file.
 - Keep one root owner and treat JavaScript and CSS as bounded contributors in WordPress applications.
 - Keep code, configuration, migrations, database, editorial content, and media as separate named surfaces.
 - Never create another environment, reset WordPress, destroy containers, import a database during setup, or deploy merely because configuration was requested.
+- Select an exact target id, phase and `deploy:*` operation; refuse ambiguous multi-target requests and every target-to-target or pull flow.
+- Read [differential synchronization](../../references/cd-differential-sync.md) for staging data or media. Production mutable data, editorial content and uploads are target-authoritative.

@@ -149,6 +149,22 @@ for (const required of ['suddenly_like:', 'railway-main:', 'alwaysdata-federated
   if (!behavePark.includes(required)) failures.push(`sc-python fixture: missing ${required}`);
 }
 
+const phpCd = join(root, 'plugins/sc-php/skills/cd');
+const phpTexts = [
+  'SKILL.md', 'actions/02-server.md', 'actions/03-automata.md', 'references/command-facade.md',
+  'references/php-frameworks.md', 'references/wordpress-sync.md', 'evals/delivery-scenarios.md', 'evals/delivery-safety-scenarios.md',
+].map((path) => readFileSync(join(phpCd, path), 'utf8')).join('\n').toLocaleLowerCase('en-US');
+for (const required of ['target id', 'staging', 'production', 'manifest', 'transferable bytes', 'target-to-target', 'tar | ssh']) {
+  if (!phpTexts.includes(required)) failures.push(`sc-php: missing phase-aware WordPress rule ${required}`);
+}
+const phpScenarios = JSON.parse(readFileSync(join(phpCd, 'evals/scenarios.json'), 'utf8'));
+for (const target of ['demo-staging', 'client-prod']) {
+  if (!phpScenarios.some(({ prompt }) => prompt.includes(target))) failures.push(`sc-php: routing misses named target ${target}`);
+}
+for (const required of ['demo-staging:', 'client-prod:', 'unchangedLargeUpload: 500000000', 'forbiddenOperations: [deploy:data, deploy:media]']) {
+  if (!behavePark.includes(required)) failures.push(`sc-php fixture: missing ${required}`);
+}
+
 if (failures.length) {
   for (const failure of failures) console.error(`SC-CD FAIL: ${failure}`);
   process.exit(1);

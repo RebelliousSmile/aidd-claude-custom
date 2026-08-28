@@ -12,3 +12,7 @@ Use the project's existing root package-manager facade. Detect it from versioned
 Reconcile existing scripts before editing. Preserve targets, host-specific workarounds, and custom behavior. If old and new semantics conflict, show the difference and stop for arbitration rather than creating a second producer.
 
 The project contract must match the detected manager, command, and directory exactly. Preflight, exclusions, proof, and recovery live behind the facade, never solely in CI.
+
+The same facade accepts the target id and `deploy:*` operation. Target-specific provider details belong to contract invocations and capabilities, not to duplicate Composer, pnpm, PowerShell or shell implementations. JavaScript and CSS remain bounded contributors beneath the PHP-owned root facade.
+
+Acquire a lock scoped to target id and lifecycle revision. Never retry on another target, and propagate failures from diff, transfer, migration, health or recovery unchanged.

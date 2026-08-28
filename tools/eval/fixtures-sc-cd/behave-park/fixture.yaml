@@ -120,6 +120,22 @@ projects:
       command: composer deploy:prod
       workingDirectory: .
       trigger: manual
+    targets:
+      demo-staging:
+        phase: staging
+        mode: server
+        authority: { code: local, schema: local, data: local, media: local }
+        mediaInventory: { algorithm: sha256, resumable: true, finalVerification: true }
+        mediaBytes: { total: 506000000, transferable: 6000000, unchangedLargeUpload: 500000000 }
+        deletionPolicy: mirror-after-backup-preview-confirmation
+        lock: php-wordpress-demo-staging
+      client-prod:
+        phase: production
+        mode: automata
+        authority: { code: local, schema: local, data: target, media: target }
+        allowedOperations: [deploy:code, deploy:schema]
+        forbiddenOperations: [deploy:data, deploy:media]
+        lock: php-wordpress-client-prod
 
   python_uv:
     root: apps/django-api

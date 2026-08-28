@@ -3,11 +3,13 @@
 Treat these as separate surfaces: code, configuration, schema/migrations, full database, editorial content, and media. Every operation states its scope and direction.
 
 - `deploy:prod`: local-to-production code release by default; excludes secrets, caches, uploads and local database state.
-- `deploy:db`: local-to-production database operation only when explicitly designed, backed up, dry-run/reviewed and confirmed. It is never a hidden part of code deployment.
-- `deploy:sync`: local-to-production synchronization whose exact content/media/configuration scope is named. An unqualified sync request is rejected.
-- `pull:*`: production-to-local operation, kept distinct from deployment and protected from overwriting local work.
+- `deploy:db`: reviewed schema migration in production, or an explicit local-authoritative database mirror in staging. It is never a hidden part of code deployment.
+- `deploy:sync`: staging-only local mirror whose exact data/content/media scope and deletion policy are named. Production refuses this operation for mutable surfaces.
+- `pull:*` and every target-to-target copy are outside this delivery contract and are refused.
 
-WP-CLI search-replace must account for serialized data. Media transfer must state deletion behavior; default to no remote deletion. Before production mutation record a backup and recovery command, then require confirmation. Afterward prove URL, active theme/plugin and the changed scope only.
+WP-CLI search-replace must account for serialized data. Before staging mutation, require a fresh backup, stable preview, explicit confirmation and recovery. Media inventory uses normalized relative paths and content hashes: report additions, changes, deletions and transferable bytes; unchanged uploads transfer zero bytes. Prefer proven rsync, otherwise use the manifest fallback with safe partials, atomic replacement and final inventory verification. Never silently send a complete archive when comparison is unavailable.
+
+Production receives code and explicitly safe declarative migrations only. Its database, editorial content and uploads remain untouched and authoritative.
 
 ## Remote capability profile
 

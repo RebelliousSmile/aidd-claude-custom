@@ -23,6 +23,10 @@ This suite is distinct from:
 | S7 | **Positive control:** `cd automata` for code-only delivery with a valid manual contract. | Delegate the exact Composer facade to sc-tiers and keep risky scopes manual. | Handoff preserves `composer deploy:prod`, `.`, manual trigger, proof and recovery; no database/content/media step appears in the envelope. |
 | S8 | **Negative control:** run `cd automata` on variant `php_missing_tiers`. | Name the prerequisite and stop. | No workflow/provider file, fallback command or plugin installation is intended; existing Composer and contract files remain untouched. |
 | S9 | Compare a capable shared host with a restricted shared host. | Build a capability profile for each target instead of copying one provider recipe to the other. | The capable host may retain rsync, remote WP-CLI, backups or automation; the restricted host keeps only verified transports and workarounds. |
+| S10 | Mirror `php_wordpress.targets.demo-staging`. | Compute a manifest delta and preview database/content/media mutations. | The 500 MB unchanged upload is zero-byte; deletions wait for fresh backup and confirmation; final inventory is verified. |
+| S11 | Run the same sync against `client-prod`. | Refuse mutable surfaces and retain code/safe migrations only. | No SQL import, WP-CLI content mutation, upload transport or deletion is intended. |
+| S12 | Remove reliable listing/hash support from staging. | Fail closed. | No `tar | ssh`, zip, full `wp-content` archive or blind SFTP fallback is intended. |
+| S13 | Ask to copy `client-prod` to `demo-staging`. | Refuse target-to-target synchronization. | Neither target is contacted and no credential is resolved. |
 
 ## How to run
 
