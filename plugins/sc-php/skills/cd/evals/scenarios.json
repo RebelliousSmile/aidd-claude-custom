@@ -1,0 +1,10 @@
+[
+  { "prompt": "cd local pour ce thème WordPress avec wp-env", "expect_action": "local" },
+  { "prompt": "réconcilie Docker local pour Laravel", "expect_action": "local" },
+  { "prompt": "cd server et ajoute composer deploy:prod", "expect_action": "server" },
+  { "prompt": "prépare deploy:db avec sauvegarde WordPress", "expect_action": "server" },
+  { "prompt": "deploy:sync uniquement pour les médias", "expect_action": "server" },
+  { "prompt": "cd automata vers GitLab CI", "expect_action": "automata" },
+  { "prompt": "déploie en staging", "expect_action": null },
+  { "prompt": "scaffolde un nouveau projet Symfony", "expect_action": null }
+]
