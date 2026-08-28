@@ -1,6 +1,6 @@
 ---
 objective: "Chaque plugin sc-* expose une skill cd qui installe une chaîne locale et une procédure de production propres à sa stack, tandis que les exécutions manuelles, CI et PaaS appellent un unique script de déploiement gouverné par un contrat commun."
-status: in-progress
+status: implemented
 ---
 
 # Plan: Installer une livraison continue cohérente dans les plugins sc-*
