@@ -16,6 +16,10 @@ Détecte l'architecture CSS du projet (BEM, utility-first, CSS Modules, ITCSS), 
 | `design-bridge` | `/sc-css:design-bridge` | Réceptacle du pivot design pour la couche CSS pure — reçoit le contrat (`tokens.json` + `components.json`) et produit des custom properties CSS (`tokens` → `:root`) et des stylesheets de composants BEM sous cascade layers. Jamais invoqué directement, appelé via `design:enforce`/`design:diffuse` quand la stack est CSS pure |
 | `cd` | `/sc-css:cd local\|server\|automata` | Build, preview et livraison d'un site statique pur. Dans une application composite, sc-css contribue seulement aux assets et ne crée jamais une seconde façade. Sortie inconnue ou `sc-tiers` absent : arrêt sans cible concurrente. |
 
+## CD multi-cibles
+
+`sc-css:cd` publie un artefact statique déterministe vers des cibles nommées `staging` ou `production`, en mode `server` ou `automata`. Build, preview et sortie restent communs ; cache, preuve, récupération et verrou sont propres à chaque cible. Les images et fontes versionnées appartiennent au code. Les données et médias utilisateurs restent hors du périmètre de sc-css.
+
 ## Licence
 
 MIT — voir [LICENSE](../../LICENSE).

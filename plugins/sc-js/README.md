@@ -101,6 +101,10 @@ Le guard de contenu protège les fichiers modifiés manuellement — seuls les f
 
 Les retours sur les gaps de détection (libs non couvertes dans le manifeste) et sur la précision des pivots existants sont les plus utiles. Une issue avant PR pour les nouveaux pivots.
 
+## CD multi-cibles
+
+`sc-js:cd` conserve une seule façade du gestionnaire détecté et sélectionne une cible nommée. Le schéma SQL reste livrable, les données serveur et médias de production restent distants, et les migrations IndexedDB voyagent avec le code sans copier les données navigateur. Un staging peut refléter les surfaces persistantes uniquement avec une stratégie d'export/import ou d'inventaire prouvée.
+
 ## Licence
 
 MIT — voir [LICENSE](../../LICENSE).

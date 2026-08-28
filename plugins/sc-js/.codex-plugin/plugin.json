@@ -1,7 +1,7 @@
 {
   "name": "sc-js",
-  "version": "0.16.0+codex.20260828",
-  "description": "JavaScript stack detection, audit, modernization, design pivots, Gutenberg validation, and framework-aware local/production CD through a native package-manager facade.",
+  "version": "0.17.0+codex.20260828.2",
+  "description": "JavaScript stack detection, audit, modernization, and multi-target CD through one native facade with distinct schema, server data, browser data, and media.",
   "author": { "name": "François-Xavier Guillois" },
   "skills": "./skills/",
   "interface": {

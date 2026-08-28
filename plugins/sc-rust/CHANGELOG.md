@@ -1,5 +1,9 @@
 # Changelog — sc-rust
 
+## [0.7.0] — 2026-08-28
+
+- CD v2 avec releases, pointeurs, verrous et rollbacks indépendants par cible, via un xtask commun.
+
 ## [0.6.0] — 2026-08-28
 
 ### Added

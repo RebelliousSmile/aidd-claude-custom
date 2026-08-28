@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "sc-css",
-  "version": "0.6.0",
-  "description": "CSS ecosystem skills for auditing, modernization, design pivots, and CD of pure static sites with bounded ownership in composite applications.",
+  "version": "0.7.0",
+  "description": "CSS ecosystem skills for auditing, modernization, and multi-target delivery of deterministic static artifacts with bounded composite ownership.",
   "author": {
     "name": "François-Xavier Guillois"
   }

@@ -36,6 +36,10 @@ Le scaffold charge une entrée `assets/css/design/index.css` commune via `wp_enq
 auto-enregistrées sont des fichiers `patterns/*.php`, et toutes les commandes WP-CLI passent par
 `pnpm wp` afin de conserver le garde-fou `COMPOSE_PROJECT_NAME`.
 
+## CD multi-cibles
+
+`sc-php:cd` garde une façade racine unique pour WordPress, Laravel ou Symfony. En staging, WordPress peut refléter base, contenu et uploads depuis le local après aperçu différentiel, sauvegarde et confirmation. En production, seuls code et migrations déclaratives sûres sont livrés ; base éditoriale, contenu et uploads restent autoritatifs sur chaque instance.
+
 ## Licence
 
 MIT — voir [LICENSE](../../LICENSE).

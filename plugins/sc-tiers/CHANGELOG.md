@@ -1,5 +1,9 @@
 # Changelog — sc-tiers
 
+## [0.5.0] — 2026-08-28
+
+- Contrat v2 par cible, profil Alwaysdata, enveloppes automata à ref immuable, garde distante et concurrence isolée.
+
 ## [0.4.0] — 2026-08-28
 
 ### Added

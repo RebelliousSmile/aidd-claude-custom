@@ -107,6 +107,7 @@ const localManifest = JSON.parse(readFileSync(join(differentialFixtures, 'local-
 const remoteManifest = JSON.parse(readFileSync(join(differentialFixtures, 'remote-manifest.json'), 'utf8'));
 const expectedStaging = JSON.parse(readFileSync(join(differentialFixtures, 'expected-staging-diff.json'), 'utf8'));
 const expectedProduction = JSON.parse(readFileSync(join(differentialFixtures, 'expected-production-refusal.json'), 'utf8'));
+const resumeManifest = JSON.parse(readFileSync(join(differentialFixtures, 'resume-manifest.json'), 'utf8'));
 const stagingDiff = compareManifests(localManifest, remoteManifest, { phase: 'staging', surface: 'media', deletions: 'mirror' });
 if (JSON.stringify(stagingDiff) !== JSON.stringify(expectedStaging)) failures.push('differential sync: staging diff does not match its oracle');
 if (stagingDiff.transferableBytes >= stagingDiff.totalLocalBytes) failures.push('differential sync: unchanged large media would be retransferred');
@@ -118,6 +119,10 @@ if (!noChangeDiff.allowed || noChangeDiff.transferableBytes !== 0 || noChangeDif
 }
 const forbiddenDeletion = compareManifests(localManifest, remoteManifest, { phase: 'staging', surface: 'media', deletions: 'forbid' });
 if (forbiddenDeletion.allowed || forbiddenDeletion.transferableBytes !== 0) failures.push('differential sync: forbidden deletion did not fail closed');
+const resumedDiff = compareManifests(localManifest, resumeManifest, { phase: 'staging', surface: 'media', deletions: 'preserve' });
+if (resumedDiff.transferableBytes !== 5000000 || !resumedDiff.changes.unchanged.includes('uploads/new.jpg')) {
+  failures.push('differential sync: resume would retransmit an already verified file');
+}
 const unsafeManifest = { ...localManifest, entries: [{ type: 'file', path: '../escape.jpg', size: 1, hash: 'bad' }] };
 try {
   compareManifests(unsafeManifest, remoteManifest);
@@ -228,6 +233,35 @@ for (const target of ['alwaysdata-federated', 'railway-main']) {
 for (const required of ['tiers_federated:', 'provider: alwaysdata', 'remoteGuard: deploy/guard.json', 'concurrencyGroup: suddenly-railway-main']) {
   if (!behavePark.includes(required)) failures.push(`sc-tiers fixture: missing ${required}`);
 }
+
+for (const plugin of plugins) {
+  const scenarios = JSON.parse(readFileSync(join(root, 'plugins', plugin, 'skills/cd/evals/scenarios.json'), 'utf8'));
+  const prompts = scenarios.map(({ prompt }) => prompt.toLocaleLowerCase('en-US'));
+  for (const phase of ['staging', 'production']) {
+    if (!prompts.some((prompt) => prompt.includes(phase))) failures.push(`${plugin}: routing scenarios miss ${phase}`);
+  }
+  for (const action of ['server', 'automata']) {
+    if (!scenarios.some(({ expect_action: expected }) => expected === action)) failures.push(`${plugin}: routing scenarios miss ${action}`);
+  }
+}
+
+const releaseVersions = {
+  'sc-css': '0.7.0', 'sc-js': '0.17.0', 'sc-php': '0.14.0',
+  'sc-python': '0.8.0', 'sc-rust': '0.7.0', 'sc-tiers': '0.5.0',
+};
+const marketplace = JSON.parse(readFileSync(join(root, '.claude-plugin/marketplace.json'), 'utf8'));
+for (const [plugin, version] of Object.entries(releaseVersions)) {
+  const claudeManifest = JSON.parse(readFileSync(join(root, 'plugins', plugin, '.claude-plugin/plugin.json'), 'utf8'));
+  const codexManifest = JSON.parse(readFileSync(join(root, 'plugins', plugin, '.codex-plugin/plugin.json'), 'utf8'));
+  const listing = marketplace.plugins.find(({ name }) => name === plugin);
+  if (claudeManifest.version !== version || listing?.version !== version) failures.push(`${plugin}: Claude/catalog version mismatch`);
+  if (codexManifest.version !== `${version}+codex.20260828.2`) failures.push(`${plugin}: Codex cachebuster mismatch`);
+  const readme = readFileSync(join(root, 'plugins', plugin, 'README.md'), 'utf8');
+  const changelog = readFileSync(join(root, 'plugins', plugin, 'CHANGELOG.md'), 'utf8');
+  if (!readme.includes('CD multi-cibles') && !readme.includes('CD par cible')) failures.push(`${plugin}: README misses v2 capabilities`);
+  if (!changelog.includes(`## [${version}]`)) failures.push(`${plugin}: changelog misses ${version}`);
+}
+if (marketplace.version !== '3.19.0') failures.push('marketplace: expected version 3.19.0');
 
 if (failures.length) {
   for (const failure of failures) console.error(`SC-CD FAIL: ${failure}`);

@@ -1,5 +1,9 @@
 # Changelog — sc-js
 
+## [0.17.0] — 2026-08-28
+
+- CD v2 multi-cibles avec autorités distinctes pour code, schéma SQL, données serveur, IndexedDB et médias.
+
 ## [0.16.0] — 2026-08-28
 
 ### Added

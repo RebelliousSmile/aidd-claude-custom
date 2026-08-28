@@ -1,5 +1,9 @@
 # Changelog — sc-python
 
+## [0.8.0] — 2026-08-28
+
+- CD v2 multi-cibles, migrations séparées des données/médias et topologie fédérée Railway plus Alwaysdata.
+
 ## [0.7.0] — 2026-08-28
 
 ### Added

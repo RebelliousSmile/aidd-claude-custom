@@ -58,6 +58,10 @@ Ce que ce pivot **ne fait pas** : décider s'il faut écrire un test, ni quel ni
 | Perf / data pivot | `.claude/rules/07-quality/` | `web-optimize` / `data-optimize` (explicite) | Au lancement du skill |
 | Pivot `testing` | Plugin uniquement | Tout consommateur du contrat de pivot (découverte par glob) | À chaque action de gouvernance de tests sur un projet Python |
 
+## CD multi-cibles
+
+`sc-python:cd` conserve uv, Poetry, Pipenv ou l'invocation Python déjà choisie et l'utilise pour des cibles nommées `server` ou `automata`. Les migrations restent séparées des lignes métier et des médias. Chaque production possède sa base et son stockage ; un staging peut être un miroir local seulement lorsque l'inventaire et la reprise sont prouvés.
+
 ## Licence
 
 MIT — voir [LICENSE](../../LICENSE).

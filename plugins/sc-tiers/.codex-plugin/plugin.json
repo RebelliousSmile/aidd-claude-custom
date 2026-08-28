@@ -1,7 +1,7 @@
 {
   "name": "sc-tiers",
-  "version": "0.4.0+codex.20260828",
-  "description": "Third-party SaaS guidance plus provider and CI/CD adapters that consume an existing project delivery contract for SSH, Railway, Heroku, GitHub, and GitLab.",
+  "version": "0.5.0+codex.20260828.2",
+  "description": "Third-party SaaS guidance plus target-isolated server and automata adapters for SSH, Alwaysdata, Railway, Heroku, GitHub, and GitLab.",
   "author": { "name": "François-Xavier Guillois" },
   "skills": "./skills/",
   "interface": {

@@ -13,6 +13,10 @@ Installe dans le projet les règles d'usage des SaaS tiers (quotas, sécurité, 
 
 Couvre : Firestore (limites de requêtes, security rules, quotas), Auth listeners, Hosting (trailing slash, cache headers), Playwright + Firebase Auth, Klaviyo (subscribe 2 temps, 409→PATCH), GTM Consent Mode v2 + Meta Pixel, Microsoft Clarity (best-effort, consent-gated), PageSpeed Insights / Lighthouse (variance, métriques déterministes, checklist Nuxt 3). Data pivot : Firebase/Firestore uniquement.
 
+## CD par cible
+
+`sc-tiers:cd` consomme une cible v2 déjà validée et ne possède aucune logique applicative. Il configure des faits fournisseur bornés pour SSH, Alwaysdata, Railway ou Heroku, et des enveloppes GitHub/GitLab minces avec ref immuable, garde de cycle de vie et concurrence par cible. Les valeurs secrètes, builds, migrations et synchronisations restent hors de ses fichiers.
+
 ## Licence
 
 MIT — voir [LICENSE](../../LICENSE).

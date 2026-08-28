@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Instruction: Valider, documenter et distribuer le contrat v2
@@ -20,7 +20,7 @@ status: pending
 │   └── CHANGELOG.md                                  ✏️ contrat v2 et migration
 └── aidd_docs/tasks/2026_08/2026_08_28-sc-cd-multicibles-staging-media
     └── migration-v1-v2.md                            ✅ guide de migration vérifié
-C:\Users\fxgui\Documents\Code\Perso\DEPLOYMENT.md  ✏️ runbook transversal et pilotes réels
+C:\Users\fxgui\Documents\Code\Perso\DEPLOYMENT.md  — inventaire transitoire laissé intact
 ❌ aucun fichier supprimé
 ```
 
@@ -70,14 +70,14 @@ journey
 4. Prouver sur inventaires qu'une seconde synchronisation inchangée prévoit zéro transfert et zéro suppression.
 5. Exécuter toutes les validations sans credential ni accès production.
 
-### `2)` Mettre à jour le runbook et la migration
+### `2)` Documenter les plugins et la migration
 
 > Transformer la photographie actuelle en guide raccordé aux contrats projet.
 
-1. Présenter `DEPLOYMENT.md` comme catalogue des cibles et règles opérateur, pas comme propriétaire des scripts.
-2. Cartographier les projets vers propriétaire, cibles, phase, mode, fournisseur et surfaces.
-3. Documenter Suddenly comme topologie fédérée indépendante et Scriptami comme preuve code/DB/médias.
-4. Documenter la migration v1 vers v2 et la promotion fail-closed d'une cible staging, y compris la récupération après chaque arrêt intermédiaire.
+1. Présenter dans les README `sc-*` les cibles, phases, modes, surfaces et limites réellement implémentés.
+2. Documenter Suddenly dans les fixtures comme topologie fédérée indépendante et Scriptami comme preuve code/DB/médias.
+3. Documenter la migration v1 vers v2 et la promotion fail-closed d'une cible staging, y compris la récupération après chaque arrêt intermédiaire.
+4. Laisser le runbook historique externe intact : les plugins et contrats projet deviennent la source opératoire.
 
 ### `3)` Versionner et publier cohérent
 
@@ -93,5 +93,5 @@ journey
 | Task | Acceptance criteria |
 | ---- | ------------------- |
 | 1 | Les suites prouvent multi-cibles, contexte workspace/automate, garde de cycle de vie, refus d'une enveloppe périmée, zéro flux distant, verrou et zéro retransfert média, hors réseau. |
-| 2 | Le runbook décrit Suddenly et Scriptami avec le vocabulaire v2 et fournit une migration et une promotion sans ambiguïté. |
+| 2 | Les README, fixtures et le guide de migration décrivent Suddenly, Scriptami et la promotion v2 sans ambiguïté. |
 | 3 | Les six plugins publient le même contrat et schéma, des versions cohérentes et une suite racine entièrement verte. |

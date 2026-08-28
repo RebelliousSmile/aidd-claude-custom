@@ -7,7 +7,7 @@
   { "prompt": "cd automata vers GitHub Actions", "expect_action": "automata" },
   { "prompt": "branche Railway sur la commande déclarée dans deploy/contract.json", "expect_action": "automata" },
   { "prompt": "déploie Nuxt sur demo-node staging server", "expect_action": "server" },
-  { "prompt": "déploie Nuxt sur railway-prod automata", "expect_action": "automata" },
+  { "prompt": "déploie Nuxt en production sur railway-prod automata", "expect_action": "automata" },
   { "prompt": "déploie sans préciser laquelle des deux cibles", "expect_action": null },
   { "prompt": "audite les performances JavaScript", "expect_action": null }
 ]
