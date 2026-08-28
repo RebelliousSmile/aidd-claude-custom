@@ -13,3 +13,9 @@
 | Nuxt staging store | Mirror server data/media only when export/import or manifest inventory is proven. |
 | Nuxt production store | Apply schema migration while preserving target-authoritative rows and media. |
 | Static target | Deliver its configured artifact without inventing a database or media store. |
+| Nuxt artifact on DrvFs with archive-mode rsync | Refuse before any remote command because source permissions would be preserved. |
+| Nuxt artifact on DrvFs with explicit destination modes | Allow the dry-run when permission/owner/group preservation is disabled and post-transfer mode proofs cover a directory, new file, and updated file. |
+| Nuxt artifact staged on native Linux storage | Preserve the established Linux provenance without inventing a Windows permission rule. |
+| Health proof bound to a checking event | Accept only when the event is reachable, observable, and propagates failure. |
+| `.output.old` retained through delivery completion | Accept when creation and cleanup order leave it selectable for the full declared window. |
+| `.output.old` removed before successful completion | Reject the recovery claim even when the script and contract both contain the string `.output.old`. |

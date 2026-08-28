@@ -1,0 +1,33 @@
+{
+  "kind": "transport-profile",
+  "expected": {
+    "valid": false,
+    "errorIncludes": [
+      "disable preservePermissions",
+      "disable preserveOwner",
+      "disable preserveGroup",
+      "directory destination mode",
+      "file destination mode"
+    ]
+  },
+  "evidence": {
+    "filesystem": {
+      "provenance": "drvfs",
+      "resolvedPath": "/mnt/c/projects/nuxt-shop/.output",
+      "windowsPath": "C:\\projects\\nuxt-shop\\.output",
+      "mountEvidence": "drvfs"
+    },
+    "transport": {
+      "preservePermissions": true,
+      "preserveOwner": true,
+      "preserveGroup": true,
+      "executablePaths": []
+    },
+    "postTransferProof": {
+      "execution": "delivery",
+      "directories": [".output/server"],
+      "newFiles": [".output/server/index.mjs"],
+      "updatedFiles": [".output/nitro.json"]
+    }
+  }
+}

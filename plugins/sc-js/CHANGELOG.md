@@ -1,5 +1,13 @@
 # Changelog — sc-js
 
+## [0.17.1] — 2026-08-28
+
+### Fixed
+
+- Refuse la préservation des permissions, propriétaires et groupes issus de DrvFs vers Linux ; accepte un artefact Linux natif ou des modes destination explicites avec preuve post-transfert sur répertoire, nouveau fichier et fichier mis à jour.
+- Relie désormais `proof` et `recovery` aux événements ordonnés du script réellement inspecté, et rejette une preuve décorative ou un rollback supprimé avant la fin de sa fenêtre annoncée.
+- Ajoute six fixtures et un oracle sans dépendance pour reproduire ces décisions hors réseau.
+
 ## [0.17.0] — 2026-08-28
 
 - CD v2 multi-cibles avec autorités distinctes pour code, schéma SQL, données serveur, IndexedDB et médias.

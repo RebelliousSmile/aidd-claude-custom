@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateProjectContract, validatePromotionTransition } from '../sc-cd/validate-project-contract.mjs';
 import { compareManifests } from '../sc-cd/compare-manifests.mjs';
+import { validateEvidenceFixture } from './validate-js-delivery-evidence.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const plugins = ['sc-css', 'sc-js', 'sc-php', 'sc-python', 'sc-rust', 'sc-tiers'];
@@ -53,6 +54,17 @@ for (const required of ['`staging`', '`production`', '`server`', '`automata`', '
 if (/allow(?:s|ed)?[^.]*?(?:production-to-local|target-to-target)/i.test(canonical)) failures.push('canonical contract: forbidden remote flow');
 
 const fixtures = join(root, 'tools/eval/fixtures-sc-cd');
+const jsEvidenceFixtures = join(fixtures, 'js-delivery-evidence');
+const jsEvidenceNames = readdirSync(jsEvidenceFixtures).filter((name) => name.endsWith('.json')).sort();
+for (const name of jsEvidenceNames) {
+  const fixture = JSON.parse(readFileSync(join(jsEvidenceFixtures, name), 'utf8'));
+  const result = validateEvidenceFixture(fixture);
+  const valid = result.length === 0;
+  if (valid !== fixture.expected?.valid) failures.push(`sc-js evidence ${name}: expected ${fixture.expected?.valid ? 'valid' : 'invalid'} (${result.join('; ')})`);
+  for (const fragment of fixture.expected?.errorIncludes ?? []) {
+    if (!result.some((error) => error.includes(fragment))) failures.push(`sc-js evidence ${name}: missing expected error ${fragment}`);
+  }
+}
 const cases = [
   ['valid-language-owner', true],
   ['valid-composite', true],
@@ -182,7 +194,11 @@ const jsScenarios = JSON.parse(readFileSync(join(jsCd, 'evals/scenarios.json'), 
 for (const target of ['demo-node', 'railway-prod']) {
   if (!jsScenarios.some(({ prompt }) => prompt.includes(target))) failures.push(`sc-js: routing misses named target ${target}`);
 }
-for (const required of ['demo-node:', 'railway-prod:', 'dataStrategy: deterministic-export-import', 'indexeddb: migration-code-only']) {
+for (const required of [
+  'demo-node:', 'railway-prod:', 'dataStrategy: deterministic-export-import', 'indexeddb: migration-code-only',
+  'js_drvfs_archive:', 'js_drvfs_normalized:', 'js_linux_native_artifact:',
+  'js_recovery_early_delete:', 'js_proof_unbound:', 'js_recovery_window_valid:',
+]) {
   if (!behavePark.includes(required)) failures.push(`sc-js fixture: missing ${required}`);
 }
 
@@ -246,22 +262,24 @@ for (const plugin of plugins) {
 }
 
 const releaseVersions = {
-  'sc-css': '0.7.0', 'sc-js': '0.17.0', 'sc-php': '0.14.0',
+  'sc-css': '0.7.0', 'sc-js': '0.17.1', 'sc-php': '0.14.0',
   'sc-python': '0.8.0', 'sc-rust': '0.7.0', 'sc-tiers': '0.5.0',
 };
+const codexCachebusters = { 'sc-js': '20260828.3' };
 const marketplace = JSON.parse(readFileSync(join(root, '.claude-plugin/marketplace.json'), 'utf8'));
 for (const [plugin, version] of Object.entries(releaseVersions)) {
   const claudeManifest = JSON.parse(readFileSync(join(root, 'plugins', plugin, '.claude-plugin/plugin.json'), 'utf8'));
   const codexManifest = JSON.parse(readFileSync(join(root, 'plugins', plugin, '.codex-plugin/plugin.json'), 'utf8'));
   const listing = marketplace.plugins.find(({ name }) => name === plugin);
   if (claudeManifest.version !== version || listing?.version !== version) failures.push(`${plugin}: Claude/catalog version mismatch`);
-  if (codexManifest.version !== `${version}+codex.20260828.2`) failures.push(`${plugin}: Codex cachebuster mismatch`);
+  const cachebuster = codexCachebusters[plugin] ?? '20260828.2';
+  if (codexManifest.version !== `${version}+codex.${cachebuster}`) failures.push(`${plugin}: Codex cachebuster mismatch`);
   const readme = readFileSync(join(root, 'plugins', plugin, 'README.md'), 'utf8');
   const changelog = readFileSync(join(root, 'plugins', plugin, 'CHANGELOG.md'), 'utf8');
   if (!readme.includes('CD multi-cibles') && !readme.includes('CD par cible')) failures.push(`${plugin}: README misses v2 capabilities`);
   if (!changelog.includes(`## [${version}]`)) failures.push(`${plugin}: changelog misses ${version}`);
 }
-if (marketplace.version !== '3.19.0') failures.push('marketplace: expected version 3.19.0');
+if (marketplace.version !== '3.19.1') failures.push('marketplace: expected version 3.19.1');
 
 if (failures.length) {
   for (const failure of failures) console.error(`SC-CD FAIL: ${failure}`);
