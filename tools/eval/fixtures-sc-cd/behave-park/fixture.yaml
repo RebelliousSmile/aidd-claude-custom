@@ -259,6 +259,27 @@ projects:
       command: cargo deploy-prod
       workingDirectory: .
       trigger: manual
+    targets:
+      rust-east:
+        phase: production
+        mode: server
+        invocation: cargo deploy-prod -- --target rust-east --operation deploy:code
+        artifact: { package: catalog-api, binary: catalog-api, features: [production], target: x86_64-unknown-linux-gnu, source: 8c14d6d, checksum: sha256-east }
+        releaseRoot: releases/rust-east
+        currentPointer: releases/rust-east/current
+        previousPointer: releases/rust-east/previous
+        lock: rust-workspace-rust-east
+        authority: { schema: local, data: target, media: target }
+      rust-west:
+        phase: production
+        mode: automata
+        invocation: cargo deploy-prod -- --target rust-west --operation deploy:code
+        artifact: { package: catalog-api, binary: catalog-api, features: [production], target: x86_64-unknown-linux-gnu, source: 8c14d6d, checksum: sha256-west }
+        releaseRoot: releases/rust-west
+        currentPointer: releases/rust-west/current
+        previousPointer: releases/rust-west/previous
+        lock: rust-workspace-rust-west
+        authority: { schema: local, data: target, media: target }
 
   rust_cross_unknown:
     root: services/windows-agent

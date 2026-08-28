@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Instruction: Adapter les releases Rust aux cibles indépendantes
@@ -90,4 +90,3 @@ journey
 | 1 | Chaque cible Rust possède une release identifiable, un pointeur et un verrou sans seconde façade. |
 | 2 | Une migration agit sur le schéma de la cible choisie et ne copie aucune donnée locale en production. |
 | 3 | Server et automata utilisent le même xtask ; un échec et son rollback restent confinés à une cible. |
-

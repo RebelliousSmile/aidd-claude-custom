@@ -181,6 +181,22 @@ for (const required of ['demo-node:', 'railway-prod:', 'dataStrategy: determinis
   if (!behavePark.includes(required)) failures.push(`sc-js fixture: missing ${required}`);
 }
 
+const rustCd = join(root, 'plugins/sc-rust/skills/cd');
+const rustTexts = [
+  'SKILL.md', 'actions/02-server.md', 'actions/03-automata.md', 'references/command-facade.md',
+  'references/releases.md', 'references/sql-delivery.md', 'evals/delivery-scenarios.md', 'evals/delivery-safety-scenarios.md',
+].map((path) => readFileSync(join(rustCd, path), 'utf8')).join('\n').toLocaleLowerCase('en-US');
+for (const required of ['target id', 'lifecycle', 'current', 'previous', 'target-to-target', 'manifest', 'same xtask']) {
+  if (!rustTexts.includes(required)) failures.push(`sc-rust: missing independent-release rule ${required}`);
+}
+const rustScenarios = JSON.parse(readFileSync(join(rustCd, 'evals/scenarios.json'), 'utf8'));
+for (const target of ['rust-east', 'rust-west']) {
+  if (!rustScenarios.some(({ prompt }) => prompt.includes(target))) failures.push(`sc-rust: routing misses named target ${target}`);
+}
+for (const required of ['rust-east:', 'rust-west:', 'releaseRoot: releases/rust-east', 'releaseRoot: releases/rust-west']) {
+  if (!behavePark.includes(required)) failures.push(`sc-rust fixture: missing ${required}`);
+}
+
 if (failures.length) {
   for (const failure of failures) console.error(`SC-CD FAIL: ${failure}`);
   process.exit(1);

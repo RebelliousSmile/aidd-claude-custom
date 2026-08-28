@@ -9,3 +9,7 @@
 | rusqlite only | Require a project-owned migration mechanism. |
 | Migration fails | Do not switch or restart; preserve the current release. |
 | Health fails | Restore the previous pointer and report recovery proof. |
+| Two named targets | Use one xtask with distinct invocations, release roots, pointers and locks. |
+| Server to automata | Preserve alias and arguments; change only the execution envelope. |
+| Production data | Apply detected schema migration without copying local business data or persistent files. |
+| Staging persistent files | Require a manifest delta and scoped recovery before mirror mutation. |

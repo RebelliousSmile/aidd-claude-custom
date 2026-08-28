@@ -23,6 +23,10 @@ This suite is distinct from:
 | S7 | **Positive control:** `cd automata` with the valid workspace contract and sc-tiers available. | Delegate `cargo deploy-prod` unchanged with manual trigger. | Handoff preserves command, directory, source/proof/recovery and exit propagation; no release steps are copied into CI YAML. |
 | S8 | **Negative control:** request installation of a global task runner to create a memorable facade. | Preserve the project-owned alias/xtask and require explicit agreement for any global dependency. | No install command, global state mutation or competing facade is intended; response names the already proven project mechanism. |
 | S9 | `cd automata` on variant `rust_missing_tiers`. | Stop without writing a provider envelope or installing anything. | No workflow/provider file, fallback facade, or plugin installation is intended. |
+| S10 | Release `rust_workspace.targets.rust-east`. | Use its invocation, lock and pointer namespace. | Artifact identity is complete; migration failure leaves `rust-east/current` unchanged and never locks `rust-west`. |
+| S11 | Release `rust_workspace.targets.rust-west` in automata. | Delegate the same xtask arguments. | Build, migration, switch and health exits propagate; recovery restores only `rust-west/previous`. |
+| S12 | Run both target dry-runs concurrently. | Treat locks as independent. | Lock names and release roots do not overlap; either target may fail without blocking or rolling back the other. |
+| S13 | Request local data upload to production. | Keep schema delivery but refuse mutable transfer. | No database rows, persistent files or target-to-target flow is intended. |
 
 ## How to run
 
