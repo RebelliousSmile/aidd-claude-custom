@@ -390,6 +390,20 @@ scenario_variants:
     base: js_nuxt
     override:
       contract.command: pnpm run old-deploy
+  js_drvfs_archive:
+    base: js_nuxt
+    artifactFilesystem: { provenance: drvfs, resolvedPath: /mnt/c/projects/nuxt-shop/.output, windowsPath: 'C:\\projects\\nuxt-shop\\.output', mountEvidence: drvfs }
+    transport: { preservePermissions: true, preserveOwner: true, preserveGroup: true }
+  js_drvfs_normalized:
+    base: js_nuxt
+    artifactFilesystem: { provenance: drvfs, resolvedPath: /mnt/c/projects/nuxt-shop/.output, windowsPath: 'C:\\projects\\nuxt-shop\\.output', mountEvidence: drvfs }
+    transport: { preservePermissions: false, preserveOwner: false, preserveGroup: false, directoryMode: '755', fileMode: '644', executablePaths: ['server/index.mjs'] }
+    postTransferModeProof: [directory, new-file, updated-file]
+  js_linux_native_artifact:
+    base: js_nuxt
+    artifactFilesystem: { provenance: linux-native, resolvedPath: /home/deployer/build/nuxt-shop/.output, filesystemEvidence: ext4 }
+    transport: { preservePermissions: true, preserveOwner: false, preserveGroup: false }
+    postTransferModeProof: [directory, new-file, updated-file]
   js_missing_tiers:
     base: js_nuxt
     sc_tiers_available: false

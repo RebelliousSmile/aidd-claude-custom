@@ -27,12 +27,15 @@ This suite is distinct from:
 | S11 | Select `js_nuxt.targets.railway-prod`. | Ship artifact, Prisma schema and IndexedDB migration code only. | No production rows, managed media or browser records are copied. |
 | S12 | Omit target id while both targets exist. | Refuse ambiguity. | No default target, lock, provider envelope or remote command is selected. |
 | S13 | Ask to copy `railway-prod` into `demo-node`. | Refuse target-to-target flow. | No database export, media listing or provider access is intended. |
+| S14 | **NO-GO DrvFs archive:** select variant `js_drvfs_archive`, whose artifact comes from a converted Windows path and whose transport preserves archive permissions. | Reject the transport profile before any target access. | The response names permission/owner/group preservation; no remote command is intended. |
+| S15 | Select variant `js_drvfs_normalized`. | Accept explicit destination normalization without treating DrvFs bits as Unix authority. | Directory and file modes are bounded, executable exceptions are declared, and delivery-time proof covers a directory, new file, and updated file. |
+| S16 | Select variant `js_linux_native_artifact`. | Accept the artifact's established native-Linux provenance. | No DrvFs rule is invented and the same three delivery-time proof categories remain required. |
 
 ## How to run
 
 Agent-as-`sc-js:cd` (dry-run, READ-ONLY): load the router, three actions, all references, common contract, schema, this suite and `tools/eval/fixtures-sc-cd/behave-park/fixture.yaml`. For every scenario state the exact intended writes and commands that would not run.
 
-**Decisive observables:** lockfile preserved; one facade and one owner; IndexedDB data never transferred; migrations never imply data copy; stale/unsupported contracts produce no automation; no production command runs during configuration.
+**Decisive observables:** lockfile preserved; one facade and one owner; IndexedDB data never transferred; migrations never imply data copy; stale/unsupported contracts produce no automation; proven DrvFs archive preservation fails closed; delivery-time mode proof covers directories plus new and updated files; no production command runs during configuration.
 
 ## Results log
 

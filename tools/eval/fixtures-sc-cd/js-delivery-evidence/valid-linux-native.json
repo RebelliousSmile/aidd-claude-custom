@@ -1,0 +1,23 @@
+{
+  "kind": "transport-profile",
+  "expected": { "valid": true },
+  "evidence": {
+    "filesystem": {
+      "provenance": "linux-native",
+      "resolvedPath": "/home/deployer/build/nuxt-shop/.output",
+      "filesystemEvidence": "ext4"
+    },
+    "transport": {
+      "preservePermissions": true,
+      "preserveOwner": false,
+      "preserveGroup": false,
+      "executablePaths": [".output/server/index.mjs"]
+    },
+    "postTransferProof": {
+      "execution": "delivery",
+      "directories": [".output/server"],
+      "newFiles": [".output/server/index.mjs"],
+      "updatedFiles": [".output/nitro.json"]
+    }
+  }
+}

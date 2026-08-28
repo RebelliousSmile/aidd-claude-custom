@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateProjectContract, validatePromotionTransition } from '../sc-cd/validate-project-contract.mjs';
 import { compareManifests } from '../sc-cd/compare-manifests.mjs';
+import { validateEvidenceFixture } from './validate-js-delivery-evidence.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const plugins = ['sc-css', 'sc-js', 'sc-php', 'sc-python', 'sc-rust', 'sc-tiers'];
@@ -53,6 +54,17 @@ for (const required of ['`staging`', '`production`', '`server`', '`automata`', '
 if (/allow(?:s|ed)?[^.]*?(?:production-to-local|target-to-target)/i.test(canonical)) failures.push('canonical contract: forbidden remote flow');
 
 const fixtures = join(root, 'tools/eval/fixtures-sc-cd');
+const jsEvidenceFixtures = join(fixtures, 'js-delivery-evidence');
+const jsEvidenceNames = readdirSync(jsEvidenceFixtures).filter((name) => name.endsWith('.json')).sort();
+for (const name of jsEvidenceNames) {
+  const fixture = JSON.parse(readFileSync(join(jsEvidenceFixtures, name), 'utf8'));
+  const result = validateEvidenceFixture(fixture);
+  const valid = result.length === 0;
+  if (valid !== fixture.expected?.valid) failures.push(`sc-js evidence ${name}: expected ${fixture.expected?.valid ? 'valid' : 'invalid'} (${result.join('; ')})`);
+  for (const fragment of fixture.expected?.errorIncludes ?? []) {
+    if (!result.some((error) => error.includes(fragment))) failures.push(`sc-js evidence ${name}: missing expected error ${fragment}`);
+  }
+}
 const cases = [
   ['valid-language-owner', true],
   ['valid-composite', true],
@@ -182,7 +194,7 @@ const jsScenarios = JSON.parse(readFileSync(join(jsCd, 'evals/scenarios.json'), 
 for (const target of ['demo-node', 'railway-prod']) {
   if (!jsScenarios.some(({ prompt }) => prompt.includes(target))) failures.push(`sc-js: routing misses named target ${target}`);
 }
-for (const required of ['demo-node:', 'railway-prod:', 'dataStrategy: deterministic-export-import', 'indexeddb: migration-code-only']) {
+for (const required of ['demo-node:', 'railway-prod:', 'dataStrategy: deterministic-export-import', 'indexeddb: migration-code-only', 'js_drvfs_archive:', 'js_drvfs_normalized:', 'js_linux_native_artifact:']) {
   if (!behavePark.includes(required)) failures.push(`sc-js fixture: missing ${required}`);
 }
 
