@@ -4,6 +4,13 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [3.19.1] - 2026-08-28
+
+### Fixed
+
+- `sc-js:cd` refuse désormais de propager vers Linux les permissions, propriétaires et groupes synthétiques d'un artefact DrvFs ; il exige un artefact Linux natif ou des modes destination explicites, puis une preuve de modes couvrant répertoire, nouveau fichier et fichier mis à jour.
+- Les affirmations `proof` et `recovery` de la façade JavaScript sont liées aux événements ordonnés du script réellement inspecté : une preuve décorative ou un rollback supprimé avant la fin de sa fenêtre fait échouer la réconciliation hors réseau.
+
 ## [3.19.0] - 2026-08-28
 
 ### Added
