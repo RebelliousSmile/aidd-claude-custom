@@ -1,6 +1,6 @@
 ---
 objective: "Les plugins sc-* décrivent et éprouvent plusieurs cibles staging ou production, server ou automata, avec une façade commune et des politiques sûres pour le code, le schéma, les données et les médias différentiels."
-status: in-progress
+status: implemented
 ---
 
 # Plan: Étendre SC-CD aux cibles multiples et aux données persistantes
