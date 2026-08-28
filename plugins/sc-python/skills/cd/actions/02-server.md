@@ -1,22 +1,31 @@
 # Server
 
-## Inputs
+Reconcile one native Python delivery facade while keeping migrations and mutable data separate.
 
-- Verified local runtime, deployment target facts and the existing manager.
-- Build, process, SQL migration, proof and recovery requirements.
+## Input
+
+- Verified local runtime, existing manager, target facts, process ordering, SQL strategy, proof, and recovery.
+
+## Output
+
+One manager native facade, one versioned project script, and a matching secret free contract, or a no write gap.
 
 ## Process
 
-1. Select a proven invocation from [command-facade](../references/command-facade.md); preserve existing task configuration.
-2. Reconcile one versioned project script that performs preflight, build/package, bounded release, proof and recovery.
-3. Separate application release from [SQL migrations and data transfer](../references/sql-delivery.md). Add `deploy:db` only for a defined operation.
-4. Ensure the command is non-interactive unless an explicit production confirmation is required before mutation.
-5. Write `deploy/contract.json` with exact command, directory, source and secret names; validate it against the native invocation.
-
-## Outputs
-
-One native facade and a secret-free contract. Never run production delivery merely because it was configured.
+1. **Load.** Read [facade selection](../references/command-facade.md), [runtime strategies](../references/python-frameworks.md), and [SQL delivery](../references/sql-delivery.md).
+2. **Select.** Use the proven invocation for the existing manager and stop when an entrypoint or task runner decision is missing.
+3. **Reconcile.** Preserve an identical command and add one versioned deployment script when absent.
+   - Report a divergent user owned command and request arbitration without overwriting it.
+4. **Separate.** Keep artifact release, schema migration, mutable data transfer, and worker ordering as distinct operations.
+5. **Contract.** Write `deploy/contract.json` with exact command, directory, source, operations, and secret names.
+6. **Verify.** Execute only fixture or dry run checks, validate contract parity, and repeat reconciliation.
 
 ## Test
 
-Execute the script against a fixture/dry-run for the detected manager, validate contract parity, and confirm a second reconciliation is unchanged.
+| Case | Pass |
+| --- | --- |
+| uv, Poetry, or Pipenv fixture is supported | its existing manager invokes one versioned deployment script |
+| requirements only fixture lacks a runner decision | no conversion or deployment facade is intended |
+| migration is defined without data copy | no local database upload or mutable data transfer is invented |
+| production import lacks scope, backup, or confirmation | no remote SQL command is intended |
+| reconciliation runs twice unchanged | the second intended-write set is empty |

@@ -1,21 +1,27 @@
 # Local
 
-## Inputs
+Reconcile a repeatable JavaScript runtime with the detected manager, framework, and local services.
 
-- Repository manifests, lockfile, existing scripts and environment examples.
-- Framework, rendering mode, adapter, SQL/ORM and IndexedDB signals from `sc-js:sniff`.
+## Input
+
+- Repository manifests, lockfile, scripts, environment examples, and sniff signals for framework, rendering, adapter, SQL, and IndexedDB.
+
+## Output
+
+An idempotent local install and run procedure limited to the owned JavaScript scope.
 
 ## Process
 
-1. Preserve the detected package manager and install command; do not replace a lockfile.
-2. Reconcile environment examples, framework dev command, and only the SQL services the project actually requires.
-3. Verify a fresh clone can install, start, and reach its documented local URL. Never contact production.
-4. On a composite repository, limit changes to the declared JS scope and leave the root facade to its owner.
-
-## Outputs
-
-A documented, idempotent local command plus any reconciled examples or service definition. Report missing prerequisites without guessing credentials.
+1. **Detect.** Preserve the lockfile owner and consume the existing sniff classification.
+2. **Reconcile.** Add or preserve environment examples, framework development commands, and only required local SQL services.
+3. **Bound.** Limit intended writes to the declared JavaScript workspace when another stack owns the root.
+4. **Verify.** Install, start, and probe the documented local URL without contacting production, then repeat reconciliation.
 
 ## Test
 
-Run install and the shortest non-interactive framework check twice. Confirm the second reconciliation produces no diff.
+| Case | Pass |
+| --- | --- |
+| project has an existing lockfile | its package manager and lockfile remain unchanged |
+| fresh clone follows the documented procedure | install, start, and the local probe succeed |
+| composite fixture has another root owner | no second root facade or owner is intended |
+| reconciliation runs twice unchanged | the second intended-write set is empty |

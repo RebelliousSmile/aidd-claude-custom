@@ -1,21 +1,27 @@
 # Local
 
-## Inputs
+Reconcile a repeatable Rust toolchain, workspace command, and required local services.
 
-- Cargo manifests, workspace topology, toolchain file, features, binary targets and existing task configuration.
-- Framework, SQL crate and external service signals from `sc-rust:sniff`.
+## Input
+
+- Cargo manifests, lockfile, workspace topology, toolchain, features, binary targets, task configuration, and sniff signals.
+
+## Output
+
+An idempotent local check and run procedure for the exact package, binary, features, and services.
 
 ## Process
 
-1. Preserve the pinned Rust toolchain and existing Cargo/task-runner workflow.
-2. Reconcile example variables and only required SQL or broker services.
-3. Document the exact package, binary, features and local run command for crates or workspaces.
-4. Compile/check and probe the application without contacting production.
-
-## Outputs
-
-An idempotent local procedure and explicit unsupported combinations.
+1. **Detect.** Preserve the pinned toolchain, lockfile, workspace topology, and existing task mechanism.
+2. **Reconcile.** Add or preserve example variables and only required SQL or broker services.
+3. **Specify.** Document the exact package, binary, features, and local run command.
+4. **Verify.** Run the nonproduction check and local probe, then repeat reconciliation without contacting production.
 
 ## Test
 
-Run the documented Cargo check/run command twice and confirm the second reconciliation has no diff.
+| Case | Pass |
+| --- | --- |
+| workspace fixture is detected | package, binary, features, target, and toolchain match Cargo evidence |
+| existing task mechanism is present | no global tool or competing facade is intended |
+| unsupported topology is encountered | the gap is named and no delivery field is written |
+| reconciliation runs twice unchanged | the second intended-write set is empty |

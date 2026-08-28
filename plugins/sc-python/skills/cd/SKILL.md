@@ -1,20 +1,35 @@
 ---
 name: cd
-description: Standardize local setup and production delivery for Python projects while preserving uv, Poetry, Pipenv, or the existing environment workflow, with framework-aware SQL handling and delegation of CI or PaaS envelopes to sc-tiers. Use for cd local, cd server, cd automata, deploy:prod, deploy:db, or deploy:sync. Not for staging or converting package managers.
+description: Standardizes local setup and production delivery for Python while preserving the existing environment manager, runtime, workers, and SQL strategy. Use when the user wants project setup, production hosting, database delivery, or automation. Not for converting package managers.
+argument-hint: project setup | production scope | automation target
 ---
 
-Read [host portability](../../references/host-portability.md), [the common contract](../../references/cd-contract.md), and [the project schema](../../references/cd-project-contract.schema.json).
+# Python CD
 
-# Python delivery
-
-Keep one project-owned facade and preserve the existing manager and lockfile. Python has no universal package-script surface, so use the proven native invocation documented in [command-facade](references/command-facade.md); never convert a project silently.
+```mermaid
+flowchart LR
+  local_request([project setup]) --> local --> local_ready([local ready])
+  server_request([production scope]) --> local_check{local verified}
+  local_check -->|no| local --> server
+  local_check -->|yes| server --> server_ready([production configured])
+  automation_request([automation target]) --> contract_check{current contract}
+  contract_check -->|no| stopped([stopped])
+  contract_check -->|yes| automata --> delegated([automation delegated])
+```
 
 ## Actions
 
-| Action | Déclencheur | Route | Result |
-| --- | --- | --- | --- |
-| `local` | `cd local`, Python local setup | [01-local](actions/01-local.md) | Reconciles environment, services and application processes. |
-| `server` | `cd server`, `deploy:prod`, `deploy:db`, `deploy:sync` | [02-server](actions/02-server.md) | Reconciles the native facade and production contract. |
-| `automata` | `cd automata`, delivery CI or PaaS | [03-automata](actions/03-automata.md) | Validates and hands the exact facade to sc-tiers. |
+Run the flow above. Read only the next action file.
 
-Reuse `sc-python:sniff` for framework and dependency classification. Consult [python-frameworks](references/python-frameworks.md) and [sql-delivery](references/sql-delivery.md). Unknown combinations are reported as gaps with no write.
+| Action | Does |
+| --- | --- |
+| local | reconcile the detected Python runtime locally |
+| server | reconcile one manager preserving delivery facade |
+| automata | validate and delegate the existing facade |
+
+## Transversal rules
+
+- Read [host portability](../../references/host-portability.md), [the common contract](../../references/cd-contract.md), and [the project schema](../../references/cd-project-contract.schema.json) before acting.
+- Reuse existing sniff evidence for manager, framework, runtime, workers, and data layer.
+- Preserve the manager and lockfile already owned by the project and ask before adding a task runner.
+- Never create another environment, invent an entrypoint, or deploy merely because configuration was requested.

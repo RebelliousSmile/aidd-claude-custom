@@ -1,20 +1,35 @@
 ---
 name: cd
-description: Standardize local setup and reversible production releases for Rust crates, workspaces, services, and binaries through a project-owned Cargo or task-runner facade, with SQL-aware sequencing and delegation of CI or PaaS envelopes to sc-tiers. Use for cd local, cd server, cd automata, deploy:prod, or deploy:db. Not for staging or publishing crates to a registry.
+description: Standardizes local setup and reversible production releases for Rust crates, workspaces, services, binaries, and SQL backed applications. Use when the user wants project setup, production releases, database delivery, or automation. Not for registry publishing or global tool installation.
+argument-hint: project setup | release target | automation target
 ---
 
-Read [host portability](../../references/host-portability.md), [the common contract](../../references/cd-contract.md), and [the project schema](../../references/cd-project-contract.schema.json).
+# Rust CD
 
-# Rust delivery
-
-Keep one versioned project facade that runs identically locally and in CI, forwards arguments and preserves exit codes. Do not invent a Cargo subcommand or install a global task runner without explicit agreement.
+```mermaid
+flowchart LR
+  local_request([project setup]) --> local --> local_ready([local ready])
+  server_request([release target]) --> local_check{local verified}
+  local_check -->|no| local --> server
+  local_check -->|yes| server --> server_ready([release configured])
+  automation_request([automation target]) --> contract_check{current contract}
+  contract_check -->|no| stopped([stopped])
+  contract_check -->|yes| automata --> delegated([automation delegated])
+```
 
 ## Actions
 
-| Action | Déclencheur | Route | Result |
-| --- | --- | --- | --- |
-| `local` | `cd local`, Rust local setup | [01-local](actions/01-local.md) | Reconciles toolchain, services and run commands. |
-| `server` | `cd server`, `deploy:prod`, `deploy:db`, Rust release | [02-server](actions/02-server.md) | Reconciles a reproducible, reversible release facade. |
-| `automata` | `cd automata`, delivery CI or PaaS | [03-automata](actions/03-automata.md) | Validates and hands the exact facade to sc-tiers. |
+Run the flow above. Read only the next action file.
 
-Reuse `sc-rust:sniff` signals. Consult [command facade](references/command-facade.md), [release invariants](references/releases.md), and [SQL sequencing](references/sql-delivery.md). Unsupported targets or stacks produce a gap and no deployment changes.
+| Action | Does |
+| --- | --- |
+| local | reconcile the detected Rust workspace locally |
+| server | reconcile one reversible release facade |
+| automata | validate and delegate the existing facade |
+
+## Transversal rules
+
+- Read [host portability](../../references/host-portability.md), [the common contract](../../references/cd-contract.md), and [the project schema](../../references/cd-project-contract.schema.json) before acting.
+- Reuse existing sniff evidence for workspace, binary, framework, SQL crate, features, and target.
+- Keep one versioned project facade that forwards arguments and exit codes identically locally and in automation.
+- Never create another environment, invent Cargo capabilities, install a global tool implicitly, or deploy merely because configuration was requested.

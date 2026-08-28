@@ -1,5 +1,26 @@
 # Changelog — design
 
+## [2.13.2] — 2026-08-28
+
+### Added
+
+- Action `harness/normalize` pour reconstruire un HTML existant dans le shell canonique sans modifier la source.
+- Analyseur en lecture seule distinguant format, runtime, complétude de migration et fidélité visuelle, avec comparaison de taille optionnelle via `--baseline`.
+- Applicateur déterministe `harness-apply.py` pour sérialiser le HTML de page sans sortie de `<script>`, remplir les zones auteur et publier atomiquement.
+- Représentation `pageBodies` pour conserver les fonctions et layouts mutualisés quand l’aplatissement HTML dépasserait le seuil de taille.
+- Zones gouvernées `AUTHOR SHARED HELPERS` et `AUTHOR AFTER RENDER` pour mutualiser le markup et conserver, en opt-in, les interactions locales.
+
+### Changed
+
+- La normalisation choisit explicitement `snapshot` ou `interactive`, inventorie chaque interaction et exige une preuve visuelle avant toute conclusion de fidélité.
+- Les requêtes media de viewport restent interdites au profit des classes du cadre ; les préférences d’accessibilité sont désormais préservées.
+
+### Fixed
+
+- L’analyseur limite les options à `#page-select` et les styles au `<head>`, signale les sources absolues illisibles et les snapshots de tokens sans provenance.
+- Les feuilles externes déclarées par `@import` sont inventoriées comme les liens `<link rel="stylesheet">` au lieu de disparaître du rapport de dépendances.
+- Le runtime borne l’évaluation VM des scripts, empêchant un helper auteur infini de bloquer l’analyse ou la CI.
+
 ## [2.13.0] — 2026-08-14
 
 ### Added

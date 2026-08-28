@@ -1,21 +1,27 @@
 # Local
 
-## Inputs
+Reconcile a repeatable Python environment, application process, workers, and local services.
 
-- Python manifests, lockfiles, interpreter constraint and existing environment commands.
-- Framework, ASGI/WSGI server, worker, ORM and SQL signals from `sc-python:sniff`.
+## Input
+
+- Python manifests, lockfiles, interpreter constraint, environment commands, and sniff signals for runtime, workers, ORM, and SQL.
+
+## Output
+
+An idempotent install and local run procedure using the existing environment manager.
 
 ## Process
 
-1. Preserve uv, Poetry, Pipenv or the documented virtual-environment workflow.
-2. Reconcile dependency installation, example variables and only the local SQL/broker services actually required.
-3. Document separate application and worker commands using the detected framework/runtime.
-4. Start and probe the local application without contacting production.
-
-## Outputs
-
-An idempotent install/start procedure and explicit gaps. Do not add a manager to a requirements-only project without user agreement.
+1. **Detect.** Preserve uv, Poetry, Pipenv, or the documented virtual environment workflow and stop on ambiguous manager evidence.
+2. **Reconcile.** Add or preserve dependency installation, example variables, and only required SQL or broker services.
+3. **Separate.** Document independent application and worker commands from proven entrypoints.
+4. **Verify.** Start and probe the local application without production access, then repeat reconciliation.
 
 ## Test
 
-Execute the documented non-interactive command in the manager's environment and reconcile twice with no second diff.
+| Case | Pass |
+| --- | --- |
+| fixture has a manager and lockfile | both remain the selected environment workflow |
+| requirements only fixture lacks a runner decision | no manager or task runner file is intended and user agreement is requested |
+| application and worker are present | each receives a separate documented command |
+| reconciliation runs twice unchanged | the second intended-write set is empty |

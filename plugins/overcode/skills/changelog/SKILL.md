@@ -1,6 +1,7 @@
 ---
 name: changelog
 description: >-
+  Generate or update CHANGELOG.md from git history using Keep a Changelog, commit it, and create a signed annotated tag; or curate an existing changelog by filling undocumented versions and condensing old cycles. Use for changelog generation, releases, tagging, or changelog cleanup. Do NOT use for other release-note formats, GitHub Releases UI, or package version bumps.
 author: François-Xavier Guillois
 version: 4.7.0
 vibe_version: ">=1.0.0"

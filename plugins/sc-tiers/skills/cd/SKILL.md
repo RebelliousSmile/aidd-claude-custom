@@ -1,20 +1,35 @@
 ---
 name: cd
-description: Configure hosting-provider prerequisites and generate thin CI or PaaS delivery envelopes from an existing validated deploy/contract.json for SSH, Railway, Heroku, GitHub Actions, or GitLab CI. Use for cd local, cd server, cd automata, or connecting a project-owned deploy command to a provider. Not for inventing application deployment logic or working without a producer contract.
+description: Configures supported hosting prerequisites and thin delivery automation from an existing validated project contract. Use when the user wants local provider emulation, production provider setup, or automation for SSH, Railway, Heroku, GitHub, or GitLab. Not for deployment logic.
+argument-hint: provider setup | production provider | automation target
 ---
 
-Read [host portability](../../references/host-portability.md), [the common contract](../../references/cd-contract.md), and [the project schema](../../references/cd-project-contract.schema.json).
+# Provider CD
 
-# Provider delivery adapters
-
-sc-tiers owns provider configuration and automation envelopes, never the deployment procedure. Require a current `deploy/contract.json` from the root language/static owner. Copy its command, working directory, operations, source, proof and recovery exactly; do not redetect the stack.
+```mermaid
+flowchart LR
+  local_request([provider setup]) --> local --> local_outcome([adapter or not applicable])
+  server_request([production provider]) --> contract_check{current contract}
+  contract_check -->|no| stopped([stopped])
+  contract_check -->|yes| server --> provider_ready([provider configured])
+  automation_request([automation target]) --> automation_check{current contract}
+  automation_check -->|no| stopped
+  automation_check -->|yes| automata --> generated([thin envelope generated])
+```
 
 ## Actions
 
-| Action | Déclencheur | Route | Result |
-| --- | --- | --- | --- |
-| `local` | `cd local` for a third-party service | [01-local](actions/01-local.md) | Configures a supported emulator or returns explicit N/A. |
-| `server` | `cd server`, SSH/Railway/Heroku provider setup | [02-server](actions/02-server.md) | Reconciles provider prerequisites without deploying. |
-| `automata` | `cd automata`, GitHub/GitLab/Railway/Heroku delivery | [03-automata](actions/03-automata.md) | Generates a thin envelope from the validated contract. |
+Run the flow above. Read only the next action file.
 
-Read [providers](references/providers.md) or [CI adapters](references/ci-adapters.md) as needed. Unsupported providers, absent/stale contracts or divergent commands stop before any write.
+| Action | Does |
+| --- | --- |
+| local | reconcile a supported local provider adapter |
+| server | reconcile bounded provider prerequisites |
+| automata | generate a thin contract driven envelope |
+
+## Transversal rules
+
+- Read [host portability](../../references/host-portability.md), [the common contract](../../references/cd-contract.md), and [the project schema](../../references/cd-project-contract.schema.json) before acting.
+- Require a current contract from the root application or static owner before any provider or automation write.
+- Own provider configuration and envelopes only and never own or redetect the deployment procedure.
+- Never create another environment, collect secret values, contact production during configuration, mask a failure, or invent an unsupported provider.

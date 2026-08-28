@@ -11,7 +11,11 @@
   { "prompt": "harness --contract sur un contrat 1.x", "expect_action": "contract-inline" },
   { "prompt": "le harness --contract échoue, l'adapter stylesheet est déclaré mais le fichier css est absent", "expect_action": "contract-inline" },
   { "prompt": "le contrat ne déclare aucun adapter stylesheet, couple quand même le harness", "expect_action": "contract-inline" },
+  { "prompt": "analyse ce fichier HTML bricolé par un agent et remets-le au format du harness", "expect_action": "normalize" },
+  { "prompt": "importe cette maquette HTML existante dans un harness mesurable sans écraser la source", "expect_action": "normalize" },
+  { "prompt": "répare le chrome et les scripts de contrôle de ce harness cassé en conservant les pages", "expect_action": "normalize" },
   { "prompt": "crée le design system complet depuis ce brief", "expect_action": null },
   { "prompt": "mesure la fidélité de cette implémentation contre la maquette", "expect_action": null },
+  { "prompt": "corrige visuellement cette page pour respecter le contrat figé", "expect_action": null },
   { "prompt": "rends ce composant depuis le contrat figé", "expect_action": null }
 ]

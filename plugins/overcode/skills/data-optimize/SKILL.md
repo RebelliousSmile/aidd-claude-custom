@@ -1,6 +1,21 @@
 ---
 name: data-optimize
 description: >-
+  Audits a project's data layer (client + server) against a stack-aware
+  checklist (N+1, query count, pagination, real-time listeners, payload size,
+  cache strategy, quota/cost, indexing, security rules, observability) and
+  produces a ranked roadmap. Detects the data-layer stack and loads
+  stack-specific pivots from installed `sc-*` plugins
+  (`${PROJECT_RULES_ROOT}/07-quality/data-pivots-*.md`); falls back to a generic
+  12-section schema + REST vanilla pivots otherwise. Every report states where
+  its checklist came from and whether a pivot was installed, missing, or
+  unavailable.
+  Use when the user mentions data perf, API perf, slow query, data-layer N+1
+  (queries répétées sur même collection/table — distinct from web-optimize's
+  render-time N+1), quota, "trop de reads", "trop de requêtes", egress, rate
+  limit, cold start, connection pool, réplication, read replica, sharding,
+  "API lente", "backend lent", "DB perf", "audit data", "audit backend", or
+  invokes data-optimize.
 author: François-Xavier Guillois
 version: 4.7.0
 vibe_version: ">=1.0.0"

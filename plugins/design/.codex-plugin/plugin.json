@@ -1,6 +1,6 @@
 {
   "name": "design",
-  "version": "2.13.1+codex.20260825",
+  "version": "2.13.2+codex.20260828133913",
   "description": "Builds, critiques, freezes, enforces, diffuses, and scaffolds grounded measurable design systems, including contract-aware LLM guidance and rendered cascade-ownership proof.",
   "author": {
     "name": "Fran\u00e7ois-Xavier Guillois"

@@ -1,22 +1,31 @@
 # Server
 
-## Inputs
+Reconcile one Composer facade with explicit WordPress or PHP delivery scopes.
 
-- A verified local setup, framework strategy and production SSH facts.
-- Explicit requested scopes: code, configuration, migration, database, content, or media.
+## Input
+
+- Verified local setup, framework strategy, production target facts, requested scope, proof, and recovery.
+
+## Output
+
+One Composer facade, one owned implementation, and a matching secret free contract, or a no write refusal.
 
 ## Process
 
-1. Reconcile [the Composer facade](../references/command-facade.md), migrating the legacy setup pipeline without losing custom targets or code.
-2. Keep `deploy:prod` code-only unless the project contract explicitly says otherwise.
-3. For WordPress, apply [wordpress-sync](../references/wordpress-sync.md). An ambiguous sync request stops before mutation and asks for scope and direction.
-4. For SQL operations require a fresh backup, dry-run where possible, explicit production confirmation, proof and recovery before import or migration.
-5. Write and validate `deploy/contract.json` against the schema and Composer script. Store secret names only.
-
-## Outputs
-
-One Composer facade, one owned implementation, and scoped operations only where safe strategies exist. External execution requires an explicit deployment request.
+1. **Load.** Read [facade reconciliation](../references/command-facade.md), [framework strategies](../references/php-frameworks.md), and [WordPress synchronization](../references/wordpress-sync.md).
+2. **Reconcile.** Preserve targets and custom behavior while placing an existing legacy implementation behind one Composer facade.
+   - Report conflicting semantics and request arbitration without adding a second producer.
+3. **Scope.** Keep `deploy:prod` code only unless another surface is explicitly selected with direction and deletion policy.
+4. **Guard.** Require backup, dry run or review, explicit confirmation, proof, and recovery before database, content, or media mutation.
+5. **Contract.** Write `deploy/contract.json` with the exact Composer command, directory, source, operations, and secret names.
+6. **Verify.** Run safe dry run and contract checks without contacting production, then repeat reconciliation.
 
 ## Test
 
-Run code dry-run and contract validation twice. For risky fixtures, prove that missing scope, backup or confirmation causes zero remote commands.
+| Case | Pass |
+| --- | --- |
+| normal WordPress code release is configured | database, uploads, caches, and secrets are excluded |
+| sync scope or direction is absent | zero remote commands and zero project writes are intended |
+| database backup or confirmation is absent | no migration, import, transfer, or remote command is intended |
+| legacy pipeline is present | one Composer facade remains and custom targets are preserved |
+| reconciliation runs twice unchanged | the second intended-write set is empty |

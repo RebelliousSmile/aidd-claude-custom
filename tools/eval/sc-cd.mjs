@@ -26,7 +26,8 @@ for (const plugin of plugins) {
     for (const [index, action] of ['local', 'server', 'automata'].entries()) {
       const actionPath = join(skillRoot, 'actions', `0${index + 1}-${action}.md`);
       if (!existsSync(actionPath)) failures.push(`${plugin}: missing ${action} action`);
-      if (!router.includes(`\`${action}\``)) failures.push(`${plugin}: ${action} is not routed`);
+      const routedAction = new RegExp(`^\\|\\s*${action}\\s*\\|`, 'm');
+      if (!routedAction.test(router)) failures.push(`${plugin}: ${action} is not routed`);
     }
   }
   const scenariosPath = join(skillRoot, 'evals/scenarios.json');

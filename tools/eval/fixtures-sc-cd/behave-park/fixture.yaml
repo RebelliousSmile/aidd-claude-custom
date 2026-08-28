@@ -1,0 +1,277 @@
+fixture: sc-cd-behave-park
+version: 1
+mode: dry-run-only
+network_forbidden: true
+production_credentials_available: false
+
+projects:
+  css_static:
+    root: sites/brochure
+    owner: sc-css
+    manager: pnpm
+    files:
+      - package.json
+      - pnpm-lock.yaml
+      - eleventy.config.js
+      - src/index.html
+      - src/styles/site.css
+      - _site/index.html
+    scripts:
+      build: eleventy
+      preview: eleventy --serve
+      deploy:prod: node scripts/deploy.mjs prod
+    output: _site
+    cache:
+      html: revalidate
+      fingerprinted_assets: immutable
+    contract:
+      command: pnpm deploy:prod
+      workingDirectory: .
+      trigger: manual
+      proof: [entrypoint-200, fingerprinted-css-200]
+      recovery: [redeploy-previous-commit]
+
+  css_composite:
+    root: apps/storefront
+    owner: sc-js
+    contributors:
+      - plugin: sc-css
+        scope: assets/styles
+    files: [package.json, pnpm-lock.yaml, nuxt.config.ts, assets/styles/app.css]
+    root_facade: pnpm deploy:prod
+
+  js_nuxt:
+    root: apps/nuxt-shop
+    owner: sc-js
+    manager: pnpm
+    files:
+      - package.json
+      - pnpm-lock.yaml
+      - nuxt.config.ts
+      - scripts/deploy.mjs
+      - prisma/schema.prisma
+      - src/data/indexeddb.ts
+      - deploy/contract.json
+    scripts:
+      dev: nuxt dev
+      build: nuxt build
+      deploy:prod: node scripts/deploy.mjs prod
+      deploy:db: node scripts/deploy.mjs db
+    rendering: ssr
+    adapter_output: .output
+    sql:
+      orm: prisma
+      migration_command: pnpm prisma migrate deploy
+      production_data_copy_defined: false
+    indexeddb:
+      schema_version: 4
+      client_migration_present: true
+      browser_data_export_defined: false
+    contract:
+      command: pnpm deploy:prod
+      workingDirectory: .
+      trigger: manual
+      secretNames: [DEPLOY_HOST, DEPLOY_USER]
+
+  js_conflict:
+    root: apps/legacy-vite
+    owner: sc-js
+    manager: pnpm
+    files: [package.json, pnpm-lock.yaml, vite.config.ts, scripts/custom-release.mjs]
+    scripts:
+      build: vite build
+      deploy:prod: node scripts/custom-release.mjs --all
+    requested_contract_command: pnpm deploy:prod
+    existing_semantics: uploads-code-and-production-data
+
+  php_wordpress:
+    root: sites/wp-fse
+    owner: sc-php
+    contributors:
+      - plugin: sc-js
+        scope: theme/assets/js
+      - plugin: sc-css
+        scope: theme/assets/css
+    files:
+      - composer.json
+      - package.json
+      - pnpm-lock.yaml
+      - .wp-env.json
+      - scripts/wp.ps1
+      - scripts/deploy.mjs
+      - scripts/deploy-targets.mjs
+      - deploy/contract.json
+    composer_scripts:
+      deploy:prod: node scripts/deploy.mjs prod --code-only
+    package_scripts:
+      wp: pwsh scripts/wp.ps1
+      legacy_deploy: node scripts/deploy.mjs
+    local:
+      runtime: wp-env-docker
+      active_theme: market-fse
+      url: http://localhost:8888
+      database_volume_populated: true
+    production:
+      requested_sync_scope: null
+      fresh_database_backup: false
+      confirmation: false
+      uploads_present: true
+    contract:
+      command: composer deploy:prod
+      workingDirectory: .
+      trigger: manual
+
+  python_uv:
+    root: apps/django-api
+    owner: sc-python
+    manager: uv
+    files:
+      - pyproject.toml
+      - uv.lock
+      - manage.py
+      - scripts/deploy.py
+      - alembic.ini
+      - deploy/contract.json
+    framework: django
+    processes: [gunicorn-asgi, celery]
+    sql:
+      orm: sqlalchemy
+      migration_tool: alembic
+      data_copy_defined: false
+    facade: uv run scripts/deploy.py prod
+    contract:
+      command: uv run scripts/deploy.py prod
+      workingDirectory: .
+      trigger: manual
+
+  python_requirements_only:
+    root: apps/flask-legacy
+    owner: sc-python
+    manager: none
+    files: [requirements.txt, app.py, .venv/pyvenv.cfg]
+    documented_start: .venv/bin/python app.py
+    task_runner_decision: absent
+
+  rust_workspace:
+    root: services/catalog
+    owner: sc-rust
+    files:
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain.toml
+      - .cargo/config.toml
+      - xtask/Cargo.toml
+      - xtask/src/main.rs
+      - crates/api/src/main.rs
+      - migrations/202608280001_init.sql
+      - deploy/contract.json
+    toolchain: 1.93.0
+    package: catalog-api
+    binary: catalog-api
+    features: [production]
+    target: x86_64-unknown-linux-gnu
+    facade: cargo deploy-prod
+    sql: sqlx
+    releases:
+      current: releases/4f1a/current
+      previous: releases/3ee9/previous
+      checksum_present: true
+    contract:
+      command: cargo deploy-prod
+      workingDirectory: .
+      trigger: manual
+
+  rust_cross_unknown:
+    root: services/windows-agent
+    owner: sc-rust
+    files: [Cargo.toml, Cargo.lock]
+    host: x86_64-unknown-linux-gnu
+    requested_target: x86_64-pc-windows-msvc
+    builder_or_cross_toolchain: absent
+
+  tiers_manual:
+    root: automation/manual
+    producer: sc-php
+    provider: github-actions
+    contract:
+      version: 1
+      command: composer deploy:prod
+      workingDirectory: apps/site
+      trigger: manual
+      secretNames: [DEPLOY_HOST, DEPLOY_USER]
+      source: { repository: git, ref: working-tree }
+      proof: [production-health]
+      recovery: [redeploy-previous-release]
+
+  tiers_push:
+    root: automation/push
+    producer: sc-rust
+    provider: gitlab-ci
+    contract:
+      version: 1
+      command: cargo deploy-prod
+      workingDirectory: services/api
+      trigger: push
+      secretNames: [RAILWAY_TOKEN]
+      source: { repository: git, ref: main }
+      proof: [revision-match]
+      recovery: [redeploy-previous-release]
+
+  tiers_stale:
+    root: automation/stale
+    provider: railway
+    native_facade: pnpm deploy:prod
+    contract:
+      version: 1
+      command: pnpm run old-deploy
+      workingDirectory: .
+      trigger: manual
+
+  tiers_missing_contract:
+    root: automation/missing
+    provider: heroku
+    files: [package.json, pnpm-lock.yaml]
+    contract: absent
+
+scenario_variants:
+  css_missing_output:
+    base: css_static
+    remove: [output]
+  css_missing_tiers:
+    base: css_static
+    sc_tiers_available: false
+  js_stale_contract:
+    base: js_nuxt
+    override:
+      contract.command: pnpm run old-deploy
+  js_missing_tiers:
+    base: js_nuxt
+    sc_tiers_available: false
+  php_missing_tiers:
+    base: php_wordpress
+    sc_tiers_available: false
+  python_unknown_entrypoint:
+    base: python_uv
+    remove: [framework, processes]
+  python_missing_tiers:
+    base: python_uv
+    sc_tiers_available: false
+  rust_migration_failure:
+    base: rust_workspace
+    migration_exit: 1
+    pointer_before: releases/4f1a/current
+  rust_health_failure:
+    base: rust_workspace
+    health_exit: 1
+    pointer_before: releases/4f1a/current
+    recover_to: releases/3ee9/previous
+  rust_missing_tiers:
+    base: rust_workspace
+    sc_tiers_available: false
+  tiers_ssh_missing_primitive:
+    base: tiers_manual
+    provider: ssh
+    ssh_available: false
+  tiers_facade_failure:
+    base: tiers_manual
+    facade_exit: 42

@@ -1,6 +1,7 @@
 ---
 name: decompose
 description: >-
+  Apply the Mikado method to decompose a goal into a dependency graph through iterative questions, then generate YAML nodes under mikado/GRAPH_NAME/. Use to decompose a complex goal into safe incremental steps or create a Mikado graph. Do NOT use to implement code, write tests, or manage aidd_docs tasks.
 author: François-Xavier Guillois
 version: 4.7.0
 vibe_version: ">=1.0.0"

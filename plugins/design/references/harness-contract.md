@@ -14,7 +14,7 @@ Quand la feuille est inline, le cadrage LLM du fichier généré (bloc d'en-têt
 
 Les objets de `--pages-json` acceptent, en plus de `key`, `label` et `group`, trois champs chaîne optionnels : `route`, `source` et `theme`. Le bloc `CONTEXTE DES PAGES` les copie dans le commentaire LLM afin que l'auteur inspecte une preuve nommée au lieu d'inventer le contenu. Le registre `pageMetadata` conserve les mêmes valeurs au runtime ; avant chaque rendu, `theme` est appliqué comme `data-theme` sur `#page-container`, ou retiré si la page n'en déclare pas.
 
-Le LLM ne reçoit plus l'instruction contradictoire de modifier « uniquement » une fonction tout en écrivant ailleurs dans le `<head>`. Deux zones auteur sont explicites : le corps de la fonction de page pour le HTML, et le bloc `AUTHOR PAGE STYLES` pour le CSS. Le registre, les métadonnées, le chrome et les scripts de contrôle restent hors édition.
+Le LLM ne reçoit plus l'instruction contradictoire de modifier « uniquement » une fonction tout en écrivant ailleurs dans le `<head>`. Quatre surfaces auteur sont explicites : le corps de la fonction de page pour le HTML, `AUTHOR PAGE STYLES` pour le CSS, `AUTHOR SHARED HELPERS` pour les helpers purs mutualisés, et `AUTHOR AFTER RENDER` pour le comportement local explicitement admis en mode interactif. Le registre, les métadonnées, le chrome et le contrôle hors de ces surfaces restent hors édition. Le hook interactif est rappelé après chaque remplacement de page : il doit donc attacher ses écouteurs au nouveau sous-arbre `root`, sans état global caché.
 
 ## Espace de codes de sortie (tout le programme)
 
@@ -51,9 +51,9 @@ Une clé de page est un **slug**. La validation compare les **noms dérivés** p
 
 Le harness n'émet **jamais** 1 ni 4. Le chemin historique « aucune page » sort désormais en 2 (erreur d'invocation), non en 1. `3` est réservé à l'absence de `release.json` seule ; toute autre lecture en échec est un 2 ; `4` reste au seul `run-gates.py` (seuil de maturité).
 
-## Trois échantillons device, jamais de media query
+## Trois échantillons device, jamais de media query de viewport
 
-Le harness rend **trois vues discrètes par classe** — desktop (fluide) · tablet 834 · mobile 390 — basculées par `window.setViewport('desktop'|'tablet'|'mobile')`. Ce sont des **échantillons device**, pas des breakpoints : `834` et `390` sont des largeurs fixes, **rien n'est dérivé de `tokens.json § breakpoint.*`**. Le template ne contient **aucune media query** ; les variations d'auteur s'écrivent en classe (`.preview-frame.mobile <sel>` / `.preview-frame.tablet <sel>`).
+Le harness rend **trois vues discrètes par classe** — desktop (fluide) · tablet 834 · mobile 390 — basculées par `window.setViewport('desktop'|'tablet'|'mobile')`. Ce sont des **échantillons device**, pas des breakpoints : `834` et `390` sont des largeurs fixes, **rien n'est dérivé de `tokens.json § breakpoint.*`**. Les variations de largeur, orientation ou ratio s'écrivent en classe (`.preview-frame.mobile <sel>` / `.preview-frame.tablet <sel>`). Les requêtes de préférence et d'accessibilité `prefers-reduced-motion`, `prefers-contrast`, `forced-colors` et `prefers-color-scheme` restent permises : elles décrivent l'environnement utilisateur, pas un quatrième viewport caché.
 
 ## Accord measure / oracle — l'ensemble fermé de viewports
 

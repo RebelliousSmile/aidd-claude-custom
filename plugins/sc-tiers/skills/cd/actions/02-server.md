@@ -1,20 +1,27 @@
 # Server
 
-## Inputs
+Reconcile supported provider prerequisites without running the project deployment command.
 
-- Valid project contract, selected SSH/Railway/Heroku provider and non-secret target facts.
+## Input
+
+- A valid project contract, selected SSH, Railway, or Heroku provider, and nonsecret target facts.
+
+## Output
+
+Bounded provider metadata and the required out of band secret names, or a no write refusal.
 
 ## Process
 
-1. Validate contract version, root ownership, command parity, operations, source, proof and recovery.
-2. Resolve the supported provider in [providers](../references/providers.md); stop on missing CLI/primitive or unsupported provider.
-3. Reconcile non-secret provider metadata and declare required secret names/source only.
-4. Never read, print, collect or version a secret value. Never run the project command merely while configuring a provider.
-
-## Outputs
-
-Bounded provider configuration and a list of secret names the maintainer must provision out of band.
+1. **Validate.** Check contract version, root ownership, facade parity, operations, source, proof, and recovery.
+2. **Load.** Read [supported providers](../references/providers.md) and stop on a missing primitive, missing fact, or unsupported provider.
+3. **Reconcile.** Preserve or add only versionable provider identifiers and references to declared secret names.
+4. **Verify.** Scan intended files for secret values and confirm that the project command never runs during provider setup.
 
 ## Test
 
-Scan generated files for secret values and prove missing primitives fail before mutation.
+| Case | Pass |
+| --- | --- |
+| supported provider and facts are complete | only bounded nonsecret metadata and secret name references are intended |
+| provider primitive or required fact is absent | no provider file or remote command is intended |
+| contract is stale or invalid | no provider write is intended and producer correction is named |
+| generated metadata is scanned | no secret value is present and the project command has not run |

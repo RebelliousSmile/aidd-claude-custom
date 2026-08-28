@@ -1,21 +1,27 @@
 # Automata
 
-## Inputs
+Validate the native JavaScript facade and delegate a thin automation envelope.
 
-- A current, valid `deploy/contract.json` produced by `server`.
-- An installed `sc-tiers` plugin and the chosen CI or PaaS provider.
+## Input
+
+- A current project contract, native package script, chosen provider, and available sc-tiers capability.
+
+## Output
+
+A validated handoff containing the exact command, directory, operations, trigger, and secret names.
 
 ## Process
 
-1. Revalidate the contract against the native package script; reject stale command, directory, source identity, proof, or recovery.
-2. Require `sc-tiers`. If unavailable, name the prerequisite and stop without writing a fallback or installing anything.
-3. Delegate provider and CI envelope generation to `sc-tiers:cd automata`, passing the exact command, working directory, operations, trigger and secret names.
-4. Keep `manual` as the default trigger; accept `push` only when explicitly present in the project contract.
-
-## Outputs
-
-A validated handoff to sc-tiers. JavaScript deployment logic remains in the project facade.
+1. **Validate.** Reject stale command, directory, source, proof, recovery, or operation data before delegation.
+2. **Require.** Stop without writing or installing anything when sc-tiers is unavailable.
+3. **Delegate.** Pass the exact project contract to `sc-tiers:cd automata` without copying JavaScript delivery logic.
+4. **Trigger.** Use manual delivery by default and preserve push only when explicitly declared.
 
 ## Test
 
-Confirm the generated envelope calls the command textually, relays its exit status, and contains secret names but no secret values.
+| Case | Pass |
+| --- | --- |
+| native facade and contract agree | the handoff preserves command and working directory byte-for-byte |
+| contract is stale | no workflow or provider file is intended and the drift is named |
+| sc-tiers is absent | no fallback or plugin installation is intended |
+| delegated facade exits non-zero | the envelope is required to preserve the failing status |

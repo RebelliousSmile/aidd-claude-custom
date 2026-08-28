@@ -1,22 +1,31 @@
 # Server
 
-## Inputs
+Reconcile one framework aware production facade and project contract without executing delivery.
 
-- A working `local` setup and the detected build/runtime strategy.
-- Production target facts, secret names, exclusions, proof and recovery procedure.
+## Input
+
+- Verified local setup, sniff classification, target facts, secret names, exclusions, proof, and recovery.
+
+## Output
+
+One package manager facade, one project owned script, and a matching secret free contract, or a no write gap.
 
 ## Process
 
-1. Read [command-facade](../references/command-facade.md), then classify static output, Node service, or framework SSR using [frameworks](../references/frameworks.md).
-2. Reconcile one project-owned deployment script and its package-manager facade. Preserve an existing `deploy:prod`; stop for arbitration if its semantics conflict.
-3. Add `deploy:db` or `deploy:sync` only when [data-layers](../references/data-layers.md) establishes a safe operation.
-4. Make the script perform preflight, build, bounded transfer/release, proof, and an explicit recovery path. Dry-run before any mutation when supported.
-5. Write `deploy/contract.json`; validate command and working directory against `package.json` and the portable schema.
-
-## Outputs
-
-An idempotent native facade, its owned script, and a secret-free project contract. No deployment is run unless the user explicitly requests it.
+1. **Load.** Read [facade reconciliation](../references/command-facade.md), [framework strategies](../references/frameworks.md), and [data rules](../references/data-layers.md).
+2. **Classify.** Resolve static output, Node service, or framework server strategy from project configuration and stop on an unknown adapter.
+3. **Reconcile.** Preserve an identical facade and add one project script when absent.
+   - Report a divergent user owned `deploy:prod` and request arbitration without overwriting it.
+4. **Scope.** Add `deploy:db` or `deploy:sync` only when its direction, preconditions, proof, and recovery are defined.
+5. **Contract.** Write `deploy/contract.json` with the exact native command, working directory, source, operations, and secret names.
+6. **Verify.** Run build, dry run, facade, and contract checks without contacting production, then repeat reconciliation.
 
 ## Test
 
-Run build, dry-run, schema/facade checks, and reconciliation twice. Confirm `pnpm deploy:prod` invokes exactly one owned script.
+| Case | Pass |
+| --- | --- |
+| pnpm owns a supported fixture | `pnpm deploy:prod` invokes exactly one versioned project script |
+| a user command has conflicting semantics | no overwrite or second facade is intended and arbitration is requested |
+| IndexedDB is detected | only client migration code is delivered and no browser data transfer exists |
+| SQL migration is defined without data copy | no data transfer command is invented |
+| reconciliation runs twice unchanged | the second intended-write set is empty |

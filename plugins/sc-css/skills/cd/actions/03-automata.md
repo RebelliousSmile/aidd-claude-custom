@@ -1,20 +1,27 @@
 # Automata
 
-## Inputs
+Validate the static facade and delegate a thin automation envelope.
 
-- Current static project contract and installed `sc-tiers`.
+## Input
+
+- A current static project contract, declared provider, and available sc-tiers capability.
+
+## Output
+
+A validated handoff containing the exact static facade and contract facts.
 
 ## Process
 
-1. Revalidate facade, working directory, build output, source proof and recovery.
-2. Stop without files or plugin installation when `sc-tiers` is absent.
-3. Delegate the exact contract to `sc-tiers:cd automata`; keep build/cache semantics in the project script.
-4. Use manual trigger by default and explicit push only.
-
-## Outputs
-
-A thin provider envelope created by sc-tiers.
+1. **Validate.** Compare facade, working directory, output, source proof, operations, and recovery to the project contract.
+2. **Require.** Stop without writing or installing anything when sc-tiers is unavailable.
+3. **Delegate.** Pass the exact contract to `sc-tiers:cd automata` while leaving build and cache logic in the project script.
+4. **Trigger.** Use manual delivery by default and preserve push only when the contract explicitly declares it.
 
 ## Test
 
-Confirm it invokes the exact facade, publishes only the declared output and relays failures.
+| Case | Pass |
+| --- | --- |
+| contract and native facade agree | the handoff preserves command, directory, output, proof, and recovery byte-for-byte |
+| sc-tiers is absent | no provider, workflow, fallback, or plugin installation is intended |
+| trigger is absent | the handoff resolves it to manual |
+| delegated facade exits non-zero | the envelope is required to preserve the failing status |

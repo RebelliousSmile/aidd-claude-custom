@@ -1,20 +1,27 @@
 # Automata
 
-## Inputs
+Validate the Composer facade and delegate a thin automation envelope.
 
-- A valid, current `deploy/contract.json` and installed `sc-tiers`.
+## Input
+
+- A current project contract, Composer facade, selected provider, and available sc-tiers capability.
+
+## Output
+
+A validated handoff containing the exact facade and scoped operations.
 
 ## Process
 
-1. Compare contract command and directory to Composer, then verify source, operations, proof and recovery.
-2. Stop without writing if `sc-tiers` is absent.
-3. Delegate provider/CI envelope generation to `sc-tiers:cd automata` with the contract unchanged.
-4. Default to manual. Permit push only when explicitly declared; keep high-risk WordPress database/content/media operations manual and confirmed.
-
-## Outputs
-
-A provider envelope that invokes the exact Composer facade and relays failures, without duplicating PHP or WordPress logic.
+1. **Validate.** Compare the contract command, directory, source, operations, proof, and recovery to Composer and the project.
+2. **Require.** Stop without writing when sc-tiers is unavailable.
+3. **Delegate.** Pass the unchanged contract to `sc-tiers:cd automata` without duplicating PHP or WordPress logic.
+4. **Trigger.** Use manual delivery by default and keep database, content, and media operations manual and confirmed.
 
 ## Test
 
-Inspect the envelope for exact command/directory, no secret values, and a non-zero exit path.
+| Case | Pass |
+| --- | --- |
+| contract and Composer agree | the handoff preserves command and directory byte-for-byte |
+| risky WordPress operation is present | no automatic push trigger is introduced |
+| sc-tiers is absent | no workflow, provider file, fallback, or plugin installation is intended |
+| delegated facade exits non-zero | the envelope is required to preserve the failing status |

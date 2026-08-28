@@ -9,14 +9,14 @@
   "plugins": [
     {
       "name": "overcode",
-      "version": "5.1.0",
+      "version": "5.1.1",
       "source": "./plugins/overcode",
       "description": "Extends AIDD with project-agnostic workflows: research; memory maintenance; repository-backed Markdown freshness with AIDD-routed code checks (taste); AIDD-routed document/code foresight plus dependency abandonment and migration horizon (foresee); behavioural testing; test governance; performance, data, ActivityPub, and SEO/GEO audits; project health and repository-backed Markdown backlog synchronization via status; plain-language explanations; documentation; and planning utilities. Stack knowledge remains pivot-driven through sc-* plugins, and AIDD delegation fails explicitly when a required capability is unavailable. Alias chains: rechallenge, endtask, bump-plugin, previously, smarten, skillconf, weeklyemail, gitit, mirror, codex-vision.",
       "recommended": true
     },
     {
       "name": "design",
-      "version": "2.13.1",
+      "version": "2.13.2",
       "source": "./plugins/design",
       "description": "Builds, critiques, freezes, enforces, diffuses, and scaffolds grounded measurable design systems, including contract-aware LLM guidance and rendered cascade-ownership proof.",
       "recommended": false
