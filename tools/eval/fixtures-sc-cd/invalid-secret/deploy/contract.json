@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "owner": { "plugin": "sc-python", "scope": "root" },
+  "manager": "uv",
+  "command": "uv run scripts/deploy.py prod",
+  "workingDirectory": ".",
+  "source": { "repository": "git", "ref": "working-tree" },
+  "target": { "kind": "server", "provider": "ssh" },
+  "secrets": { "token": "must-never-appear-in-output" },
+  "operations": [
+    {
+      "name": "deploy:prod",
+      "direction": "local-to-production",
+      "preconditions": ["tests pass"],
+      "proof": ["health check passes"],
+      "recovery": ["restore previous release"]
+    }
+  ]
+}

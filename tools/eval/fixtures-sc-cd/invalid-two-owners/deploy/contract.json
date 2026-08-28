@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "owner": [
+    { "plugin": "sc-js", "scope": "root" },
+    { "plugin": "sc-css", "scope": "root" }
+  ],
+  "manager": "pnpm",
+  "command": "pnpm deploy:prod",
+  "workingDirectory": ".",
+  "source": { "repository": "git", "ref": "working-tree" },
+  "target": { "kind": "server", "provider": "ssh" },
+  "operations": [
+    {
+      "name": "deploy:prod",
+      "direction": "local-to-production",
+      "preconditions": ["tests pass"],
+      "proof": ["health check passes"],
+      "recovery": ["restore previous release"]
+    }
+  ]
+}

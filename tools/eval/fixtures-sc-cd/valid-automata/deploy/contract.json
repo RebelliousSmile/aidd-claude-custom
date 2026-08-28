@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "owner": { "plugin": "sc-rust", "scope": "root" },
+  "manager": "cargo",
+  "command": "cargo deploy-prod",
+  "workingDirectory": ".",
+  "source": { "repository": "git", "ref": "working-tree" },
+  "target": { "kind": "automata", "provider": "github-actions" },
+  "trigger": "push",
+  "secretNames": ["RAILWAY_TOKEN"],
+  "operations": [
+    {
+      "name": "deploy:prod",
+      "direction": "local-to-production",
+      "preconditions": ["release build passes"],
+      "proof": ["deployed revision matches source"],
+      "recovery": ["redeploy the previous release"]
+    }
+  ],
+  "automata": {
+    "command": "cargo deploy-prod",
+    "workingDirectory": ".",
+    "operations": ["deploy:prod"]
+  }
+}
