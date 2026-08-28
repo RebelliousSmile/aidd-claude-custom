@@ -1,0 +1,9 @@
+[
+  { "prompt": "cd local pour ce site HTML CSS statique", "expect_action": "local" },
+  { "prompt": "configure le build et la preview CSS", "expect_action": "local" },
+  { "prompt": "cd server pour publier ce site statique", "expect_action": "server" },
+  { "prompt": "ajoute deploy:prod à ce projet CSS sans runtime", "expect_action": "server" },
+  { "prompt": "cd automata pour l'hébergement statique", "expect_action": "automata" },
+  { "prompt": "crée une seconde façade CSS dans cette application Nuxt", "expect_action": null },
+  { "prompt": "déploie vers une sortie inconnue", "expect_action": null }
+]
