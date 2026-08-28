@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "owner": { "plugin": "sc-js", "scope": "root" },
+  "manager": "pnpm",
+  "command": "pnpm deploy:prod",
+  "workingDirectory": ".",
+  "source": { "repository": "git", "ref": "fa67de4", "clean": true },
+  "targets": [
+    { "id": "client-site", "phase": "staging", "mode": "automata", "provider": "github-actions", "executionContext": "automation-checkout", "lifecycleRevision": 1, "guard": { "kind": "provider-metadata", "reference": "SC_CD_LIFECYCLE" }, "lock": { "key": "deploy-client-site", "behavior": "wait" }, "invocation": { "command": "pnpm deploy:prod --target client-site", "workingDirectory": ".", "operations": ["deploy:code"] } }
+  ],
+  "operations": [
+    { "name": "deploy:code", "surface": "code", "authority": "local", "phases": ["staging", "production"], "preconditions": ["tests pass"], "proof": ["health check passes"], "recovery": ["restore previous release"] }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "owner": { "plugin": "sc-php", "scope": "root" },
+  "manager": "composer",
+  "command": "composer deploy",
+  "workingDirectory": ".",
+  "source": { "repository": "git", "ref": "cd34ab1", "clean": true },
+  "targets": [
+    {
+      "id": "client-site",
+      "phase": "production",
+      "mode": "server",
+      "provider": "alwaysdata",
+      "executionContext": "workspace",
+      "lifecycleRevision": 2,
+      "guard": { "kind": "file", "reference": ".sc-cd/client-site.json" },
+      "lock": { "key": "deploy-client-site", "behavior": "fail" },
+      "quiescence": { "strategy": "maintenance-mode", "enter": "composer maintenance:on", "exit": "composer maintenance:off", "proof": ["writes are rejected"] },
+      "invocation": { "command": "composer deploy -- --target client-site", "workingDirectory": ".", "operations": ["deploy:code"] }
+    }
+  ],
+  "operations": [
+    { "name": "deploy:code", "surface": "code", "authority": "local", "phases": ["staging", "production"], "preconditions": ["promotion proof retained"], "proof": ["site answers in production"], "recovery": ["restore previous code release without lowering lifecycle revision"] }
+  ]
+}

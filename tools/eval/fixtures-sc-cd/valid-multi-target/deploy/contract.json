@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "owner": { "plugin": "sc-python", "scope": "root" },
+  "manager": "uv",
+  "command": "uv run scripts/deploy.py",
+  "workingDirectory": ".",
+  "source": { "repository": "git", "ref": "9d7f2a1", "clean": true },
+  "targets": [
+    {
+      "id": "railway-main",
+      "phase": "production",
+      "mode": "automata",
+      "provider": "railway",
+      "executionContext": "automation-checkout",
+      "lifecycleRevision": 4,
+      "guard": { "kind": "provider-metadata", "reference": "SC_CD_LIFECYCLE" },
+      "lock": { "key": "deploy-railway-main", "behavior": "wait" },
+      "trigger": "push",
+      "secretNames": ["RAILWAY_TOKEN"],
+      "invocation": { "command": "uv run scripts/deploy.py --target railway-main", "workingDirectory": ".", "operations": ["deploy:code", "deploy:schema"] }
+    },
+    {
+      "id": "alwaysdata-fr",
+      "phase": "production",
+      "mode": "server",
+      "provider": "alwaysdata",
+      "executionContext": "workspace",
+      "lifecycleRevision": 2,
+      "guard": { "kind": "file", "reference": ".sc-cd/alwaysdata-fr.json" },
+      "lock": { "key": "deploy-alwaysdata-fr", "behavior": "fail" },
+      "secretNames": ["ALWAYSDATA_API_KEY", "DEPLOY_HOST"],
+      "invocation": { "command": "uv run scripts/deploy.py --target alwaysdata-fr", "workingDirectory": ".", "operations": ["deploy:code", "deploy:schema"] }
+    }
+  ],
+  "operations": [
+    { "name": "deploy:code", "surface": "code", "authority": "local", "phases": ["staging", "production"], "preconditions": ["tests pass"], "proof": ["health check passes"], "recovery": ["redeploy previous release"] },
+    { "name": "deploy:schema", "surface": "schema", "authority": "local", "phases": ["staging", "production"], "preconditions": ["migration plan reviewed", "backup current"], "proof": ["migration revision matches"], "recovery": ["restore database backup"] }
+  ]
+}

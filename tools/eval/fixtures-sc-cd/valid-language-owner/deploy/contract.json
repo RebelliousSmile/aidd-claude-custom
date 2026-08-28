@@ -1,17 +1,31 @@
 {
-  "version": 1,
+  "version": 2,
   "owner": { "plugin": "sc-js", "scope": "root" },
   "manager": "pnpm",
   "command": "pnpm deploy:prod",
   "workingDirectory": ".",
-  "source": { "repository": "git", "ref": "working-tree" },
-  "target": { "kind": "server", "provider": "ssh" },
-  "secretNames": ["DEPLOY_HOST", "DEPLOY_USER"],
+  "source": { "repository": "git", "ref": "working-tree", "clean": false, "manifest": "deploy/source-manifest.json", "dirtyPolicy": "review and confirm manifest" },
+  "targets": [
+    {
+      "id": "alwaysdata-preview",
+      "phase": "staging",
+      "mode": "server",
+      "provider": "alwaysdata",
+      "executionContext": "workspace",
+      "lifecycleRevision": 1,
+      "guard": { "kind": "file", "reference": ".sc-cd/alwaysdata-preview.json" },
+      "lock": { "key": "deploy-alwaysdata-preview", "behavior": "fail" },
+      "secretNames": ["DEPLOY_HOST", "DEPLOY_USER"],
+      "invocation": { "command": "pnpm deploy:prod --target alwaysdata-preview", "workingDirectory": ".", "operations": ["deploy:code"] }
+    }
+  ],
   "operations": [
     {
-      "name": "deploy:prod",
-      "direction": "local-to-production",
-      "preconditions": ["tests pass", "working tree reviewed"],
+      "name": "deploy:code",
+      "surface": "code",
+      "authority": "local",
+      "phases": ["staging", "production"],
+      "preconditions": ["tests pass", "source manifest reviewed"],
       "proof": ["remote health check passes"],
       "recovery": ["restore the previous release pointer"]
     }

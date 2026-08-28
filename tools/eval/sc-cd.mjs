@@ -2,13 +2,15 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { validateProjectContract } from '../sc-cd/validate-project-contract.mjs';
+import { validateProjectContract, validatePromotionTransition } from '../sc-cd/validate-project-contract.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const plugins = ['sc-css', 'sc-js', 'sc-php', 'sc-python', 'sc-rust', 'sc-tiers'];
 const canonical = readFileSync(join(root, 'tools/sc-cd/contract.md'), 'utf8');
 const schema = readFileSync(join(root, 'tools/sc-cd/project-contract.schema.json'), 'utf8');
 const failures = [];
+
+JSON.parse(schema);
 
 for (const plugin of plugins) {
   const target = join(root, 'plugins', plugin, 'references/cd-contract.md');
@@ -26,8 +28,7 @@ for (const plugin of plugins) {
     for (const [index, action] of ['local', 'server', 'automata'].entries()) {
       const actionPath = join(skillRoot, 'actions', `0${index + 1}-${action}.md`);
       if (!existsSync(actionPath)) failures.push(`${plugin}: missing ${action} action`);
-      const routedAction = new RegExp(`^\\|\\s*${action}\\s*\\|`, 'm');
-      if (!routedAction.test(router)) failures.push(`${plugin}: ${action} is not routed`);
+      if (!new RegExp(`^\\|\\s*${action}\\s*\\|`, 'm').test(router)) failures.push(`${plugin}: ${action} is not routed`);
     }
   }
   const scenariosPath = join(skillRoot, 'evals/scenarios.json');
@@ -38,30 +39,40 @@ for (const plugin of plugins) {
     for (const action of ['local', 'server', 'automata', null]) {
       if (!routed.has(action)) failures.push(`${plugin}: scenarios do not cover ${action ?? 'a negative neighbor'}`);
     }
-    const staging = scenarios.filter(({ prompt }) => /\bstaging\b/i.test(prompt));
-    if (staging.some(({ expect_action: action }) => action !== null)) failures.push(`${plugin}: staging routes to a delivery action`);
   }
 }
 
-for (const required of ['`local`', '`production`', '`deploy:*`', '`pull:*`', '`automata`', 'one root deployment facade']) {
+for (const required of ['`staging`', '`production`', '`server`', '`automata`', '`code`', '`schema`', '`data`', '`media`', 'lifecycle revision']) {
   if (!canonical.includes(required)) failures.push(`canonical contract: missing ${required}`);
 }
-if (/\bstaging\b/i.test(canonical)) failures.push('canonical contract: forbidden third environment');
+if (/allow(?:s|ed)?[^.]*?(?:production-to-local|target-to-target)/i.test(canonical)) failures.push('canonical contract: forbidden remote flow');
 
 const fixtures = join(root, 'tools/eval/fixtures-sc-cd');
 const cases = [
   ['valid-language-owner', true],
   ['valid-composite', true],
   ['valid-automata', true],
+  ['valid-multi-target', true],
+  ['valid-staging', true],
+  ['valid-production', true],
+  ['valid-promotion', true],
+  ['legacy-v1', false],
   ['invalid-two-owners', false],
   ['invalid-secret', false],
+  ['invalid-duplicate-target', false],
+  ['invalid-dirty-automata', false],
+  ['invalid-remote-flow', false],
 ];
 for (const [name, expected] of cases) {
   const contract = JSON.parse(readFileSync(join(fixtures, name, 'deploy/contract.json'), 'utf8'));
   const result = validateProjectContract(contract);
-  if ((result.length === 0) !== expected) failures.push(`${name}: expected ${expected ? 'valid' : 'invalid'} contract`);
+  if ((result.length === 0) !== expected) failures.push(`${name}: expected ${expected ? 'valid' : 'invalid'} contract (${result.join('; ')})`);
   if (name === 'invalid-secret' && result.join('\n').includes('must-never-appear')) failures.push('invalid-secret: validator leaked a secret value');
 }
+
+const stale = JSON.parse(readFileSync(join(fixtures, 'invalid-stale-lifecycle/deploy/contract.json'), 'utf8'));
+const staleResult = validateProjectContract(stale, { guards: { 'client-site': { phase: 'production', lifecycleRevision: 2 } } });
+if (!staleResult.some((message) => message.includes('lifecycle guard is stale'))) failures.push('stale lifecycle guard was accepted');
 
 const producer = JSON.parse(readFileSync(join(fixtures, 'valid-automata/deploy/contract.json'), 'utf8'));
 if (validateProjectContract(producer, { command: producer.command, workingDirectory: producer.workingDirectory }).length) {
@@ -70,14 +81,24 @@ if (validateProjectContract(producer, { command: producer.command, workingDirect
 if (!validateProjectContract(producer, { command: 'cargo run deploy', workingDirectory: producer.workingDirectory }).some((message) => message.includes('stale'))) {
   failures.push('automata: divergent facade accepted');
 }
-if ((producer.trigger || 'manual') !== 'push') failures.push('automata: explicit push trigger was not preserved');
+if ((producer.targets[0].trigger || 'manual') !== 'push') failures.push('automata: explicit push trigger was not preserved');
+
 const manualDefault = JSON.parse(readFileSync(join(fixtures, 'valid-language-owner/deploy/contract.json'), 'utf8'));
-if ((manualDefault.trigger || 'manual') !== 'manual') failures.push('language owner: trigger does not default to manual');
+if ((manualDefault.targets[0].trigger || 'manual') !== 'manual') failures.push('language owner: trigger does not default to manual');
 const composite = JSON.parse(readFileSync(join(fixtures, 'valid-composite/deploy/contract.json'), 'utf8'));
 if (composite.owner.scope !== 'root' || composite.contributors.some(({ scope }) => scope === 'root')) failures.push('composite: contributor escaped its bounded scope');
+
+const before = JSON.parse(readFileSync(join(fixtures, 'promotion-failpoints/before.json'), 'utf8'));
+const after = JSON.parse(readFileSync(join(fixtures, 'promotion-failpoints/after.json'), 'utf8'));
+const checkpoints = JSON.parse(readFileSync(join(fixtures, 'promotion-failpoints/checkpoints.json'), 'utf8'));
+if (validatePromotionTransition(before, after, checkpoints['after-guard']).length) failures.push('promotion: valid fail-closed transition rejected');
+if (!validatePromotionTransition(before, after, checkpoints['before-guard']).some((message) => message.includes('not fail-closed'))) {
+  failures.push('promotion: pre-guard checkpoint accepted as production');
+}
+if (Object.values(checkpoints).some(({ lifecycleRevision }) => lifecycleRevision < before.lifecycleRevision)) failures.push('promotion: lifecycle revision decreased');
 
 if (failures.length) {
   for (const failure of failures) console.error(`SC-CD FAIL: ${failure}`);
   process.exit(1);
 }
-console.log(`SC-CD PASS: canonical contract, schema, ${plugins.length} portable copies and ${cases.length} project fixtures`);
+console.log(`SC-CD PASS: v2 contract, schema, ${plugins.length} portable copies, ${cases.length} project fixtures and fail-closed promotion`);

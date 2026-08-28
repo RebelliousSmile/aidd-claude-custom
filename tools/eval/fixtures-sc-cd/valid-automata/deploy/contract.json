@@ -1,25 +1,43 @@
 {
-  "version": 1,
+  "version": 2,
   "owner": { "plugin": "sc-rust", "scope": "root" },
   "manager": "cargo",
   "command": "cargo deploy-prod",
   "workingDirectory": ".",
-  "source": { "repository": "git", "ref": "working-tree" },
-  "target": { "kind": "automata", "provider": "github-actions" },
-  "trigger": "push",
-  "secretNames": ["RAILWAY_TOKEN"],
+  "source": { "repository": "git", "ref": "4f1a8c2", "clean": true },
+  "targets": [
+    {
+      "id": "railway-main",
+      "phase": "production",
+      "mode": "automata",
+      "provider": "railway",
+      "executionContext": "automation-checkout",
+      "lifecycleRevision": 3,
+      "guard": { "kind": "provider-metadata", "reference": "SC_CD_LIFECYCLE" },
+      "lock": { "key": "deploy-railway-main", "behavior": "wait" },
+      "trigger": "push",
+      "secretNames": ["RAILWAY_TOKEN"],
+      "invocation": { "command": "cargo deploy-prod --target railway-main", "workingDirectory": ".", "operations": ["deploy:code", "deploy:schema"] }
+    }
+  ],
   "operations": [
     {
-      "name": "deploy:prod",
-      "direction": "local-to-production",
+      "name": "deploy:code",
+      "surface": "code",
+      "authority": "local",
+      "phases": ["staging", "production"],
       "preconditions": ["release build passes"],
       "proof": ["deployed revision matches source"],
       "recovery": ["redeploy the previous release"]
+    },
+    {
+      "name": "deploy:schema",
+      "surface": "schema",
+      "authority": "local",
+      "phases": ["staging", "production"],
+      "preconditions": ["migration plan reviewed", "fresh database backup"],
+      "proof": ["schema revision matches release"],
+      "recovery": ["run declared backward migration or restore backup"]
     }
-  ],
-  "automata": {
-    "command": "cargo deploy-prod",
-    "workingDirectory": ".",
-    "operations": ["deploy:prod"]
-  }
+  ]
 }

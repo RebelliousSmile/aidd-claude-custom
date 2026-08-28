@@ -1,0 +1,5 @@
+{
+  "before-guard": { "phase": "staging", "lifecycleRevision": 1, "expected": "resume-before-promotion" },
+  "after-guard": { "phase": "production", "lifecycleRevision": 2, "expected": "finish-contract-without-lowering-guard" },
+  "after-contract": { "phase": "production", "lifecycleRevision": 2, "expected": "regenerate-envelopes-without-lowering-guard" }
+}
