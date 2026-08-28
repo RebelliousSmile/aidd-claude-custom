@@ -4,6 +4,24 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [3.18.0] - 2026-08-28
+
+### Added
+
+- Famille `cd` commune aux plugins `sc-css`, `sc-js`, `sc-php`, `sc-python`, `sc-rust` et `sc-tiers`, avec actions `local`, `server` et `automata`, contrat projet portable et façade de production unique propre à chaque stack.
+- Action `design:harness normalize` pour reconstruire un HTML existant dans le shell canonique, préserver ses interactions et mesurer séparément conformité de format, validité runtime, migration et fidélité visuelle.
+- Exclusion de milestones dans `overcode:status backlog`, applicable avant le filtre de milestone et transmissible depuis l’alias `previously`.
+
+### Changed
+
+- Les livraisons CI, PaaS et SSH consomment la commande `deploy:*` déclarée par le projet au lieu de réimplémenter sa procédure ; les synchronisations de données restent bornées par surface et direction.
+- Les routeurs et actions `cd` suivent le format de skill commun et disposent de suites comportementales de sûreté distinctes des tests de routage.
+
+### Fixed
+
+- `overcode:alias endtask` et `harvest` reconnaissent les plans AIDD durables par répertoire et statut de frontmatter, sans renommage de cycle de vie.
+- Le harness détecte les dépendances CSS externes, borne l’évaluation de ses scripts et refuse les snapshots de tokens ou chemins source dont la provenance n’est pas démontrée.
+
 ## [3.17.0] - 2026-08-20
 
 ### Added
