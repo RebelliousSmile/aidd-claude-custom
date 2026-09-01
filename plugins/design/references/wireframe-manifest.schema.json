@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.design/wireframe-manifest.schema.json",
+  "title": "Design wireframe manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "title", "pillars", "references", "units"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "pillars": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "enum": ["responsive", "representative-content", "existing-context", "brand"] }
+    },
+    "references": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/reference" }
+    },
+    "units": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/unit" }
+    }
+  },
+  "$defs": {
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "provenance", "authority"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "kind": { "enum": ["user-reference", "frozen-contract", "render", "source", "capture"] },
+        "provenance": { "type": "string", "minLength": 1 },
+        "authority": { "type": "integer", "minimum": 1, "maximum": 4 }
+      }
+    },
+    "element": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "role"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "role": { "type": "string", "minLength": 1 },
+        "label": { "type": "string" },
+        "parent": { "anyOf": [{ "$ref": "#/$defs/slug" }, { "type": "null" }] }
+      }
+    },
+    "overlap": {
+      "type": "array",
+      "prefixItems": [{ "$ref": "#/$defs/slug" }, { "$ref": "#/$defs/slug" }],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "elementIds", "allowedOverlaps"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "label": { "type": "string" },
+        "elementIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/slug" } },
+        "allowedOverlaps": { "type": "array", "items": { "$ref": "#/$defs/overlap" } },
+        "showsExistingContext": { "type": "boolean", "default": false }
+      }
+    },
+    "transition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "controlId", "trigger"],
+      "properties": {
+        "from": { "$ref": "#/$defs/slug" },
+        "to": { "$ref": "#/$defs/slug" },
+        "controlId": { "$ref": "#/$defs/slug" },
+        "trigger": { "type": "string", "minLength": 1 }
+      }
+    },
+    "stateDisposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "disposition"],
+      "properties": {
+        "state": { "$ref": "#/$defs/slug" },
+        "disposition": { "enum": ["retained-interactive", "reference-only", "omitted", "unresolved"] },
+        "reason": { "type": "string", "minLength": 1 },
+        "afterRender": { "type": "string", "minLength": 1 }
+      }
+    },
+    "harness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "stateDispositions"],
+      "properties": {
+        "key": { "$ref": "#/$defs/slug" },
+        "label": { "type": "string" },
+        "group": { "type": "string" },
+        "route": { "type": "string" },
+        "source": { "type": "string" },
+        "theme": { "type": "string" },
+        "stateDispositions": { "type": "array", "items": { "$ref": "#/$defs/stateDisposition" } }
+      }
+    },
+    "unit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "title", "context", "elements", "primaryAction", "initialState", "states", "transitions"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "type": { "enum": ["page", "fragment", "component"] },
+        "title": { "type": "string", "minLength": 1 },
+        "context": { "enum": ["responsive", "desktop", "mobile", "intrinsic"] },
+        "containerWidth": { "type": "integer", "minimum": 1 },
+        "elements": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/element" } },
+        "primaryAction": { "anyOf": [{ "$ref": "#/$defs/slug" }, { "type": "null" }] },
+        "initialState": { "$ref": "#/$defs/slug" },
+        "states": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/state" } },
+        "transitions": { "type": "array", "items": { "$ref": "#/$defs/transition" } },
+        "contentScenarios": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "contextReferenceIds": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/slug" } },
+        "brandReferenceIds": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/slug" } },
+        "parentPage": { "$ref": "#/$defs/slug" },
+        "parentZone": { "type": "string", "minLength": 1 },
+        "harness": { "$ref": "#/$defs/harness" }
+      }
+    }
+  }
+}
