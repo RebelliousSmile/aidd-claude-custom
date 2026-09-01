@@ -4,6 +4,16 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [4.1.0] - 2026-09-01
+
+### Added
+
+- Le plugin `design` 2.14.0 expose `design:wireframes` pour générer ou normaliser des planches HTML desktop/mobile comparables, vérifier séparément structure, rendu Chromium et review humaine, puis promouvoir les pages acceptées vers `design:harness`.
+
+### Changed
+
+- La carte publique de `design` place désormais `wireframes` et `harness` hors de l’entonnoir du contrat, avec un gate déterministe intégré à la régression globale du marketplace.
+
 ## [4.0.0] - 2026-08-28
 
 ### Changed ⚠ BREAKING
