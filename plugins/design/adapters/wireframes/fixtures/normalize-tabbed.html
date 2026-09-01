@@ -1,0 +1,17 @@
+<!doctype html><html lang="fr"><body><main><div class="container"><p>Bloc générique 1</p></div><div class="container"><p>Bloc générique 2</p></div><div class="container"><p>Bloc générique 3</p></div><nav><button id="tab-list">Liste</button><button id="tab-map">Carte</button><button id="tab-help">Aide</button></nav><section id="view-list" class="app-view">Vue liste</section><section id="view-map" class="app-view" style="display:none">Vue carte</section><section id="view-help" class="app-view" style="display:none">Vue aide</section></main><script>
+document.getElementById('tab-list').addEventListener('click', function () {
+  document.getElementById('view-list').classList.add('app-view-active');
+  document.getElementById('view-map').classList.remove('app-view-active');
+  document.getElementById('view-help').classList.remove('app-view-active');
+});
+document.getElementById('tab-map').addEventListener('click', function () {
+  document.getElementById('view-map').classList.add('app-view-active');
+  document.getElementById('view-list').classList.remove('app-view-active');
+  document.getElementById('view-help').classList.remove('app-view-active');
+});
+document.getElementById('tab-help').addEventListener('click', function () {
+  document.getElementById('view-help').classList.add('app-view-active');
+  document.getElementById('view-list').classList.remove('app-view-active');
+  document.getElementById('view-map').classList.remove('app-view-active');
+});
+</script></body></html>

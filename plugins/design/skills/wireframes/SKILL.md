@@ -2,7 +2,7 @@
 name: wireframes
 description: Generates, normalizes, validates, or promotes standardized standalone HTML wireframe boards. Use when the user wants to validate interface layout, hierarchy, states, mobile/desktop use, or LLM understanding before harness work.
 author: François-Xavier Guillois
-version: 2.14.0
+version: 2.15.0
 vibe_version: ">=1.0.0"
 permissions:
   - files
@@ -39,6 +39,7 @@ Read only the next action selected by the request.
 - "normalize this existing HTML or zoning into a wireframe" → `normalize`
 - "lint or mechanically repair this wireframe HTML" → `lint`
 - "accept and promote this wireframe page to the harness" → `promote`
+- "turn the ASCII wireframe sketch from aidd-dev:01-plan's wireframe step into a validated board" → `scaffold`
 
 ## Transversal rules
 
@@ -49,4 +50,6 @@ Read only the next action selected by the request.
 - Refuse missing or contradictory required references before writing. Never invent brand evidence.
 - A static pass creates a candidate only. Do not call it a valid wireframe until rendered proof and human review also exist.
 - Read [wireframe-normalization.md](../../references/wireframe-normalization.md) for `normalize` and [wireframe-harness-handoff.md](../../references/wireframe-harness-handoff.md) for `promote`.
+- Read [wireframe-render-setup.md](../../references/wireframe-render-setup.md) before any rendered check (`lint`'s rendered pass, browser selftest): Playwright/Chromium install and `WIREFRAMES_CHROMIUM`.
+- Read [wireframe-artifact-sourcing.md](../../references/wireframe-artifact-sourcing.md) before `normalize` on HTML sourced from a published claude.ai Artifact: viewer chrome precedes the author's own document.
 - Never create or modify design-system contract artifacts.

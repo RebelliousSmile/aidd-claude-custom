@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -u
+export PYTHONUTF8=1
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 PY=${WIREFRAMES_SELFTEST_PYTHON:-}
@@ -79,6 +80,14 @@ else bad "ambiguous normalization"; fi
 if "$PY" "$ANALYZE" "$FIX/normalize-annotation-heavy.html" --out "$OUT/annotation-inventory.json" >/dev/null &&
    grep -q '"annotations": 3' "$OUT/annotation-inventory.json" && grep -q 'resource-dependency-omission' "$OUT/annotation-inventory.json"; then ok "analysis inventories annotations and missing dependencies"
 else bad "annotation/dependency inventory"; fi
+
+if grep -q 'annotation-contract-risk' "$OUT/annotation-inventory.json" && grep -q '"index"' "$OUT/annotation-inventory.json"; then ok "annotation citing a commit hash or file path is flagged as a contract risk"
+else bad "annotation contract risk detection"; fi
+
+if "$PY" "$ANALYZE" "$FIX/normalize-tabbed.html" --out "$OUT/tabbed-inventory.json" >/dev/null &&
+   grep -q 'section.app-view' "$OUT/tabbed-inventory.json" && grep -q '"trigger"' "$OUT/tabbed-inventory.json" && ! grep -q 'div.container' "$OUT/tabbed-inventory.json"; then
+  ok "structurally similar toggled siblings populate unitCandidates and transitionCandidates, generic classes do not"
+else bad "structural sibling grouping"; fi
 
 "$PY" -c 'import json,sys; p=sys.argv[1]; x=json.load(open(p)); [b.update(disposition="preserved") for b in x["inventory"]["blocks"]]; open(p,"w").write(json.dumps(x,ensure_ascii=False,indent=2,sort_keys=True)+"\n")' "$OUT/document-inventory.json"
 if "$PY" "$APPLY" --shell "$OUT/shell.html" --payload "$FIX/payload-valid.json" --inventory "$OUT/document-inventory.json" --out "$OUT/normalized.html" >/dev/null &&
