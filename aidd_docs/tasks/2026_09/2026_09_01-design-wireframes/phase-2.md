@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Instruction: Livrer la skill, le shell canonique et le lint statique

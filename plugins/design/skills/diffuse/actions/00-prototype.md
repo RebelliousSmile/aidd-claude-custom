@@ -2,7 +2,7 @@
 
 ## Input
 
-- A component or wireframe brief.
+- A component or ungoverned preview brief. A structured wireframe board with a manifest or pillars belongs to `design:wireframes`.
 - An explicit output target and optional implementation language.
 
 ## Output

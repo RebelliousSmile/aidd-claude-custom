@@ -1,0 +1,10 @@
+{
+  "states": {
+    "locker-card": {
+      "available": "<article class=\"locker-card\" data-wireframe-element=\"card\"><h4 data-wireframe-element=\"heading\">Casier Gare</h4><button data-wireframe-element=\"reserve\" data-wireframe-primary=\"true\">Réserver 24 h</button></article>",
+      "selected": "<article class=\"locker-card selected\" data-wireframe-element=\"card\"><h4 data-wireframe-element=\"heading\">Casier Gare sélectionné</h4><button data-wireframe-element=\"reserve\" data-wireframe-primary=\"true\">Continuer</button></article>"
+    }
+  },
+  "styles": ".locker-card{display:grid;gap:12px;padding:16px;border:2px solid #6f7782}.locker-card button{justify-self:start;padding:10px 14px}.locker-card.selected{border-style:dashed}",
+  "interactions": ""
+}

@@ -1,0 +1,10 @@
+[
+  {"prompt":"génère une planche wireframe HTML standardisée depuis ce brief","expect_action":"scaffold"},
+  {"prompt":"montre en wireframe mobile et desktop les états de ce composant","expect_action":"scaffold"},
+  {"prompt":"linte ce wireframe et donne-moi les violations","expect_action":"lint"},
+  {"prompt":"répare uniquement les attributs mécaniques de ce wireframe","expect_action":"lint"},
+  {"prompt":"normalise cette page existante en wireframe","expect_action":null},
+  {"prompt":"promeus ce wireframe vers le harness","expect_action":null},
+  {"prompt":"prototype librement un composant HTML sans format de planche","expect_action":null},
+  {"prompt":"mesure la fidélité de cette implémentation","expect_action":null}
+]

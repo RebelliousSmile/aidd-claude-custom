@@ -15,6 +15,7 @@ Behavioural tests for **design:diffuse**. Authority: `SKILL.md` §Routing and §
 | S5 | Ask to audit an existing page without producing a component. | Do not activate `diffuse`. | No diffuse action, component write or preview write is planned. |
 | S6 | Render declared `card` natively for installed provider `sc-css`. | Select `pivot`, hand off the render spec, then gate the returned native output before delivery. | Per `actions/03-pivot.md` §Étape 2a–3, hand-off names `sc-css`, component `card` and native target; provider return precedes gate 0 and only then final native delivery; no baseline is called integrated. |
 | S7 | Render declared `card` for a WordPress FSE target with sc-php and sc-css installed. | Emit two ordinary render specs, collect non-overlapping platform and stylesheet outputs, then gate them together. | sc-php alone owns the pattern and `fse-bindings.css`; sc-css owns tokens/components/index and later lints the binding; delivery waits for both returns and gate 0. |
+| S8 | Ask for a standardized multi-state mobile/desktop wireframe board. | Do not activate `diffuse`. | Route belongs to `design:wireframes`; no diffuse prototype or contract output is intended. |
 
 ## How to run
 
