@@ -2,7 +2,7 @@
 name: wireframes
 description: Generates, normalizes, validates, or promotes standardized standalone HTML wireframe boards. Use when the user wants to validate interface layout, hierarchy, states, mobile/desktop use, or LLM understanding before harness work.
 author: François-Xavier Guillois
-version: 2.14.0
+version: 2.15.0
 vibe_version: ">=1.0.0"
 permissions:
   - files
