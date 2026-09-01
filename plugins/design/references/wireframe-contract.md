@@ -51,7 +51,7 @@ The default is zero. A unit may contain at most two `[data-wireframe-annotation]
 
 ## Rendered checks
 
-Rendered collision candidates are declared elements at the same hierarchy level. Zero-area boxes and ancestor/descendant pairs are excluded. Every remaining intersection needs an exact allowed-overlap pair. Chromium also checks frame width, clipping, horizontal overflow and visibility without interaction. Animations and transitions are disabled before measurement.
+Rendered collision candidates are declared elements at the same hierarchy level. Zero-area boxes and ancestor/descendant pairs are excluded. Every remaining intersection needs an exact allowed-overlap pair. Chromium also checks frame width, clipping, horizontal overflow and visibility without interaction. Animations and transitions are disabled before measurement. Missing browser evidence leaves the candidate unverified rather than partially valid.
 
 ## Exit space
 

@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Instruction: Vérifier la planche dans un vrai moteur de rendu
