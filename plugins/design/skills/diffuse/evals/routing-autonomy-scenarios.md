@@ -85,3 +85,18 @@ Fixture state: prior fixtures unchanged; FSE target has sc-php and sc-css instal
 
 **Frictions / gaps:** none.
 **Tally:** 7/7 PASS (0 N/A) — mixed FSE routing is explicit without a second composite schema.
+
+### 2026-09-01 — run 5 (regression, dry-run, target=diffuse, fixture=brief+retrofit+fse) — **8/8 PASS**
+
+| # | Behaviour | Verdict | Δ vs prior | Note (instruction cited) |
+|---|---|---|---|---|
+| S1 | autonomous prototype | PASS | = | `actions/00-prototype.md §Output,Process` |
+| S2 | clean baseline delivery | PASS | = | `actions/02-render.md §Étape 0–3,5` |
+| S3 | dirty candidate not delivered | PASS | = | `actions/02-render.md §Étape 3` |
+| S4 | unknown component refused | PASS | = | `actions/01-define-element.md §Entrée` |
+| S5 | audit excluded | PASS | = | `SKILL.md §Routing` |
+| S6 | single-provider pivot sequence | PASS | = | `actions/03-pivot.md §Étape 1–3` |
+| S7 | compound provider ownership | PASS | = | `references/sc-pivot-contract.md §Cardinalité du spec de rendu` |
+| S8 | structured board routes to wireframes | PASS | new | `SKILL.md §Routing`; `actions/00-prototype.md §Non-goals` |
+
+**Frictions / gaps:** none. **Tally:** 8/8 PASS (0 N/A).

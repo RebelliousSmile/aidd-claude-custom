@@ -4,7 +4,7 @@ Six classes, **exhaustives** sur la signature d'entrée (ce que le consommateur 
 
 Déclarées une seule fois ici ; `02-route` les lit, aucun autre fichier ne les énumère. Les verbes de chaque séquence renvoient à `funnel-map.md` pour leur rôle ; ce fichier n'en répète pas le processus.
 
-`harness` n'est pas une classe : c'est la **précondition** de toute classe dont la référence n'existe pas encore comme artefact mesurable ou dont le HTML n'est pas au format canonique. `route` l'énonce comme précondition de `mockup-multipage`, jamais comme une étape.
+`wireframes` et `harness` ne sont pas des classes. Quand une interface doit encore être explorée, `wireframes → review → harness` est un préalable optionnel. Quand une référence déjà arbitrée est seulement non mesurable ou non canonique, `harness` suffit. `route` les énonce séparément, jamais comme étapes d’une classe.
 
 **Extension par un workflow de plateforme.** Chaque classe est agnostique. Quand le pivot correspondant est installé et la stack correspond, son workflow de plateforme (`sc-pivot-contract.md § Workflow de plateforme`) **étend** la classe : il instancie nativement les phases `enforce` et `diffuse` et ajoute **les phases `off-funnel` que sa table `## Phases` déclare**, chacune à la position qu'elle déclare. Ce fichier n'en énumère aucune : la liste vit dans le pivot, qui en est l'autorité, et toute énumération faite ici dérive dès qu'un pivot ajoute une phase. Pivot absent ou stack non correspondante → la classe seule, l'absence énoncée. La règle de résolution est portée par `02-route`.
 
@@ -14,7 +14,7 @@ Déclarées une seule fois ici ; `02-route` les lit, aucun autre fichier ne les 
 
 - **Signature d'entrée** : une référence visuelle de plusieurs pages fait autorité.
 - **État du contrat** : absent.
-- **Précondition** : la référence doit être mesurable et son HTML canonique ; sinon `harness` d'abord.
+- **Précondition** : la référence doit être mesurable et son HTML canonique ; si l’UX reste à fixer, `wireframes → review → harness`, sinon `harness` seul.
 - **Séquence** : `define` (intake, fan-out copycat) → **checkpoint humain sur la table de correspondance** → `adjust` → `enforce` (vocabulaire + fidélité) → `diffuse`.
 - **Checkpoint humain** : la table de correspondance avant figeage — rejet ⇒ retour à `define`.
 - **Gate de sortie** : vocabulaire **et** fidélité verts au seuil de maturité.
@@ -25,6 +25,7 @@ Déclarées une seule fois ici ; `02-route` les lit, aucun autre fichier ne les 
 
 - **Signature d'entrée** : une intention écrite, aucun visuel.
 - **État du contrat** : absent.
+- **Préalable optionnel** : pour un brief UI dont la disposition ou les usages doivent être validés, `wireframes → review → harness`, sans changer la classe.
 - **Séquence** : `define` (intake, construction) → `destructure` → `adjust` → `enforce` (vocabulaire ; fidélité seulement si une référence est produite plus tard) → `diffuse`.
 - **Checkpoint humain** : la direction construite avant figeage.
 - **Gate de sortie** : vocabulaire vert au seuil ; fidélité sans objet tant qu'aucune référence n'existe.

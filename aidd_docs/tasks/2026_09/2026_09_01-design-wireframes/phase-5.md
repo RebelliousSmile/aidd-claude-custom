@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Instruction: Intégrer la capacité au plugin et à ses preuves

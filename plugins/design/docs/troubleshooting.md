@@ -22,8 +22,17 @@ Répartition par outil :
 | `tools/run-gates.py` | 0 · 1 · 2 · 3 · 4 |
 | `tools/generate.py` | 0 · 1 · 2 · 3 |
 | `adapters/harness/harness.py` | 0 · 2 · 3 — **jamais 1, jamais 4** |
+| `tools/wireframes-lint.py` | 0 · 1 · 2 |
+| `adapters/wireframes/render-check.py` | 0 · 1 · 2 |
+| `tools/wireframes-review.py`, `tools/wireframes-handoff.py` | 0 · 2 |
 
 `run-gates.py` est le **seul point d'appel du gate**, aux trois sites : local, pre-commit, CI. C'est lui qui ajoute le 4 par-dessus le verdict du linter.
+
+## Une wireframe n’est pas « valide » après le seul lint statique
+
+Les preuves sont séparées : le lint statique vérifie manifeste et DOM ; le contrôle Chromium vérifie géométrie et visibilité ; la review humaine confirme que le brief a été compris. Il faut les trois avant promotion. Les règles complètes restent dans [`../references/wireframe-contract.md`](../references/wireframe-contract.md).
+
+Playwright 1.60.0 et un Chromium exécutable sont requis pour la preuve rendue. Leur absence sort en `2` : la planche reste non vérifiée, elle ne passe jamais en avertissement vert. Une collision, un débordement, une coupure ou un élément déclaré mais caché sort en `1` avec unité, état et viewport. Un reçu absent, révoqué ou dont l’un des trois digests a changé bloque le handoff en `2`.
 
 ---
 

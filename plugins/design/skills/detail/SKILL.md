@@ -38,4 +38,5 @@ Read only the next action selected by the user's question.
 - Stay read-only and never invoke the capabilities being described.
 - A precise production, critique, freeze, audit, or rendering request belongs directly to that capability; do not intercept it here.
 - Emit the full five-capability recipe only when the user explicitly asks for a complete design-system lifecycle.
+- Keep `wireframes` and `harness` outside that lifecycle. Name the optional `wireframes → review → harness` prerequisite only when an interface still needs exploration.
 - Read [funnel-map.md](references/funnel-map.md) for capability boundaries and [workflow-classes.md](references/workflow-classes.md) for complete lifecycle routes.

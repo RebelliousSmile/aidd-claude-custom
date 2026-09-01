@@ -10,6 +10,12 @@ Le verbe 0 lit l'état de ton contrat et les pivots installés, classe ton inten
 
 Le reste de cette page est ce que `detail` te dirait, sous forme consultable.
 
+## Préalable optionnel pour une interface à explorer
+
+Quand le brief décrit une interface mais que sa disposition, ses usages ou ses états doivent encore être compris, commencer par `design:wireframes`. La planche standardisée sert au retour visuel ; une review humaine explicite précède sa promotion vers `design:harness`. Ce chemin `brief UI → wireframes → review → harness` prépare une référence mesurable sans devenir une septième classe de lifecycle et sans créer de contrat.
+
+Si une référence détaillée et exploitable existe déjà, ce préalable est inutile. Si elle est seulement non mesurable, `harness` suffit.
+
 ## Les six classes de cas
 
 Elles sont **exhaustives** sur la signature d'entrée (ce que tu détiens) croisée avec l'état du contrat (absent · brouillon · figé). Aucune ne recouvre une autre sur la même paire. Un terrain nouveau est l'une de ces six, ou un amendement à [`workflow-classes.md`](../skills/detail/references/workflow-classes.md) — jamais une septième improvisée.
@@ -25,7 +31,7 @@ Elles sont **exhaustives** sur la signature d'entrée (ce que tu détiens) crois
   → adjust → enforce (vocabulaire + fidélité) → diffuse
 ```
 
-**Précondition** : la référence doit être *mesurable*. Un PDF ou un JPEG ne l'est pas — `harness` scaffolde alors le fichier HTML autonome que l'oracle sait piloter. Un HTML auteur non canonique est normalisé dans le même shell sans prétendre corriger sa conformité visuelle. C'est une précondition, pas une étape de la classe.
+**Précondition** : la référence doit être *mesurable*. Si l’UX reste à fixer, passer d’abord par `wireframes`, sa review, puis son handoff. Un PDF ou un JPEG déjà arbitré passe directement par `harness`, qui scaffolde le fichier HTML autonome que l'oracle sait piloter. Un HTML auteur non canonique est normalisé dans le même shell sans prétendre corriger sa conformité visuelle. Ce sont des préconditions, pas des étapes de la classe.
 
 **Checkpoint** : la table de correspondance agrégée, avant figeage. Un rejet renvoie à `define`. Les conflits entre pages y sont remontés, pas arbitrés — l'arbitrage est le travail d'`adjust`.
 

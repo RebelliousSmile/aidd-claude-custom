@@ -7,6 +7,8 @@
   { "prompt": "quelle est la différence entre define et destructure", "expect_action": "explain" },
   { "prompt": "j'ai une maquette de plusieurs pages, par quoi je commence", "expect_action": "route" },
   { "prompt": "je n'ai qu'un brief écrit, quelle séquence lancer", "expect_action": "route" },
+  { "prompt": "j’ai un brief UI et je veux d’abord valider la disposition avant le design system", "expect_action": "route" },
+  { "prompt": "explique la différence entre wireframes et harness", "expect_action": "explain" },
   { "prompt": "j'hérite d'une base de code sans contrat, quoi jouer", "expect_action": "route" },
   { "prompt": "le contrat est figé et un composant doit évoluer, comment procéder", "expect_action": "route" },
   { "prompt": "mes instances divergent du contrat figé, que faire", "expect_action": "route" },
