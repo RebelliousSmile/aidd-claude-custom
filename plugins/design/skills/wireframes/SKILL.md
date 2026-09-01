@@ -51,4 +51,5 @@ Read only the next action selected by the request.
 - A static pass creates a candidate only. Do not call it a valid wireframe until rendered proof and human review also exist.
 - Read [wireframe-normalization.md](../../references/wireframe-normalization.md) for `normalize` and [wireframe-harness-handoff.md](../../references/wireframe-harness-handoff.md) for `promote`.
 - Read [wireframe-render-setup.md](../../references/wireframe-render-setup.md) before any rendered check (`lint`'s rendered pass, browser selftest): Playwright/Chromium install and `WIREFRAMES_CHROMIUM`.
+- Read [wireframe-artifact-sourcing.md](../../references/wireframe-artifact-sourcing.md) before `normalize` on HTML sourced from a published claude.ai Artifact: viewer chrome precedes the author's own document.
 - Never create or modify design-system contract artifacts.

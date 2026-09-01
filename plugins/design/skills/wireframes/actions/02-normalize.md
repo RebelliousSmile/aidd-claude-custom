@@ -4,7 +4,7 @@ Rebuild existing author HTML into a fresh canonical wireframe without changing t
 
 ## Input
 
-- Readable source HTML, brief/evidence, destination manifest, payload, inventory, and board paths.
+- Readable source HTML, brief/evidence, destination manifest, payload, inventory, and board paths. If the source comes from a published claude.ai Artifact, see [wireframe-artifact-sourcing.md](../../../references/wireframe-artifact-sourcing.md) before analysis: extract the author's document out of the viewer chrome first.
 - The applicable optional pillars and any references they require.
 
 ## Process
