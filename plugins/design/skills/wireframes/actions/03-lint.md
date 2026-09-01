@@ -6,7 +6,7 @@ Validate an existing canonical wireframe candidate at the static and rendered le
 
 - A readable wireframe HTML path.
 - Optional `--fix` intent and a distinct fix output path.
-- Playwright 1.60.0 and a launchable Chromium executable for rendered proof.
+- Playwright 1.60.0 and a launchable Chromium executable for rendered proof — see [wireframe-render-setup.md](../../../references/wireframe-render-setup.md).
 
 ## Process
 

@@ -24,7 +24,7 @@ References declare provenance and authority rank. A URL may document provenance 
 
 ## Harness metadata
 
-Only a `page` may carry `harness`. Its `key` is a harness-compatible slug; the optional fields map directly to `label`, `group`, `route`, `source` and `theme`.
+Only a `page` may carry `harness`. Its `key` is a harness-compatible slug; the optional fields map directly to `label`, `group`, `route`, `source` and `theme`. `normalize` only prefills these fields when the source unambiguously names them; see its bounded prefill rule in [`02-normalize.md`](../skills/wireframes/actions/02-normalize.md).
 
 Each non-initial state gets a disposition:
 
