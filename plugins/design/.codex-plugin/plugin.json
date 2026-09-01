@@ -1,7 +1,7 @@
 {
   "name": "design",
-  "version": "2.13.3+codex.20260828133913",
-  "description": "Builds, critiques, freezes, enforces, diffuses, and scaffolds grounded measurable design systems, including contract-aware LLM guidance and rendered cascade-ownership proof.",
+  "version": "2.14.0+codex.20260901093641",
+  "description": "Builds, critiques, freezes, enforces, and diffuses grounded design systems, with standardized reviewable UI wireframes and measurable harnesses.",
   "author": {
     "name": "Fran\u00e7ois-Xavier Guillois"
   },
@@ -27,7 +27,8 @@
     "defaultPrompt": [
       "Audit this component's design and accessibility",
       "Build a design system from this brief",
-      "Check this page against the frozen design contract"
+      "Check this page against the frozen design contract",
+      "Create a standardized mobile and desktop wireframe from this UI brief"
     ],
     "brandColor": "#6D5EF5"
   }

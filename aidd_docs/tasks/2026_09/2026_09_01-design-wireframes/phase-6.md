@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Instruction: Publier `design` 2.14.0 et rejouer la régression

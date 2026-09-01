@@ -16,9 +16,9 @@
     },
     {
       "name": "design",
-      "version": "2.13.3",
+      "version": "2.14.0",
       "source": "./plugins/design",
-      "description": "Builds, critiques, freezes, enforces, diffuses, and scaffolds grounded measurable design systems, including contract-aware LLM guidance and rendered cascade-ownership proof.",
+      "description": "Builds, critiques, freezes, enforces, and diffuses grounded design systems, with standardized reviewable UI wireframes and measurable harnesses.",
       "recommended": false
     },
     {
