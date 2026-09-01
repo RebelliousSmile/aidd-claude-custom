@@ -4,6 +4,16 @@ Journal au niveau du marketplace : ajout/retrait de plugins et changements trans
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/). Versionnement du marketplace en SemVer (`marketplace.json`).
 
+## [4.2.0] - 2026-09-01
+
+### Added
+
+- Le plugin `design` 2.15.0 enrichit `wireframes-analyze.py` : regroupement structurel des fratries en candidats d'unité/transition et détection de risques de contrat d'annotation, tous deux remontés comme candidats à revue, jamais autoritaires.
+
+### Changed
+
+- `design:wireframes` documente l'installation Chromium/Playwright (`WIREFRAMES_CHROMIUM`), la règle de préremplissage du harness pour `normalize`, le routage depuis `aidd-dev:01-plan`, et l'intake HTML issu d'un Artifact claude.ai.
+
 ## [4.1.0] - 2026-09-01
 
 ### Added
