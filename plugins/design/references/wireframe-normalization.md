@@ -23,6 +23,8 @@ Otherwise the agent reviews the inventory itself and writes. Human confirmation 
 
 The inventory names markup, style, script, resource, state and annotation evidence. Every block moves from `pending-review` to `preserved`, `transformed`, or `omitted`; `unresolved` and stale source digests block the applicator. An ambiguous analysis may write its detached inventory report, but it writes no manifest, payload, shell or normalized board.
 
+`unitCandidates`/`transitionCandidates` from structural sibling grouping and `annotationRisks` are advisory candidates for review, never authoritative: normalize's stop conditions above still apply regardless of their presence.
+
 ## Completion proof
 
 The source checksum is unchanged; every inventoried block has `preserved`, `transformed`, `omitted`, or `unresolved`; unresolved is empty; the output is statically and visually green; and the response lists each disposition. The inventory stays outside the visible board.
