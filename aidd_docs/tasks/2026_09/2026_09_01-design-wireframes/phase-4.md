@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 ---
 
 # Instruction: Normaliser les sources et promouvoir les pages acceptées

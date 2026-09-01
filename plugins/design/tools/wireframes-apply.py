@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -32,6 +33,28 @@ def load_payload(path: Path) -> dict:
     if set(value) - {"states", "styles", "interactions"}:
         raise ApplyError("payload contains unknown fields")
     return value
+
+
+def validate_inventory(path: Path) -> None:
+    try:
+        value = json.loads(read(path))
+        source = Path(value["source"]["path"])
+        expected = value["source"]["sha256"]
+        actual = hashlib.sha256(source.read_bytes()).hexdigest()
+    except (KeyError, TypeError, OSError, json.JSONDecodeError) as exc:
+        raise ApplyError(f"invalid migration inventory: {exc}") from exc
+    if value.get("canNormalize") is not True or value.get("classification") == "ambiguous":
+        raise ApplyError("migration inventory is unresolved")
+    if expected != actual:
+        raise ApplyError("migration source changed after inventory")
+    blocks = value.get("inventory", {}).get("blocks", [])
+    allowed = {"preserved", "transformed", "omitted"}
+    unresolved = [block.get("id", "?") for block in blocks if block.get("disposition") not in allowed]
+    if unresolved:
+        raise ApplyError(f"migration inventory needs reviewed dispositions: {unresolved}")
+    unexplained = [block.get("id", "?") for block in blocks if block.get("disposition") == "omitted" and not str(block.get("reason", "")).strip()]
+    if unexplained:
+        raise ApplyError(f"omitted migration blocks need reasons: {unexplained}")
 
 
 def reject_breakouts(value: str, label: str) -> None:
@@ -108,6 +131,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Apply author content to a generated wireframe")
     parser.add_argument("--shell", required=True)
     parser.add_argument("--payload", required=True)
+    parser.add_argument("--inventory", help="reviewed normalization inventory")
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
     try:
@@ -116,6 +140,11 @@ def main() -> int:
         out = Path(args.out).resolve()
         if out in {shell, payload}:
             raise ApplyError("output must differ from shell and payload")
+        if args.inventory:
+            inventory = Path(args.inventory).resolve()
+            if out == inventory:
+                raise ApplyError("output must differ from inventory")
+            validate_inventory(inventory)
         atomic_write(out, apply(read(shell), load_payload(payload)))
         print(out)
         return 0

@@ -19,6 +19,7 @@ class BrowserRenderTest(unittest.TestCase):
             self.assertEqual(result.returncode, expected)
 
     def test_valid(self): self.run_case("render-valid.html", 0)
+    def test_normalized_page(self): self.run_case("normalize-states.html", 0)
     def test_overlap(self): self.run_case("render-overlap.html", 1)
     def test_overflow(self): self.run_case("render-overflow.html", 1)
     def test_hidden(self): self.run_case("render-hidden-state.html", 1)

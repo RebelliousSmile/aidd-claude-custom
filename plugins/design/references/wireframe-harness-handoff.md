@@ -27,3 +27,5 @@ Wireframes own only desktop and mobile. Promotion requires `tabletPolicy`:
 - `defer`: emit the bundle but do not invoke harness normalization.
 
 Missing policy is invalid input. `defer` is a successful handoff, not a successful harness. Only a non-deferred policy allows the official harness normalization action to run; its format, runtime, migration and visual proofs remain independently required.
+
+The receipt signs the exact bytes of the HTML, static report and rendered report with SHA-256. Revocation is a new detached receipt that retains the original reviewer, timestamp and digests; neither acceptance nor revocation rewrites the board. The handoff recalculates all three digests before creating its output directory.

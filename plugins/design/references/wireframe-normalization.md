@@ -1,6 +1,6 @@
 # Normalizing author HTML into a wireframe
 
-Normalization never edits its source. It classifies an input as `canonical-wireframe`, `repairable-wireframe`, `html-document`, `html-fragment`, or `ambiguous`, inventories author content, and rebuilds into a fresh generated shell through the governed applicator.
+Normalization never edits its source. It classifies an input as `canonical-wireframe`, `repairable-wireframe`, `html-document`, `html-fragment`, or `ambiguous`, inventories author content, and rebuilds into a fresh generated shell through the governed applicator. Classification is structural, not a licence to adopt the source document's chrome.
 
 ## Preservation order
 
@@ -20,6 +20,8 @@ Document wrappers, presentation chrome, excessive annotations, unproven brand st
 - Equal-authority references contradict one another.
 
 Otherwise the agent reviews the inventory itself and writes. Human confirmation is requested only for one of these semantic forks, not for routine shell reconstruction.
+
+The inventory names markup, style, script, resource, state and annotation evidence. Every block moves from `pending-review` to `preserved`, `transformed`, or `omitted`; `unresolved` and stale source digests block the applicator. An ambiguous analysis may write its detached inventory report, but it writes no manifest, payload, shell or normalized board.
 
 ## Completion proof
 
