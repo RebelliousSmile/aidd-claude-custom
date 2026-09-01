@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Choix d’un casier</title>
+  <style>
+    :root{--board-bg:#eef0f3;--ink:#20242a;--line:#aeb5bf;--paper:#fff}
+    *{box-sizing:border-box} html{font-family:Arial,sans-serif;color:var(--ink);background:var(--board-bg)}
+    body{margin:0;padding:24px} header{max-width:1440px;margin:0 auto 24px} h1,h2,h3{margin:0 0 12px}
+    .wireframe-unit{max-width:1488px;margin:0 auto 32px;padding:16px;border:1px solid var(--line);background:var(--paper)}
+    .wireframe-state{margin-top:20px} .wireframe-frames{display:flex;gap:20px;align-items:flex-start;overflow-x:auto}
+    .wireframe-frame{width:var(--wireframe-width);min-width:min(var(--wireframe-width),100%);max-width:100%;border:1px solid var(--line);background:#fff}
+    .wireframe-frame::before{content:attr(data-wireframe-viewport);display:block;padding:6px 10px;border-bottom:1px solid var(--line);font-size:12px;text-transform:uppercase}
+    .wireframe-canvas{width:100%;min-height:180px;padding:16px;overflow-x:hidden} .wireframe-placeholder{padding:32px;border:1px dashed var(--line);text-align:center;color:#68707a}
+    [data-wireframe-annotation]{font-size:12px}
+    /* ===== AUTHOR STYLES — LLM MAY EDIT BETWEEN THESE MARKERS ===== */
+.locker-card{display:grid;gap:12px;padding:16px;border:2px solid #6f7782;width:2000px}.locker-card button{justify-self:start;padding:10px 14px}.locker-card.selected{border-style:dashed}
+    /* ===== END AUTHOR STYLES ===== */
+  </style>
+</head>
+<body>
+  <header><h1>Choix d’un casier</h1></header>
+  <main><section class="wireframe-unit" data-wireframe-unit="locker-card" data-wireframe-type="component"><h2>Carte de réservation</h2><section class="wireframe-state" data-wireframe-state="available"><h3>Disponible</h3><div class="wireframe-frames"><div class="wireframe-frame" data-wireframe-viewport="desktop" style="--wireframe-width:1440px"><div class="wireframe-canvas" data-wireframe-canvas="locker-card:available:desktop"><!-- AUTHOR STATE locker-card available desktop --><article class="locker-card" data-wireframe-element="card"><h4 data-wireframe-element="heading">Casier Gare</h4><button data-wireframe-element="reserve" data-wireframe-primary="true">Réserver 24 h</button></article><!-- END AUTHOR STATE locker-card available desktop --></div></div><div class="wireframe-frame" data-wireframe-viewport="mobile" style="--wireframe-width:390px"><div class="wireframe-canvas" data-wireframe-canvas="locker-card:available:mobile"><!-- AUTHOR STATE locker-card available mobile --><article class="locker-card" data-wireframe-element="card"><h4 data-wireframe-element="heading">Casier Gare</h4><button data-wireframe-element="reserve" data-wireframe-primary="true">Réserver 24 h</button></article><!-- END AUTHOR STATE locker-card available mobile --></div></div></div></section><section class="wireframe-state" data-wireframe-state="selected"><h3>Sélectionné</h3><div class="wireframe-frames"><div class="wireframe-frame" data-wireframe-viewport="desktop" style="--wireframe-width:1440px"><div class="wireframe-canvas" data-wireframe-canvas="locker-card:selected:desktop"><!-- AUTHOR STATE locker-card selected desktop --><article class="locker-card selected" data-wireframe-element="card"><h4 data-wireframe-element="heading">Casier Gare sélectionné</h4><button data-wireframe-element="reserve" data-wireframe-primary="true">Continuer</button></article><!-- END AUTHOR STATE locker-card selected desktop --></div></div><div class="wireframe-frame" data-wireframe-viewport="mobile" style="--wireframe-width:390px"><div class="wireframe-canvas" data-wireframe-canvas="locker-card:selected:mobile"><!-- AUTHOR STATE locker-card selected mobile --><article class="locker-card selected" data-wireframe-element="card"><h4 data-wireframe-element="heading">Casier Gare sélectionné</h4><button data-wireframe-element="reserve" data-wireframe-primary="true">Continuer</button></article><!-- END AUTHOR STATE locker-card selected mobile --></div></div></div></section></section></main>
+  <script id="wireframe-manifest" type="application/json">{"pillars":["responsive","representative-content"],"references":[],"schemaVersion":1,"title":"Choix d’un casier","units":[{"contentScenarios":["Casier disponible avec nom de lieu court"],"context":"responsive","elements":[{"id":"card","label":"Casier Gare","parent":null,"role":"region"},{"id":"heading","label":"Casier Gare","parent":"card","role":"heading"},{"id":"reserve","label":"Réserver","parent":"card","role":"button"}],"id":"locker-card","initialState":"available","primaryAction":"reserve","states":[{"allowedOverlaps":[],"elementIds":["card","heading","reserve"],"id":"available","label":"Disponible"},{"allowedOverlaps":[],"elementIds":["card","heading","reserve"],"id":"selected","label":"Sélectionné"}],"title":"Carte de réservation","transitions":[{"controlId":"reserve","from":"available","to":"selected","trigger":"click"}],"type":"component"}]}</script>
+  <script>
+    /* ===== AUTHOR INTERACTIONS — OPTIONAL HELPERS ONLY ===== */
+
+    /* ===== END AUTHOR INTERACTIONS ===== */
+  </script>
+</body>
+</html>

@@ -24,7 +24,7 @@ Le détail normatif de chaque règle vit dans [`references/`](references/) ; le 
              └── malléable ──┘  └──── figé ────────────────┘
 ```
 
-Le pipeline compte **cinq verbes**. Le point de bascule est `adjust` : avant lui tout change sans coût, après lui chaque changement est un bump de version. Deux skills sont hors pipeline — `detail` (verbe 0, lecture seule, il donne la carte) et `harness` (il scaffolde ou normalise une maquette de référence pour la rendre mesurable).
+Le pipeline compte **cinq verbes**. Le point de bascule est `adjust` : avant lui tout change sans coût, après lui chaque changement est un bump de version. Trois skills sont hors pipeline — `detail` (verbe 0, lecture seule), `wireframes` (exploration d’interface standardisée) et `harness` (référence multipage mesurable). Quand l’UX reste à fixer, le chemin préparatoire est `brief UI → wireframes → review → harness` ; il ne modifie pas le contrat.
 
 ## Skills
 
@@ -36,6 +36,7 @@ Le pipeline compte **cinq verbes**. Le point de bascule est `adjust` : avant lui
 | `adjust` | `design:adjust` | Arbitrage maquettes + figeage du contrat + migration 1.x → 2.0. |
 | `enforce` | `design:enforce` | Linter portable dérivé du contrat · 4 gates de vocabulaire + 1 gate de fidélité · pivot par langage. |
 | `diffuse` | `design:diffuse` | Éléments répétables sous gate lint · baseline HTML/CSS · pivot par langage. |
+| `wireframes` | `design:wireframes` | Génère, normalise et valide des planches HTML desktop/mobile, puis prépare les pages acceptées pour le harness. **Hors entonnoir, aucun artefact de contrat.** Contrat : [`references/wireframe-contract.md`](references/wireframe-contract.md). |
 | `harness` | `design:harness` | Génère ou normalise le harness HTML autonome (`setPage`/`setViewport`) piloté par l'oracle de fidélité. **Hors entonnoir.** |
 
 ## Démarrage rapide
@@ -45,6 +46,7 @@ comme slash command (`/design:define`, etc.). Le workflow ne dépend d'aucune sy
 
 ```text
 design:detail          # quelle séquence pour mon cas (lecture seule)
+design:wireframes      # optionnel : fixer disposition, usages et états avant le harness
 design:define          # poser le contrat depuis brief ou référence
 design:destructure     # challenger avant de figer (recommandé)
 design:adjust          # arbitrer + figer le contrat (ou migrer un contrat 1.x)

@@ -8,7 +8,7 @@ import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
-const skills = ['detail', 'define', 'destructure', 'adjust', 'enforce', 'diffuse', 'harness'];
+const skills = ['detail', 'define', 'destructure', 'adjust', 'enforce', 'diffuse', 'wireframes', 'harness'];
 const failures = [];
 const fail = (message) => failures.push(message);
 
@@ -270,4 +270,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`✓ design-behave — ${skills.length}/7 suites structurées, autonomie + P0/P1/P2 vérifiées`);
+console.log(`✓ design-behave — ${skills.length}/${skills.length} suites structurées, autonomie + P0/P1/P2 vérifiées`);

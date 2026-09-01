@@ -1,5 +1,25 @@
 # Changelog — design
 
+## [2.14.0] — 2026-09-01
+
+### Added
+
+- Skill publique `design:wireframes` avec quatre routes : génération depuis manifeste, normalisation non destructive d’un HTML auteur, lint statique/rendu et promotion vers `design:harness`.
+- Contrat de planche autonome fondé sur un socle obligatoire et quatre piliers optionnels (`responsive`, contenu représentatif, contexte existant, branding), avec seulement les cadres desktop 1440 px et mobile 390 px.
+- Reçu de review détaché lié par SHA-256 à l’HTML et aux deux rapports, révocable et vérifié à nouveau avant tout handoff.
+- Handoff atomique `pages.json` + `migration-payload.json` + `handoff.json`, état initial seul dans le harness, dispositions explicites des autres états et politique tablette obligatoire.
+
+### Changed
+
+- `design:detail` expose désormais huit capacités tout en conservant les six classes de lifecycle et les cinq verbes du pipeline ; `wireframes → review → harness` reste un préalable UI optionnel hors entonnoir.
+- `design:diffuse` réserve les prototypes libres et route les planches structurées vers `design:wireframes`.
+
+### Verification
+
+- Selftest portable wireframes : 26 assertions vertes, incluant immutabilité, ambiguïtés, reçus périmés/révoqués, dispositions d’états et consommation par les interfaces officielles du harness.
+- Selftest Chromium ciblé : 7 tests verts sur planche conforme, page normalisée, collision, débordement et état masqué ; absence de Playwright ou Chromium confirmée en exit 2.
+- Runner ciblé et `pnpm test` contre-prouvés par mutations jetables du manifeste, d’une route et de la fixture canonique, puis rejoués au vert sur l’arbre sain.
+
 ## [2.13.3] — 2026-08-28
 
 ### Fixed

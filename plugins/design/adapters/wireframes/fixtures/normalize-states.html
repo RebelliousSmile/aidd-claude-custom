@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Réservation</title>
+  <style>
+    :root{--board-bg:#eef0f3;--ink:#20242a;--line:#aeb5bf;--paper:#fff}
+    *{box-sizing:border-box} html{font-family:Arial,sans-serif;color:var(--ink);background:var(--board-bg)}
+    body{margin:0;padding:24px} header{max-width:1440px;margin:0 auto 24px} h1,h2,h3{margin:0 0 12px}
+    .wireframe-unit{max-width:1488px;margin:0 auto 32px;padding:16px;border:1px solid var(--line);background:var(--paper)}
+    .wireframe-state{margin-top:20px} .wireframe-frames{display:flex;gap:20px;align-items:flex-start;overflow-x:auto}
+    .wireframe-frame{width:var(--wireframe-width);min-width:min(var(--wireframe-width),100%);max-width:100%;border:1px solid var(--line);background:#fff}
+    .wireframe-frame::before{content:attr(data-wireframe-viewport);display:block;padding:6px 10px;border-bottom:1px solid var(--line);font-size:12px;text-transform:uppercase}
+    .wireframe-canvas{width:100%;min-height:180px;padding:16px;overflow-x:hidden} .wireframe-placeholder{padding:32px;border:1px dashed var(--line);text-align:center;color:#68707a}
+    [data-wireframe-annotation]{font-size:12px}
+    /* ===== AUTHOR STYLES — LLM MAY EDIT BETWEEN THESE MARKERS ===== */
+.booking{display:grid;gap:16px;padding:24px;border:1px solid #777}.booking button{justify-self:start;padding:10px 16px}
+    /* ===== END AUTHOR STYLES ===== */
+  </style>
+</head>
+<body>
+  <header><h1>Réservation</h1></header>
+  <main><section class="wireframe-unit" data-wireframe-unit="booking-page" data-wireframe-type="page"><h2>Réservation d’un casier</h2><section class="wireframe-state" data-wireframe-state="choice"><h3>Choix</h3><div class="wireframe-frames"><div class="wireframe-frame" data-wireframe-viewport="desktop" style="--wireframe-width:1440px"><div class="wireframe-canvas" data-wireframe-canvas="booking-page:choice:desktop"><!-- AUTHOR STATE booking-page choice desktop --><main class="booking" data-wireframe-element="main"><h2 data-wireframe-element="heading">Votre casier</h2><button data-wireframe-element="continue" data-wireframe-primary="true">Continuer</button></main><!-- END AUTHOR STATE booking-page choice desktop --></div></div><div class="wireframe-frame" data-wireframe-viewport="mobile" style="--wireframe-width:390px"><div class="wireframe-canvas" data-wireframe-canvas="booking-page:choice:mobile"><!-- AUTHOR STATE booking-page choice mobile --><main class="booking" data-wireframe-element="main"><h2 data-wireframe-element="heading">Votre casier</h2><button data-wireframe-element="continue" data-wireframe-primary="true">Continuer</button></main><!-- END AUTHOR STATE booking-page choice mobile --></div></div></div></section><section class="wireframe-state" data-wireframe-state="confirmed"><h3>Confirmation</h3><div class="wireframe-frames"><div class="wireframe-frame" data-wireframe-viewport="desktop" style="--wireframe-width:1440px"><div class="wireframe-canvas" data-wireframe-canvas="booking-page:confirmed:desktop"><!-- AUTHOR STATE booking-page confirmed desktop --><main class="booking" data-wireframe-element="main"><h2 data-wireframe-element="heading">Casier confirmé</h2><button data-wireframe-element="continue" data-wireframe-primary="true">Terminer</button></main><!-- END AUTHOR STATE booking-page confirmed desktop --></div></div><div class="wireframe-frame" data-wireframe-viewport="mobile" style="--wireframe-width:390px"><div class="wireframe-canvas" data-wireframe-canvas="booking-page:confirmed:mobile"><!-- AUTHOR STATE booking-page confirmed mobile --><main class="booking" data-wireframe-element="main"><h2 data-wireframe-element="heading">Casier confirmé</h2><button data-wireframe-element="continue" data-wireframe-primary="true">Terminer</button></main><!-- END AUTHOR STATE booking-page confirmed mobile --></div></div></div></section></section></main>
+  <script id="wireframe-manifest" type="application/json">{"pillars":["responsive","representative-content"],"references":[],"schemaVersion":1,"title":"Réservation","units":[{"contentScenarios":["Réservation de 24 heures"],"context":"responsive","elements":[{"id":"main","label":"Réservation","parent":null,"role":"main"},{"id":"heading","label":"Votre casier","parent":"main","role":"heading"},{"id":"continue","label":"Continuer","parent":"main","role":"button"}],"harness":{"group":"Parcours","key":"booking","label":"Réservation","route":"/reservation","source":"wireframes/booking","stateDispositions":[{"disposition":"reference-only","reason":"État conservé comme référence d’intégration","state":"confirmed"}],"theme":"default"},"id":"booking-page","initialState":"choice","primaryAction":"continue","states":[{"allowedOverlaps":[],"elementIds":["main","heading","continue"],"id":"choice","label":"Choix"},{"allowedOverlaps":[],"elementIds":["main","heading","continue"],"id":"confirmed","label":"Confirmation"}],"title":"Réservation d’un casier","transitions":[{"controlId":"continue","from":"choice","to":"confirmed","trigger":"click"}],"type":"page"}]}</script>
+  <script>
+    /* ===== AUTHOR INTERACTIONS — OPTIONAL HELPERS ONLY ===== */
+
+    /* ===== END AUTHOR INTERACTIONS ===== */
+  </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "title": "Choix d’un casier",
+  "pillars": ["responsive", "representative-content"],
+  "references": [],
+  "units": [
+    {
+      "id": "locker-card",
+      "type": "component",
+      "title": "Carte de réservation",
+      "context": "responsive",
+      "elements": [
+        {"id": "card", "role": "region", "label": "Casier Gare", "parent": null},
+        {"id": "heading", "role": "heading", "label": "Casier Gare", "parent": "card"},
+        {"id": "reserve", "role": "button", "label": "Réserver", "parent": "card"}
+      ],
+      "primaryAction": "reserve",
+      "initialState": "available",
+      "states": [
+        {"id": "available", "label": "Disponible", "elementIds": ["card", "heading", "reserve"], "allowedOverlaps": []},
+        {"id": "selected", "label": "Sélectionné", "elementIds": ["card", "heading", "reserve"], "allowedOverlaps": []}
+      ],
+      "transitions": [
+        {"from": "available", "to": "selected", "controlId": "reserve", "trigger": "click"}
+      ],
+      "contentScenarios": ["Casier disponible avec nom de lieu court"]
+    }
+  ]
+}

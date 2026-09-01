@@ -22,7 +22,9 @@ Le point de bascule est `adjust`. Avant lui, tout peut changer sans coût : les 
 
 Cette asymétrie est délibérée. Elle rend la correction bon marché tant qu'elle est précoce, et traçable une fois qu'elle est tardive. C'est aussi pourquoi `destructure` — la phase divergente, celle qui critique la direction — vit **avant** le figeage et pas après.
 
-`detail` (verbe 0) est en dehors de cette mécanique : lecture seule, aucun artefact. Il donne la carte et route une intention vers une séquence. `harness` aussi est hors entonnoir : il scaffolde une référence absente ou normalise un HTML auteur pour la rendre mesurable.
+`detail` (verbe 0) est en dehors de cette mécanique : lecture seule, aucun artefact. Il donne la carte et route une intention vers une séquence. Deux autres capacités restent hors entonnoir : `wireframes` explore la disposition, l’usage et les états d’une interface ; `harness` transforme les pages acceptées en référence multipage mesurable. Ni l’une ni l’autre n’accorde d’autorité au contrat de design.
+
+Une wireframe est d’abord faite pour être regardée et commentée, pas pour documenter l’implémentation. Son socle et ses piliers optionnels sont définis une seule fois dans [`../references/wireframe-contract.md`](../references/wireframe-contract.md). Le handoff vers le harness conserve cette frontière : seule la page et son état initial migrent comme contenu, tandis que le harness reste propriétaire de son chrome et de ses viewports.
 
 ## Le contrat
 

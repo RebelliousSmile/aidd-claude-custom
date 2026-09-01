@@ -21,4 +21,4 @@ Restitue la carte de l'entonnoir à la granularité demandée. Répond à *ce qu
 
 ## Test
 
-Demander « que fait `enforce` » rend la ligne `enforce` de la carte (rôle, entrée, sortie, artefacts, état, gate) **et** le chemin `skills/enforce/SKILL.md`, **sans** reproduire les étapes de son processus. Demander la carte sans cible rend les sept verbes, chacun une fois.
+Demander « que fait `enforce` » rend la ligne `enforce` de la carte (rôle, entrée, sortie, artefacts, état, gate) **et** le chemin `skills/enforce/SKILL.md`, **sans** reproduire les étapes de son processus. Demander la carte sans cible rend les huit capacités, chacune une fois, tout en distinguant les cinq verbes du pipeline des trois capacités hors entonnoir.

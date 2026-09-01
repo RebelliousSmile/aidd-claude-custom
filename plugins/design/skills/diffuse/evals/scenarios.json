@@ -1,6 +1,7 @@
 [
   { "prompt": "prototype ce composant card sans design system", "expect_action": "prototype" },
-  { "prompt": "crée un wireframe local sans contrat", "expect_action": "prototype" },
+  { "prompt": "crée une preview libre de ce composant sans contrat ni format de planche", "expect_action": "prototype" },
+  { "prompt": "crée une planche wireframe standardisée avec états mobile et desktop", "expect_action": null },
   { "prompt": "définis le composant card depuis le contrat figé", "expect_action": "define-element" },
   { "prompt": "diffuse le composant hero déclaré dans components.json", "expect_action": "define-element" },
   { "prompt": "rends cette spec neutre en HTML baseline", "expect_action": "render" },

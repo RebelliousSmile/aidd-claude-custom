@@ -15,6 +15,7 @@ node tools/eval/harness.mjs                 # valide les fixtures bundlées
 node tools/eval/harness.mjs <projet-dir>... # valide des projets réels
 node tools/eval/coverage.mjs                # couverture de routage (tous les skills)
 node tools/eval/selftest.mjs                # gardes : harness rejette bien les fixtures-invalid/
+node tools/eval/design-wireframes.mjs       # routes + selftest statique design:wireframes
 ```
 
 Exit `0` si tout est conforme, `1` sinon. Chaque violation est listée avec sa règle.
@@ -25,6 +26,8 @@ Trois couches de test, du plus déterministe au comportemental :
 2. **`coverage.mjs`** — chaque action *routable* (table trigger→action de `SKILL.md`) a ≥ 1 cas dans son `evals/scenarios.json`. Déterministe. Un skill dont les scénarios ciblent des actions mais dont **aucune** action routable n'est détectée (déclencheurs en frontmatter `triggers:` ou format non reconnu) sort en **⚠ non vérifiable** (ni ✓ trompeur, ni échec bloquant). Les labels `expect_action` hors table (sémantiques) sont signalés en info.
 3. **`selftest.mjs`** — garde anti-régression : vérifie que `harness` **rejette** bien les `fixtures-invalid/` (exit≠0) et **accepte** les valides, et que `coverage` passe. Déterministe.
 4. **`behavioral/`** — comportement des skills (scoring, triage, PLATEAU, déclenchements `persona:train`/`tone-finder:improve`) : spec + rubrique jugées par un LLM à la demande (voir `behavioral/README.md`). Non déterministe.
+
+`design-wireframes.mjs` rejoue le contrat de routage et le selftest portable sans navigateur. La preuve de rendu reste volontairement ciblée : `WIREFRAMES_CHROMIUM=/chemin/chromium plugins/design/tools/wireframes-browser-selftest.sh`, avec Playwright 1.60.0 disponible. Son absence sort en `2` et n’est jamais convertie en succès par le gate global.
 
 > `fixtures-invalid/` contient des projets **volontairement cassés** (3/3 non respecté, invariant plateau violé) ; ils ne sont pas validés par `harness` en direct (hors `fixtures/`) mais servent de cibles à `selftest.mjs`.
 
