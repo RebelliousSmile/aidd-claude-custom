@@ -1,6 +1,6 @@
 ---
 objective: "Les 5 issues ouvertes de la milestone GitHub design:wireframes (#19-23) sont résolues et le SKILL.md référence l'étape wireframe de aidd-dev:01-plan."
-status: in-progress
+status: implemented
 ---
 
 <!-- Fill or omit these sections; never add, rename, or reorder one. -->
