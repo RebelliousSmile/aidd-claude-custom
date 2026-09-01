@@ -1,6 +1,6 @@
 ---
 objective: "Le plugin design expose une skill wireframes qui génère, normalise et valide des planches HTML comparables, puis promeut leurs pages acceptées vers le harness sans altérer les sources."
-status: in-progress
+status: implemented
 ---
 
 # Plan: Ajouter `design:wireframes`
