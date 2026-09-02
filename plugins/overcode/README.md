@@ -28,6 +28,7 @@ Le processus de chaque skill vit dans son `SKILL.md` et ses `actions/`.
 | `foresee` | `/overcode:foresee <cible>` | Route docs/code vers AIDD ; complète l'audit de dépendances par l'horizon d'abandon, d'isolation et de migration |
 | `behave` | `/overcode:behave <action>` | Harness de tests comportementaux pour **prompts** — scaffold, run jugé, régression, review |
 | `control` | `/overcode:control <action>` | Gouvernance de la suite de tests d'un projet, bornée par une **densité** lue contre la médiane du projet et pondérée par sa **phase** déclarée. **Ne se déclenche jamais seule.** |
+| `dig` | `/overcode:dig` | Quiz interactif de cinq questions sur le code ou la mémoire du projet — difficulté adaptative, score sur 20 et rapport sourcé |
 | `web-optimize` | `/overcode:web-optimize` | Audit perf web (LCP, CLS, INP, bundle, N+1 au rendu) → roadmap priorisée |
 | `data-optimize` | `/overcode:data-optimize` | Audit perf de la couche données (N+1, index, pagination, cache, quota) |
 | `seo-optimize` | `/overcode:seo-optimize` | Audit SEO et GEO → roadmap priorisée + copy prêt à coller |

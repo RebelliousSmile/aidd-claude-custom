@@ -2,6 +2,19 @@
 
 > Baseline établie le 2026-05-29 à partir de l'état courant ; transitions récentes reprises de l'historique git. Détail antérieur : `git log -- plugins/overcode plugins/aidd-overlay` (le plugin s'appelait `aidd-overlay` avant la 3.0.0).
 
+## [Unreleased]
+
+## [5.3.0] — 2026-09-02
+
+### Added
+
+- Restauration de `dig`, le quiz interactif incarné par Ada : cinq questions sourcées sur le code ou la mémoire du projet, difficulté adaptative, score sur 20 et rapport final. La version restaurée est portable entre Codex et Claude Code et ne crée plus de tâche, de plan ou de commit sans demande explicite.
+- `status backlog` accepte désormais l'exclusion de milestones via `--exclude-milestone <titre>` ou son raccourci `--em <titre>`, avec support de plusieurs exclusions. Les milestones exclues sont retirées du backlog après application du filtre `--milestone`, et leur liste apparaît dans le rapport final.
+
+### Fixed
+
+- `alias endtask` et `harvest` suivent désormais le stockage AIDD par répertoire de feature : `plan.md` et ses `phase-<n>.md`, avec la fin portée par `status: implemented` plutôt que par un renommage `.pending.md` → `.processed.md`. `endtask` conserve le répertoire durable en place ; `harvest` le classe et le purge comme une unité après énumération explicite de ses fichiers. Les anciens `.processed.md` restent lisibles uniquement pour compatibilité.
+
 ## [5.2.0] — 2026-08-28
 
 ### Added
@@ -13,16 +26,6 @@
 
 - L’alias `mirror` résout et charge le contrat de l’agent interne `design/agents/copycat.md` avant délégation, sans appeler une skill `design:copycat` inexistante.
 - Le README et la documentation des alias décrivent la même frontière entre `overcode` et `design`.
-
-## [Unreleased]
-
-### Added
-
-- `status backlog` accepte désormais l'exclusion de milestones via `--exclude-milestone <titre>` ou son raccourci `--em <titre>`, avec support de plusieurs exclusions. Les milestones exclues sont retirées du backlog après application du filtre `--milestone`, et leur liste apparaît dans le rapport final.
-
-### Fixed
-
-- `alias endtask` et `harvest` suivent désormais le stockage AIDD par répertoire de feature : `plan.md` et ses `phase-<n>.md`, avec la fin portée par `status: implemented` plutôt que par un renommage `.pending.md` → `.processed.md`. `endtask` conserve le répertoire durable en place ; `harvest` le classe et le purge comme une unité après énumération explicite de ses fichiers. Les anciens `.processed.md` restent lisibles uniquement pour compatibilité.
 
 ## [5.0.0] — 2026-08-27
 

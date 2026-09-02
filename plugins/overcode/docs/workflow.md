@@ -18,6 +18,7 @@ Les skills s'invoquent sous la forme `/overcode:<skill>`.
 | « la fédération ActivityPub déconne » | [`ap-optimize`](#activitypub) |
 | « faut-il écrire ce test ? » | [`control`](#gouvernance-des-tests--control) |
 | « cette skill se comporte-t-elle correctement ? » | [`behave`](#tests-comportementaux--behave) |
+| « quiz-moi sur ce projet » | [`dig`](#révision-active--dig) |
 | « la mémoire projet est en vrac » | [`harvest`](#maintenance) puis [`reconcile-normative`](#maintenance) |
 | « il faut un README / un CHANGELOG » | [`readme`](#documentation) · [`changelog`](#documentation) |
 | « ce chantier est trop gros » | [`decompose`](#planification--decompose) |
@@ -126,6 +127,10 @@ Harness pour tester des **prompts** : skills, agents, workflows pilotés par le 
 | `review` | audite une suite existante — couverture comportementale + qualité par scénario (grille à 7 axes) |
 
 Pour les tests unitaires et d'intégration du code, c'est `control` puis le runner du projet — pas `behave`.
+
+## Révision active — `dig`
+
+Ada mène un quiz interactif de cinq questions, alternant QCM et questions ouvertes, à partir du code ou de la mémoire du projet. Chaque réponse est notée et expliquée depuis une source réellement lue ; la difficulté s'adapte, puis un rapport sur 20 conserve les acquis et les éventuelles incohérences observées. `dig` n'applique jamais de correction pendant le quiz.
 
 ## Maintenance
 
